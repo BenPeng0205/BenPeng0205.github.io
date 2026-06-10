@@ -295,7 +295,7 @@
       width: min(100%, 1240px);
       margin: 0 auto;
       display: grid;
-      grid-template-columns: minmax(0, 0.96fr) minmax(360px, 0.64fr);
+      grid-template-columns: minmax(360px, 0.64fr) minmax(0, 0.96fr);
       grid-template-rows: auto 1fr;
       gap: clamp(22px, 3.4vw, 54px);
       align-items: start;
@@ -303,6 +303,7 @@
 
     .hero-copy {
       padding-top: 32px;
+      justify-self: end;
     }
 
     .kicker {
@@ -349,11 +350,10 @@
     }
 
     .portrait-frame {
-      justify-self: end;
+      justify-self: start;
       width: min(100%, 390px);
       aspect-ratio: 0.82;
       display: grid;
-      place-items: center;
       overflow: hidden;
       border: 1px solid var(--line);
       border-radius: 30px;
@@ -364,20 +364,13 @@
       color: var(--muted);
     }
 
-    .portrait-placeholder {
+    .portrait-image {
       width: 100%;
       height: 100%;
-      display: grid;
-      place-items: center;
-      padding: 30px;
-      text-align: center;
-    }
-
-    .portrait-placeholder span {
-      max-width: 210px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.5;
+      object-fit: cover;
+      object-position: 31% 50%;
+      filter: saturate(0.72) contrast(0.96) brightness(1.03);
+      mix-blend-mode: multiply;
     }
 
     .focus-strip {
@@ -484,6 +477,10 @@
 
     .product-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .article-grid-single {
+      grid-template-columns: minmax(0, 0.72fr);
     }
 
     .product-grid-single {
@@ -648,7 +645,7 @@
 
     .contact-shell {
       display: grid;
-      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      grid-template-columns: minmax(280px, 0.56fr) minmax(0, 1.44fr);
       gap: 14px;
       align-items: stretch;
     }
@@ -664,8 +661,8 @@
     }
 
     .contact-lead {
-      min-height: 388px;
-      padding: clamp(28px, 4vw, 48px);
+      min-height: 454px;
+      padding: clamp(26px, 3.3vw, 40px);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -674,9 +671,9 @@
     .contact-lead h2 {
       margin: 0;
       color: #050505;
-      font-size: clamp(42px, 5vw, 72px);
+      font-size: clamp(30px, 3.2vw, 48px);
       font-weight: 250;
-      line-height: 0.98;
+      line-height: 1.04;
       letter-spacing: 0;
       text-wrap: balance;
     }
@@ -696,7 +693,7 @@
     }
 
     .contact-card {
-      min-height: 187px;
+      min-height: 220px;
       padding: 24px;
       display: flex;
       flex-direction: column;
@@ -735,20 +732,14 @@
     }
 
     .qr-slot {
-      width: 92px;
+      width: min(100%, 168px);
       aspect-ratio: 1;
-      display: grid;
-      place-items: center;
       border: 1px solid var(--line-strong);
       border-radius: 18px;
-      background:
-        linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px),
-        linear-gradient(180deg, rgba(0,0,0,0.08) 1px, transparent 1px),
-        #fff;
-      background-size: 12px 12px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 520;
+      padding: 10px;
+      background: #fff;
+      object-fit: contain;
+      align-self: flex-start;
     }
 
     .footer {
@@ -802,6 +793,10 @@
       .portrait-frame {
         justify-self: center;
         width: min(100%, 360px);
+      }
+
+      .hero-copy {
+        justify-self: start;
       }
 
       .focus-strip,
@@ -874,6 +869,7 @@
         grid-template-columns: 1fr;
       }
 
+      .article-grid-single,
       .product-grid-single {
         grid-template-columns: 1fr;
       }
@@ -940,16 +936,14 @@
     <main id="top">
       <section class="hero" aria-label="ControlRookie introduction">
         <div class="hero-inner">
+          <div class="portrait-frame" aria-label="ControlRookie portrait placeholder">
+            <img class="portrait-image" src="../../public/assets/images/brand/controlrookie-portrait.jpg" alt="ControlRookie portrait">
+          </div>
+
           <div class="hero-copy">
             <p class="kicker" data-i18n="hero.kicker">AI 自动化架构师 / 2026</p>
             <h1>ControlRookie</h1>
             <p class="subtitle" data-i18n="hero.subtitle">跟得上时代的 AI 自动化架构师。致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。</p>
-          </div>
-
-          <div class="portrait-frame" aria-label="ControlRookie portrait placeholder">
-            <div class="portrait-placeholder">
-              <span data-i18n="hero.portrait">照片占位。后续替换为 ControlRookie 个人照片。</span>
-            </div>
           </div>
 
           <div class="focus-strip" aria-label="Core domains">
@@ -999,11 +993,8 @@
           <p class="eyebrow" id="articles-title" data-i18n="articles.title">文章</p>
           <p class="section-copy" data-i18n="articles.copy">CSDN 已发布完整 CODESYS MQTT 系列；官网长期建议做主站文章，CSDN 和公众号负责分发引流。</p>
         </div>
-        <div class="article-grid">
+        <div class="article-grid article-grid-single">
           <a class="info-card" href="https://blog.csdn.net/weixin_44442562/category_13163069.html" target="_blank" rel="noreferrer"><div><small>CSDN Series</small><h3 data-i18n="article.1.title">CODESYS MQTT 系列</h3><p data-i18n="article.1.copy">已发布服务器、客户端、Broker、主题通信和排障教程，先跳转 CSDN 分类页。</p></div><footer>01 / CSDN MQTT</footer></a>
-          <article class="info-card"><div><small>Official Site</small><h3 data-i18n="article.2.title">官网原创文章</h3><p data-i18n="article.2.copy">长期建议把完整文章发布在官网，沉淀 SEO、搜索和产品转化。</p></div><footer>02 / Future CMS</footer></article>
-          <article class="info-card"><div><small>Distribution</small><h3 data-i18n="article.3.title">CSDN 与公众号分发</h3><p data-i18n="article.3.copy">CSDN 和公众号保留摘要、系列导航和外链，引流回官网专题。</p></div><footer>03 / Traffic</footer></article>
-          <article class="info-card"><div><small>Affiliate</small><h3 data-i18n="article.4.title">分账链接策略</h3><p data-i18n="article.4.copy">分账链接适合工具、云服务、课程资源推荐，不建议作为技术文章主承载。</p></div><footer>04 / Revenue</footer></article>
         </div>
       </section>
 
@@ -1031,8 +1022,8 @@
             <p class="eyebrow">ControlRookie / AI Automation Architect</p>
           </div>
           <div class="contact-grid" aria-label="Contact channels">
-            <article class="contact-card qr-card"><small>WeChat</small><strong>PeaceAndBless</strong><span data-i18n="contact.wechat">个人微信，二维码素材待替换。</span><div class="qr-slot" aria-label="WeChat QR placeholder">QR</div></article>
-            <article class="contact-card qr-card"><small>Official Account</small><strong>ControlRookie</strong><span data-i18n="contact.official">微信公众号，二维码素材待替换。</span><div class="qr-slot" aria-label="Official account QR placeholder">QR</div></article>
+            <article class="contact-card qr-card"><small>WeChat</small><strong>PeaceAndBless</strong><span data-i18n="contact.wechat">个人微信，扫码添加好友。</span><img class="qr-slot" src="../../public/assets/images/contact/wechat-peaceandbless-qr.jpg" alt="PeaceAndBless WeChat QR code"></article>
+            <article class="contact-card qr-card"><small>Official Account</small><strong>ControlRookie</strong><span data-i18n="contact.official">微信公众号，扫码关注。</span><img class="qr-slot" src="../../public/assets/images/contact/wechat-official-account-controlrookie-qr.jpg" alt="ControlRookie official account QR code"></article>
             <a class="contact-card" href="mailto:ben_peng0205@hotmail.com"><small>Email</small><strong>ben_peng0205@hotmail.com</strong><span data-i18n="contact.email">合作咨询、工具试用和工程化协作。</span></a>
             <a class="contact-card" href="https://blog.csdn.net/weixin_44442562?type=blog" target="_blank" rel="noreferrer"><small>CSDN</small><strong>ControlRookie 技术博客</strong><span data-i18n="contact.csdn">文章、教程、工程复盘和源码实践。</span></a>
           </div>
@@ -1063,7 +1054,6 @@
         "search.placeholder": "搜索文章、资源、产品",
         "hero.kicker": "AI 自动化架构师 / 2026",
         "hero.subtitle": "跟得上时代的 AI 自动化架构师。致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。",
-        "hero.portrait": "照片占位。后续替换为 ControlRookie 个人照片。",
         "focus.1.kicker": "领域 01",
         "focus.1.copy": "控制逻辑、状态机、设备通信与工程现场问题。",
         "focus.2.kicker": "领域 02",
@@ -1099,15 +1089,9 @@
         "resource.8.title": "工程资料库",
         "resource.8.copy": "手册、笔记、复盘和关键技术路线图。",
         "articles.title": "文章",
-        "articles.copy": "CSDN 已发布完整 CODESYS MQTT 系列；官网长期建议做主站文章，CSDN 和公众号负责分发引流。",
+        "articles.copy": "当前只保留已发布的 CODESYS MQTT 系列教程入口，其他文章模块暂不展示。",
         "article.1.title": "CODESYS MQTT 系列",
         "article.1.copy": "已发布服务器、客户端、Broker、主题通信和排障教程，先跳转 CSDN 分类页。",
-        "article.2.title": "官网原创文章",
-        "article.2.copy": "长期建议把完整文章发布在官网，沉淀 SEO、搜索和产品转化。",
-        "article.3.title": "CSDN 与公众号分发",
-        "article.3.copy": "CSDN 和公众号保留摘要、系列导航和外链，引流回官网专题。",
-        "article.4.title": "分账链接策略",
-        "article.4.copy": "分账链接适合工具、云服务、课程资源推荐，不建议作为技术文章主承载。",
         "products.title": "产品",
         "products.copy": "当前只展示 codesys-llm-synchronizer，其他产品先不放，后续成熟后再进入这里。",
         "product.1.copy": "面向 CODESYS / SmartControl 工程的 LLM 同步与协作工具，用于工程镜像、代码上下文、规则和自动化工作流衔接。",
@@ -1115,8 +1099,8 @@
         "contact.copy": "微信、邮箱、CSDN 和公众号入口先完整呈现，二维码图片后续替换为已保存的正式素材。",
         "contact.heading": "聊聊工程效率。",
         "contact.lead": "文章合作、工具试用、工程咨询、AI 自动化方案，可以通过微信、邮箱、CSDN 或公众号联系。",
-        "contact.wechat": "个人微信，二维码素材待替换。",
-        "contact.official": "微信公众号，二维码素材待替换。",
+        "contact.wechat": "个人微信，扫码添加好友。",
+        "contact.official": "微信公众号，扫码关注。",
         "contact.email": "合作咨询、工具试用和工程化协作。",
         "contact.csdn": "文章、教程、工程复盘和源码实践。",
         "footer.copy": "面向自动化工程师的 AI 自动化架构。",
@@ -1130,7 +1114,6 @@
         "search.placeholder": "Search articles, resources, products",
         "hero.kicker": "AI Automation Architect / 2026",
         "hero.subtitle": "An AI automation architect keeping pace with the era. ControlRookie shares source code, control ideas, algorithms, architecture, frontier technology, and AI tools to help automation engineers improve engineering efficiency.",
-        "hero.portrait": "Portrait placeholder. Replace with the ControlRookie portrait later.",
         "focus.1.kicker": "Domain 01",
         "focus.1.copy": "Control logic, state machines, device communication, and field issues.",
         "focus.2.kicker": "Domain 02",
@@ -1166,15 +1149,9 @@
         "resource.8.title": "Engineering Library",
         "resource.8.copy": "Manuals, notes, reviews, and technical roadmaps.",
         "articles.title": "Articles",
-        "articles.copy": "A complete CODESYS MQTT series is already published on CSDN. Long term, the official site should host full articles while CSDN and WeChat distribute and drive traffic.",
+        "articles.copy": "Only the published CODESYS MQTT tutorial series is shown for now. Other article modules stay hidden.",
         "article.1.title": "CODESYS MQTT Series",
         "article.1.copy": "Published tutorials cover server, client, broker, topic communication, and troubleshooting. Link to the CSDN category first.",
-        "article.2.title": "Official Articles",
-        "article.2.copy": "Long term, publish full articles on the official site to build SEO, search, and product conversion.",
-        "article.3.title": "CSDN & WeChat Distribution",
-        "article.3.copy": "Use CSDN and WeChat for summaries, series navigation, and links back to official topics.",
-        "article.4.title": "Affiliate Strategy",
-        "article.4.copy": "Affiliate links fit tools, cloud services, courses, and resource recommendations, not the main article host.",
         "products.title": "Products",
         "products.copy": "Only codesys-llm-synchronizer is shown for now. Other products stay hidden until mature.",
         "product.1.copy": "An LLM synchronization and collaboration tool for CODESYS / SmartControl projects, connecting project mirrors, code context, rules, and automation workflows.",
@@ -1182,8 +1159,8 @@
         "contact.copy": "WeChat, email, CSDN, and official account entries are shown first. QR images will be replaced with saved official assets later.",
         "contact.heading": "Talk engineering efficiency.",
         "contact.lead": "For article collaboration, tool trials, engineering consulting, or AI automation solutions, contact me via WeChat, email, CSDN, or the official account.",
-        "contact.wechat": "Personal WeChat. QR asset pending replacement.",
-        "contact.official": "Official WeChat account. QR asset pending replacement.",
+        "contact.wechat": "Personal WeChat. Scan to add.",
+        "contact.official": "Official WeChat account. Scan to follow.",
         "contact.email": "Collaboration, tool trials, and engineering work.",
         "contact.csdn": "Articles, tutorials, engineering reviews, and source code practice.",
         "footer.copy": "AI automation architecture for automation engineers.",
@@ -1224,7 +1201,7 @@
         : searchIndex.slice(0, 5);
 
       searchPanel.innerHTML = matches.length
-        ? matches.map((item, index) => `<a class="search-result${index === 0 ? " active" : ""}" href="${item.href}"><strong>${item.title[currentLang]}</strong><span>${item.type[currentLang]} · ${item.text[currentLang]}</span></a>`).join("")
+        ? matches.map((item, index) => `<a class="search-result${index === 0 ? " active" : ""}" href="${item.href}"><strong>${item.title[currentLang]}</strong><span>${item.type[currentLang]} / ${item.text[currentLang]}</span></a>`).join("")
         : `<div class="search-empty">${translations[currentLang]["search.empty"]}</div>`;
       searchPanel.classList.add("visible");
     }

@@ -82,7 +82,7 @@ controlrookie-website/
 - [ ] 替换首页照片占位为个人照片，并验证构图、裁切和加载。
 - [ ] 将代表工程资产按真实项目梳理为作品墙卡片。
 - [ ] 将资源入口拆成源代码、库文件、标准、模板、MQTT 资料、自动化脚本等类别。
-- [ ] 将文章入口优先围绕 CODESYS MQTT 系列、官网原创文章、CSDN/公众号分发、分账资源策略展开。
+- [ ] 文章入口当前只保留 CODESYS MQTT 系列；官网原创、CSDN/公众号分发和分账资源策略另行规划，不进入当前界面。
 - [ ] 产品入口当前只展示 `codesys-llm-synchronizer`，其他产品成熟后再加入。
 - [ ] 将联系入口替换为真实 CSDN、公众号、GitHub、邮箱或合作入口。
 
@@ -120,6 +120,10 @@ controlrookie-website/
 - [x] 增加中文/英文一键切换框架，中文导航改为中文。
 - [x] 将 Works 改为资源，调整资源、文章、产品、联系区内容。
 - [x] 记录微信、邮箱、CSDN、公众号和二维码素材保存需求。
+- [x] 接入个人照片、微信二维码、公众号二维码和 Logo 素材。
+- [x] 首页改为左侧照片、右侧介绍，适配照片朝向。
+- [x] Articles 仅保留 CODESYS MQTT 卡片，Products 仅保留 `codesys-llm-synchronizer`。
+- [x] 重排 Contact，让二维码保持清晰可见。
 - [ ] 进入真实内容梳理和正式前端工程方案选择。
 
 ## 风险与约束
@@ -137,3 +141,4 @@ controlrookie-website/
 - 2026-06-10：确定 Open Design 为主路线，原站 HTML 仅作视觉标尺，清理过程产物，只保留 Open Design 首页原型。
 - 2026-06-10：用户确认当前首页界面满意，固化 `prototypes/homepage-open-design/index.html` 为后续设计和正式前端工程视觉基线。
 - 2026-06-10：补充双语切换、中文导航、资源区、CODESYS MQTT 文章策略、`codesys-llm-synchronizer` 产品和真实联系信息需求。
+- 2026-06-10：接入个人照片、微信二维码、公众号二维码和 Logo 素材；调整首页照片朝向布局、文章/产品单卡策略和 Contact 二维码布局。
