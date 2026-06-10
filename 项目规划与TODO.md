@@ -62,7 +62,7 @@ controlrookie-website/
 - [x] 建立单一规划源。
 - [x] 保留并标注早期方向板不是高保真验收稿。
 - [x] 确认 FrontendDesign 前端、后端、健康检查和基础接口可正常访问。
-- [x] 确认 FrontendDesign 模型生成链路的真实阻塞：当前环境未配置供应商 API Key，不能伪造修复。
+- [x] 确认并修复 FrontendDesign 模型生成链路：从 Codex 配置同步 key/base_url/model，并补丁后端模型映射。
 - [x] 确认 Open Design daemon 可正常访问并完成真实 artifact 写入验证。
 - [x] 提交本地 Git。
 
@@ -124,4 +124,4 @@ controlrookie-website/
 
 - 2026-06-10：建立目录层级、单一规划源，明确 ForAI 高保真单页验收门禁。
 - 2026-06-10：修复 Open Design daemon 启动方式，使用 Electron Node 运行 `daemon-cli.mjs`，完成 MCP 项目创建和 HTML artifact 写入验证。
-- 2026-06-10：验证 FrontendDesign Docker 服务、健康接口、前端页面和基础接口；确认模型生成链路因缺少真实供应商 API Key 暂不可用。
+- 2026-06-10：修复 FrontendDesign 反复缺 key/模型名不匹配问题，新增 `scripts/恢复FrontendDesign.ps1`，完成 OpenAI Responses 与 FrontendDesign provider 两级真实生成验证。
