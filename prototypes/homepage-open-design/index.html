@@ -83,6 +83,14 @@
       -webkit-backdrop-filter: blur(16px) saturate(130%);
     }
 
+    .nav-actions {
+      justify-self: end;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
     .brand {
       display: inline-flex;
       align-items: center;
@@ -92,6 +100,21 @@
       font-weight: 480;
       line-height: 1;
       white-space: nowrap;
+    }
+
+    .brand-logo {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--fg);
+      border-radius: 8px;
+      background: #050505;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 560;
+      line-height: 1;
+      letter-spacing: 0;
     }
 
     .brand-dot {
@@ -125,7 +148,6 @@
     }
 
     .search-shell {
-      justify-self: end;
       position: relative;
       display: flex;
       align-items: center;
@@ -198,6 +220,27 @@
       pointer-events: none;
       transform: translateY(-6px);
       transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .lang-toggle {
+      width: 42px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--soft);
+      color: #050505;
+      font-size: 12px;
+      font-weight: 560;
+      line-height: 1;
+      transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+    }
+
+    .lang-toggle:hover {
+      transform: translateY(-1px);
+      border-color: var(--line-strong);
+      background: #e9e9e9;
     }
 
     .search-panel.visible {
@@ -443,6 +486,14 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
+    .product-grid-single {
+      grid-template-columns: minmax(0, 0.72fr);
+    }
+
+    .product-grid-single .info-card {
+      min-height: 284px;
+    }
+
     .section-tall {
       min-height: auto;
       justify-content: flex-start;
@@ -679,6 +730,27 @@
       line-height: 1.4;
     }
 
+    .qr-card {
+      gap: 18px;
+    }
+
+    .qr-slot {
+      width: 92px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 18px;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(0,0,0,0.08) 1px, transparent 1px),
+        #fff;
+      background-size: 12px 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 520;
+    }
+
     .footer {
       display: flex;
       align-items: center;
@@ -715,6 +787,12 @@
       .search-shell:focus-within,
       .search-shell.open {
         width: min(300px, 56vw);
+      }
+
+      .brand-logo {
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
       }
 
       .hero-inner {
@@ -757,7 +835,7 @@
 
       .search-shell:focus-within,
       .search-shell.open {
-        width: min(260px, 66vw);
+        width: min(230px, 56vw);
       }
 
       .hero {
@@ -793,6 +871,10 @@
       .article-grid,
       .product-grid,
       .contact-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .product-grid-single {
         grid-template-columns: 1fr;
       }
 
@@ -832,22 +914,25 @@
   <div class="site-shell">
     <header class="nav" aria-label="Primary navigation">
       <a class="brand" href="#top" aria-label="ControlRookie home">
-        <span class="brand-dot" aria-hidden="true"></span>
+        <span class="brand-logo" aria-hidden="true">CR</span>
         <span>ControlRookie</span>
       </a>
       <nav class="nav-links" aria-label="Sections">
-        <a href="#works">Works</a>
-        <a href="#articles">Articles</a>
-        <a href="#products">Products</a>
-        <a href="#contact">Contact</a>
+        <a href="#works" data-i18n="nav.resources">资源</a>
+        <a href="#articles" data-i18n="nav.articles">文章</a>
+        <a href="#products" data-i18n="nav.products">产品</a>
+        <a href="#contact" data-i18n="nav.contact">联系</a>
       </nav>
-      <div class="search-shell" id="searchShell">
-        <button class="search-icon" id="searchButton" type="button" aria-label="Search">
-          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M10.8 18.1a7.3 7.3 0 1 1 0-14.6 7.3 7.3 0 0 1 0 14.6Zm5.2-2.1 4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
-        <input class="search-input" id="siteSearch" type="search" placeholder="Search articles, tools, topics" autocomplete="off">
+      <div class="nav-actions">
+        <div class="search-shell" id="searchShell">
+          <button class="search-icon" id="searchButton" type="button" aria-label="Search">
+            <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M10.8 18.1a7.3 7.3 0 1 1 0-14.6 7.3 7.3 0 0 1 0 14.6Zm5.2-2.1 4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <input class="search-input" id="siteSearch" type="search" placeholder="搜索文章、资源、产品" autocomplete="off" data-i18n-placeholder="search.placeholder">
+        </div>
+        <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language">EN</button>
       </div>
       <div class="search-panel" id="searchPanel" aria-label="Search results"></div>
     </header>
@@ -856,37 +941,37 @@
       <section class="hero" aria-label="ControlRookie introduction">
         <div class="hero-inner">
           <div class="hero-copy">
-            <p class="kicker">AI AUTOMATION ARCHITECT / 2026</p>
+            <p class="kicker" data-i18n="hero.kicker">AI 自动化架构师 / 2026</p>
             <h1>ControlRookie</h1>
-            <p class="subtitle">跟得上时代的 AI 自动化架构师。致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。</p>
+            <p class="subtitle" data-i18n="hero.subtitle">跟得上时代的 AI 自动化架构师。致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。</p>
           </div>
 
           <div class="portrait-frame" aria-label="ControlRookie portrait placeholder">
             <div class="portrait-placeholder">
-              <span>Portrait placeholder. 后续替换为 ControlRookie 个人照片。</span>
+              <span data-i18n="hero.portrait">照片占位。后续替换为 ControlRookie 个人照片。</span>
             </div>
           </div>
 
           <div class="focus-strip" aria-label="Core domains">
             <article class="focus-card">
-              <small>Domain 01</small>
+              <small data-i18n="focus.1.kicker">领域 01</small>
               <strong>PLC</strong>
-              <span>控制逻辑、状态机、设备通信与工程现场问题。</span>
+              <span data-i18n="focus.1.copy">控制逻辑、状态机、设备通信与工程现场问题。</span>
             </article>
             <article class="focus-card">
-              <small>Domain 02</small>
+              <small data-i18n="focus.2.kicker">领域 02</small>
               <strong>AI</strong>
-              <span>Agent、自动化编程、知识蒸馏和工程提效。</span>
+              <span data-i18n="focus.2.copy">Agent、自动化编程、知识蒸馏和工程提效。</span>
             </article>
             <article class="focus-card">
-              <small>Domain 03</small>
+              <small data-i18n="focus.3.kicker">领域 03</small>
               <strong>Code</strong>
-              <span>源码开源、工具封装、脚本化和可复用工作流。</span>
+              <span data-i18n="focus.3.copy">源码开源、工具封装、脚本化和可复用工作流。</span>
             </article>
             <article class="focus-card">
-              <small>Domain 04</small>
+              <small data-i18n="focus.4.kicker">领域 04</small>
               <strong>Share</strong>
-              <span>CSDN、公众号、教程、方案和工程复盘。</span>
+              <span data-i18n="focus.4.copy">CSDN、公众号、教程、方案和工程复盘。</span>
             </article>
           </div>
         </div>
@@ -894,64 +979,62 @@
 
       <section class="section section-line section-tall fade-in" id="works" aria-labelledby="works-title">
         <div class="section-head">
-          <p class="eyebrow" id="works-title">Works</p>
-          <p class="section-copy">代表工程资产。这里先展示完整界面结构，真实链接后续再接入。</p>
+          <p class="eyebrow" id="works-title" data-i18n="resources.title">资源</p>
+          <p class="section-copy" data-i18n="resources.copy">源码、库文件、标准、模板和工程资料会统一放在这里，后续按真实链接接入。</p>
         </div>
         <div class="work-grid" aria-label="Selected ControlRookie work">
-          <article class="work-card"><div class="work-content"><span class="work-index">01 · Tool</span><strong class="work-title">SmartControl CLI</strong><span class="work-meta">工程镜像、ST 代码、编译诊断与自动化验证。</span></div></article>
-          <article class="work-card"><div class="work-content"><span class="work-index">02 · Protocol</span><strong class="work-title">CODESYS MQTT</strong><span class="work-meta">设备数据、边缘通信和工业系统接入。</span></div></article>
-          <article class="work-card"><div class="work-content"><span class="work-index">03 · Skill</span><strong class="work-title">LicOS Skills</strong><span class="work-meta">把工程规范、手册、选型和 ST 能力沉淀为 AI 技能。</span></div></article>
-          <article class="work-card"><div class="work-content"><span class="work-index">04 · Agent</span><strong class="work-title">ST Code Agent</strong><span class="work-meta">围绕 IEC 61131-3 的生成、审查、修复和验证。</span></div></article>
-          <article class="work-card"><div class="work-content"><span class="work-index">05 · Motion</span><strong class="work-title">Motion Notes</strong><span class="work-meta">SoftMotion、轴组、机器人和轨迹控制的工程笔记。</span></div></article>
-          <article class="work-card"><div class="work-content"><span class="work-index">06 · Content</span><strong class="work-title">自动化工程效率</strong><span class="work-meta">文章、教程、复盘和源码分享的专题合集。</span></div></article>
-          <article class="work-card"><div class="work-content"><span class="work-index">07 · Product</span><strong class="work-title">工程工具包</strong><span class="work-meta">面向现场工程师的脚本、模板和交付工具。</span></div></article>
-          <article class="work-card"><div class="work-content"><span class="work-index">08 · Research</span><strong class="work-title">AI x Automation</strong><span class="work-meta">控制、算法、架构与 AI 协作边界的持续研究。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index" data-i18n="resource.1.type">01 · 源代码</span><strong class="work-title" data-i18n="resource.1.title">CODESYS 示例工程</strong><span class="work-meta" data-i18n="resource.1.copy">控制逻辑、通信、状态机和工程模板源码。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index" data-i18n="resource.2.type">02 · 库文件</span><strong class="work-title" data-i18n="resource.2.title">PLC Library</strong><span class="work-meta" data-i18n="resource.2.copy">可复用功能块、通信封装和工程基础库。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index" data-i18n="resource.3.type">03 · 标准</span><strong class="work-title" data-i18n="resource.3.title">工程标准</strong><span class="work-meta" data-i18n="resource.3.copy">命名、状态机、交付、测试和文档规范。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index" data-i18n="resource.4.type">04 · 模板</span><strong class="work-title" data-i18n="resource.4.title">项目脚手架</strong><span class="work-meta" data-i18n="resource.4.copy">工程初始化、目录结构、清单和验证流程。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index" data-i18n="resource.5.type">05 · 协议</span><strong class="work-title" data-i18n="resource.5.title">MQTT 资料</strong><span class="work-meta" data-i18n="resource.5.copy">服务器、客户端、主题设计和排障资料。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index" data-i18n="resource.6.type">06 · 脚本</span><strong class="work-title" data-i18n="resource.6.title">自动化脚本</strong><span class="work-meta" data-i18n="resource.6.copy">面向工程效率的批处理、检查和生成工具。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index" data-i18n="resource.7.type">07 · AI</span><strong class="work-title" data-i18n="resource.7.title">LLM 工作流</strong><span class="work-meta" data-i18n="resource.7.copy">提示词、技能、Agent 和自动化协作规则。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index" data-i18n="resource.8.type">08 · 资料</span><strong class="work-title" data-i18n="resource.8.title">工程资料库</strong><span class="work-meta" data-i18n="resource.8.copy">手册、笔记、复盘和关键技术路线图。</span></div></article>
         </div>
       </section>
 
       <section class="section section-line fade-in" id="articles" aria-labelledby="articles-title">
         <div class="section-head">
-          <p class="eyebrow" id="articles-title">Articles</p>
-          <p class="section-copy">文章、公众号、源码和专题以卡片方式呈现，真实链接后续接入。</p>
+          <p class="eyebrow" id="articles-title" data-i18n="articles.title">文章</p>
+          <p class="section-copy" data-i18n="articles.copy">CSDN 已发布完整 CODESYS MQTT 系列；官网长期建议做主站文章，CSDN 和公众号负责分发引流。</p>
         </div>
         <div class="article-grid">
-          <article class="info-card"><div><small>Article Source</small><h3>CSDN 技术文章</h3><p>PLC、CODESYS、SmartControl、工程复盘和源码实践。</p></div><footer>01 / Blog</footer></article>
-          <article class="info-card"><div><small>Publication</small><h3>微信公众号专题</h3><p>AI 自动化、工程效率、工具构建和长期思考。</p></div><footer>02 / WeChat</footer></article>
-          <article class="info-card"><div><small>Repository</small><h3>源码与案例仓库</h3><p>模板、脚本、示例工程和可复用工作流沉淀。</p></div><footer>03 / Code</footer></article>
-          <article class="info-card"><div><small>Series</small><h3>精选路线图</h3><p>控制、算法、架构、AI 四条主线的持续更新目录。</p></div><footer>04 / Topics</footer></article>
+          <a class="info-card" href="https://blog.csdn.net/weixin_44442562/category_13163069.html" target="_blank" rel="noreferrer"><div><small>CSDN Series</small><h3 data-i18n="article.1.title">CODESYS MQTT 系列</h3><p data-i18n="article.1.copy">已发布服务器、客户端、Broker、主题通信和排障教程，先跳转 CSDN 分类页。</p></div><footer>01 / CSDN MQTT</footer></a>
+          <article class="info-card"><div><small>Official Site</small><h3 data-i18n="article.2.title">官网原创文章</h3><p data-i18n="article.2.copy">长期建议把完整文章发布在官网，沉淀 SEO、搜索和产品转化。</p></div><footer>02 / Future CMS</footer></article>
+          <article class="info-card"><div><small>Distribution</small><h3 data-i18n="article.3.title">CSDN 与公众号分发</h3><p data-i18n="article.3.copy">CSDN 和公众号保留摘要、系列导航和外链，引流回官网专题。</p></div><footer>03 / Traffic</footer></article>
+          <article class="info-card"><div><small>Affiliate</small><h3 data-i18n="article.4.title">分账链接策略</h3><p data-i18n="article.4.copy">分账链接适合工具、云服务、课程资源推荐，不建议作为技术文章主承载。</p></div><footer>04 / Revenue</footer></article>
         </div>
       </section>
 
       <section class="section section-line fade-in" id="products" aria-labelledby="products-title">
         <div class="section-head">
-          <p class="eyebrow" id="products-title">Products</p>
-          <p class="section-copy">工具、技能、程序和服务入口。先完整呈现界面与信息层级，真实购买和跳转后续接入。</p>
+          <p class="eyebrow" id="products-title" data-i18n="products.title">产品</p>
+          <p class="section-copy" data-i18n="products.copy">当前只展示 codesys-llm-synchronizer，其他产品先不放，后续成熟后再进入这里。</p>
         </div>
-        <div class="product-grid">
-          <article class="info-card"><div><small>Open Source</small><h3>开源工程资产</h3><p>可公开分享的源码、模板、脚本和示例工程，帮助工程师少走重复弯路。</p></div><footer>Free / GitHub later</footer></article>
-          <article class="info-card"><div><small>Paid Toolkit</small><h3>自动化效率工具包</h3><p>面向真实项目交付的工具、规则、清单、脚手架和验证流程。</p></div><footer>Coming soon</footer></article>
-          <article class="info-card"><div><small>Consulting</small><h3>AI 工程化咨询</h3><p>围绕控制系统、工程流程、知识库和 AI Agent 落地的定制化方案。</p></div><footer>By request</footer></article>
+        <div class="product-grid product-grid-single">
+          <article class="info-card"><div><small>Product 01</small><h3>codesys-llm-synchronizer</h3><p data-i18n="product.1.copy">面向 CODESYS / SmartControl 工程的 LLM 同步与协作工具，用于工程镜像、代码上下文、规则和自动化工作流衔接。</p></div><footer>Current / Details later</footer></article>
         </div>
       </section>
 
       <section class="section fade-in" id="contact" aria-labelledby="contact-title">
         <div class="section-head">
-          <p class="eyebrow" id="contact-title">Contact</p>
-          <p class="section-copy">联系方式保持占位，后续接入真实入口；视觉继续沿用 ForAI 的浅灰色块和克制排版。</p>
+          <p class="eyebrow" id="contact-title" data-i18n="contact.title">联系</p>
+          <p class="section-copy" data-i18n="contact.copy">微信、邮箱、CSDN 和公众号入口先完整呈现，二维码图片后续替换为已保存的正式素材。</p>
         </div>
         <div class="contact-shell">
           <div class="contact-lead">
             <div>
-              <h2>聊聊工程效率。</h2>
-              <p>文章合作、工具试用、工程咨询、AI 自动化方案都可以先占位。真实联系方式后续接入。</p>
+              <h2 data-i18n="contact.heading">聊聊工程效率。</h2>
+              <p data-i18n="contact.lead">文章合作、工具试用、工程咨询、AI 自动化方案，可以通过微信、邮箱、CSDN 或公众号联系。</p>
             </div>
             <p class="eyebrow">ControlRookie / AI Automation Architect</p>
           </div>
           <div class="contact-grid" aria-label="Contact channels">
-            <article class="contact-card"><small>CSDN</small><strong>ControlRookie 技术博客</strong><span>文章、教程、工程复盘和源码实践。</span></article>
-            <article class="contact-card"><small>WeChat</small><strong>微信公众号入口</strong><span>AI 自动化、思考、工具和专题更新。</span></article>
-            <article class="contact-card"><small>GitHub</small><strong>开源仓库入口</strong><span>模板、脚本、示例工程和可复用资产。</span></article>
-            <article class="contact-card"><small>Email</small><strong>合作咨询入口</strong><span>工具试用、方案咨询和工程化协作。</span></article>
+            <article class="contact-card qr-card"><small>WeChat</small><strong>PeaceAndBless</strong><span data-i18n="contact.wechat">个人微信，二维码素材待替换。</span><div class="qr-slot" aria-label="WeChat QR placeholder">QR</div></article>
+            <article class="contact-card qr-card"><small>Official Account</small><strong>ControlRookie</strong><span data-i18n="contact.official">微信公众号，二维码素材待替换。</span><div class="qr-slot" aria-label="Official account QR placeholder">QR</div></article>
+            <a class="contact-card" href="mailto:ben_peng0205@hotmail.com"><small>Email</small><strong>ben_peng0205@hotmail.com</strong><span data-i18n="contact.email">合作咨询、工具试用和工程化协作。</span></a>
+            <a class="contact-card" href="https://blog.csdn.net/weixin_44442562?type=blog" target="_blank" rel="noreferrer"><small>CSDN</small><strong>ControlRookie 技术博客</strong><span data-i18n="contact.csdn">文章、教程、工程复盘和源码实践。</span></a>
           </div>
         </div>
       </section>
@@ -959,7 +1042,7 @@
 
     <footer class="footer">
       <span>ControlRookie</span>
-      <span>AI automation architecture for industrial engineers.</span>
+      <span data-i18n="footer.copy">面向自动化工程师的 AI 自动化架构。</span>
     </footer>
   </div>
 
@@ -969,25 +1052,180 @@
     const searchButton = document.getElementById("searchButton");
     const searchInput = document.getElementById("siteSearch");
     const searchPanel = document.getElementById("searchPanel");
+    const langToggle = document.getElementById("langToggle");
+    let currentLang = "zh";
+    const translations = {
+      zh: {
+        "nav.resources": "资源",
+        "nav.articles": "文章",
+        "nav.products": "产品",
+        "nav.contact": "联系",
+        "search.placeholder": "搜索文章、资源、产品",
+        "hero.kicker": "AI 自动化架构师 / 2026",
+        "hero.subtitle": "跟得上时代的 AI 自动化架构师。致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。",
+        "hero.portrait": "照片占位。后续替换为 ControlRookie 个人照片。",
+        "focus.1.kicker": "领域 01",
+        "focus.1.copy": "控制逻辑、状态机、设备通信与工程现场问题。",
+        "focus.2.kicker": "领域 02",
+        "focus.2.copy": "Agent、自动化编程、知识蒸馏和工程提效。",
+        "focus.3.kicker": "领域 03",
+        "focus.3.copy": "源码开源、工具封装、脚本化和可复用工作流。",
+        "focus.4.kicker": "领域 04",
+        "focus.4.copy": "CSDN、公众号、教程、方案和工程复盘。",
+        "resources.title": "资源",
+        "resources.copy": "源码、库文件、标准、模板和工程资料会统一放在这里，后续按真实链接接入。",
+        "resource.1.type": "01 · 源代码",
+        "resource.1.title": "CODESYS 示例工程",
+        "resource.1.copy": "控制逻辑、通信、状态机和工程模板源码。",
+        "resource.2.type": "02 · 库文件",
+        "resource.2.title": "PLC Library",
+        "resource.2.copy": "可复用功能块、通信封装和工程基础库。",
+        "resource.3.type": "03 · 标准",
+        "resource.3.title": "工程标准",
+        "resource.3.copy": "命名、状态机、交付、测试和文档规范。",
+        "resource.4.type": "04 · 模板",
+        "resource.4.title": "项目脚手架",
+        "resource.4.copy": "工程初始化、目录结构、清单和验证流程。",
+        "resource.5.type": "05 · 协议",
+        "resource.5.title": "MQTT 资料",
+        "resource.5.copy": "服务器、客户端、主题设计和排障资料。",
+        "resource.6.type": "06 · 脚本",
+        "resource.6.title": "自动化脚本",
+        "resource.6.copy": "面向工程效率的批处理、检查和生成工具。",
+        "resource.7.type": "07 · AI",
+        "resource.7.title": "LLM 工作流",
+        "resource.7.copy": "提示词、技能、Agent 和自动化协作规则。",
+        "resource.8.type": "08 · 资料",
+        "resource.8.title": "工程资料库",
+        "resource.8.copy": "手册、笔记、复盘和关键技术路线图。",
+        "articles.title": "文章",
+        "articles.copy": "CSDN 已发布完整 CODESYS MQTT 系列；官网长期建议做主站文章，CSDN 和公众号负责分发引流。",
+        "article.1.title": "CODESYS MQTT 系列",
+        "article.1.copy": "已发布服务器、客户端、Broker、主题通信和排障教程，先跳转 CSDN 分类页。",
+        "article.2.title": "官网原创文章",
+        "article.2.copy": "长期建议把完整文章发布在官网，沉淀 SEO、搜索和产品转化。",
+        "article.3.title": "CSDN 与公众号分发",
+        "article.3.copy": "CSDN 和公众号保留摘要、系列导航和外链，引流回官网专题。",
+        "article.4.title": "分账链接策略",
+        "article.4.copy": "分账链接适合工具、云服务、课程资源推荐，不建议作为技术文章主承载。",
+        "products.title": "产品",
+        "products.copy": "当前只展示 codesys-llm-synchronizer，其他产品先不放，后续成熟后再进入这里。",
+        "product.1.copy": "面向 CODESYS / SmartControl 工程的 LLM 同步与协作工具，用于工程镜像、代码上下文、规则和自动化工作流衔接。",
+        "contact.title": "联系",
+        "contact.copy": "微信、邮箱、CSDN 和公众号入口先完整呈现，二维码图片后续替换为已保存的正式素材。",
+        "contact.heading": "聊聊工程效率。",
+        "contact.lead": "文章合作、工具试用、工程咨询、AI 自动化方案，可以通过微信、邮箱、CSDN 或公众号联系。",
+        "contact.wechat": "个人微信，二维码素材待替换。",
+        "contact.official": "微信公众号，二维码素材待替换。",
+        "contact.email": "合作咨询、工具试用和工程化协作。",
+        "contact.csdn": "文章、教程、工程复盘和源码实践。",
+        "footer.copy": "面向自动化工程师的 AI 自动化架构。",
+        "search.empty": "没有匹配结果。可以尝试 PLC、AI、CODESYS、MQTT、资源、产品。"
+      },
+      en: {
+        "nav.resources": "Resources",
+        "nav.articles": "Articles",
+        "nav.products": "Products",
+        "nav.contact": "Contact",
+        "search.placeholder": "Search articles, resources, products",
+        "hero.kicker": "AI Automation Architect / 2026",
+        "hero.subtitle": "An AI automation architect keeping pace with the era. ControlRookie shares source code, control ideas, algorithms, architecture, frontier technology, and AI tools to help automation engineers improve engineering efficiency.",
+        "hero.portrait": "Portrait placeholder. Replace with the ControlRookie portrait later.",
+        "focus.1.kicker": "Domain 01",
+        "focus.1.copy": "Control logic, state machines, device communication, and field issues.",
+        "focus.2.kicker": "Domain 02",
+        "focus.2.copy": "Agents, automated programming, knowledge distillation, and engineering efficiency.",
+        "focus.3.kicker": "Domain 03",
+        "focus.3.copy": "Open source code, tool packaging, scripts, and reusable workflows.",
+        "focus.4.kicker": "Domain 04",
+        "focus.4.copy": "CSDN, WeChat articles, tutorials, solutions, and engineering reviews.",
+        "resources.title": "Resources",
+        "resources.copy": "Source code, libraries, standards, templates, and engineering references will be organized here with real links later.",
+        "resource.1.type": "01 · Source",
+        "resource.1.title": "CODESYS Examples",
+        "resource.1.copy": "Control logic, communication, state machines, and project templates.",
+        "resource.2.type": "02 · Library",
+        "resource.2.title": "PLC Library",
+        "resource.2.copy": "Reusable function blocks, communication wrappers, and base libraries.",
+        "resource.3.type": "03 · Standard",
+        "resource.3.title": "Engineering Standards",
+        "resource.3.copy": "Naming, state machines, delivery, testing, and documentation rules.",
+        "resource.4.type": "04 · Template",
+        "resource.4.title": "Project Scaffold",
+        "resource.4.copy": "Initialization, folder structure, checklists, and validation workflows.",
+        "resource.5.type": "05 · Protocol",
+        "resource.5.title": "MQTT Resources",
+        "resource.5.copy": "Server, client, topic design, and troubleshooting references.",
+        "resource.6.type": "06 · Script",
+        "resource.6.title": "Automation Scripts",
+        "resource.6.copy": "Batch, checking, and generation tools for engineering efficiency.",
+        "resource.7.type": "07 · AI",
+        "resource.7.title": "LLM Workflows",
+        "resource.7.copy": "Prompts, skills, agents, and automation collaboration rules.",
+        "resource.8.type": "08 · Reference",
+        "resource.8.title": "Engineering Library",
+        "resource.8.copy": "Manuals, notes, reviews, and technical roadmaps.",
+        "articles.title": "Articles",
+        "articles.copy": "A complete CODESYS MQTT series is already published on CSDN. Long term, the official site should host full articles while CSDN and WeChat distribute and drive traffic.",
+        "article.1.title": "CODESYS MQTT Series",
+        "article.1.copy": "Published tutorials cover server, client, broker, topic communication, and troubleshooting. Link to the CSDN category first.",
+        "article.2.title": "Official Articles",
+        "article.2.copy": "Long term, publish full articles on the official site to build SEO, search, and product conversion.",
+        "article.3.title": "CSDN & WeChat Distribution",
+        "article.3.copy": "Use CSDN and WeChat for summaries, series navigation, and links back to official topics.",
+        "article.4.title": "Affiliate Strategy",
+        "article.4.copy": "Affiliate links fit tools, cloud services, courses, and resource recommendations, not the main article host.",
+        "products.title": "Products",
+        "products.copy": "Only codesys-llm-synchronizer is shown for now. Other products stay hidden until mature.",
+        "product.1.copy": "An LLM synchronization and collaboration tool for CODESYS / SmartControl projects, connecting project mirrors, code context, rules, and automation workflows.",
+        "contact.title": "Contact",
+        "contact.copy": "WeChat, email, CSDN, and official account entries are shown first. QR images will be replaced with saved official assets later.",
+        "contact.heading": "Talk engineering efficiency.",
+        "contact.lead": "For article collaboration, tool trials, engineering consulting, or AI automation solutions, contact me via WeChat, email, CSDN, or the official account.",
+        "contact.wechat": "Personal WeChat. QR asset pending replacement.",
+        "contact.official": "Official WeChat account. QR asset pending replacement.",
+        "contact.email": "Collaboration, tool trials, and engineering work.",
+        "contact.csdn": "Articles, tutorials, engineering reviews, and source code practice.",
+        "footer.copy": "AI automation architecture for automation engineers.",
+        "search.empty": "No results. Try PLC, AI, CODESYS, MQTT, resources, or product."
+      }
+    };
     const searchIndex = [
-      { title: "CSDN 技术文章", type: "Article", text: "PLC CODESYS SmartControl 工程复盘 源码实践", href: "#articles" },
-      { title: "微信公众号专题", type: "Article", text: "AI 自动化 工程效率 工具 长期思考", href: "#articles" },
-      { title: "源码与案例仓库", type: "Code", text: "模板 脚本 示例工程 工作流", href: "#articles" },
-      { title: "SmartControl CLI", type: "Tool", text: "ST 代码 编译诊断 自动化验证", href: "#works" },
-      { title: "CODESYS MQTT", type: "Protocol", text: "设备数据 边缘通信 工业系统接入", href: "#works" },
-      { title: "自动化效率工具包", type: "Product", text: "工具 规则 清单 脚手架 验证流程", href: "#products" },
-      { title: "AI 工程化咨询", type: "Service", text: "控制系统 工程流程 知识库 Agent", href: "#products" }
+      { title: { zh: "CODESYS MQTT 系列", en: "CODESYS MQTT Series" }, type: { zh: "文章", en: "Article" }, text: { zh: "服务器 客户端 Broker 主题通信 排障 CSDN", en: "server client broker topic troubleshooting CSDN" }, href: "#articles" },
+      { title: { zh: "资源库", en: "Resources" }, type: { zh: "资源", en: "Resource" }, text: { zh: "源代码 库文件 标准 模板 MQTT 资料 脚本", en: "source code libraries standards templates MQTT scripts" }, href: "#works" },
+      { title: { zh: "codesys-llm-synchronizer", en: "codesys-llm-synchronizer" }, type: { zh: "产品", en: "Product" }, text: { zh: "CODESYS SmartControl LLM 同步 工程镜像 工作流", en: "CODESYS SmartControl LLM sync project mirror workflow" }, href: "#products" },
+      { title: { zh: "微信 PeaceAndBless", en: "WeChat PeaceAndBless" }, type: { zh: "联系", en: "Contact" }, text: { zh: "个人微信 二维码", en: "personal WeChat QR" }, href: "#contact" },
+      { title: { zh: "邮箱 ben_peng0205@hotmail.com", en: "Email ben_peng0205@hotmail.com" }, type: { zh: "联系", en: "Contact" }, text: { zh: "合作咨询 工具试用", en: "collaboration consulting tool trial" }, href: "#contact" },
+      { title: { zh: "微信公众号 ControlRookie", en: "Official Account ControlRookie" }, type: { zh: "联系", en: "Contact" }, text: { zh: "公众号 二维码", en: "official account QR" }, href: "#contact" },
+      { title: { zh: "CSDN 技术博客", en: "CSDN Blog" }, type: { zh: "文章", en: "Article" }, text: { zh: "ControlRookie 技术博客 工程复盘", en: "ControlRookie blog engineering review" }, href: "#contact" }
     ];
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+      document.querySelectorAll("[data-i18n]").forEach((node) => {
+        const key = node.dataset.i18n;
+        if (translations[lang][key]) node.textContent = translations[lang][key];
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
+        const key = node.dataset.i18nPlaceholder;
+        if (translations[lang][key]) node.setAttribute("placeholder", translations[lang][key]);
+      });
+      langToggle.textContent = lang === "zh" ? "EN" : "中";
+      if (searchShell.classList.contains("open") || searchPanel.classList.contains("visible") || document.activeElement === searchInput) {
+        renderSearch(searchInput.value);
+      }
+    }
 
     function renderSearch(query) {
       const keyword = query.trim().toLowerCase();
       const matches = keyword
-        ? searchIndex.filter(item => `${item.title} ${item.type} ${item.text}`.toLowerCase().includes(keyword))
+        ? searchIndex.filter(item => `${item.title.zh} ${item.title.en} ${item.type.zh} ${item.type.en} ${item.text.zh} ${item.text.en}`.toLowerCase().includes(keyword))
         : searchIndex.slice(0, 5);
 
       searchPanel.innerHTML = matches.length
-        ? matches.map((item, index) => `<a class="search-result${index === 0 ? " active" : ""}" href="${item.href}"><strong>${item.title}</strong><span>${item.type} · ${item.text}</span></a>`).join("")
-        : `<div class="search-empty">没有匹配结果。可以尝试 PLC、AI、CODESYS、工具、文章。</div>`;
+        ? matches.map((item, index) => `<a class="search-result${index === 0 ? " active" : ""}" href="${item.href}"><strong>${item.title[currentLang]}</strong><span>${item.type[currentLang]} · ${item.text[currentLang]}</span></a>`).join("")
+        : `<div class="search-empty">${translations[currentLang]["search.empty"]}</div>`;
       searchPanel.classList.add("visible");
     }
 
@@ -1001,6 +1239,10 @@
     searchInput.addEventListener("focus", () => {
       searchShell.classList.add("open");
       renderSearch(searchInput.value);
+    });
+
+    langToggle.addEventListener("click", () => {
+      applyLanguage(currentLang === "zh" ? "en" : "zh");
     });
 
     document.addEventListener("click", (event) => {
@@ -1024,6 +1266,8 @@
     } else {
       revealItems.forEach((item) => item.classList.add("visible"));
     }
+
+    applyLanguage("zh");
   </script>
 </body>
 </html>
