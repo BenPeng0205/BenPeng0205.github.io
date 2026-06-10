@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ControlRookie 个人网站高保真方向预览</title>
+  <style>
+    :root {
+      --ink: #11110f;
+      --paper: #f4f0e8;
+      --panel: #fffaf0;
+      --line: rgba(17, 17, 15, .16);
+      --muted: #6c695f;
+      --red: #e13b2b;
+      --green: #18a66a;
+      --gold: #b9862c;
+      --cyan: #2f9aa0;
+      --shadow: 0 22px 60px rgba(17, 17, 15, .14);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(17,17,15,.055) 1px, transparent 1px) 0 0 / 64px 64px,
+        linear-gradient(rgba(17,17,15,.04) 1px, transparent 1px) 0 0 / 64px 64px,
+        var(--paper);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+      line-height: 1.55;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    .shell { width: min(1600px, calc(100% - 40px)); margin: 0 auto; }
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      height: 64px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(244, 240, 232, .86);
+      backdrop-filter: blur(14px);
+    }
+    .nav .shell {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+    .mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+      font: 800 14px/1.1 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    .links { display: flex; gap: 24px; color: var(--muted); font-size: 14px; }
+    .links a:hover { color: var(--ink); }
+
+    .hero {
+      min-height: calc(100dvh - 64px);
+      display: grid;
+      align-items: end;
+      padding: 44px 0 28px;
+      border-bottom: 1px solid var(--line);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(420px, .85fr);
+      gap: 28px;
+      align-items: end;
+    }
+    .eyebrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font: 700 13px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
+    }
+    .eyebrow span {
+      border: 1px solid var(--line);
+      background: rgba(255,250,240,.72);
+      padding: 8px 10px;
+    }
+    h1 {
+      margin: 0;
+      max-width: 980px;
+      font-size: clamp(54px, 9vw, 132px);
+      line-height: .88;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+    .lead {
+      max-width: 860px;
+      margin: 26px 0 0;
+      color: #26231e;
+      font-size: clamp(19px, 2.1vw, 30px);
+      line-height: 1.35;
+      font-weight: 650;
+    }
+    .vision {
+      max-width: 880px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+      font-weight: 800;
+      transition: transform .18s ease, background .18s ease;
+    }
+    .btn.secondary { background: transparent; color: var(--ink); }
+    .btn:hover { transform: translateY(-2px); }
+
+    .control-visual {
+      min-height: 650px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--ink);
+      background:
+        linear-gradient(135deg, rgba(225,59,43,.1), transparent 34%),
+        linear-gradient(315deg, rgba(24,166,106,.12), transparent 38%),
+        #171611;
+      color: #f8f2e6;
+      box-shadow: var(--shadow);
+    }
+    .visual-top {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      border-bottom: 1px solid rgba(248,242,230,.18);
+      font: 700 12px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      color: rgba(248,242,230,.75);
+    }
+    .scan {
+      position: absolute;
+      inset: 44px 0 auto;
+      height: 130px;
+      background: linear-gradient(180deg, rgba(47,154,160,0), rgba(47,154,160,.16), rgba(47,154,160,0));
+      animation: scan 5.8s linear infinite;
+    }
+    @keyframes scan {
+      from { transform: translateY(-140px); }
+      to { transform: translateY(660px); }
+    }
+    .ladder {
+      position: absolute;
+      inset: 92px 28px 28px;
+      display: grid;
+      grid-template-rows: repeat(8, 1fr);
+      gap: 16px;
+    }
+    .rung {
+      position: relative;
+      border-top: 1px solid rgba(248,242,230,.38);
+      border-bottom: 1px solid rgba(248,242,230,.12);
+    }
+    .rung::before, .rung::after {
+      content: "";
+      position: absolute;
+      top: -1px;
+      bottom: -1px;
+      width: 1px;
+      background: rgba(248,242,230,.42);
+    }
+    .rung::before { left: 0; }
+    .rung::after { right: 0; }
+    .node {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 6px 8px;
+      border: 1px solid rgba(248,242,230,.35);
+      background: rgba(17,17,15,.72);
+      font: 700 12px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      white-space: nowrap;
+    }
+    .node.ok { color: #4cff9d; border-color: rgba(76,255,157,.45); }
+    .node.warn { color: #ffce57; border-color: rgba(255,206,87,.5); }
+    .node.red { color: #ff6b5a; border-color: rgba(255,107,90,.5); }
+    .status-panel {
+      position: absolute;
+      right: 28px;
+      bottom: 28px;
+      width: min(360px, calc(100% - 56px));
+      border: 1px solid rgba(248,242,230,.24);
+      background: rgba(17,17,15,.82);
+      padding: 18px;
+    }
+    .status-panel h3 { margin: 0 0 10px; font-size: 18px; }
+    .metric-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 9px 0;
+      border-top: 1px solid rgba(248,242,230,.12);
+      color: rgba(248,242,230,.78);
+      font-size: 13px;
+    }
+    .metric-row strong { color: #4cff9d; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+
+    .marquee {
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+      background: var(--ink);
+      color: var(--paper);
+      white-space: nowrap;
+    }
+    .marquee-track {
+      display: inline-flex;
+      gap: 32px;
+      padding: 14px 0;
+      animation: marquee 28s linear infinite;
+      font: 800 14px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    @keyframes marquee { to { transform: translateX(-50%); } }
+
+    section { padding: 86px 0; border-bottom: 1px solid var(--line); }
+    .section-head {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 42px;
+      margin-bottom: 34px;
+    }
+    .kicker {
+      color: var(--red);
+      font: 900 13px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
+    }
+    h2 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 72px);
+      line-height: .98;
+      letter-spacing: 0;
+    }
+    .section-copy { color: var(--muted); max-width: 780px; margin-top: 16px; }
+
+    .persona-grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 18px;
+    }
+    .big-card, .card {
+      border: 1px solid var(--line);
+      background: rgba(255,250,240,.76);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .big-card { min-height: 360px; display: grid; align-content: space-between; }
+    .quote {
+      font-size: clamp(28px, 4vw, 56px);
+      line-height: 1.04;
+      font-weight: 900;
+      max-width: 920px;
+    }
+    .evidence {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .evidence .card { min-height: 174px; }
+    .card .num {
+      display: block;
+      margin-bottom: 20px;
+      color: var(--red);
+      font: 900 30px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    .card h3 { margin: 0 0 10px; font-size: 22px; }
+    .card p { margin: 0; color: var(--muted); font-size: 15px; }
+
+    .style-board {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+    .style-card {
+      min-height: 260px;
+      border: 1px solid var(--ink);
+      background: var(--panel);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .style-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .span-5 { grid-column: span 5; }
+    .span-4 { grid-column: span 4; }
+    .span-3 { grid-column: span 3; }
+    .style-card.dark { background: var(--ink); color: var(--paper); }
+    .style-card.red { background: var(--red); color: var(--paper); }
+    .style-card.green { background: var(--green); color: #06120c; }
+    .style-card h3 { margin: 0; font-size: 28px; line-height: 1.05; }
+    .style-card p { margin: 18px 0 0; color: currentColor; opacity: .72; }
+
+    .site-map {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .map-card {
+      min-height: 430px;
+      border: 1px solid var(--line);
+      background: rgba(255,250,240,.78);
+      padding: 20px;
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .map-card h3 { margin: 0; font-size: 26px; line-height: 1.08; }
+    .map-card ul { margin: 22px 0 0; padding: 0; list-style: none; color: var(--muted); }
+    .map-card li { padding: 10px 0; border-top: 1px solid var(--line); }
+    .tag {
+      display: inline-flex;
+      align-self: flex-start;
+      border: 1px solid var(--ink);
+      padding: 6px 8px;
+      font: 800 12px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    .prototype {
+      border: 1px solid var(--ink);
+      background: #f9f5ec;
+      box-shadow: var(--shadow);
+    }
+    .proto-nav {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--line);
+      font-weight: 800;
+    }
+    .proto-body {
+      min-height: 720px;
+      display: grid;
+      grid-template-columns: .8fr 1.2fr;
+      gap: 0;
+    }
+    .proto-left {
+      padding: 38px 26px;
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .proto-title {
+      margin: 0;
+      font-size: clamp(42px, 7vw, 96px);
+      line-height: .9;
+      font-weight: 900;
+    }
+    .proto-right {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-auto-rows: 1fr;
+    }
+    .proto-tile {
+      min-height: 240px;
+      padding: 24px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      position: relative;
+      overflow: hidden;
+    }
+    .proto-tile:nth-child(2n) { border-right: 0; }
+    .proto-tile h4 { margin: 0 0 12px; font-size: 24px; }
+    .proto-tile p { margin: 0; color: var(--muted); }
+    .proto-tile::after {
+      content: attr(data-index);
+      position: absolute;
+      right: 18px;
+      bottom: 8px;
+      font: 900 76px/.8 ui-monospace, SFMono-Regular, Consolas, monospace;
+      color: rgba(17,17,15,.08);
+    }
+    .code-lines {
+      margin-top: 28px;
+      padding: 16px;
+      background: var(--ink);
+      color: #74ffac;
+      font: 12px/1.7 ui-monospace, SFMono-Regular, Consolas, monospace;
+      overflow: hidden;
+    }
+
+    .decision {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .decision .card { min-height: 300px; }
+    .score {
+      margin-top: 18px;
+      display: grid;
+      gap: 8px;
+    }
+    .bar {
+      height: 8px;
+      background: rgba(17,17,15,.1);
+      overflow: hidden;
+    }
+    .bar span { display: block; height: 100%; background: var(--red); }
+
+    .footer {
+      padding: 42px 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .links { display: none; }
+      .hero-grid, .persona-grid, .section-head, .proto-body, .decision { grid-template-columns: 1fr; }
+      .control-visual { min-height: 540px; }
+      .evidence, .site-map { grid-template-columns: 1fr; }
+      .style-board { grid-template-columns: 1fr; }
+      .span-5, .span-4, .span-3 { grid-column: span 1; }
+      .proto-left { border-right: 0; border-bottom: 1px solid var(--line); }
+      .proto-right { grid-template-columns: 1fr; }
+      .proto-tile { border-right: 0; }
+      .footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="shell">
+      <a class="brand" href="#top"><span class="mark">CR</span><span>ControlRookie</span></a>
+      <div class="links">
+        <a href="#persona">画像</a>
+        <a href="#style">风格</a>
+        <a href="#map">信息架构</a>
+        <a href="#prototype">首页原型</a>
+        <a href="#decision">可行性</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top">
+    <header class="hero">
+      <div class="shell hero-grid">
+        <div>
+          <div class="eyebrow">
+            <span>AI Automation Architect</span>
+            <span>PLC / CODESYS / MQTT</span>
+            <span>Open Source Engineering</span>
+          </div>
+          <h1>跟得上时代的 AI 自动化架构师</h1>
+          <p class="lead">ControlRookie 把工业控制、算法、工程架构、AI 工具链和开源源码，压缩成自动化工程师真正能拿去提效的现场方案。</p>
+          <p class="vision">愿景：帮助处在水深火热之中的自动化工程师，从写程序、排故障、做文档、选型、发布工具到构建 AI 工作流，全方位提升工程效率。</p>
+          <div class="hero-actions">
+            <a class="btn" href="#prototype">查看首页方案</a>
+            <a class="btn secondary" href="#map">浏览内容结构</a>
+          </div>
+        </div>
+
+        <div class="control-visual" aria-label="工业控制与 AI 自动化视觉系统">
+          <div class="visual-top"><span>CONTROLROOKIE.RUNTIME</span><span>SCAN 10ms</span></div>
+          <div class="scan"></div>
+          <div class="ladder">
+            <div class="rung"><span class="node ok" style="left:8%">MQTT.CONNECT</span><span class="node" style="left:45%">FB_StateMachine</span></div>
+            <div class="rung"><span class="node" style="left:18%">QoS1_ACK</span><span class="node ok" style="left:62%">Broker Slot 05</span></div>
+            <div class="rung"><span class="node warn" style="left:10%">Topic Filter</span><span class="node" style="left:54%">PLC Edge</span></div>
+            <div class="rung"><span class="node ok" style="left:26%">AI Review Gate</span><span class="node" style="left:70%">0 Error</span></div>
+            <div class="rung"><span class="node red" style="left:14%">Timeout Trace</span><span class="node ok" style="left:52%">Recovered</span></div>
+            <div class="rung"><span class="node" style="left:22%">SmartControl CLI</span><span class="node ok" style="left:68%">Evidence</span></div>
+            <div class="rung"><span class="node" style="left:8%">Doc Pipeline</span><span class="node warn" style="left:50%">CSDN / WeChat</span></div>
+            <div class="rung"><span class="node ok" style="left:30%">Open Source</span><span class="node" style="left:66%">Productize</span></div>
+          </div>
+          <div class="status-panel">
+            <h3>首屏记忆点</h3>
+            <div class="metric-row"><span>定位清晰度</span><strong>HIGH</strong></div>
+            <div class="metric-row"><span>工程可信度</span><strong>REAL</strong></div>
+            <div class="metric-row"><span>商业化入口</span><strong>READY</strong></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="marquee">
+      <div class="shell">
+        <div class="marquee-track">
+          <span>CODESYS MQTT</span><span>PLC Broker</span><span>SmartControl CLI</span><span>LicOS Skills</span><span>AI Workflow</span><span>Technical Publishing</span>
+          <span>CODESYS MQTT</span><span>PLC Broker</span><span>SmartControl CLI</span><span>LicOS Skills</span><span>AI Workflow</span><span>Technical Publishing</span>
+        </div>
+      </div>
+    </div>
+
+    <section id="persona">
+      <div class="shell">
+        <div class="section-head">
+          <div class="kicker">01 / Persona</div>
+          <div>
+            <h2>你的画像不是“个人博客作者”，而是工业 AI 工程体系的构建者。</h2>
+            <p class="section-copy">从全局规则、本地产品仓库、CSDN 内容和你给出的定位看，核心竞争力是“工程现场理解 + AI 工具链建设 + 内容公开分享 + 产品化意识”。</p>
+          </div>
+        </div>
+
+        <div class="persona-grid">
+          <div class="big-card">
+            <div class="quote">能把 PLC、协议、工具、文档、AI Agent 和发布链路串成一个可验证闭环的人。</div>
+            <p>网站首屏应该直接建立这个判断，不要先做泛泛的“你好，我是谁”。</p>
+          </div>
+          <div class="evidence">
+            <div class="card"><span class="num">15</span><h3>CodeSys MQTT 专栏</h3><p>内容围绕开源客户端、Broker、状态机、Topic Filter、QoS 和现场排障。</p></div>
+            <div class="card"><span class="num">0→1</span><h3>工具产品化</h3><p>CodeSys LLM Synchronizer、SmartControl CLI、LicOS 技能体系已经形成产品资产。</p></div>
+            <div class="card"><span class="num">Gate</span><h3>强验证偏好</h3><p>全局规则强调真实业务链路、质量门禁、自动化验证和中文交付。</p></div>
+            <div class="card"><span class="num">AI</span><h3>自动化架构</h3><p>不是“用 AI 写代码”，而是建设 Skill、Agent、CLI、记忆、评测、发布系统。</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="style">
+      <div class="shell">
+        <div class="section-head">
+          <div class="kicker">02 / Style Collision</div>
+          <div>
+            <h2>总体采用 ForAI 的克制高级感，首屏吸收花生的个人叙事效率。</h2>
+            <p class="section-copy">建议不复制 ForAI 的“AI 设计工作室”内容，而复用它的黑白极简、强网格、大字号、项目墙、横向滚动和微交互；花生首页适合借鉴“人物身份一秒建立”的方式。</p>
+          </div>
+        </div>
+
+        <div class="style-board">
+          <article class="style-card dark span-5">
+            <div class="tag">ForAI Base</div>
+            <div><h3>黑白极简 + 大字号 + 案例墙</h3><p>用于建立高级、锋利、AI 原生的整体气质。</p></div>
+          </article>
+          <article class="style-card red span-4">
+            <div class="tag">Industrial Accent</div>
+            <div><h3>工业警示红作为行动色</h3><p>按钮、状态、重点词、产品价格/购买入口使用。</p></div>
+          </article>
+          <article class="style-card green span-3">
+            <div class="tag">PLC Signal</div>
+            <div><h3>运行态绿色作为可信信号</h3><p>用于验证通过、开源、工具可用、工程闭环。</p></div>
+          </article>
+          <article class="style-card span-4">
+            <div class="tag">Huasheng Hero</div>
+            <div><h3>个人定位先于功能介绍</h3><p>第一屏只讲身份、愿景、解决谁的问题，不铺满功能清单。</p></div>
+          </article>
+          <article class="style-card span-5">
+            <div class="tag">Motion</div>
+            <div><h3>滚动时像扫描 PLC 程序一样推进</h3><p>不是炫技动画，而是让状态机、协议链、产品卡片跟随滚动被激活。</p></div>
+          </article>
+          <article class="style-card span-3">
+            <div class="tag">Voice</div>
+            <div><h3>工程判断短句</h3><p>少口号，多结论。少装饰，多证据。</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="map">
+      <div class="shell">
+        <div class="section-head">
+          <div class="kicker">03 / Site Architecture</div>
+          <div>
+            <h2>前期做轻站点，核心是“人、文章、产品、联系”四条转化线。</h2>
+            <p class="section-copy">博客前期跳 CSDN/公众号，产品前期展示工具、技能、程序、服务化能力；后期再把内容和购买体系迁回站内。</p>
+          </div>
+        </div>
+
+        <div class="site-map">
+          <article class="map-card"><div><span class="tag">Home</span><h3>个人首页</h3><ul><li>一句定位</li><li>愿景与目标人群</li><li>代表项目动态墙</li><li>最新文章入口</li></ul></div><p>目标：3 秒内建立“可信工程型 AI 自动化架构师”。</p></article>
+          <article class="map-card"><div><span class="tag">Blog</span><h3>文章与专栏</h3><ul><li>CSDN 专栏跳转</li><li>微信公众号入口</li><li>精选文章卡片</li><li>后期站内归档</li></ul></div><p>目标：沉淀影响力和搜索流量。</p></article>
+          <article class="map-card"><div><span class="tag">Products</span><h3>工具与产品</h3><ul><li>CodeSys 同步工具</li><li>SmartControl CLI</li><li>LicOS 技能包</li><li>技术写作/发布链工具</li></ul></div><p>目标：把开源、试用、购买、咨询串起来。</p></article>
+          <article class="map-card"><div><span class="tag">Contact</span><h3>联系方式</h3><ul><li>微信/公众号</li><li>CSDN</li><li>GitHub/仓库</li><li>合作与工具购买</li></ul></div><p>目标：降低找你、咨询你、购买你工具的摩擦。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="prototype">
+      <div class="shell">
+        <div class="section-head">
+          <div class="kicker">04 / Homepage Preview</div>
+          <div>
+            <h2>首页原型：一个人设首屏 + 一个作品系统 + 一个转化尾部。</h2>
+            <p class="section-copy">这不是最终视觉稿，但已经给出信息密度、组件关系和动效方向。后续正式实现时，ForAI 的作品墙可以替换为你的工具/技能/文章卡片。</p>
+          </div>
+        </div>
+
+        <div class="prototype">
+          <div class="proto-nav"><span>ControlRookie</span><span>Blog / Products / Contact</span></div>
+          <div class="proto-body">
+            <div class="proto-left">
+              <div>
+                <p class="kicker">AI 自动化架构师</p>
+                <h3 class="proto-title">工业控制现场的 AI 提效入口。</h3>
+                <p class="section-copy">开源源码、工程工具、技术文章、自动化工作流和产品服务聚合在同一个入口。</p>
+              </div>
+              <div class="code-lines">
+                PROGRAM ControlRookieSite<br>
+                VAR<br>
+                &nbsp;&nbsp;定位 := "AI Automation Architect";<br>
+                &nbsp;&nbsp;目标 := "让自动化工程师少踩坑";<br>
+                &nbsp;&nbsp;验证 := TRUE;<br>
+                END_VAR
+              </div>
+            </div>
+            <div class="proto-right">
+              <article class="proto-tile" data-index="01"><h4>CodeSys MQTT</h4><p>从 MQTT Client 到 PLC 侧轻量 Broker，强调源码可读、可排障、可扩展。</p></article>
+              <article class="proto-tile" data-index="02"><h4>SmartControl CLI</h4><p>让 VSCode + Codex 驱动真实 SmartControl 完成 ST 工程闭环。</p></article>
+              <article class="proto-tile" data-index="03"><h4>LicOS Skills</h4><p>选型、ST、运动控制、文档、PPT 等工程技能包作为产品展示。</p></article>
+              <article class="proto-tile" data-index="04"><h4>文章系统</h4><p>精选 CSDN 与公众号内容，后期再迁移站内归档和搜索。</p></article>
+              <article class="proto-tile" data-index="05"><h4>工具销售</h4><p>开源、试用、付费版、定制咨询四种路径分层展示。</p></article>
+              <article class="proto-tile" data-index="06"><h4>联系入口</h4><p>微信、公众号、CSDN、GitHub、商务合作用统一联系模块承接。</p></article>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="decision">
+      <div class="shell">
+        <div class="section-head">
+          <div class="kicker">05 / Feasibility</div>
+          <div>
+            <h2>可行，而且适合分两阶段做：先高保真官网，再接入内容和产品后台。</h2>
+            <p class="section-copy">ForAI/花生的视觉方式都能落地到当前项目。难点不在页面，而在内容资产梳理、产品分层、联系转化和后续文章系统自动化。</p>
+          </div>
+        </div>
+
+        <div class="decision">
+          <article class="card"><span class="num">A</span><h3>推荐方案：个人品牌 + 产品工作室</h3><p>首页讲人，作品墙讲产品，文章证明深度。最适合当前阶段。</p><div class="score"><div class="bar"><span style="width:92%"></span></div><small>推荐度 92%</small></div></article>
+          <article class="card"><span class="num">B</span><h3>内容媒体优先</h3><p>把 CSDN/公众号作为主入口，适合涨粉，但产品销售弱。</p><div class="score"><div class="bar"><span style="width:70%"></span></div><small>推荐度 70%</small></div></article>
+          <article class="card"><span class="num">C</span><h3>工具商城优先</h3><p>更直接商业化，但如果个人信任没先建立，冷启动转化成本高。</p><div class="score"><div class="bar"><span style="width:64%"></span></div><small>推荐度 64%</small></div></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell footer">
+    <span>ControlRookie website direction preview</span>
+    <span>Evidence-led, engineering-first, product-ready.</span>
+  </footer>
+</body>
+</html>
