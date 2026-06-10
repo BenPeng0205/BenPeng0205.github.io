@@ -108,6 +108,8 @@ controlrookie-website/
 - [x] 将 Open Design 首页归档为唯一正式高保真首页。
 - [x] 调整首页：右上角搜索、照片占位、首屏四领域、删除 Vision/Method、优化 Articles/Products。
 - [ ] 用桌面浏览器验证搜索交互和首屏一屏呈现效果。
+- [x] 修正 Articles、Products、Contact 为桌面单页段落，避免导航锚点进入后露出下一页主体。
+- [x] 将 Contact 从黑色面板改为 ForAI 底座的浅灰网格卡片风格。
 - [ ] 用户验收当前首页还原度。
 
 ## 风险与约束

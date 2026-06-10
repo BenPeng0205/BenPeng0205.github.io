@@ -33,6 +33,7 @@
       min-width: 320px;
       background: var(--bg);
       scroll-behavior: smooth;
+      scroll-padding-top: 0;
     }
 
     body {
@@ -383,8 +384,13 @@
 
     .section {
       width: min(calc(100% - 48px), 1240px);
+      min-height: 100vh;
       margin: 0 auto;
-      padding: clamp(82px, 8vw, 124px) 0;
+      padding: calc(var(--nav-height) + 58px) 0 70px;
+      scroll-margin-top: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .section-line {
@@ -435,6 +441,13 @@
 
     .product-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .section-tall {
+      min-height: auto;
+      justify-content: flex-start;
+      padding-top: clamp(82px, 8vw, 124px);
+      padding-bottom: clamp(82px, 8vw, 124px);
     }
 
     .work-card {
@@ -582,56 +595,88 @@
       font-weight: 500;
     }
 
-    .contact-panel {
+    .contact-shell {
       display: grid;
-      grid-template-columns: 1.02fr 0.98fr;
-      gap: clamp(32px, 6vw, 90px);
-      align-items: end;
-      padding: clamp(42px, 6vw, 76px);
-      border-radius: 28px;
-      background:
-        radial-gradient(circle at 76% 18%, rgba(255, 255, 255, 0.18), transparent 180px),
-        #050505;
-      color: #fff;
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      gap: 14px;
+      align-items: stretch;
     }
 
-    .contact-panel h2 {
+    .contact-lead,
+    .contact-card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 76% 18%, rgba(255, 255, 255, 0.62), transparent 112px),
+        radial-gradient(circle at 86% 22%, rgba(0, 0, 0, 0.05), transparent 160px),
+        var(--soft);
+    }
+
+    .contact-lead {
+      min-height: 388px;
+      padding: clamp(28px, 4vw, 48px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .contact-lead h2 {
       margin: 0;
-      color: #fff;
-      font-size: clamp(42px, 6vw, 84px);
-      font-weight: 245;
-      line-height: 1;
+      color: #050505;
+      font-size: clamp(42px, 5vw, 72px);
+      font-weight: 250;
+      line-height: 0.98;
       letter-spacing: 0;
       text-wrap: balance;
     }
 
-    .contact-panel p {
+    .contact-lead p {
       margin: 18px 0 0;
-      color: rgba(255, 255, 255, 0.68);
-      font-size: 16px;
-      line-height: 1.6;
+      max-width: 520px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.58;
     }
 
-    .contact-items {
+    .contact-grid {
       display: grid;
-      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
     }
 
-    .contact-items span {
+    .contact-card {
+      min-height: 187px;
+      padding: 24px;
       display: flex;
+      flex-direction: column;
       justify-content: space-between;
-      gap: 18px;
-      padding: 16px 18px;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.04);
-      color: rgba(255, 255, 255, 0.92);
-      font-size: 14px;
+      transition: transform 220ms ease, border-color 220ms ease;
     }
 
-    .contact-items small {
-      color: rgba(255, 255, 255, 0.48);
+    .contact-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--line-strong);
+    }
+
+    .contact-card small {
+      color: var(--muted-2);
+      font-size: 12px;
+      font-weight: 520;
+      line-height: 1;
+    }
+
+    .contact-card strong {
+      color: #050505;
+      font-size: clamp(19px, 1.55vw, 24px);
+      font-weight: 330;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .contact-card span {
+      color: var(--muted);
       font-size: 13px;
+      line-height: 1.4;
     }
 
     .footer {
@@ -688,8 +733,12 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .contact-panel {
+      .contact-shell {
         grid-template-columns: 1fr;
+      }
+
+      .contact-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
@@ -729,7 +778,9 @@
 
       .section {
         width: min(calc(100% - 32px), 1240px);
+        min-height: auto;
         padding: 72px 0;
+        justify-content: flex-start;
       }
 
       .section-head {
@@ -740,7 +791,8 @@
       .focus-strip,
       .work-grid,
       .article-grid,
-      .product-grid {
+      .product-grid,
+      .contact-grid {
         grid-template-columns: 1fr;
       }
 
@@ -752,9 +804,9 @@
         min-height: 286px;
       }
 
-      .contact-panel {
+      .contact-lead {
+        min-height: 300px;
         padding: 30px;
-        border-radius: 24px;
       }
 
       .footer {
@@ -840,7 +892,7 @@
         </div>
       </section>
 
-      <section class="section section-line fade-in" id="works" aria-labelledby="works-title">
+      <section class="section section-line section-tall fade-in" id="works" aria-labelledby="works-title">
         <div class="section-head">
           <p class="eyebrow" id="works-title">Works</p>
           <p class="section-copy">代表工程资产。这里先展示完整界面结构，真实链接后续再接入。</p>
@@ -883,17 +935,23 @@
       </section>
 
       <section class="section fade-in" id="contact" aria-labelledby="contact-title">
-        <div class="contact-panel">
-          <div>
-            <p class="eyebrow" id="contact-title" style="color: rgba(255,255,255,.66);">Contact</p>
-            <h2>有想法？聊聊工程效率。</h2>
-            <p>文章合作、工具试用、工程咨询、AI 自动化方案都可以先占位。真实联系方式后续接入。</p>
+        <div class="section-head">
+          <p class="eyebrow" id="contact-title">Contact</p>
+          <p class="section-copy">联系方式保持占位，后续接入真实入口；视觉继续沿用 ForAI 的浅灰色块和克制排版。</p>
+        </div>
+        <div class="contact-shell">
+          <div class="contact-lead">
+            <div>
+              <h2>聊聊工程效率。</h2>
+              <p>文章合作、工具试用、工程咨询、AI 自动化方案都可以先占位。真实联系方式后续接入。</p>
+            </div>
+            <p class="eyebrow">ControlRookie / AI Automation Architect</p>
           </div>
-          <div class="contact-items">
-            <span><small>CSDN</small><b>ControlRookie 技术博客</b></span>
-            <span><small>WeChat</small><b>微信公众号入口</b></span>
-            <span><small>GitHub</small><b>开源仓库入口</b></span>
-            <span><small>Email</small><b>合作咨询入口</b></span>
+          <div class="contact-grid" aria-label="Contact channels">
+            <article class="contact-card"><small>CSDN</small><strong>ControlRookie 技术博客</strong><span>文章、教程、工程复盘和源码实践。</span></article>
+            <article class="contact-card"><small>WeChat</small><strong>微信公众号入口</strong><span>AI 自动化、思考、工具和专题更新。</span></article>
+            <article class="contact-card"><small>GitHub</small><strong>开源仓库入口</strong><span>模板、脚本、示例工程和可复用资产。</span></article>
+            <article class="contact-card"><small>Email</small><strong>合作咨询入口</strong><span>工具试用、方案咨询和工程化协作。</span></article>
           </div>
         </div>
       </section>
