@@ -3,286 +3,226 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>别把报警写成一堆 IF：CodeSys 报警程序框架应该先解决什么 - WECHAT staging</title>
-  <style>
-    :root {
-      --paper: #f5f0e8;
-      --paper-deep: #fffaf3;
-      --ink: #191919;
-      --muted: #6f6259;
-      --line: #d7cdc0;
-      --accent: #cc785c;
-      --accent-deep: #9c4f39;
-      --danger: #b94738;
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      color: var(--ink);
-      background: var(--paper);
-      font-family: "Microsoft YaHei UI", "PingFang SC", "Noto Sans CJK SC", sans-serif;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-    }
-    main {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 52px 28px 72px;
-    }
-    .topline {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px 18px;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 16px;
-      color: var(--accent);
-      font-size: 13px;
-    }
-    .brand {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .brand span {
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-    .blocked {
-      padding: 7px 10px;
-      color: #fff;
-      background: var(--danger);
-      border-radius: 4px;
-      font-weight: 700;
-    }
-    h1 {
-      font-family: Georgia, "Noto Serif CJK SC", "Microsoft YaHei", serif;
-      font-size: 54px;
-      line-height: 1.08;
-      letter-spacing: -.025em;
-      margin: 34px 0 18px;
-      color: var(--ink);
-    }
-    .summary {
-      margin: 0 0 28px;
-      color: var(--muted);
-      font-size: 17px;
-      line-height: 1.8;
-    }
-    .tags {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin: 0 0 34px;
-    }
-    .tags span {
-      padding: 5px 10px;
-      color: var(--accent-deep);
-      background: rgba(204, 120, 92, .1);
-      border: 1px solid rgba(204, 120, 92, .25);
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-    article {
-      border-top: 1px solid var(--line);
-      padding-top: 10px;
-    }
-    article h2 {
-      font-family: Georgia, "Noto Serif CJK SC", "Microsoft YaHei", serif;
-      font-size: 34px;
-      line-height: 1.22;
-      margin: 42px 0 16px;
-      color: var(--accent-deep);
-    }
-    article h3 {
-      font-size: 23px;
-      line-height: 1.35;
-      margin: 30px 0 12px;
-      color: var(--ink);
-    }
-    article p, article li {
-      font-size: 17px;
-      line-height: 1.86;
-    }
-    article p {
-      margin: 0 0 1em;
-    }
-    article ul, article ol {
-      padding-left: 1.35em;
-      margin: 0 0 1.2em;
-    }
-    blockquote {
-      margin: 24px 0;
-      padding: 8px 0 8px 20px;
-      border-left: 4px solid var(--accent);
-      color: var(--ink);
-      font-family: Georgia, "Noto Serif CJK SC", "Microsoft YaHei", serif;
-      font-size: 20px;
-      line-height: 1.75;
-    }
-    blockquote p {
-      margin: 0;
-      font-size: inherit;
-      line-height: inherit;
-    }
-    code {
-      font-family: Consolas, "Courier New", monospace;
-      background: rgba(156, 79, 57, .08);
-      color: var(--accent-deep);
-      padding: 1px 4px;
-      border-radius: 3px;
-    }
-    pre {
-      margin: 18px 0 24px;
-      padding: 18px;
-      overflow: auto;
-      color: var(--paper);
-      background: #2b2520;
-      border-radius: 4px;
-      line-height: 1.65;
-    }
-    pre code {
-      color: inherit;
-      background: transparent;
-      padding: 0;
-    }
-    table {
-      width: 100%;
-      margin: 18px 0 26px;
-      border-collapse: collapse;
-      background: var(--paper-deep);
-      font-size: 14px;
-    }
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid var(--line);
-      text-align: left;
-      vertical-align: top;
-      line-height: 1.65;
-    }
-    th {
-      color: var(--accent-deep);
-      font-weight: 800;
-    }
-    .audit {
-      margin-top: 44px;
-      padding-top: 16px;
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.7;
-    }
-    @media (max-width: 760px) {
-      main { padding: 28px 18px 48px; }
-      h1 { font-size: 38px; }
-      article h2 { font-size: 28px; }
-      .topline { align-items: flex-start; }
-    }
-  </style>
+  <title>ControlRookie | 工控开源践行者</title>
+  <meta name="description" content="ControlRookie 致力于工业自动化领域控制、算法、架构等源码开源分享交流。">
+  <link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body>
-  <main data-testid="staging-page" data-template-id="controlrookie-warm-editorial">
-    <div class="topline">
-      <div class="brand">
-        <span>ControlRookie</span>
-        <span>Warm Editorial</span>
-        <span>WECHAT 发布前页面</span>
+  <div class="site-shell">
+    <header class="top-bar">
+      <div class="nav">
+        <a class="brand-lockup" href="index.html" aria-label="ControlRookie 首页">
+          <img src="assets/img/controlrookie-mark.svg" alt="ControlRookie Logo">
+          <div class="brand-copy">
+            <span class="brand-eyebrow">Industrial Automation Open Source</span>
+            <strong>工控开源践行者</strong>
+          </div>
+        </a>
+        <nav class="nav-links" aria-label="主导航">
+          <a href="index.html" aria-current="page">首页</a>
+          <a href="#about">关于我</a>
+          <a href="repositories/index.html">仓库介绍</a>
+        </nav>
       </div>
-      <div class="blocked" data-testid="publish-blocked" title="Blocked actions: final_publish">最终发布已阻断</div>
-    </div>
-    <h1>别把报警写成一堆 IF：CodeSys 报警程序框架应该先解决什么</h1>
-    <p class="summary">CodeSys 报警程序框架刊物级文章发布前预览稿。</p>
-    <div class="tags"><span>CodeSys</span><span>PLC</span><span>报警框架</span><span>ControlRookie</span></div>
-    <article data-testid="article-body">
-      <blockquote><p><strong>摘要</strong>：很多 PLC 报警程序最后会变成一片零散的 <code>IF</code>、<code>R_TRIG</code> 和 HMI 变量。刚开始能用，现场一复杂就开始失控：报警重复跳、确认逻辑不一致、历史记录缺字段、HMI 显示和程序状态对不上。本文先不急着给完整源码，而是把 CodeSys 报警程序框架拆成一套可复用的工程模型：检测、锁存、确认、抑制、恢复、记录、展示和排障。后续如果结合你的实际 ST 工程，可以继续落到真实功能块和源码逐段讲解。</p></blockquote>
-<h2>适合谁收藏</h2>
-<ul><li>正在用 CodeSys / IEC 61131-3 写设备报警、产线报警或工艺异常处理的工程师。</li><li>已经写过报警点，但发现确认、复位、历史记录和 HMI 联动越来越难维护的人。</li><li>想把“能跑的报警逻辑”整理成“可扩展、可排障、可交付”的程序框架的人。</li><li>准备把报警程序做成系列教程、组件库或项目标准模板的人。</li></ul>
-<h2>先给结论</h2>
-<p>一个可靠的报警框架，核心不是“发现异常就置位一个报警位”，而是要回答六个问题：</p>
-<p>1. <strong>异常怎么进入系统</strong>：报警条件来自采集值、状态机、通信诊断，还是外部设备返回码。 2. <strong>报警怎么保持</strong>：瞬时异常是否锁存，恢复后是否仍需人工确认。 3. <strong>谁能改变状态</strong>：程序自动恢复、操作员确认、维护人员屏蔽，边界必须分清。 4. <strong>HMI 看到什么</strong>：当前报警、未确认报警、历史报警不能混成一个变量。 5. <strong>历史怎么追溯</strong>：时间、来源、等级、确认人、恢复时间、上下文值必须结构化。 6. <strong>现场怎么排障</strong>：报警不是提示语，它应该把工程师带到正确的检查路径。</p>
-<p>如果这六个问题没有先定下来，后面写多少功能块都只是补丁。</p>
-<h2>现场最容易踩的坑</h2>
-<p>报警程序最常见的退化路径，是从一个看起来很合理的写法开始的：</p>
-<pre><code>IF xPressureHigh THEN
-    xAlarmPressureHigh := TRUE;
-END_IF;
+    </header>
 
-IF xAck THEN
-    xAlarmPressureHigh := FALSE;
-END_IF;</code></pre>
-<p>这段逻辑在调试台上可能没有问题，但一到真实设备就会暴露边界缺口。</p>
-<p>压力已经恢复，但报警是否应该自动消失？ 操作员点了确认，但异常条件还在，报警是否允许清掉？ 报警重复触发，历史记录是新增一条，还是更新同一条？ 维护模式下屏蔽报警，恢复生产后是否要重新评估？ HMI 显示“已确认”，程序内部到底是 <code>Acked</code>、<code>Recovered</code>，还是 <code>Inactive</code>？</p>
-<p>这些问题不是 UI 问题，也不是变量命名问题，本质是报警状态模型不完整。</p>
-<h2>一套更稳的报警状态模型</h2>
-<p>我更建议把报警点抽象成一个小型状态机，而不是一个布尔量。</p>
-<table><thead><tr><th>状态</th><th>含义</th><th>进入条件</th><th>离开条件</th></tr></thead><tbody><tr><td><code>Normal</code></td><td>无报警</td><td>条件未触发</td><td>检测到报警条件</td></tr><tr><td><code>ActiveUnacked</code></td><td>报警触发，未确认</td><td>条件触发</td><td>操作员确认或条件恢复</td></tr><tr><td><code>ActiveAcked</code></td><td>报警仍存在，已确认</td><td>报警触发后收到确认</td><td>条件恢复</td></tr><tr><td><code>RecoveredUnacked</code></td><td>条件已恢复，但未确认</td><td>条件恢复但未确认</td><td>操作员确认</td></tr><tr><td><code>Suppressed</code></td><td>被抑制或屏蔽</td><td>维护/联锁/工艺阶段不允许报警</td><td>抑制条件解除</td></tr></tbody></table>
-<p>这里有一个关键判断：<strong>确认不是复位，恢复也不是确认。</strong></p>
-<p>确认代表“人已经看到了”；恢复代表“异常条件已经消失”。这两个动作来自不同主体，不能用一个按钮或一个变量混过去。</p>
-<h2>程序结构应该怎么拆</h2>
-<p>一个可复用的 CodeSys 报警框架，至少应该分成六层。</p>
-<h3>1. 报警条件检测层</h3>
-<p>这一层只回答一个问题：当前是否满足报警条件。</p>
-<p>例如压力高、温度低、变频器故障、通信超时、阀门反馈不到位，都应该先被整理成统一的布尔触发条件和上下文值。</p>
-<p>这一层不负责确认，不负责历史记录，也不直接写 HMI 文本。它只产出事实：</p>
-<ul><li>当前值是多少。</li><li>阈值是多少。</li><li>条件是否满足。</li><li>是否需要延时滤波。</li><li>来源对象是谁。</li></ul>
-<h3>2. 延时与去抖层</h3>
-<p>现场信号不干净，很多报警不能一触发就进入系统。压力波动、通信瞬断、传感器抖动，都需要延时确认。</p>
-<p>但延时逻辑也不能散落在每个报警点里。否则几十个报警点以后，你会发现每个点的延时、复位和边界都不一样。</p>
-<p>建议统一抽象为：</p>
-<pre><code>fbDelayOn(IN := xRawAlarm, PT := tOnDelay);
-xAlarmCondition := fbDelayOn.Q;</code></pre>
-<p>这只是示意，不是你的工程源码。真正发布源码教程时，必须从实际 <code>.st</code> 文件逐字摘录，不能临时重写。</p>
-<h3>3. 报警状态机层</h3>
-<p>这一层是报警框架的核心。</p>
-<p>它接收 <code>xAlarmCondition</code>、<code>xAck</code>、<code>xSuppress</code>、<code>xReset</code> 等输入，输出当前状态、是否需要显示、是否需要记录、是否需要通知。</p>
-<p>状态机的好处是边界明确：</p>
-<ul><li>条件还在时，确认只能从 <code>ActiveUnacked</code> 进入 <code>ActiveAcked</code>，不能直接清除。</li><li>条件恢复但未确认时，进入 <code>RecoveredUnacked</code>，提醒操作员这件事发生过。</li><li>抑制状态只影响报警呈现，不应该无痕吞掉全部历史。</li><li>同一报警点重复触发时，要有明确的重新进入规则。</li></ul>
-<h3>4. 报警目录与元数据层</h3>
-<p>报警不是只有一个变量名。一个正式项目里，每个报警点至少需要这些元数据：</p>
-<table><thead><tr><th>字段</th><th>作用</th></tr></thead><tbody><tr><td><code>AlarmId</code></td><td>稳定唯一标识，用于历史记录和 HMI 映射</td></tr><tr><td><code>Source</code></td><td>设备、功能块、轴、工艺段或通信对象</td></tr><tr><td><code>Severity</code></td><td>提示、警告、故障、停机等级</td></tr><tr><td><code>Message</code></td><td>给操作员看的简短文本</td></tr><tr><td><code>Cause</code></td><td>可能原因</td></tr><tr><td><code>Action</code></td><td>首选检查路径</td></tr><tr><td><code>ContextValue</code></td><td>触发时的关键过程值</td></tr></tbody></table>
-<p>很多报警系统不好用，不是因为检测不准，而是因为提示语没有工程指向。 “压力报警”价值很低，“A 缸推进压力超过上限，先检查比例阀输出、压力传感器和回油通道”才有排障价值。</p>
-<h3>5. 历史记录层</h3>
-<p>历史记录不能只保存一行字符串。</p>
-<p>至少要区分：</p>
-<ul><li>触发时间。</li><li>恢复时间。</li><li>确认时间。</li><li>当前状态。</li><li>报警等级。</li><li>报警来源。</li><li>触发上下文值。</li><li>操作员确认来源。</li></ul>
-<p>如果历史记录没有这些字段，后期做追溯、复盘、质量分析和停机统计都会很痛苦。</p>
-<h3>6. HMI 展示层</h3>
-<p>HMI 不应该直接绑定一堆内部报警变量。更稳的做法是让程序提供已经整理好的视图：</p>
-<ul><li>当前活动报警列表。</li><li>未确认报警列表。</li><li>历史报警列表。</li><li>报警详情。</li><li>过滤条件：等级、设备、时间、状态。</li></ul>
-<p>这样 HMI 只负责展示和交互，报警框架负责状态一致性。</p>
-<h2>一个推荐的对象拆分</h2>
-<p>如果后续要落到 CodeSys 工程，我会建议按这个方向拆：</p>
-<table><thead><tr><th>对象</th><th>职责</th></tr></thead><tbody><tr><td><code>DUT_AlarmState</code></td><td>定义报警状态枚举</td></tr><tr><td><code>DUT_AlarmConfig</code></td><td>定义报警点配置和元数据</td></tr><tr><td><code>DUT_AlarmRuntime</code></td><td>定义运行时状态、时间戳、上下文值</td></tr><tr><td><code>FB_AlarmPoint</code></td><td>单个报警点的状态机</td></tr><tr><td><code>FB_AlarmManager</code></td><td>管理报警点集合、列表输出、历史写入</td></tr><tr><td><code>GVL_AlarmConfig</code></td><td>全局报警目录</td></tr><tr><td><code>PRG_AlarmTask</code></td><td>周期调用入口，与设备状态和 HMI 交互</td></tr></tbody></table>
-<p>这个拆分的重点不是“文件看起来整齐”，而是让每个对象有明确边界。</p>
-<p><code>FB_AlarmPoint</code> 不应该知道 HMI 页面怎么画； <code>FB_AlarmManager</code> 不应该直接判断压力是否越限； <code>GVL_AlarmConfig</code> 不应该存运行时确认状态； <code>PRG_AlarmTask</code> 不应该把所有报警点逻辑硬编码在一大片 <code>IF</code> 里。</p>
-<h2>验证要怎么做</h2>
-<p>报警框架的验证，不只是“触发一次，看 HMI 亮了没有”。</p>
-<p>至少要覆盖这些用例：</p>
-<p>1. 条件触发，报警进入 <code>ActiveUnacked</code>。 2. 条件仍存在时点击确认，进入 <code>ActiveAcked</code>。 3. 条件恢复但未确认，进入 <code>RecoveredUnacked</code>。 4. 条件恢复且已确认，回到 <code>Normal</code>。 5. 抑制条件有效时，报警不进入正常活动列表，但保留必要诊断。 6. 同一报警重复触发时，历史记录规则一致。 7. HMI 未确认数量与程序内部状态一致。 8. 掉电或任务重启后，关键状态是否需要保持，规则明确。</p>
-<p>这些用例跑通以后，才能说报警框架具备工程复用价值。</p>
-<h2>这篇文章后续可以怎么变成系列</h2>
-<p>如果只写一篇 3000 字文章，最适合先讲模型和边界。不要急着塞完整源码，否则读者会在第一篇就被变量、结构体和功能块淹没。</p>
-<p>我建议拆成一个 5 篇小系列：</p>
-<p>1. <strong>别把报警写成一堆 IF：先把状态模型定下来</strong> 讲状态、确认、恢复、抑制和历史边界。</p>
-<p>2. <strong>CodeSys 报警点功能块怎么写：从布尔条件到状态机</strong> 落到 <code>FB_AlarmPoint</code> 的输入、输出、状态迁移和核心 ST 片段。</p>
-<p>3. <strong>报警管理器怎么组织：目录、列表、HMI 和历史记录</strong> 讲 <code>FB_AlarmManager</code>、报警目录、当前列表和历史结构。</p>
-<p>4. <strong>现场排障怎么接进报警系统：提示语不是文案，是工程路径</strong> 讲 Cause、Action、ContextValue 和排障表。</p>
-<p>5. <strong>报警框架怎么验收：从单点触发到整机异常复盘</strong> 讲测试用例、在线变量、HMI 对账和交付清单。</p>
-<p>这套顺序更像工程师真正理解一个框架的顺序：先有模型，再有对象，再有界面，再有历史，最后验收。</p>
-<h2>结尾</h2>
-<p>报警程序不是项目里最炫的部分，但它最能暴露工程质量。</p>
-<p>一个报警框架如果只是一堆报警位，它会在项目后期不断制造隐性成本：HMI 改一次，变量跟着乱；客户问一次历史，工程师临时查；现场误报一次，大家开始怀疑整套系统。</p>
-<p>更稳的做法，是从第一天就把报警当成一个小系统设计： 检测层给事实，状态机给规则，目录给语义，历史给追溯，HMI 给视图，验证给信心。</p>
-<p>后续如果把你的实际 AI 讨论记录或 ST 工程作为附件输入，我可以继续把这篇从“模型级拟定稿”推进到“基于真实工程事实和真实源码片段的发布级文章”。</p>
-    </article>
-    <div class="audit">
-      默认模板：ControlRookie 暖色出版物长文。发布动作保持阻断；本页面仅用于发布前预览、草稿或 staging。
-    </div>
-  </main>
+    <main class="page">
+      <section class="hero">
+        <article class="hero-copy">
+          <div class="hero-kicker">ControlRookie 愿景与使命</div>
+          <h1>
+            工业自动化
+            <span>开源专家型个人站点</span>
+          </h1>
+          <p class="hero-lead">
+            ControlRookie 致力于工业自动化领域控制、算法、架构等源码开源分享交流。
+            这里不是泛泛而谈的个人主页，而是一个围绕工程方法、开源实践与技术判断展开的品牌入口。
+          </p>
+          <p class="hero-note">
+            个人简介：工控开源践行者、An automation open source advocator。
+            第一印象不是“写博客的人”，而是“长期在控制、算法、架构三个维度持续输出的工业自动化专家”。
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#about">进入关于我</a>
+            <a class="button button-secondary" href="repositories/index.html">浏览仓库介绍</a>
+          </div>
+        </article>
+
+        <aside class="hero-panel" aria-label="专家定位概览">
+          <div class="hero-panel-inner">
+            <div class="signal-strip" aria-hidden="true"></div>
+            <section class="expert-card">
+              <h3>ControlRookie 的专家信号</h3>
+              <div class="expert-grid">
+                <div class="metric">
+                  <strong>控制</strong>
+                  <span>面向 PLC、工业控制链路与设备工程边界。</span>
+                </div>
+                <div class="metric">
+                  <strong>算法</strong>
+                  <span>关注控制逻辑、优化方法与工业场景求解结构。</span>
+                </div>
+                <div class="metric">
+                  <strong>架构</strong>
+                  <span>强调系统结构、复用边界与工程化交付能力。</span>
+                </div>
+                <div class="metric">
+                  <strong>开源</strong>
+                  <span>坚持源码共享、方法沉淀与长期交流。</span>
+                </div>
+              </div>
+            </section>
+            <section class="expert-card">
+              <h3>首页第一入口</h3>
+              <p class="hero-lead" style="margin:0;font-size:16px;line-height:1.85;">
+                当前首页优先引导访客进入“关于我”，先建立对你的人设、视角和专业能力的认知，再进入项目与内容。
+              </p>
+            </section>
+          </div>
+        </aside>
+      </section>
+
+      <section class="section" id="about">
+        <div class="section-heading">
+          <div>
+            <div class="section-kicker">About</div>
+            <h2>关于我</h2>
+          </div>
+          <p>
+            这里强调的是长期定位，而不是一次性的履历堆叠。
+            你给访客的核心印象应该是：能把工业自动化问题讲清楚、拆透、做开源，并持续输出方法论。
+          </p>
+        </div>
+
+        <div class="about-grid">
+          <article class="about-panel">
+            <h3>个人简介</h3>
+            <p class="hero-lead" style="margin:12px 0 0;font-size:16px;">
+              工控开源践行者、An automation open source advocator。
+            </p>
+            <p class="hero-note" style="margin-top:18px;">
+              我更关心的是如何把工业自动化里的控制逻辑、算法结构与系统架构做成
+              可以共享、可以复用、可以被同行验证和改进的开源资产。
+            </p>
+            <div class="identity-list" aria-label="身份标签">
+              <span>工业自动化</span>
+              <span>控制工程</span>
+              <span>算法思维</span>
+              <span>系统架构</span>
+              <span>源码开源</span>
+            </div>
+          </article>
+
+          <article class="section-card">
+            <h3>博客简介与描述</h3>
+            <ul>
+              <li>博客简介：工控开源践行者</li>
+              <li>博客描述：ControlRookie 致力于工业自动化领域控制、算法、架构等源码开源分享交流。</li>
+              <li>表达重点：突出专家属性，而不是泛内容账号。</li>
+              <li>页面风格目标：安静、可信、克制，但保留强识别度。</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <div>
+            <div class="section-kicker">Method</div>
+            <h2>ControlRookie 方法论</h2>
+          </div>
+          <p>
+            站点不是内容列表页，而是一个方法和判断的入口。
+            这四个维度会成为未来项目、文章、仓库和案例页的基础骨架。
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <article class="feature-card">
+            <h3>控制</h3>
+            <p>聚焦 PLC、设备控制、状态机、报警、联锁与现场工程行为，把“能运行”推进到“可复用”。</p>
+          </article>
+          <article class="feature-card">
+            <h3>算法</h3>
+            <p>关注工业场景里的控制算法、策略优化与逻辑设计，不停留在概念层，而是强调工程可落地性。</p>
+          </article>
+          <article class="feature-card">
+            <h3>架构</h3>
+            <p>重视模块边界、组件复用、系统组织方式与长期维护成本，避免项目在后期演化成无法扩展的局部补丁。</p>
+          </article>
+          <article class="feature-card">
+            <h3>开源</h3>
+            <p>把经验沉淀为可以共享的源码、模板与方法，使讨论从“观点表达”走向“事实验证”和“同行协作”。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <div>
+            <div class="section-kicker">Preview</div>
+            <h2>精选仓库预览</h2>
+          </div>
+          <p>
+            当前页面只做结构展示，不关联真实仓库。
+            这里先用代表性方向卡片定义你未来项目展示的语言风格与信息密度。
+          </p>
+        </div>
+
+        <div class="repo-grid">
+          <article class="repo-card">
+            <div class="repo-meta">
+              <span class="tag">PLC 控制</span>
+              <span>精选代表</span>
+            </div>
+            <h3>工业控制状态机库</h3>
+            <p>围绕报警、联锁、工艺状态切换和异常恢复构建的控制框架示意，用来表达你在控制结构上的工程判断。</p>
+            <div class="repo-footer">
+              <span>可扩展方向</span>
+              <span>控制复用</span>
+            </div>
+          </article>
+
+          <article class="repo-card">
+            <div class="repo-meta">
+              <span class="tag">控制算法</span>
+              <span>精选代表</span>
+            </div>
+            <h3>工业算法实验集</h3>
+            <p>把控制策略、优化逻辑与工业环境下的求解问题拆成更可验证的模块，体现你对算法落地边界的关注。</p>
+            <div class="repo-footer">
+              <span>可扩展方向</span>
+              <span>算法方法</span>
+            </div>
+          </article>
+
+          <article class="repo-card">
+            <div class="repo-meta">
+              <span class="tag">系统架构</span>
+              <span>精选代表</span>
+            </div>
+            <h3>工控开源工具链</h3>
+            <p>突出架构、接口、工作流与工程效率，让访客意识到 ControlRookie 不只是写单点代码，更在构建体系能力。</p>
+            <div class="repo-footer">
+              <span>可扩展方向</span>
+              <span>工程体系</span>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div>
+          <strong>ControlRookie</strong><br>
+          工控开源践行者
+        </div>
+        <div>
+          本站当前版本只包含首页与仓库介绍页，用于建立品牌入口与视觉标准。
+        </div>
+      </div>
+    </footer>
+  </div>
 </body>
 </html>
