@@ -31,5 +31,5 @@ scripts/       自动化脚本
 ## 当前正式原型
 
 - 首页 HTML：`prototypes/homepage-open-design/index.html`
-- 桌面截图：`prototypes/homepage-open-design/screenshot-desktop.png`
-- 移动截图：`prototypes/homepage-open-design/screenshot-mobile.png`
+- 桌面辅助截图：`prototypes/homepage-open-design/screenshot-desktop.png`
+- 当前高保真验收以桌面浏览器实际打开为准，移动端适配后续单独进入响应式阶段。

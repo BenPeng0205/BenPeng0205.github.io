@@ -106,6 +106,8 @@ controlrookie-website/
 - [x] 记录 Open Design 主路线和工具分工。
 - [x] 清理测试、过程产物。
 - [x] 将 Open Design 首页归档为唯一正式高保真首页。
+- [x] 调整首页：右上角搜索、照片占位、首屏四领域、删除 Vision/Method、优化 Articles/Products。
+- [ ] 用桌面浏览器验证搜索交互和首屏一屏呈现效果。
 - [ ] 用户验收当前首页还原度。
 
 ## 风险与约束

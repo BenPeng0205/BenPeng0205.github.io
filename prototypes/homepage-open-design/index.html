@@ -10,11 +10,11 @@
       --bg: #ffffff;
       --fg: #050505;
       --muted: #565656;
-      --muted-2: #7c7c7c;
+      --muted-2: #858585;
       --soft: #f1f1f1;
       --soft-2: #f7f7f7;
       --line: #e4e4e4;
-      --line-strong: #d6d6d6;
+      --line-strong: #d7d7d7;
       --font-display: "Geist", "Geist Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
       --font-body: "Geist", "Geist Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
       --nav-height: 76px;
@@ -45,16 +45,25 @@
       text-rendering: geometricPrecision;
     }
 
+    a,
+    button,
+    input {
+      font: inherit;
+    }
+
     a {
       color: inherit;
       text-decoration: none;
     }
 
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
     .site-shell {
       min-height: 100vh;
-      background:
-        radial-gradient(circle at 50% 540px, rgba(0, 0, 0, 0.052), transparent 230px),
-        #fff;
+      background: #fff;
     }
 
     .nav {
@@ -68,7 +77,7 @@
       grid-template-columns: 1fr auto 1fr;
       align-items: center;
       padding: 0 clamp(20px, 4vw, 58px);
-      background: rgba(255, 255, 255, 0.86);
+      background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(16px) saturate(130%);
       -webkit-backdrop-filter: blur(16px) saturate(130%);
     }
@@ -114,26 +123,117 @@
       transform: translateY(-1px);
     }
 
-    .contact {
+    .search-shell {
       justify-self: end;
-      display: inline-flex;
+      position: relative;
+      display: flex;
       align-items: center;
-      justify-content: center;
-      min-width: 86px;
+      justify-content: flex-end;
+      width: 42px;
       height: 38px;
-      padding: 0 18px;
       border-radius: 999px;
       background: #050505;
       color: #fff;
-      font-size: 14px;
-      font-weight: 470;
-      line-height: 1;
-      transition: background 180ms ease, transform 180ms ease;
+      overflow: hidden;
+      transition: width 240ms ease, background 180ms ease;
     }
 
-    .contact:hover {
-      background: #2a2a2a;
-      transform: translateY(-1px);
+    .search-shell:focus-within,
+    .search-shell.open {
+      width: min(340px, 28vw);
+      background: #050505;
+    }
+
+    .search-icon {
+      flex: 0 0 42px;
+      width: 42px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: transparent;
+    }
+
+    .search-input {
+      width: 0;
+      min-width: 0;
+      height: 38px;
+      padding: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #fff;
+      font-size: 14px;
+      opacity: 0;
+      transition: width 240ms ease, opacity 180ms ease, padding 240ms ease;
+    }
+
+    .search-shell:focus-within .search-input,
+    .search-shell.open .search-input {
+      width: 100%;
+      padding: 0 14px 0 2px;
+      opacity: 1;
+    }
+
+    .search-input::placeholder {
+      color: rgba(255, 255, 255, 0.58);
+    }
+
+    .search-panel {
+      position: absolute;
+      top: calc(var(--nav-height) - 10px);
+      right: clamp(20px, 4vw, 58px);
+      z-index: 41;
+      width: min(420px, calc(100vw - 40px));
+      max-height: 360px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.12);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-6px);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .search-panel.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .search-result {
+      display: grid;
+      gap: 5px;
+      padding: 14px;
+      border-radius: 16px;
+      color: #050505;
+    }
+
+    .search-result:hover,
+    .search-result.active {
+      background: var(--soft);
+    }
+
+    .search-result strong {
+      font-size: 15px;
+      font-weight: 480;
+      line-height: 1.2;
+    }
+
+    .search-result span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .search-empty {
+      padding: 18px 14px;
+      color: var(--muted);
+      font-size: 13px;
     }
 
     main {
@@ -141,19 +241,24 @@
     }
 
     .hero {
-      min-height: 96svh;
+      min-height: 100vh;
       display: grid;
       align-items: start;
-      justify-items: center;
-      padding: calc(var(--nav-height) + 104px) 24px 56px;
+      padding: calc(var(--nav-height) + 58px) 24px 34px;
     }
 
     .hero-inner {
-      width: min(100%, 1160px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
+      width: min(100%, 1240px);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 0.96fr) minmax(360px, 0.64fr);
+      grid-template-rows: auto 1fr;
+      gap: clamp(22px, 3.4vw, 54px);
+      align-items: start;
+    }
+
+    .hero-copy {
+      padding-top: 32px;
     }
 
     .kicker {
@@ -177,11 +282,11 @@
     }
 
     h1 {
-      max-width: 1120px;
+      max-width: 760px;
       margin: 0;
       color: #050505;
       font-family: var(--font-display);
-      font-size: clamp(58px, 6.15vw, 92px);
+      font-size: clamp(54px, 5.6vw, 84px);
       font-weight: 250;
       line-height: 0.98;
       letter-spacing: 0;
@@ -189,99 +294,97 @@
     }
 
     .subtitle {
-      max-width: 780px;
-      margin: 26px 0 0;
+      max-width: 690px;
+      margin: 24px 0 0;
       color: var(--muted);
-      font-size: clamp(18px, 1.38vw, 21px);
+      font-size: clamp(17px, 1.22vw, 19px);
       font-weight: 360;
       line-height: 1.58;
       letter-spacing: 0;
       text-wrap: pretty;
     }
 
-    .orb-stage {
-      position: relative;
-      width: clamp(310px, 29vw, 420px);
-      aspect-ratio: 1;
-      margin-top: clamp(38px, 4vw, 56px);
+    .portrait-frame {
+      justify-self: end;
+      width: min(100%, 390px);
+      aspect-ratio: 0.82;
       display: grid;
       place-items: center;
-      isolation: isolate;
-      opacity: 1;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at 68% 22%, rgba(255, 255, 255, 0.82), transparent 120px),
+        radial-gradient(circle at 68% 22%, rgba(0, 0, 0, 0.07), transparent 150px),
+        var(--soft);
+      color: var(--muted);
     }
 
-    .orb-stage::before {
-      content: "";
-      position: absolute;
-      inset: 6%;
-      z-index: -1;
-      border-radius: 999px;
-      background: rgba(0, 0, 0, 0.2);
-      filter: blur(34px);
-      transform: translateY(26%);
-      opacity: 0.58;
-    }
-
-    .liquid-orb {
-      position: relative;
+    .portrait-placeholder {
       width: 100%;
       height: 100%;
-      border-radius: 999px;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 30% 21%, #fff 0 11%, rgba(255, 255, 255, 0.36) 18%, transparent 31%),
-        radial-gradient(circle at 60% 58%, #050505 0 13%, #383838 25%, transparent 43%),
-        radial-gradient(circle at 38% 72%, #1a1a1a 0 10%, rgba(20, 20, 20, 0.38) 22%, transparent 39%),
-        radial-gradient(circle at 71% 30%, #f6f6f6 0 9%, #929292 17%, transparent 33%),
-        conic-gradient(from 132deg at 51% 49%, #f5f5f5, #505050 8%, #050505 21%, #f8f8f8 32%, #777 43%, #070707 57%, #efefef 69%, #555 78%, #fafafa 91%, #f5f5f5);
-      box-shadow:
-        inset 20px 24px 48px rgba(255, 255, 255, 0.9),
-        inset -34px -42px 66px rgba(0, 0, 0, 0.62),
-        inset 0 0 0 1px rgba(0, 0, 0, 0.16),
-        0 28px 84px rgba(0, 0, 0, 0.18);
-      filter: saturate(0.58) contrast(1.38);
+      display: grid;
+      place-items: center;
+      padding: 30px;
+      text-align: center;
     }
 
-    .liquid-orb::before,
-    .liquid-orb::after {
-      content: "";
-      position: absolute;
-      inset: -22%;
-      border-radius: 41% 59% 47% 53% / 56% 38% 62% 44%;
-      mix-blend-mode: soft-light;
-      opacity: 0.68;
-      animation: slowDrift 11s ease-in-out infinite alternate;
+    .portrait-placeholder span {
+      max-width: 210px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
     }
 
-    .liquid-orb::before {
-      background:
-        radial-gradient(ellipse at 36% 42%, rgba(255, 255, 255, 0.92), transparent 24%),
-        radial-gradient(ellipse at 62% 51%, rgba(0, 0, 0, 0.9), transparent 30%),
-        linear-gradient(112deg, transparent 16%, rgba(255, 255, 255, 0.64) 33%, transparent 49%, rgba(0, 0, 0, 0.72) 70%, transparent 84%);
-      filter: blur(6px);
+    .focus-strip {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      align-self: end;
+      margin-top: 2px;
     }
 
-    .liquid-orb::after {
-      inset: 3%;
-      border-radius: 999px;
+    .focus-card {
+      min-height: 142px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
       background:
-        radial-gradient(circle at 42% 26%, rgba(255, 255, 255, 0.95), transparent 10%),
-        radial-gradient(circle at 28% 67%, rgba(0, 0, 0, 0.34), transparent 18%),
-        linear-gradient(152deg, rgba(255, 255, 255, 0.68), transparent 28%, rgba(0, 0, 0, 0.26) 62%, rgba(255, 255, 255, 0.48));
-      mix-blend-mode: overlay;
-      opacity: 0.58;
-      filter: blur(2px);
-      animation-duration: 14s;
+        radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.72), transparent 80px),
+        radial-gradient(circle at 86% 22%, rgba(0, 0, 0, 0.05), transparent 130px),
+        var(--soft);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .focus-card small {
+      color: var(--muted-2);
+      font-size: 12px;
+      font-weight: 520;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .focus-card strong {
+      color: #050505;
+      font-size: clamp(30px, 3vw, 46px);
+      font-weight: 260;
+      line-height: 0.96;
+      letter-spacing: 0;
+    }
+
+    .focus-card span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.42;
     }
 
     .section {
       width: min(calc(100% - 48px), 1240px);
       margin: 0 auto;
-      padding: clamp(86px, 9vw, 138px) 0;
-    }
-
-    .section.compact {
-      padding-top: clamp(54px, 6vw, 88px);
+      padding: clamp(82px, 8vw, 124px) 0;
     }
 
     .section-line {
@@ -289,11 +392,11 @@
     }
 
     .section-head {
-      display: grid;
-      grid-template-columns: minmax(180px, 0.88fr) minmax(280px, 1.12fr);
-      gap: clamp(32px, 5vw, 86px);
-      align-items: end;
-      margin-bottom: 34px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 30px;
     }
 
     .eyebrow {
@@ -307,59 +410,31 @@
     .section-copy {
       margin: 0;
       color: var(--muted);
-      font-size: clamp(19px, 2vw, 28px);
-      font-weight: 300;
-      line-height: 1.28;
+      max-width: 660px;
+      font-size: clamp(16px, 1.34vw, 19px);
+      font-weight: 340;
+      line-height: 1.55;
       letter-spacing: 0;
       text-wrap: pretty;
     }
 
-    .metrics-grid {
+    .work-grid,
+    .article-grid,
+    .product-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 14px;
-      border: 0;
-    }
-
-    .metric {
-      min-height: 214px;
-      padding: 24px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background:
-        radial-gradient(circle at 78% 18%, rgba(0, 0, 0, 0.045), transparent 118px),
-        var(--soft);
-    }
-
-    .metric small {
-      color: var(--muted-2);
-      font-size: 12px;
-      font-weight: 500;
-      line-height: 1;
-      text-transform: uppercase;
-    }
-
-    .metric strong {
-      color: #050505;
-      font-size: clamp(34px, 3.6vw, 56px);
-      font-weight: 260;
-      line-height: 0.96;
-      letter-spacing: 0;
-    }
-
-    .metric span {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.45;
     }
 
     .work-grid {
-      display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
+    }
+
+    .article-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .product-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .work-card {
@@ -394,7 +469,6 @@
         radial-gradient(circle at 50% 50%, transparent 0 27%, rgba(255, 255, 255, 0.15) 28% 29%, transparent 30%),
         linear-gradient(180deg, transparent 34%, rgba(0, 0, 0, 0.58) 100%);
       opacity: 0.72;
-      transition: opacity 260ms ease;
     }
 
     .work-card::after {
@@ -454,168 +528,58 @@
       line-height: 1.38;
     }
 
-    .split-grid {
-      display: grid;
-      grid-template-columns: minmax(260px, 0.72fr) minmax(520px, 1.28fr);
-      gap: clamp(32px, 7vw, 120px);
-      align-items: start;
-    }
-
-    .large-statement {
-      margin: 0;
-      color: #080808;
-      font-size: clamp(34px, 3.75vw, 58px);
-      font-weight: 270;
-      line-height: 1.08;
-      letter-spacing: 0;
-      text-wrap: balance;
-    }
-
-    .body-list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      border-top: 1px solid var(--line);
-    }
-
-    .body-list li {
-      display: grid;
-      grid-template-columns: minmax(120px, 0.42fr) minmax(260px, 1.58fr);
-      gap: 30px;
-      padding: 26px 0;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .body-list strong {
-      color: #050505;
-      font-size: 15px;
-      font-weight: 500;
-      line-height: 1.35;
-    }
-
-    .body-list p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 17px;
-      font-weight: 360;
-      line-height: 1.58;
-      text-wrap: pretty;
-    }
-
-    .quote-band {
-      display: grid;
-      gap: 28px;
-      justify-items: center;
-      text-align: center;
-      padding: clamp(86px, 11vw, 150px) 0;
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-    }
-
-    .quote-band small {
-      color: var(--muted-2);
-      font-size: 13px;
-      font-weight: 500;
-    }
-
-    .quote-band blockquote {
-      max-width: 980px;
-      margin: 0;
-      color: #050505;
-      font-size: clamp(36px, 5.4vw, 82px);
-      font-weight: 235;
-      line-height: 1.04;
-      letter-spacing: 0;
-      text-wrap: balance;
-    }
-
-    .article-list,
-    .product-list {
-      display: grid;
-      gap: 0;
-      border-top: 1px solid var(--line);
-    }
-
-    .list-row {
-      display: grid;
-      grid-template-columns: 72px 1fr minmax(170px, 0.38fr);
-      gap: 26px;
-      align-items: center;
-      padding: 28px 0;
-      border-bottom: 1px solid var(--line);
-      color: #050505;
-      transition: color 160ms ease, padding-left 180ms ease;
-    }
-
-    .list-row:hover {
-      color: var(--muted);
-      padding-left: 6px;
-    }
-
-    .list-row small,
-    .list-row span:last-child {
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 420;
-      line-height: 1.3;
-    }
-
-    .list-row strong {
-      font-size: clamp(24px, 2.55vw, 38px);
-      font-weight: 285;
-      line-height: 1.1;
-    }
-
-    .product-card {
-      min-height: 330px;
-      padding: 28px;
+    .info-card {
+      min-height: 246px;
+      padding: 24px;
       border: 1px solid var(--line);
       border-radius: 24px;
       background:
-        radial-gradient(circle at 78% 18%, rgba(255, 255, 255, 0.52), transparent 92px),
+        radial-gradient(circle at 78% 18%, rgba(255, 255, 255, 0.58), transparent 92px),
         radial-gradient(circle at 86% 22%, rgba(0, 0, 0, 0.05), transparent 140px),
         var(--soft);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: transform 220ms ease, background 220ms ease;
+      transition: transform 220ms ease, background 220ms ease, border-color 220ms ease;
     }
 
-    .product-card:hover {
+    .info-card:hover {
       transform: translateY(-3px);
+      border-color: var(--line-strong);
       background:
-        radial-gradient(circle at 78% 18%, rgba(255, 255, 255, 0.58), transparent 92px),
-        radial-gradient(circle at 86% 22%, rgba(0, 0, 0, 0.08), transparent 140px),
+        radial-gradient(circle at 78% 18%, rgba(255, 255, 255, 0.64), transparent 92px),
+        radial-gradient(circle at 86% 22%, rgba(0, 0, 0, 0.075), transparent 140px),
         var(--soft);
     }
 
-    .product-card small {
+    .info-card small {
       color: var(--muted-2);
       font-size: 12px;
       font-weight: 520;
       line-height: 1;
     }
 
-    .product-card h3 {
-      margin: 34px 0 12px;
+    .info-card h3 {
+      margin: 30px 0 12px;
       color: #050505;
-      font-size: clamp(27px, 2.55vw, 38px);
-      font-weight: 285;
-      line-height: 1.08;
+      font-size: clamp(22px, 1.85vw, 28px);
+      font-weight: 315;
+      line-height: 1.14;
       letter-spacing: 0;
     }
 
-    .product-card p {
+    .info-card p {
       margin: 0;
       color: var(--muted);
-      font-size: 15px;
-      line-height: 1.58;
+      font-size: 14px;
+      line-height: 1.56;
     }
 
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
+    .info-card footer {
+      margin-top: 28px;
+      color: var(--muted-2);
+      font-size: 12px;
+      font-weight: 500;
     }
 
     .contact-panel {
@@ -650,17 +614,17 @@
 
     .contact-items {
       display: grid;
-      gap: 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      gap: 10px;
     }
 
-    .contact-items a,
     .contact-items span {
       display: flex;
       justify-content: space-between;
       gap: 18px;
-      padding: 18px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 16px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.04);
       color: rgba(255, 255, 255, 0.92);
       font-size: 14px;
     }
@@ -694,15 +658,6 @@
       transform: translateY(0);
     }
 
-    @keyframes slowDrift {
-      from {
-        transform: translate3d(-2%, 1%, 0) rotate(-8deg) scale(1);
-      }
-      to {
-        transform: translate3d(2%, -1%, 0) rotate(9deg) scale(1.04);
-      }
-    }
-
     @media (max-width: 1040px) {
       .nav {
         grid-template-columns: 1fr auto;
@@ -712,8 +667,23 @@
         display: none;
       }
 
-      .metrics-grid,
+      .search-shell:focus-within,
+      .search-shell.open {
+        width: min(300px, 56vw);
+      }
+
+      .hero-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .portrait-frame {
+        justify-self: center;
+        width: min(100%, 360px);
+      }
+
+      .focus-strip,
       .work-grid,
+      .article-grid,
       .product-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -728,55 +698,33 @@
         --nav-height: 66px;
       }
 
-      .site-shell {
-        background:
-          radial-gradient(circle at 50% 380px, rgba(0, 0, 0, 0.035), transparent 126px),
-          #fff;
-      }
-
       .nav {
         padding: 0 18px;
       }
 
-      .brand {
-        max-width: calc(100vw - 38px);
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .contact {
+      .nav-links {
         display: none;
       }
 
-      .hero {
-        min-height: 90svh;
-        padding: calc(var(--nav-height) + 62px) 18px 58px;
+      .search-shell:focus-within,
+      .search-shell.open {
+        width: min(260px, 66vw);
       }
 
-      .kicker {
-        margin-bottom: 22px;
-        font-size: 12px;
+      .hero {
+        padding: calc(var(--nav-height) + 54px) 18px 46px;
+      }
+
+      .hero-copy {
+        padding-top: 0;
       }
 
       h1 {
-        width: min(100%, 350px);
-        max-width: 350px;
-        font-size: clamp(38px, 10.8vw, 50px);
-        line-height: 1.02;
-        overflow-wrap: normal;
+        font-size: clamp(44px, 12vw, 58px);
       }
 
       .subtitle {
-        width: min(100%, 318px);
-        max-width: 318px;
-        margin-top: 18px;
-        font-size: 15px;
-        line-height: 1.52;
-      }
-
-      .orb-stage {
-        width: clamp(214px, 62vw, 254px);
-        margin-top: 42px;
+        font-size: 16px;
       }
 
       .section {
@@ -784,44 +732,24 @@
         padding: 72px 0;
       }
 
-      .section-head,
-      .split-grid {
+      .section-head {
         grid-template-columns: 1fr;
         gap: 22px;
       }
 
-      .metrics-grid,
+      .focus-strip,
       .work-grid,
+      .article-grid,
       .product-grid {
         grid-template-columns: 1fr;
       }
 
-      .metric {
-        min-height: 154px;
+      .portrait-frame {
+        width: min(100%, 320px);
       }
 
       .work-card {
         min-height: 286px;
-        border-radius: 20px;
-      }
-
-      .body-list li {
-        grid-template-columns: 1fr;
-        gap: 10px;
-        padding: 21px 0;
-      }
-
-      .quote-band blockquote {
-        font-size: clamp(36px, 10.6vw, 54px);
-      }
-
-      .list-row {
-        grid-template-columns: 48px 1fr;
-        gap: 14px;
-      }
-
-      .list-row span:last-child {
-        display: none;
       }
 
       .contact-panel {
@@ -859,184 +787,86 @@
         <a href="#works">Works</a>
         <a href="#articles">Articles</a>
         <a href="#products">Products</a>
-        <a href="#vision">Vision</a>
-        <a href="#method">Method</a>
         <a href="#contact">Contact</a>
       </nav>
-      <a class="contact" href="#contact">Contact</a>
+      <div class="search-shell" id="searchShell">
+        <button class="search-icon" id="searchButton" type="button" aria-label="Search">
+          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10.8 18.1a7.3 7.3 0 1 1 0-14.6 7.3 7.3 0 0 1 0 14.6Zm5.2-2.1 4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <input class="search-input" id="siteSearch" type="search" placeholder="Search articles, tools, topics" autocomplete="off">
+      </div>
+      <div class="search-panel" id="searchPanel" aria-label="Search results"></div>
     </header>
 
     <main id="top">
       <section class="hero" aria-label="ControlRookie introduction">
         <div class="hero-inner">
-          <p class="kicker">AI AUTOMATION ARCHITECT / 2026</p>
-          <h1>ControlRookie</h1>
-          <p class="subtitle">跟得上时代的 AI 自动化架构师。用 AI 做杠杆，让一个自动化工程师拥有一支工程团队的效率。</p>
-          <div class="orb-stage" aria-hidden="true">
-            <div class="liquid-orb"></div>
+          <div class="hero-copy">
+            <p class="kicker">AI AUTOMATION ARCHITECT / 2026</p>
+            <h1>ControlRookie</h1>
+            <p class="subtitle">跟得上时代的 AI 自动化架构师。致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。</p>
           </div>
-        </div>
-      </section>
 
-      <section class="section compact fade-in" aria-labelledby="metrics-title">
-        <div class="section-head">
-          <p class="eyebrow" id="metrics-title">Focus</p>
-          <p class="section-copy">ControlRookie 关注控制、算法、架构和 AI 工具链，把工程经验沉淀成可复用的代码、文章和产品。</p>
-        </div>
-        <div class="metrics-grid">
-          <article class="metric">
-            <small>Domain 01</small>
-            <strong>PLC</strong>
-            <span>控制逻辑、状态机、设备通信与工程现场问题。</span>
-          </article>
-          <article class="metric">
-            <small>Domain 02</small>
-            <strong>AI</strong>
-            <span>Agent、自动化编程、知识蒸馏和工程提效。</span>
-          </article>
-          <article class="metric">
-            <small>Domain 03</small>
-            <strong>Code</strong>
-            <span>源码开源、工具封装、脚本化和可复用工作流。</span>
-          </article>
-          <article class="metric">
-            <small>Domain 04</small>
-            <strong>Share</strong>
-            <span>CSDN、公众号、教程、方案和工程复盘。</span>
-          </article>
-        </div>
-      </section>
+          <div class="portrait-frame" aria-label="ControlRookie portrait placeholder">
+            <div class="portrait-placeholder">
+              <span>Portrait placeholder. 后续替换为 ControlRookie 个人照片。</span>
+            </div>
+          </div>
 
-      <section class="section section-line fade-in" id="vision" aria-labelledby="vision-title">
-        <div class="section-head">
-          <p class="eyebrow" id="vision-title">Vision</p>
-          <p class="section-copy">帮助水深火热的自动化工程师，大幅提升工程效率。</p>
-        </div>
-        <div class="split-grid">
-          <p class="large-statement">工业自动化需要更清楚的系统、更少的重复劳动，以及真正能落地的 AI 工具。</p>
-          <ul class="body-list">
-            <li>
-              <strong>控制</strong>
-              <p>从 PLC、CODESYS、运动控制到现场调试，把复杂控制逻辑拆成清晰、可验证、可迁移的工程资产。</p>
-            </li>
-            <li>
-              <strong>算法</strong>
-              <p>把路径规划、状态估计、数据处理和异常判断沉淀成工程师能看懂、能复用、能落地的算法模块。</p>
-            </li>
-            <li>
-              <strong>架构</strong>
-              <p>用系统思维组织设备、通信、数据、AI、工具链和团队协作，减少重复劳动和隐性技术债。</p>
-            </li>
-            <li>
+          <div class="focus-strip" aria-label="Core domains">
+            <article class="focus-card">
+              <small>Domain 01</small>
+              <strong>PLC</strong>
+              <span>控制逻辑、状态机、设备通信与工程现场问题。</span>
+            </article>
+            <article class="focus-card">
+              <small>Domain 02</small>
               <strong>AI</strong>
-              <p>把 AI 变成自动化工程师的放大器，而不是又一个需要额外维护的玩具。</p>
-            </li>
-          </ul>
+              <span>Agent、自动化编程、知识蒸馏和工程提效。</span>
+            </article>
+            <article class="focus-card">
+              <small>Domain 03</small>
+              <strong>Code</strong>
+              <span>源码开源、工具封装、脚本化和可复用工作流。</span>
+            </article>
+            <article class="focus-card">
+              <small>Domain 04</small>
+              <strong>Share</strong>
+              <span>CSDN、公众号、教程、方案和工程复盘。</span>
+            </article>
+          </div>
         </div>
       </section>
 
       <section class="section section-line fade-in" id="works" aria-labelledby="works-title">
         <div class="section-head">
-          <p class="eyebrow" id="works-title">Selected Works</p>
+          <p class="eyebrow" id="works-title">Works</p>
           <p class="section-copy">代表工程资产。这里先展示完整界面结构，真实链接后续再接入。</p>
         </div>
         <div class="work-grid" aria-label="Selected ControlRookie work">
-          <article class="work-card">
-            <div class="work-content">
-              <span class="work-index">01 · Tool</span>
-              <strong class="work-title">SmartControl CLI</strong>
-              <span class="work-meta">工程镜像、ST 代码、编译诊断与自动化验证。</span>
-            </div>
-          </article>
-          <article class="work-card">
-            <div class="work-content">
-              <span class="work-index">02 · Protocol</span>
-              <strong class="work-title">CODESYS MQTT</strong>
-              <span class="work-meta">设备数据、边缘通信和工业系统接入。</span>
-            </div>
-          </article>
-          <article class="work-card">
-            <div class="work-content">
-              <span class="work-index">03 · Skill</span>
-              <strong class="work-title">LicOS Skills</strong>
-              <span class="work-meta">把工程规范、手册、选型和 ST 能力沉淀为 AI 技能。</span>
-            </div>
-          </article>
-          <article class="work-card">
-            <div class="work-content">
-              <span class="work-index">04 · Agent</span>
-              <strong class="work-title">ST Code Agent</strong>
-              <span class="work-meta">围绕 IEC 61131-3 的生成、审查、修复和验证。</span>
-            </div>
-          </article>
-          <article class="work-card">
-            <div class="work-content">
-              <span class="work-index">05 · Motion</span>
-              <strong class="work-title">Motion Notes</strong>
-              <span class="work-meta">SoftMotion、轴组、机器人和轨迹控制的工程笔记。</span>
-            </div>
-          </article>
-          <article class="work-card">
-            <div class="work-content">
-              <span class="work-index">06 · Content</span>
-              <strong class="work-title">自动化工程效率</strong>
-              <span class="work-meta">文章、教程、复盘和源码分享的专题合集。</span>
-            </div>
-          </article>
-          <article class="work-card">
-            <div class="work-content">
-              <span class="work-index">07 · Product</span>
-              <strong class="work-title">工程工具包</strong>
-              <span class="work-meta">面向现场工程师的脚本、模板和交付工具。</span>
-            </div>
-          </article>
-          <article class="work-card">
-            <div class="work-content">
-              <span class="work-index">08 · Research</span>
-              <strong class="work-title">AI x Automation</strong>
-              <span class="work-meta">关于控制、算法、架构与 AI 协作边界的持续研究。</span>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="section fade-in">
-        <div class="quote-band">
-          <small>Epigraph · 卷首语</small>
-          <blockquote>做一件能复利的工程工具，比重复救一百次火更重要。</blockquote>
-          <small>ControlRookie · 2026</small>
+          <article class="work-card"><div class="work-content"><span class="work-index">01 · Tool</span><strong class="work-title">SmartControl CLI</strong><span class="work-meta">工程镜像、ST 代码、编译诊断与自动化验证。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index">02 · Protocol</span><strong class="work-title">CODESYS MQTT</strong><span class="work-meta">设备数据、边缘通信和工业系统接入。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index">03 · Skill</span><strong class="work-title">LicOS Skills</strong><span class="work-meta">把工程规范、手册、选型和 ST 能力沉淀为 AI 技能。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index">04 · Agent</span><strong class="work-title">ST Code Agent</strong><span class="work-meta">围绕 IEC 61131-3 的生成、审查、修复和验证。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index">05 · Motion</span><strong class="work-title">Motion Notes</strong><span class="work-meta">SoftMotion、轴组、机器人和轨迹控制的工程笔记。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index">06 · Content</span><strong class="work-title">自动化工程效率</strong><span class="work-meta">文章、教程、复盘和源码分享的专题合集。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index">07 · Product</span><strong class="work-title">工程工具包</strong><span class="work-meta">面向现场工程师的脚本、模板和交付工具。</span></div></article>
+          <article class="work-card"><div class="work-content"><span class="work-index">08 · Research</span><strong class="work-title">AI x Automation</strong><span class="work-meta">控制、算法、架构与 AI 协作边界的持续研究。</span></div></article>
         </div>
       </section>
 
       <section class="section section-line fade-in" id="articles" aria-labelledby="articles-title">
         <div class="section-head">
           <p class="eyebrow" id="articles-title">Articles</p>
-          <p class="section-copy">文章不是流量入口，而是工程经验的版本库。</p>
+          <p class="section-copy">文章、公众号、源码和专题以卡片方式呈现，真实链接后续接入。</p>
         </div>
-        <div class="split-grid">
-          <p class="large-statement">先把文章、公众号和源码入口完整放进信息层级，真实跳转后续接入。</p>
-          <div class="article-list">
-            <a class="list-row" href="#" aria-label="CSDN">
-              <small>01</small>
-              <strong>CSDN 技术文章</strong>
-              <span>PLC / CODESYS / 工程复盘</span>
-            </a>
-            <a class="list-row" href="#" aria-label="微信公众号">
-              <small>02</small>
-              <strong>微信公众号专题</strong>
-              <span>AI 自动化 / 思考 / 工具</span>
-            </a>
-            <a class="list-row" href="#" aria-label="开源源码">
-              <small>03</small>
-              <strong>源码与案例仓库</strong>
-              <span>模板 / 脚本 / 示例工程</span>
-            </a>
-            <a class="list-row" href="#" aria-label="精选专题">
-              <small>04</small>
-              <strong>精选系列路线图</strong>
-              <span>控制 · 算法 · 架构 · AI</span>
-            </a>
-          </div>
+        <div class="article-grid">
+          <article class="info-card"><div><small>Article Source</small><h3>CSDN 技术文章</h3><p>PLC、CODESYS、SmartControl、工程复盘和源码实践。</p></div><footer>01 / Blog</footer></article>
+          <article class="info-card"><div><small>Publication</small><h3>微信公众号专题</h3><p>AI 自动化、工程效率、工具构建和长期思考。</p></div><footer>02 / WeChat</footer></article>
+          <article class="info-card"><div><small>Repository</small><h3>源码与案例仓库</h3><p>模板、脚本、示例工程和可复用工作流沉淀。</p></div><footer>03 / Code</footer></article>
+          <article class="info-card"><div><small>Series</small><h3>精选路线图</h3><p>控制、算法、架构、AI 四条主线的持续更新目录。</p></div><footer>04 / Topics</footer></article>
         </div>
       </section>
 
@@ -1046,65 +876,16 @@
           <p class="section-copy">工具、技能、程序和服务入口。先完整呈现界面与信息层级，真实购买和跳转后续接入。</p>
         </div>
         <div class="product-grid">
-          <article class="product-card">
-            <div>
-              <small>Open Source</small>
-              <h3>开源工程资产</h3>
-              <p>可公开分享的源码、模板、脚本和示例工程，帮助工程师少走重复弯路。</p>
-            </div>
-            <small>Free / GitHub later</small>
-          </article>
-          <article class="product-card">
-            <div>
-              <small>Paid Toolkit</small>
-              <h3>自动化效率工具包</h3>
-              <p>面向真实项目交付的工具、规则、清单、脚手架和验证流程。</p>
-            </div>
-            <small>Coming soon</small>
-          </article>
-          <article class="product-card">
-            <div>
-              <small>Consulting</small>
-              <h3>AI 工程化咨询</h3>
-              <p>围绕控制系统、工程流程、知识库和 AI Agent 落地的定制化方案。</p>
-            </div>
-            <small>By request</small>
-          </article>
-        </div>
-      </section>
-
-      <section class="section section-line fade-in" id="method" aria-labelledby="method-title">
-        <div class="section-head">
-          <p class="eyebrow" id="method-title">Method</p>
-          <p class="section-copy">先让工程变清楚，再让 AI 参与进来。</p>
-        </div>
-        <div class="split-grid">
-          <p class="large-statement">从建模、固化、自动化到分享，把经验转化为可复用资产。</p>
-          <ul class="body-list">
-            <li>
-              <strong>01 · 建模</strong>
-              <p>先梳理设备、状态、数据、约束和异常边界，避免 AI 在混乱工程里放大混乱。</p>
-            </li>
-            <li>
-              <strong>02 · 固化</strong>
-              <p>把高频动作沉淀为模板、脚本、规范和检查清单，让经验可复制。</p>
-            </li>
-            <li>
-              <strong>03 · 自动化</strong>
-              <p>用 Agent、CLI、测试和文档生成工具接管重复工作，把工程师从机械劳动里释放出来。</p>
-            </li>
-            <li>
-              <strong>04 · 分享</strong>
-              <p>通过文章、开源和产品化，把个人经验变成自动化行业可复用的公共资产。</p>
-            </li>
-          </ul>
+          <article class="info-card"><div><small>Open Source</small><h3>开源工程资产</h3><p>可公开分享的源码、模板、脚本和示例工程，帮助工程师少走重复弯路。</p></div><footer>Free / GitHub later</footer></article>
+          <article class="info-card"><div><small>Paid Toolkit</small><h3>自动化效率工具包</h3><p>面向真实项目交付的工具、规则、清单、脚手架和验证流程。</p></div><footer>Coming soon</footer></article>
+          <article class="info-card"><div><small>Consulting</small><h3>AI 工程化咨询</h3><p>围绕控制系统、工程流程、知识库和 AI Agent 落地的定制化方案。</p></div><footer>By request</footer></article>
         </div>
       </section>
 
       <section class="section fade-in" id="contact" aria-labelledby="contact-title">
         <div class="contact-panel">
           <div>
-            <p class="eyebrow" id="contact-title" style="color: rgba(255,255,255,.66);">Get in Touch</p>
+            <p class="eyebrow" id="contact-title" style="color: rgba(255,255,255,.66);">Contact</p>
             <h2>有想法？聊聊工程效率。</h2>
             <p>文章合作、工具试用、工程咨询、AI 自动化方案都可以先占位。真实联系方式后续接入。</p>
           </div>
@@ -1126,6 +907,50 @@
 
   <script>
     const revealItems = document.querySelectorAll(".fade-in");
+    const searchShell = document.getElementById("searchShell");
+    const searchButton = document.getElementById("searchButton");
+    const searchInput = document.getElementById("siteSearch");
+    const searchPanel = document.getElementById("searchPanel");
+    const searchIndex = [
+      { title: "CSDN 技术文章", type: "Article", text: "PLC CODESYS SmartControl 工程复盘 源码实践", href: "#articles" },
+      { title: "微信公众号专题", type: "Article", text: "AI 自动化 工程效率 工具 长期思考", href: "#articles" },
+      { title: "源码与案例仓库", type: "Code", text: "模板 脚本 示例工程 工作流", href: "#articles" },
+      { title: "SmartControl CLI", type: "Tool", text: "ST 代码 编译诊断 自动化验证", href: "#works" },
+      { title: "CODESYS MQTT", type: "Protocol", text: "设备数据 边缘通信 工业系统接入", href: "#works" },
+      { title: "自动化效率工具包", type: "Product", text: "工具 规则 清单 脚手架 验证流程", href: "#products" },
+      { title: "AI 工程化咨询", type: "Service", text: "控制系统 工程流程 知识库 Agent", href: "#products" }
+    ];
+
+    function renderSearch(query) {
+      const keyword = query.trim().toLowerCase();
+      const matches = keyword
+        ? searchIndex.filter(item => `${item.title} ${item.type} ${item.text}`.toLowerCase().includes(keyword))
+        : searchIndex.slice(0, 5);
+
+      searchPanel.innerHTML = matches.length
+        ? matches.map((item, index) => `<a class="search-result${index === 0 ? " active" : ""}" href="${item.href}"><strong>${item.title}</strong><span>${item.type} · ${item.text}</span></a>`).join("")
+        : `<div class="search-empty">没有匹配结果。可以尝试 PLC、AI、CODESYS、工具、文章。</div>`;
+      searchPanel.classList.add("visible");
+    }
+
+    searchButton.addEventListener("click", () => {
+      searchShell.classList.add("open");
+      searchInput.focus();
+      renderSearch(searchInput.value);
+    });
+
+    searchInput.addEventListener("input", () => renderSearch(searchInput.value));
+    searchInput.addEventListener("focus", () => {
+      searchShell.classList.add("open");
+      renderSearch(searchInput.value);
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!searchShell.contains(event.target) && !searchPanel.contains(event.target)) {
+        searchShell.classList.remove("open");
+        searchPanel.classList.remove("visible");
+      }
+    });
 
     if ("IntersectionObserver" in window) {
       const observer = new IntersectionObserver((entries) => {

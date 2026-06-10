@@ -19,7 +19,7 @@ FrontendDesign 生成速度快，长页完整度高，但容易自发挥成 SaaS
 - Open Design：主原型工具，负责首页、作品墙、核心页面的高保真设计。
 - ForAI 原站 HTML：仅保留为临时调研标尺，后续不纳入正式项目产物。
 - FrontendDesign：用于快速探索产品区、博客区、联系区的内容组织备选方案。
-- Playwright/Chromium：用于桌面端和移动端截图验收。
+- Playwright/Chromium：用于桌面浏览器辅助验证和桌面截图；移动端只在正式响应式阶段单独验证，不作为当前高保真首页主验收依据。
 
 ## 影响
 
