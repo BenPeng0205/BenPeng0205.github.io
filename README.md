@@ -6,14 +6,14 @@ ControlRookie 个人网站项目。
 
 ## 当前阶段
 
-当前 Open Design 首页高保真底座已确认满意，并已迁移为零依赖静态前端工程。原型继续作为视觉基线，工程版作为后续开发入口。
+当前 Open Design 首页高保真底座已确认满意，并已迁移为零依赖静态前端工程。项目已进入可静态发布的生产级基础版本：具备视觉回归、SEO、发布资产、独立内容数据、双语、搜索、二维码素材和综合验收脚本。
 
 重要约束：
 
 - `项目规划与TODO.md` 是唯一规划源。
 - `设计调研与原型/controlrookie-website-design-preview.html` 只是早期方向板，不是高保真验收稿。
 - 正式首页高保真原型只保留在 `prototypes/homepage-open-design/`。
-- 正式工程入口位于 `src/app/index.html`，样式位于 `src/styles/site.css`，交互位于 `src/lib/site.js`。
+- 正式工程入口位于 `src/app/index.html`，样式位于 `src/styles/site.css`，交互位于 `src/lib/site.js`，内容数据位于 `src/content/site-data.js`。
 - ForAI 原站 HTML 只作为视觉标尺，不作为开发底座。
 - FrontendDesign 只作为内容密集区备选辅助，不作为首页主路线。
 - 后续新增页面必须沿用当前底座：黑白灰、`#f1f1f1` 浅灰色块、细边框、轻字重、克制字号、桌面单页段落、右上角黑色搜索和浅灰卡片网格。
@@ -43,13 +43,20 @@ scripts/       自动化脚本
 - 工程入口：`src/app/index.html`
 - 视觉样式：`src/styles/site.css`
 - 页面交互：`src/lib/site.js`
+- 内容数据：`src/content/site-data.js`
+- 发布资产：`public/favicon.ico`、`public/site.webmanifest`、`public/robots.txt`、`public/sitemap.xml`
 - 视觉基线截图：`tests/visual/baseline/`
 
 ## 验证命令
 
 ```powershell
+& 'E:\ai-relavant\ben-blog-cli\.venv\Scripts\python.exe' 'scripts\verify_production_ready.py'
 & 'E:\ai-relavant\ben-blog-cli\.venv\Scripts\python.exe' 'scripts\verify_visual_parity.py'
 & 'E:\ai-relavant\ben-blog-cli\.venv\Scripts\python.exe' 'scripts\verify_static_app.py'
 ```
 
-`verify_visual_parity.py` 会用桌面视口对比工程版和基线截图，防止视觉漂移；`verify_static_app.py` 会检查照片、二维码、搜索、双语和锚点可用性。
+`verify_production_ready.py` 是综合生产级验收入口，会检查 SEO、发布资产、内容数据、UTF-8、代码契约，并调用视觉和功能验证。`verify_visual_parity.py` 会用桌面视口对比工程版和基线截图，防止视觉漂移；`verify_static_app.py` 会检查照片、二维码、搜索、双语、锚点和内容数据可用性。
+
+## 生产级边界
+
+当前生产级标准指可静态发布的单页官网基础版本。已覆盖首页、资源、文章、产品、联系、双语、搜索、SEO 和发布资产；暂不包含后台 CMS、支付系统、用户系统、真实域名解析、服务器运维、第三方统计和完整站内博客。

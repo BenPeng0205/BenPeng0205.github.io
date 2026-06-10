@@ -55,6 +55,24 @@
       cursor: pointer;
     }
 
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: 12px;
+      left: 12px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: #050505;
+      color: #fff;
+      font-size: 13px;
+      transform: translateY(-72px);
+      transition: transform 160ms ease;
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
     /* 全站画布：保持白底和单页滚动结构。 */
     .site-shell {
       min-height: 100vh;

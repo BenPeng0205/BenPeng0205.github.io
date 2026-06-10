@@ -13,6 +13,18 @@ def main() -> None:
         page = browser.new_page(viewport={"width": 1440, "height": 900}, device_scale_factor=1)
         page.goto(file_url, wait_until="networkidle")
 
+        title = page.title()
+        if "ControlRookie" not in title:
+            raise SystemExit("页面 title 异常。")
+
+        description = page.locator("meta[name='description']").get_attribute("content")
+        if not description or "AI" not in description:
+            raise SystemExit("SEO description 异常。")
+
+        data_loaded = page.evaluate("Boolean(window.CONTROLROOKIE_SITE_DATA && window.CONTROLROOKIE_SITE_DATA.articles.length)")
+        if not data_loaded:
+            raise SystemExit("内容数据源未加载。")
+
         for selector in [
             ".portrait-image",
             "img[src*='wechat-peaceandbless-qr.jpg']",
@@ -27,6 +39,12 @@ def main() -> None:
         page.wait_for_timeout(200)
         if "CODESYS MQTT" not in page.locator("#searchPanel").inner_text():
             raise SystemExit("搜索 MQTT 未匹配文章结果。")
+
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(120)
+        expanded = page.locator("#searchButton").get_attribute("aria-expanded")
+        if expanded != "false":
+            raise SystemExit("搜索 Escape 收起失败。")
 
         page.click("#langToggle")
         page.wait_for_timeout(200)
