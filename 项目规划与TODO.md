@@ -151,7 +151,8 @@ controlrookie-website/
 - [x] 验证拆分后的工程版视觉、搜索、双语、素材加载和中文编码。
 - [x] 进入真实内容梳理、SEO、部署和后续框架化评估。
 - [x] 完成五星生产级基础：SEO、发布资产、内容数据、可访问性、综合验证和文档对齐。
-- [ ] 后续真实域名确定后，将 `https://controlrookie.com/` 替换为正式域名并重新生成 sitemap。
+- [ ] 使用 GitHub Pages 临时域名 `https://benpeng0205.github.io/` 发布，直到正式域名购买完成。
+- [ ] 后续真实域名确定后，将 `https://benpeng0205.github.io/` 替换为正式域名并重新生成 sitemap。
 
 ## 风险与约束
 
@@ -180,3 +181,4 @@ controlrookie-website/
 - 2026-06-11：完成视觉回归和功能验证；工程版与已验收原型视觉差异低于 1% 阈值，素材、搜索、双语和锚点检查通过。
 - 2026-06-11：启动五星生产级基础阶段，目标是在不安装依赖、不改变视觉底座的前提下补齐 SEO、发布资产、内容数据、可访问性、综合验证和文档闭环。
 - 2026-06-11：完成五星生产级基础阶段；新增 `src/content/site-data.js`、SEO 元信息、结构化数据、favicon、manifest、robots、sitemap、Open Graph 图和综合验收脚本 `scripts/verify_production_ready.py`，并通过生产级验证。
+- 2026-06-11：将临时发布域名切换为 `https://benpeng0205.github.io/`，新增 GitHub Pages 构建脚本和 Actions 发布配置。

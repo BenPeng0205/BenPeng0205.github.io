@@ -144,6 +144,37 @@ def check_code_contract() -> None:
     require("as any" not in js and "@ts-ignore" not in js, "存在禁止的类型绕过标记。")
 
 
+def check_dist_build() -> None:
+    result = subprocess.run(
+        [PYTHON, str(PROJECT_ROOT / "scripts" / "build_static_site.py")],
+        cwd=str(PROJECT_ROOT),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        timeout=60,
+    )
+    print(result.stdout.strip())
+    require(result.returncode == 0, "静态站构建失败。")
+
+    dist = PROJECT_ROOT / "dist"
+    for rel in [
+        "index.html",
+        "styles/site.css",
+        "lib/site.js",
+        "content/site-data.js",
+        "assets/images/brand/controlrookie-og.png",
+        "robots.txt",
+        "sitemap.xml",
+        ".nojekyll",
+    ]:
+        path = dist / rel
+        require(path.exists(), f"dist 缺少发布文件: {rel}")
+
+    dist_html = read_text(dist / "index.html")
+    require("../../public/" not in dist_html, "dist/index.html 仍包含开发期 public 相对路径。")
+    require("styles/site.css" in dist_html and "content/site-data.js" in dist_html, "dist/index.html 资源路径异常。")
+
+
 def run_script(script: str) -> None:
     result = subprocess.run(
         [PYTHON, str(PROJECT_ROOT / "scripts" / script)],
@@ -163,6 +194,7 @@ def main() -> None:
     check_public_assets()
     check_content_data()
     check_code_contract()
+    check_dist_build()
     run_script("verify_static_app.py")
     run_script("verify_visual_parity.py")
     print("PRODUCTION_READY_OK")

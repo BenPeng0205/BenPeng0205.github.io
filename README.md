@@ -60,3 +60,17 @@ scripts/       自动化脚本
 ## 生产级边界
 
 当前生产级标准指可静态发布的单页官网基础版本。已覆盖首页、资源、文章、产品、联系、双语、搜索、SEO 和发布资产；暂不包含后台 CMS、支付系统、用户系统、真实域名解析、服务器运维、第三方统计和完整站内博客。
+
+## 临时发布
+
+当前临时发布域名：`https://benpeng0205.github.io/`
+
+GitHub Pages 构建入口：
+
+```powershell
+& 'E:\ai-relavant\ben-blog-cli\.venv\Scripts\python.exe' 'scripts\build_static_site.py'
+```
+
+构建产物位于 `dist/`。仓库推送到 GitHub 后，`.github/workflows/deploy-pages.yml` 会构建并发布 `dist/`。要使用该根域名，GitHub 仓库应为 `BenPeng0205/benpeng0205.github.io`，并在仓库 Pages 设置里启用 GitHub Actions 发布源。
+
+正式域名购买后，需要统一替换 `https://benpeng0205.github.io/`，更新 `public/sitemap.xml`、`public/robots.txt` 和 `src/app/index.html` 中的 canonical / Open Graph / 结构化数据，然后重新运行生产级验收。
