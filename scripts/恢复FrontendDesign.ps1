@@ -1,8 +1,17 @@
 param(
-    [string]$FrontendDesignRoot = "E:\ai-relavant\frontenddesign-env"
+    [string]$FrontendDesignRoot = ""
 )
 
 $ErrorActionPreference = "Stop"
+
+if ([string]::IsNullOrWhiteSpace($FrontendDesignRoot)) {
+    $candidateRoot = Split-Path -Parent $PSScriptRoot
+    if (Test-Path -LiteralPath (Join-Path $candidateRoot "docker-compose.yml")) {
+        $FrontendDesignRoot = $candidateRoot
+    } else {
+        $FrontendDesignRoot = "E:\ai-relavant\frontenddesign-env"
+    }
+}
 
 $codexAuthPath = Join-Path $env:USERPROFILE ".codex\auth.json"
 $codexConfigPath = Join-Path $env:USERPROFILE ".codex\config.toml"
