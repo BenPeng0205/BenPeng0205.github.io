@@ -338,11 +338,22 @@
       text-wrap: balance;
     }
 
-    .subtitle {
+    .hero-statement {
       max-width: 690px;
       margin: 24px 0 0;
+      color: #050505;
+      font-size: clamp(24px, 2vw, 32px);
+      font-weight: 285;
+      line-height: 1.18;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    .hero-description {
+      max-width: 690px;
+      margin: 16px 0 0;
       color: var(--muted);
-      font-size: clamp(17px, 1.22vw, 19px);
+      font-size: clamp(16px, 1.08vw, 18px);
       font-weight: 360;
       line-height: 1.58;
       letter-spacing: 0;
@@ -441,23 +452,16 @@
       margin-bottom: 30px;
     }
 
+    .section-head.compact {
+      margin-bottom: 26px;
+    }
+
     .eyebrow {
       margin: 0;
       color: var(--fg);
       font-size: 13px;
       font-weight: 520;
       line-height: 1.2;
-    }
-
-    .section-copy {
-      margin: 0;
-      color: var(--muted);
-      max-width: 660px;
-      font-size: clamp(16px, 1.34vw, 19px);
-      font-weight: 340;
-      line-height: 1.55;
-      letter-spacing: 0;
-      text-wrap: pretty;
     }
 
     .work-grid,
@@ -507,29 +511,23 @@
       overflow: hidden;
       border: 1px solid var(--line);
       border-radius: 22px;
-      background: #f4f4f4;
-      color: #fff;
+      background:
+        radial-gradient(circle at 78% 18%, rgba(255, 255, 255, 0.58), transparent 92px),
+        radial-gradient(circle at 86% 22%, rgba(0, 0, 0, 0.05), transparent 140px),
+        var(--soft);
+      color: #050505;
       transform: translateZ(0);
       transition: transform 260ms ease, border-color 260ms ease, filter 260ms ease;
     }
-
-    .work-card:nth-child(1) { background: radial-gradient(circle at 42% 28%, #fafafa 0 14%, #8b8b8b 15% 27%, #1a1a1a 56%, #060606 100%); }
-    .work-card:nth-child(2) { background: linear-gradient(145deg, #fbfbfb 0 6%, #dbdbdb 7% 28%, #7d7d7d 29% 45%, #171717 78%); }
-    .work-card:nth-child(3) { background: radial-gradient(circle at 70% 23%, #f8f8f8 0 12%, #a0a0a0 21%, #2a2a2a 54%, #0b0b0b 100%); }
-    .work-card:nth-child(4) { background: conic-gradient(from 20deg at 50% 50%, #101010, #777, #f9f9f9, #2a2a2a, #101010); }
-    .work-card:nth-child(5) { background: linear-gradient(180deg, #f7f7f7 0, #c8c8c8 22%, #4e4e4e 58%, #111 100%); }
-    .work-card:nth-child(6) { background: radial-gradient(circle at 35% 38%, #fcfcfc 0 16%, #c7c7c7 20%, #5a5a5a 44%, #151515 84%); }
-    .work-card:nth-child(7) { background: linear-gradient(120deg, #090909 0 24%, #6c6c6c 24% 42%, #f0f0f0 42% 54%, #2f2f2f 54% 100%); }
-    .work-card:nth-child(8) { background: radial-gradient(ellipse at 50% 14%, #fff 0 14%, #9c9c9c 25%, #242424 62%, #080808 100%); }
 
     .work-card::before {
       content: "";
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 50% 50%, transparent 0 27%, rgba(255, 255, 255, 0.15) 28% 29%, transparent 30%),
-        linear-gradient(180deg, transparent 34%, rgba(0, 0, 0, 0.58) 100%);
-      opacity: 0.72;
+        radial-gradient(circle at 72% 28%, rgba(255, 255, 255, 0.62), transparent 0 20%, transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.035));
+      opacity: 0.8;
     }
 
     .work-card::after {
@@ -540,19 +538,17 @@
       top: 14%;
       left: 18%;
       border-radius: 999px;
-      background:
-        radial-gradient(circle at 31% 23%, rgba(255,255,255,0.88), transparent 15%),
-        conic-gradient(from 130deg, #e9e9e9, #686868, #111, #f4f4f4, #858585, #111, #f5f5f5);
-      filter: blur(0.2px) contrast(1.1);
-      opacity: 0.56;
-      box-shadow: inset -20px -26px 38px rgba(0, 0, 0, 0.34), inset 14px 18px 28px rgba(255, 255, 255, 0.62);
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.9), transparent 16%), radial-gradient(circle at 56% 52%, rgba(0,0,0,0.06), transparent 0 34%, transparent 48%);
+      filter: blur(0.2px);
+      opacity: 0.42;
+      box-shadow: inset -20px -26px 38px rgba(0, 0, 0, 0.06), inset 14px 18px 28px rgba(255, 255, 255, 0.72);
       transition: transform 320ms ease, opacity 260ms ease;
     }
 
     .work-card:hover {
       transform: translateY(-4px);
       border-color: var(--line-strong);
-      filter: contrast(1.04);
+      filter: contrast(1.02);
     }
 
     .work-card:hover::after {
@@ -568,23 +564,23 @@
     }
 
     .work-index {
-      color: rgba(255, 255, 255, 0.68);
+      color: var(--muted-2);
       font-size: 12px;
       font-weight: 520;
       line-height: 1;
     }
 
     .work-title {
-      color: #fff;
+      color: #050505;
       font-size: clamp(19px, 1.8vw, 25px);
       font-weight: 360;
       line-height: 1.12;
       letter-spacing: 0;
-      text-shadow: 0 1px 14px rgba(0, 0, 0, 0.28);
+      text-shadow: none;
     }
 
     .work-meta {
-      color: rgba(255, 255, 255, 0.72);
+      color: var(--muted);
       font-size: 12px;
       line-height: 1.38;
     }
@@ -645,9 +641,7 @@
 
     .contact-shell {
       display: grid;
-      grid-template-columns: minmax(280px, 0.56fr) minmax(0, 1.44fr);
       gap: 14px;
-      align-items: stretch;
     }
 
     .contact-lead,
@@ -661,17 +655,18 @@
     }
 
     .contact-lead {
-      min-height: 454px;
-      padding: clamp(26px, 3.3vw, 40px);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      min-height: 212px;
+      padding: clamp(26px, 3.2vw, 42px);
+      display: grid;
+      grid-template-columns: minmax(0, 0.7fr) minmax(260px, 0.3fr);
+      gap: clamp(24px, 4vw, 64px);
+      align-items: end;
     }
 
     .contact-lead h2 {
       margin: 0;
       color: #050505;
-      font-size: clamp(30px, 3.2vw, 48px);
+      font-size: clamp(34px, 4.4vw, 66px);
       font-weight: 250;
       line-height: 1.04;
       letter-spacing: 0;
@@ -680,7 +675,7 @@
 
     .contact-lead p {
       margin: 18px 0 0;
-      max-width: 520px;
+      max-width: 560px;
       color: var(--muted);
       font-size: 15px;
       line-height: 1.58;
@@ -688,12 +683,12 @@
 
     .contact-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 14px;
     }
 
     .contact-card {
-      min-height: 220px;
+      min-height: 274px;
       padding: 24px;
       display: flex;
       flex-direction: column;
@@ -719,6 +714,13 @@
       font-weight: 330;
       line-height: 1.18;
       letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .contact-card.text-card strong {
+      margin-top: auto;
+      font-size: clamp(17px, 1.22vw, 22px);
+      line-height: 1.22;
     }
 
     .contact-card span {
@@ -732,7 +734,7 @@
     }
 
     .qr-slot {
-      width: min(100%, 168px);
+      width: min(100%, 186px);
       aspect-ratio: 1;
       border: 1px solid var(--line-strong);
       border-radius: 18px;
@@ -845,8 +847,8 @@
         font-size: clamp(44px, 12vw, 58px);
       }
 
-      .subtitle {
-        font-size: 16px;
+      .hero-statement {
+        font-size: clamp(22px, 6vw, 30px);
       }
 
       .section {
@@ -866,6 +868,10 @@
       .article-grid,
       .product-grid,
       .contact-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .contact-lead {
         grid-template-columns: 1fr;
       }
 
@@ -943,7 +949,8 @@
           <div class="hero-copy">
             <p class="kicker" data-i18n="hero.kicker">AI 自动化架构师 / 2026</p>
             <h1>ControlRookie</h1>
-            <p class="subtitle" data-i18n="hero.subtitle">跟得上时代的 AI 自动化架构师。致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。</p>
+            <p class="hero-statement" data-i18n="hero.statement">跟得上时代的 AI 自动化架构师。</p>
+            <p class="hero-description" data-i18n="hero.description">致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。</p>
           </div>
 
           <div class="focus-strip" aria-label="Core domains">
@@ -972,9 +979,8 @@
       </section>
 
       <section class="section section-line section-tall fade-in" id="works" aria-labelledby="works-title">
-        <div class="section-head">
+        <div class="section-head compact">
           <p class="eyebrow" id="works-title" data-i18n="resources.title">资源</p>
-          <p class="section-copy" data-i18n="resources.copy">源码、库文件、标准、模板和工程资料会统一放在这里，后续按真实链接接入。</p>
         </div>
         <div class="work-grid" aria-label="Selected ControlRookie work">
           <article class="work-card"><div class="work-content"><span class="work-index" data-i18n="resource.1.type">01 · 源代码</span><strong class="work-title" data-i18n="resource.1.title">CODESYS 示例工程</strong><span class="work-meta" data-i18n="resource.1.copy">控制逻辑、通信、状态机和工程模板源码。</span></div></article>
@@ -989,9 +995,8 @@
       </section>
 
       <section class="section section-line fade-in" id="articles" aria-labelledby="articles-title">
-        <div class="section-head">
+        <div class="section-head compact">
           <p class="eyebrow" id="articles-title" data-i18n="articles.title">文章</p>
-          <p class="section-copy" data-i18n="articles.copy">CSDN 已发布完整 CODESYS MQTT 系列；官网长期建议做主站文章，CSDN 和公众号负责分发引流。</p>
         </div>
         <div class="article-grid article-grid-single">
           <a class="info-card" href="https://blog.csdn.net/weixin_44442562/category_13163069.html" target="_blank" rel="noreferrer"><div><small>CSDN Series</small><h3 data-i18n="article.1.title">CODESYS MQTT 系列</h3><p data-i18n="article.1.copy">已发布服务器、客户端、Broker、主题通信和排障教程，先跳转 CSDN 分类页。</p></div><footer>01 / CSDN MQTT</footer></a>
@@ -999,9 +1004,8 @@
       </section>
 
       <section class="section section-line fade-in" id="products" aria-labelledby="products-title">
-        <div class="section-head">
+        <div class="section-head compact">
           <p class="eyebrow" id="products-title" data-i18n="products.title">产品</p>
-          <p class="section-copy" data-i18n="products.copy">当前只展示 codesys-llm-synchronizer，其他产品先不放，后续成熟后再进入这里。</p>
         </div>
         <div class="product-grid product-grid-single">
           <article class="info-card"><div><small>Product 01</small><h3>codesys-llm-synchronizer</h3><p data-i18n="product.1.copy">面向 CODESYS / SmartControl 工程的 LLM 同步与协作工具，用于工程镜像、代码上下文、规则和自动化工作流衔接。</p></div><footer>Current / Details later</footer></article>
@@ -1009,9 +1013,8 @@
       </section>
 
       <section class="section fade-in" id="contact" aria-labelledby="contact-title">
-        <div class="section-head">
+        <div class="section-head compact">
           <p class="eyebrow" id="contact-title" data-i18n="contact.title">联系</p>
-          <p class="section-copy" data-i18n="contact.copy">微信、邮箱、CSDN 和公众号入口先完整呈现，二维码图片后续替换为已保存的正式素材。</p>
         </div>
         <div class="contact-shell">
           <div class="contact-lead">
@@ -1022,10 +1025,10 @@
             <p class="eyebrow">ControlRookie / AI Automation Architect</p>
           </div>
           <div class="contact-grid" aria-label="Contact channels">
-            <article class="contact-card qr-card"><small>WeChat</small><strong>PeaceAndBless</strong><span data-i18n="contact.wechat">个人微信，扫码添加好友。</span><img class="qr-slot" src="../../public/assets/images/contact/wechat-peaceandbless-qr.jpg" alt="PeaceAndBless WeChat QR code"></article>
-            <article class="contact-card qr-card"><small>Official Account</small><strong>ControlRookie</strong><span data-i18n="contact.official">微信公众号，扫码关注。</span><img class="qr-slot" src="../../public/assets/images/contact/wechat-official-account-controlrookie-qr.jpg" alt="ControlRookie official account QR code"></article>
-            <a class="contact-card" href="mailto:ben_peng0205@hotmail.com"><small>Email</small><strong>ben_peng0205@hotmail.com</strong><span data-i18n="contact.email">合作咨询、工具试用和工程化协作。</span></a>
-            <a class="contact-card" href="https://blog.csdn.net/weixin_44442562?type=blog" target="_blank" rel="noreferrer"><small>CSDN</small><strong>ControlRookie 技术博客</strong><span data-i18n="contact.csdn">文章、教程、工程复盘和源码实践。</span></a>
+            <article class="contact-card qr-card"><small data-i18n="contact.wechat.label">微信</small><strong>PeaceAndBless</strong><img class="qr-slot" src="../../public/assets/images/contact/wechat-peaceandbless-qr.jpg" alt="PeaceAndBless WeChat QR code"></article>
+            <article class="contact-card qr-card"><small data-i18n="contact.official.label">公众号</small><strong>ControlRookie</strong><img class="qr-slot" src="../../public/assets/images/contact/wechat-official-account-controlrookie-qr.jpg" alt="ControlRookie official account QR code"></article>
+            <a class="contact-card text-card" href="mailto:ben_peng0205@hotmail.com"><small data-i18n="contact.email.label">邮箱</small><strong>ben_peng0205@hotmail.com</strong></a>
+            <a class="contact-card text-card" href="https://blog.csdn.net/weixin_44442562?type=blog" target="_blank" rel="noreferrer"><small>CSDN</small><strong>ControlRookie 技术博客</strong></a>
           </div>
         </div>
       </section>
@@ -1053,7 +1056,8 @@
         "nav.contact": "联系",
         "search.placeholder": "搜索文章、资源、产品",
         "hero.kicker": "AI 自动化架构师 / 2026",
-        "hero.subtitle": "跟得上时代的 AI 自动化架构师。致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。",
+        "hero.statement": "跟得上时代的 AI 自动化架构师。",
+        "hero.description": "致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。",
         "focus.1.kicker": "领域 01",
         "focus.1.copy": "控制逻辑、状态机、设备通信与工程现场问题。",
         "focus.2.kicker": "领域 02",
@@ -1063,7 +1067,6 @@
         "focus.4.kicker": "领域 04",
         "focus.4.copy": "CSDN、公众号、教程、方案和工程复盘。",
         "resources.title": "资源",
-        "resources.copy": "源码、库文件、标准、模板和工程资料会统一放在这里，后续按真实链接接入。",
         "resource.1.type": "01 · 源代码",
         "resource.1.title": "CODESYS 示例工程",
         "resource.1.copy": "控制逻辑、通信、状态机和工程模板源码。",
@@ -1089,20 +1092,16 @@
         "resource.8.title": "工程资料库",
         "resource.8.copy": "手册、笔记、复盘和关键技术路线图。",
         "articles.title": "文章",
-        "articles.copy": "当前只保留已发布的 CODESYS MQTT 系列教程入口，其他文章模块暂不展示。",
         "article.1.title": "CODESYS MQTT 系列",
         "article.1.copy": "已发布服务器、客户端、Broker、主题通信和排障教程，先跳转 CSDN 分类页。",
         "products.title": "产品",
-        "products.copy": "当前只展示 codesys-llm-synchronizer，其他产品先不放，后续成熟后再进入这里。",
         "product.1.copy": "面向 CODESYS / SmartControl 工程的 LLM 同步与协作工具，用于工程镜像、代码上下文、规则和自动化工作流衔接。",
         "contact.title": "联系",
-        "contact.copy": "微信、邮箱、CSDN 和公众号入口先完整呈现，二维码图片后续替换为已保存的正式素材。",
         "contact.heading": "聊聊工程效率。",
         "contact.lead": "文章合作、工具试用、工程咨询、AI 自动化方案，可以通过微信、邮箱、CSDN 或公众号联系。",
-        "contact.wechat": "个人微信，扫码添加好友。",
-        "contact.official": "微信公众号，扫码关注。",
-        "contact.email": "合作咨询、工具试用和工程化协作。",
-        "contact.csdn": "文章、教程、工程复盘和源码实践。",
+        "contact.wechat.label": "微信",
+        "contact.official.label": "公众号",
+        "contact.email.label": "邮箱",
         "footer.copy": "面向自动化工程师的 AI 自动化架构。",
         "search.empty": "没有匹配结果。可以尝试 PLC、AI、CODESYS、MQTT、资源、产品。"
       },
@@ -1113,7 +1112,8 @@
         "nav.contact": "Contact",
         "search.placeholder": "Search articles, resources, products",
         "hero.kicker": "AI Automation Architect / 2026",
-        "hero.subtitle": "An AI automation architect keeping pace with the era. ControlRookie shares source code, control ideas, algorithms, architecture, frontier technology, and AI tools to help automation engineers improve engineering efficiency.",
+        "hero.statement": "An AI automation architect keeping pace with the era.",
+        "hero.description": "ControlRookie shares source code, control ideas, algorithms, architecture, frontier technology, and AI tools to help automation engineers improve engineering efficiency.",
         "focus.1.kicker": "Domain 01",
         "focus.1.copy": "Control logic, state machines, device communication, and field issues.",
         "focus.2.kicker": "Domain 02",
@@ -1123,7 +1123,6 @@
         "focus.4.kicker": "Domain 04",
         "focus.4.copy": "CSDN, WeChat articles, tutorials, solutions, and engineering reviews.",
         "resources.title": "Resources",
-        "resources.copy": "Source code, libraries, standards, templates, and engineering references will be organized here with real links later.",
         "resource.1.type": "01 · Source",
         "resource.1.title": "CODESYS Examples",
         "resource.1.copy": "Control logic, communication, state machines, and project templates.",
@@ -1149,20 +1148,16 @@
         "resource.8.title": "Engineering Library",
         "resource.8.copy": "Manuals, notes, reviews, and technical roadmaps.",
         "articles.title": "Articles",
-        "articles.copy": "Only the published CODESYS MQTT tutorial series is shown for now. Other article modules stay hidden.",
         "article.1.title": "CODESYS MQTT Series",
         "article.1.copy": "Published tutorials cover server, client, broker, topic communication, and troubleshooting. Link to the CSDN category first.",
         "products.title": "Products",
-        "products.copy": "Only codesys-llm-synchronizer is shown for now. Other products stay hidden until mature.",
         "product.1.copy": "An LLM synchronization and collaboration tool for CODESYS / SmartControl projects, connecting project mirrors, code context, rules, and automation workflows.",
         "contact.title": "Contact",
-        "contact.copy": "WeChat, email, CSDN, and official account entries are shown first. QR images will be replaced with saved official assets later.",
         "contact.heading": "Talk engineering efficiency.",
         "contact.lead": "For article collaboration, tool trials, engineering consulting, or AI automation solutions, contact me via WeChat, email, CSDN, or the official account.",
-        "contact.wechat": "Personal WeChat. Scan to add.",
-        "contact.official": "Official WeChat account. Scan to follow.",
-        "contact.email": "Collaboration, tool trials, and engineering work.",
-        "contact.csdn": "Articles, tutorials, engineering reviews, and source code practice.",
+        "contact.wechat.label": "WeChat",
+        "contact.official.label": "Official Account",
+        "contact.email.label": "Email",
         "footer.copy": "AI automation architecture for automation engineers.",
         "search.empty": "No results. Try PLC, AI, CODESYS, MQTT, resources, or product."
       }
