@@ -1,6 +1,6 @@
 # ControlRookie 个人网站项目规划与 TODO
 
-> 单一规划源：本文件是当前项目唯一正式规划、路线图、TODO 和执行记录入口。后续不要再新建同类规划文档，直接更新本文件。
+> 单一规划源：本文档是当前项目唯一正式规划、路线图、TODO 和执行记录入口。后续不要再新建同类规划文档，直接更新本文档。
 
 ## 项目目标
 
@@ -16,9 +16,9 @@
 ## 设计总原则
 
 1. ForAI 是设计基础，必须高保真还原其界面气质、配色、字体、导航、网格、留白、卡片和作品墙组织方式。
-2. 当前预览页只是方向板，不作为高保真验收稿。
+2. 早期方向预览页不作为高保真验收稿。
 3. 正式设计必须先做一页 ForAI 高保真还原验收稿，用户确认后才能继续扩展。
-4. 动画和复杂滚动不是必须项，优先静态页面加简单 hover、fade、marquee 等低维护动画。
+4. 动画和复杂滚动不是必须项，优先静态页面加简单 hover、fade、轻量 marquee 等低维护动效。
 5. 工业自动化语义只用于内容和局部视觉，不得破坏 ForAI 的基础审美。
 
 ## 项目目录层级
@@ -62,27 +62,29 @@ controlrookie-website/
 - [x] 建立单一规划源。
 - [x] 保留并标注早期方向板不是高保真验收稿。
 - [x] 确认 FrontendDesign 前端、后端、健康检查和基础接口可正常访问。
-- [x] 确认并修复 FrontendDesign 模型生成链路：从 Codex 配置同步 key/base_url/model，并补丁后端模型映射。
+- [x] 确认并修复 FrontendDesign 模型生成链路：从 Codex 配置同步 key/base_url/model，并补齐后端模型映射。
 - [x] 确认 Open Design daemon 可正常访问并完成真实 artifact 写入验证。
 - [x] 提交本地 Git。
 
 ### P1：ForAI 高保真单页验收
 
-状态：待开始
+状态：已生成双工具对比稿，等待用户验收
 
-- [ ] 采集 ForAI 关键页面/首屏结构证据。
-- [ ] 提炼 ForAI 可维护版视觉规范：颜色、字号、网格、导航、卡片比例、边框、留白。
-- [ ] 在 `prototypes/forai-fidelity-gate/` 产出一页 ControlRookie 化高保真 HTML 原型。
-- [ ] 只加入低维护动效：hover、fade、轻量 marquee。
-- [ ] 做桌面与移动端视觉检查。
-- [ ] 用户验收“还原逼真度”。
+- [x] 采集 ForAI 关键首页/首屏结构证据。
+- [x] 提炼 ForAI 可维护版视觉规范：颜色、字号、网格、导航、卡片比例、边框、留白。
+- [x] 使用 Open Design 产出一页 ControlRookie 化高保真 HTML 原型。
+- [x] 使用 FrontendDesign 产出一页 ControlRookie 化高保真 HTML 原型。
+- [x] 只加入低维护动效：hover、fade、轻量静态主视觉。
+- [x] 做桌面与移动端视觉检查。
+- [x] 输出双工具重构精度、完整度、时长和维护性对比评估。
+- [ ] 用户验收“还原逼真度”，选择后续主设计工具路线。
 
 ### P2：首页正式设计
 
 状态：待 P1 验收后开始
 
 - [ ] 首屏：ControlRookie、定位、愿景、核心 CTA。
-- [ ] 代表工程资产：CodeSys MQTT、SmartControl CLI、LicOS 技能包、内容发布工具。
+- [ ] 代表工程资产：CODESYS MQTT、SmartControl CLI、LicOS 技能包、内容发布工具。
 - [ ] 文章入口：CSDN、微信公众号、精选专题。
 - [ ] 产品入口：开源、试用、付费、定制咨询分层。
 - [ ] 联系入口：微信、公众号、CSDN、GitHub、合作咨询。
@@ -93,7 +95,7 @@ controlrookie-website/
 
 - [ ] 博客前期跳转 CSDN 和微信公众号。
 - [ ] 站内维护精选文章卡片与专题。
-- [ ] 产品卡片定义：名称、用途、适用人群、状态、获取方式、价格/咨询入口。
+- [ ] 产品卡片定义：名称、用途、适用人群、状态、获取方式、价格或咨询入口。
 - [ ] 为后期站内 CMS 或静态内容源预留结构。
 
 ### P4：前端工程实现
@@ -111,7 +113,11 @@ controlrookie-website/
 - [x] 修复并验证 Open Design。
 - [x] 验证 FrontendDesign。
 - [x] 将本轮项目结构与规划提交到本地 Git。
-- [ ] 下一轮开始前，先产出 ForAI 高保真单页验收原型。
+- [x] 使用两个工具分别重构 ForAI 首页高保真对比稿。
+- [x] 生成桌面端和移动端截图证据。
+- [x] 输出双工具评估报告。
+- [x] 修复中文规划文档乱码。
+- [ ] 用户检验两版原型并选择后续路线。
 
 ## 风险与约束
 
@@ -125,3 +131,4 @@ controlrookie-website/
 - 2026-06-10：建立目录层级、单一规划源，明确 ForAI 高保真单页验收门禁。
 - 2026-06-10：修复 Open Design daemon 启动方式，使用 Electron Node 运行 `daemon-cli.mjs`，完成 MCP 项目创建和 HTML artifact 写入验证。
 - 2026-06-10：修复 FrontendDesign 反复缺 key/模型名不匹配问题，新增 `scripts/恢复FrontendDesign.ps1`，完成 OpenAI Responses 与 FrontendDesign provider 两级真实生成验证。
+- 2026-06-10：采集 ForAI 首页桌面端和移动端证据，分别用 Open Design 与 FrontendDesign 生成高保真验收原型，补齐桌面端/移动端截图和对比评估。
