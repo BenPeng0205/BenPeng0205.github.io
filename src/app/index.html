@@ -51,7 +51,9 @@
     <header class="nav" aria-label="Primary navigation">
       <!-- 导航左侧品牌控件：后续替换正式 Logo 时优先改这里。 -->
       <a class="brand" href="#top" aria-label="ControlRookie home">
-        <span class="brand-logo" aria-hidden="true">CR</span>
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../public/assets/images/brand/controlrookie-logo-latest.png" alt="">
+        </span>
         <span>ControlRookie</span>
       </a>
       <!-- 导航中部页面入口：资源、文章、产品、联系四个单页锚点。 -->
@@ -267,12 +269,12 @@
         </div>
       </section>
 
-      <!-- 文章页：当前先展示官网文章样例，外部平台作为分发入口保留在搜索和后续文章矩阵中。 -->
+      <!-- 文章页：第一版知识库式文章中心，避免未来文章增长后退化成无限卡片列表。 -->
       <section class="section section-line fade-in" id="articles" aria-labelledby="articles-title">
-        <div class="article-grid article-grid-single">
+        <div class="article-grid article-hub">
           <p class="single-section-label" id="articles-title" data-i18n="articles.title">文章</p>
           <!-- 文章页卡片 01：官网文章页样例，验证 Markdown 图文发布包到官网排版的完整链路。 -->
-          <a class="info-card" href="articles/mqtt-client-open-source-codesys-layer/index.html">
+          <a class="info-card article-feature-card" href="articles/mqtt-client-open-source-codesys-layer/index.html">
             <div>
               <small>01 · 文章</small>
               <h3>官方 MQTT 库要花钱？我为什么自己开源了一套 CODESYS MQTT 客户端</h3>
@@ -280,6 +282,21 @@
             </div>
             <footer>01 / MQTT Client</footer>
           </a>
+          <nav class="article-subnav" aria-label="文章分类导航">
+            <a href="#articles" class="active" data-i18n="articles.nav.all">全部</a>
+            <a href="articles/mqtt-client-open-source-codesys-layer/index.html" data-i18n="articles.nav.series">MQTT 系列</a>
+            <a href="#works" data-i18n="articles.nav.resources">相关资源</a>
+            <a href="#contact" data-i18n="articles.nav.contact">交流讨论</a>
+          </nav>
+          <aside class="article-series-panel" aria-label="CODESYS MQTT series">
+            <small data-i18n="articles.series.label">专题 01</small>
+            <h3 data-i18n="articles.series.title">CODESYS MQTT 系列</h3>
+            <p data-i18n="articles.series.copy">从协议分层、CONNECT / CONNACK、PUBLISH、QoS 到 ST 状态机，按工程路径逐步整理。</p>
+            <div class="series-progress" aria-label="MQTT series progress">
+              <span data-i18n="articles.series.progress">已导入 1 篇 / 系列持续补全</span>
+              <b></b>
+            </div>
+          </aside>
         </div>
       </section>
 
@@ -308,7 +325,7 @@
           </div>
           <!-- 联系页品牌视觉卡：使用无白角伪影的 SVG 素材平衡右侧视觉重量。 -->
           <aside class="contact-visual-card" aria-label="ControlRookie brand mark">
-            <img src="../../public/assets/images/brand/controlrookie-mark.svg" alt="ControlRookie logo mark">
+            <img src="../../public/assets/images/brand/controlrookie-logo-latest.png" alt="ControlRookie logo mark">
           </aside>
           <div class="contact-link-stack">
             <!-- 联系页横向联系方式卡片 01：邮箱，保持单行展示。 -->
@@ -340,7 +357,7 @@
 
     <footer class="footer">
       <span>ControlRookie</span>
-      <span data-i18n="footer.copy">面向自动化工程师的 AI 自动化架构。</span>
+      <span data-i18n="footer.copy">一名跟得上时代的 AI 自动化架构师</span>
     </footer>
   </div>
 

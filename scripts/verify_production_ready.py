@@ -103,6 +103,7 @@ def check_public_assets() -> None:
         "sitemap.xml",
         "assets/images/brand/controlrookie-og.png",
         "assets/images/brand/controlrookie-mark.svg",
+        "assets/images/brand/controlrookie-logo-latest.png",
         "assets/images/brand/controlrookie-portrait.jpg",
         "assets/images/contact/wechat-peaceandbless-qr.jpg",
         "assets/images/contact/wechat-official-account-controlrookie-qr.jpg",
@@ -154,11 +155,19 @@ def check_project_rules() -> None:
         "标题必须与主体卡片形成同一内容组",
         "主文案不得放在灰色卡片背景中",
         "四个圆角露白",
+        "Control Rookie Logo.svg",
+        "当前在用老Logo",
+        "禁止 AI 自行重绘",
         "工控人太苦了",
         "文章系统规则",
         "禁止在单一文章入口页无限罗列文章卡片",
         "浅导航原则",
         "左侧固定目录",
+        "目录锚点必须唯一",
+        "固定专家阅读栏策略",
+        "长章节标题必须在目录内部自然换行",
+        "禁止出现表情、emoji",
+        "未逐项校验通过不得交付",
         "一键回到顶端和一键到底端",
         "代码块必须使用适合代码阅读的等宽字体",
         "评论和回复区",
@@ -169,6 +178,9 @@ def check_project_rules() -> None:
 
 def check_code_contract() -> None:
     html = read_text(PROJECT_ROOT / "src" / "app" / "index.html")
+    article_template = read_text(PROJECT_ROOT / "src" / "app" / "article-template.html")
+    article_html = read_text(PROJECT_ROOT / "src" / "app" / "articles" / "mqtt-client-open-source-codesys-layer" / "index.html")
+    import_script = read_text(PROJECT_ROOT / "scripts" / "import_article_package.py")
     css = read_text(PROJECT_ROOT / "src" / "styles" / "site.css")
     js = read_text(PROJECT_ROOT / "src" / "lib" / "site.js")
     require("../content/site-data.js" in html, "页面未加载内容数据源。")
@@ -176,10 +188,29 @@ def check_code_contract() -> None:
     require('href="#about"' in html and 'data-i18n="nav.about"' in html, "导航缺少关于我首位入口。")
     require('class="about-timeline"' in html and 'class="timeline-node"' in html, "关于我页缺少真实时间线结构。")
     require('class="single-section-label"' in html, "文章/产品页标题未并入卡片内容组。")
+    require('class="article-grid article-hub"' in html and 'class="article-subnav"' in html, "文章入口页缺少知识库式子导航结构。")
     require('class="contact-statement"' in html and "contact-lead" not in html, "联系页主文案仍使用旧灰卡结构。")
-    require("controlrookie-mark.svg" in html and "controlrookie-mark-gray.png" not in html, "联系页 Logo 仍引用白角 PNG 风险素材。")
+    require(
+        "controlrookie-logo-latest.png" in html
+        and "controlrookie-nav-mark.svg" not in html
+        and "controlrookie-contact-lockup.svg" not in html
+        and "controlrookie-mark-gray.png" not in html,
+        "页面 Logo 必须使用最新母版派生 PNG，禁止使用旧图或 AI 自绘 SVG。",
+    )
     require(".skip-link" in css, "缺少跳转主内容样式。")
     require(".about-timeline::before" in css and ".contact-statement" in css, "样式缺少关于我时间线或联系页无卡片标题约束。")
+    require(".article-hub" in css and ".article-scroll-actions" in css and ".copy-code-button" in css and "--link: #4f6f63" in css, "样式缺少文章中心、文章阅读页或琉璃绿链接视觉关键控件。")
+    require("--toc-preserved-right" in css and "--toc-target-left" in css and "--toc-min-readable" in css and "white-space: normal" in css and "overflow-x: hidden" in css, "文章目录未采用固定宽度、左侧扩展和长标题换行策略。")
+    for token in ["article-main", "article-scroll-actions", "article-series-nav", "series-nav-card", "article-comments", "copy-code-button"]:
+        require(token in article_template and token in article_html, f"文章模板或样例页缺少关键结构: {token}")
+    require("{{CATEGORY_PRIMARY}}" in article_template and "{{CATEGORY_SECONDARY}}" in article_template, "文章模板未把面包屑分类层级拆开。")
+    require("第1篇/共12篇" in import_script and "第1篇/共12篇" in article_html, "文章页缺少系列进度属性框。")
+    require(">通信<" in article_html and ">CODESYS<" in article_html and ">通信 / CODESYS<" not in article_html, "文章面包屑仍把通信和 CODESYS 粘成同一层级。")
+    require("article-relations" not in article_template and "article-relations" not in article_html, "文章页仍包含旧的连体相关入口结构。")
+    require("article-kicker" not in article_template and "article-kicker" not in article_html, "文章页仍把系列/分类放在标题容器内。")
+    require("skipped_section_titles" in import_script and "系列导航" in import_script and "项目与资料" in import_script, "文章导入脚本未过滤重复导航章节。")
+    require("unique_anchor" in import_script and "anchor_counts" in import_script, "文章导入脚本未保证目录锚点唯一。")
+    require("EMOJI_RE" in import_script, "文章导入脚本未过滤专家文章中禁止出现的 emoji。")
     require("hydrateContentFromData" in js, "JS 未从内容数据源同步页面。")
     require("keydown" in js and "Escape" in js, "搜索缺少键盘退出逻辑。")
     require("as any" not in js and "@ts-ignore" not in js, "存在禁止的类型绕过标记。")
@@ -206,6 +237,7 @@ def check_dist_build() -> None:
         "articles/mqtt-client-open-source-codesys-layer/index.html",
         "assets/images/brand/controlrookie-og.png",
         "assets/images/brand/controlrookie-mark.svg",
+        "assets/images/brand/controlrookie-logo-latest.png",
         "robots.txt",
         "sitemap.xml",
         ".nojekyll",

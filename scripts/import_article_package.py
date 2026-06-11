@@ -17,6 +17,13 @@ ARTICLE_DIR = PROJECT_ROOT / "src" / "app" / "articles" / SLUG
 PUBLIC_ARTICLE_ASSETS = PROJECT_ROOT / "public" / "assets" / "articles" / SLUG
 TEMPLATE = PROJECT_ROOT / "src" / "app" / "article-template.html"
 ARTICLE_INDEX = PROJECT_ROOT / "src" / "content" / "articles.json"
+EMOJI_RE = re.compile(
+    "["
+    "\U0001F300-\U0001FAFF"
+    "\U00002700-\U000027BF"
+    "\U00002600-\U000026FF"
+    "]"
+)
 
 
 @dataclass
@@ -57,6 +64,7 @@ def slugify(text: str) -> str:
 
 
 def inline_markdown(text: str) -> str:
+    text = EMOJI_RE.sub("", text)
     text = escape(text)
     text = re.sub(r"`([^`]+)`", r"<code>\1</code>", text)
     text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
@@ -88,7 +96,7 @@ def copy_image(src: str) -> str:
     PUBLIC_ARTICLE_ASSETS.mkdir(parents=True, exist_ok=True)
     target = PUBLIC_ARTICLE_ASSETS / source.name
     shutil.copy2(source, target)
-    return f"../../../public/assets/articles/{SLUG}/{source.name}"
+    return f"../../assets/articles/{SLUG}/{source.name}"
 
 
 def render_markdown(markdown: str) -> tuple[str, list[Heading]]:
@@ -102,6 +110,18 @@ def render_markdown(markdown: str) -> tuple[str, list[Heading]]:
     in_code = False
     code_lang = ""
     code_lines: list[str] = []
+    first_h1_skipped = False
+    skip_section_level: int | None = None
+    skipped_section_titles = {"系列导航", "项目与资料"}
+    anchor_counts: dict[str, int] = {}
+
+    def unique_anchor(text: str) -> str:
+        base = slugify(text)
+        count = anchor_counts.get(base, 0) + 1
+        anchor_counts[base] = count
+        if count == 1:
+            return base
+        return f"{base}-{count}"
 
     def flush_paragraph() -> None:
         nonlocal paragraph
@@ -135,9 +155,12 @@ def render_markdown(markdown: str) -> tuple[str, list[Heading]]:
         flush_quote()
 
     for line in lines:
+        stripped_for_skip = line.strip()
+        if skip_section_level is not None and not stripped_for_skip.startswith("#"):
+            continue
         if line.startswith("```"):
             if in_code:
-                code = escape("\n".join(code_lines))
+                code = escape("\n".join(code_lines).expandtabs(4))
                 if code_lang == "mermaid":
                     html.append(f"<div class=\"mermaid-card\"><small>Mermaid</small><pre><code>{code}</code></pre></div>")
                 else:
@@ -156,6 +179,8 @@ def render_markdown(markdown: str) -> tuple[str, list[Heading]]:
 
         stripped = line.strip()
         if not stripped:
+            if skip_section_level is not None:
+                continue
             flush_all()
             continue
         if stripped == "---":
@@ -166,9 +191,22 @@ def render_markdown(markdown: str) -> tuple[str, list[Heading]]:
             flush_all()
             level = min(3, len(stripped) - len(stripped.lstrip("#")))
             text = stripped[level:].strip()
-            anchor = slugify(text)
+            if skip_section_level is not None:
+                if level <= skip_section_level:
+                    skip_section_level = None
+                else:
+                    continue
+            if level == 1 and not first_h1_skipped:
+                first_h1_skipped = True
+                continue
+            if level == 2 and text in skipped_section_titles:
+                skip_section_level = level
+                continue
+            anchor = unique_anchor(text)
             headings.append(Heading(level, text, anchor))
             html.append(f"<h{level} id=\"{anchor}\">{inline_markdown(text)}</h{level}>")
+            continue
+        if skip_section_level is not None:
             continue
         image_match = re.match(r"!\[([^\]]*)\]\(([^)]+)\)", stripped)
         if image_match:
@@ -211,7 +249,7 @@ def render_markdown(markdown: str) -> tuple[str, list[Heading]]:
 
 
 def build_toc(headings: list[Heading]) -> str:
-    items = [heading for heading in headings if heading.level <= 2]
+    items = [heading for heading in headings if heading.level == 2]
     if not items:
         return "<p>暂无目录</p>"
     return "<ol>" + "".join(f'<li><a href="#{heading.anchor}">{inline_markdown(heading.text)}</a></li>' for heading in items) + "</ol>"
@@ -224,7 +262,7 @@ def reading_time(markdown: str) -> str:
 
 
 def main() -> None:
-    raw = SOURCE_MD.read_text(encoding="utf-8")
+    raw = EMOJI_RE.sub("", SOURCE_MD.read_text(encoding="utf-8"))
     meta, body = parse_frontmatter(raw)
     content, headings = render_markdown(body)
     title = str(meta.get("title") or headings[0].text)
@@ -236,13 +274,15 @@ def main() -> None:
         "{{TITLE}}": escape(title),
         "{{DESCRIPTION}}": escape(summary),
         "{{CANONICAL}}": f"https://benpeng0205.github.io/articles/{SLUG}/",
-        "{{ASSET_PREFIX}}": "../../../public/",
+        "{{ASSET_PREFIX}}": "../../",
         "{{STYLE_HREF}}": "../../styles/site.css",
         "{{HOME_HREF}}": "../../index.html",
         "{{SERIES}}": "MQTT Client 系列教程",
-        "{{CATEGORY}}": "通信 / CODESYS",
+        "{{CATEGORY_PRIMARY}}": "通信",
+        "{{CATEGORY_SECONDARY}}": "CODESYS",
         "{{DATE}}": str(meta.get("created") or "2026-05-06"),
         "{{READING_TIME}}": reading_time(body),
+        "{{SERIES_PROGRESS}}": "第1篇/共12篇",
         "{{TAGS}}": " / ".join(str(tag) for tag in tags),
         "{{TOC}}": build_toc(headings),
         "{{CONTENT}}": content,

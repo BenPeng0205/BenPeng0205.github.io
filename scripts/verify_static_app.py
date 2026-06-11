@@ -189,6 +189,7 @@ def main() -> None:
             raise SystemExit("内容数据源未加载。")
 
         for selector in [
+            ".brand-logo img",
             ".portrait-image",
             "img[src*='wechat-peaceandbless-qr.jpg']",
             "img[src*='wechat-official-account-controlrookie-qr.jpg']",
@@ -269,8 +270,8 @@ def main() -> None:
         if not logo_loaded:
             raise SystemExit("联系页辅助 Logo 图片未加载。")
         logo_src = page.locator(".contact-visual-card img").get_attribute("src") or ""
-        if "controlrookie-mark-gray.png" in logo_src or not logo_src.endswith(".svg"):
-            raise SystemExit(f"联系页 Logo 不得继续使用带白角风险的 PNG: {logo_src}")
+        if "controlrookie-logo-latest.png" not in logo_src or not logo_src.endswith(".png"):
+            raise SystemExit(f"联系页 Logo 必须使用最新母版派生 PNG，不得使用旧 Logo 或自绘 SVG: {logo_src}")
         require(page.locator(".contact-visual-card .contact-link-stack").count() == 0, "右侧图片卡片下方不应再包含邮箱/CSDN 灰色区域。")
         visual_card_style = page.locator(".contact-visual-card").evaluate(
             """node => {
@@ -296,7 +297,7 @@ def main() -> None:
         )
         link_stack = rect(page, ".contact-link-stack")
         visual_image = rect(page, ".contact-visual-card img")
-        require(visual_image["width"] >= 250, "Logo 图片必须保持原有尺寸，不应被缩小。")
+        require(228 <= visual_image["width"] <= 246, "联系页 Logo 应保持再次缩小后的网页尺寸。")
         require(visual_image["y"] + visual_image["height"] <= link_stack["y"] - 8, "右侧 Logo 图片不得与邮箱/CSDN 卡片区域重叠。")
         wechat_card = rect(page, "#contact .qr-card:nth-of-type(1)")
         official_card = rect(page, "#contact .qr-card:nth-of-type(2)")

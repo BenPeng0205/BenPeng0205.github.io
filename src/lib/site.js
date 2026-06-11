@@ -52,13 +52,21 @@ const translations = {
     "about.capability.label": "能力描述 / 待补充",
     "about.capability.copy": "控制系统、HIL、行业工艺、传动控制、控制器产品化和 AI 工程效率能力将在这里展开。",
     "articles.title": "文章",
+    "articles.nav.all": "全部",
+    "articles.nav.series": "MQTT 系列",
+    "articles.nav.resources": "相关资源",
+    "articles.nav.contact": "交流讨论",
+    "articles.series.label": "专题 01",
+    "articles.series.title": "CODESYS MQTT 系列",
+    "articles.series.copy": "从协议分层、CONNECT / CONNACK、PUBLISH、QoS 到 ST 状态机，按工程路径逐步整理。",
+    "articles.series.progress": "已导入 1 篇 / 系列持续补全",
     "products.title": "产品",
     "contact.title": "联系",
     "contact.heading": "工控人太苦了，让我们一起告别水深火热",
     "contact.wechat.label": "微信",
     "contact.official.label": "公众号",
     "contact.email.label": "邮箱",
-    "footer.copy": "面向自动化工程师的 AI 自动化架构。",
+    "footer.copy": "一名跟得上时代的 AI 自动化架构师",
     "search.empty": "没有匹配结果。可以尝试 PLC、AI、CODESYS、MQTT、资源、产品。"
   },
   en: {
@@ -100,13 +108,21 @@ const translations = {
     "about.capability.label": "Capabilities / Reserved",
     "about.capability.copy": "Control systems, HIL, industry processes, drive control, controller productization, and AI engineering efficiency will be expanded here.",
     "articles.title": "Articles",
+    "articles.nav.all": "All",
+    "articles.nav.series": "MQTT Series",
+    "articles.nav.resources": "Related Resources",
+    "articles.nav.contact": "Discussion",
+    "articles.series.label": "Topic 01",
+    "articles.series.title": "CODESYS MQTT Series",
+    "articles.series.copy": "From protocol layers, CONNECT / CONNACK, PUBLISH, QoS, to ST state machines, organized along an engineering path.",
+    "articles.series.progress": "1 imported / series in progress",
     "products.title": "Products",
     "contact.title": "Contact",
     "contact.heading": "Industrial control is hard. Let us get out of the fire together.",
     "contact.wechat.label": "WeChat",
     "contact.official.label": "Official Account",
     "contact.email.label": "Email",
-    "footer.copy": "AI automation architecture for automation engineers.",
+    "footer.copy": "An AI automation architect keeping pace with the times.",
     "search.empty": "No results. Try PLC, AI, CODESYS, MQTT, resources, or product."
   }
 };
@@ -134,6 +150,7 @@ function hydrateContentFromData() {
     articleCard.querySelector("small").textContent = `01 · ${article.type[currentLang]}`;
     articleCard.querySelector("h3").textContent = article.title[currentLang];
     articleCard.querySelector("p").textContent = article.copy[currentLang];
+    articleCard.querySelector("footer").textContent = localizedText(article.status, currentLang) || "01 / MQTT Client";
   }
 
   const product = siteData.products[0];
