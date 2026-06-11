@@ -14,12 +14,12 @@ let currentLang = "zh";
 // 双语文案表：data-i18n 控件的文字都从这里统一维护，便于后期手动精细调整。
 const translations = {
   zh: {
+    "nav.about": "关于我",
     "nav.resources": "资源",
     "nav.articles": "文章",
     "nav.products": "产品",
     "nav.contact": "联系",
     "search.placeholder": "搜索文章、资源、产品",
-    "hero.kicker": "AI 自动化架构师 / 2026",
     "hero.statement": "跟得上时代的 AI 自动化架构师。",
     "hero.description": "致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。",
     "focus.1.kicker": "领域 01",
@@ -31,11 +31,30 @@ const translations = {
     "focus.4.kicker": "领域 04",
     "focus.4.copy": "CSDN、公众号、教程、方案和工程复盘。",
     "resources.title": "资源",
+    "about.title": "关于我",
+    "about.intro.label": "时间线 / 工业现场",
+    "about.intro.title": "从学术研究到工业现场。",
+    "about.intro.copy": "这里先保留个人路径的骨架，后续会补充具体年份、项目职责、行业场景和能力描述。当前重点是把经历按时间顺序清晰放出来。",
+    "about.node.1.name": "达姆施达特工业大学",
+    "about.node.1.copy": "控制理论、系统建模和工程方法的学术基础。",
+    "about.node.2.name": "Bosch",
+    "about.node.2.copy": "工业研发体系、工程规范和跨团队协作经验。",
+    "about.node.3.name": "Fraunhofer IWES",
+    "about.node.3.copy": "新能源测试、仿真验证和研究型工程实践。",
+    "about.node.4.name": "新能源 HIL",
+    "about.node.4.copy": "控制器闭环测试、模型接入和自动化验证。",
+    "about.node.5.name": "烟草",
+    "about.node.5.copy": "离散制造现场、设备联调和工艺控制落地。",
+    "about.node.6.name": "冶金传动",
+    "about.node.6.copy": "大功率传动、现场调试和高可靠控制系统。",
+    "about.node.7.name": "控制器厂家",
+    "about.node.7.copy": "控制器产品化、生态工具和工程效率方案。",
+    "about.capability.label": "能力描述 / 待补充",
+    "about.capability.copy": "控制系统、HIL、行业工艺、传动控制、控制器产品化和 AI 工程效率能力将在这里展开。",
     "articles.title": "文章",
     "products.title": "产品",
     "contact.title": "联系",
-    "contact.heading": "聊聊工程效率。",
-    "contact.lead": "文章合作、工具试用、工程咨询、AI 自动化方案，可以通过微信、邮箱、CSDN 或公众号联系。",
+    "contact.heading": "工控人太苦了，让我们一起告别水深火热",
     "contact.wechat.label": "微信",
     "contact.official.label": "公众号",
     "contact.email.label": "邮箱",
@@ -43,12 +62,12 @@ const translations = {
     "search.empty": "没有匹配结果。可以尝试 PLC、AI、CODESYS、MQTT、资源、产品。"
   },
   en: {
+    "nav.about": "About Me",
     "nav.resources": "Resources",
     "nav.articles": "Articles",
     "nav.products": "Products",
     "nav.contact": "Contact",
     "search.placeholder": "Search articles, resources, products",
-    "hero.kicker": "AI Automation Architect / 2026",
     "hero.statement": "An AI automation architect keeping pace with the era.",
     "hero.description": "ControlRookie shares source code, control ideas, algorithms, architecture, frontier technology, and AI tools to help automation engineers improve engineering efficiency.",
     "focus.1.kicker": "Domain 01",
@@ -60,11 +79,30 @@ const translations = {
     "focus.4.kicker": "Domain 04",
     "focus.4.copy": "CSDN, WeChat articles, tutorials, solutions, and engineering reviews.",
     "resources.title": "Resources",
+    "about.title": "About Me",
+    "about.intro.label": "Timeline / Industry",
+    "about.intro.title": "From academic research to industrial sites.",
+    "about.intro.copy": "This page keeps the career path as a structured timeline first. Years, project roles, industry scenes, and capability details can be expanded later.",
+    "about.node.1.name": "TU Darmstadt",
+    "about.node.1.copy": "Academic foundation in control theory, system modeling, and engineering methods.",
+    "about.node.2.name": "Bosch",
+    "about.node.2.copy": "Industrial R&D process, engineering standards, and cross-team collaboration.",
+    "about.node.3.name": "Fraunhofer IWES",
+    "about.node.3.copy": "Renewable energy testing, simulation validation, and research engineering.",
+    "about.node.4.name": "New Energy HIL",
+    "about.node.4.copy": "Controller closed-loop testing, model integration, and automated validation.",
+    "about.node.5.name": "Tobacco",
+    "about.node.5.copy": "Discrete manufacturing sites, equipment commissioning, and process control.",
+    "about.node.6.name": "Metallurgical Drive",
+    "about.node.6.copy": "High-power drives, field commissioning, and reliable control systems.",
+    "about.node.7.name": "Controller Manufacturer",
+    "about.node.7.copy": "Controller productization, ecosystem tooling, and efficiency solutions.",
+    "about.capability.label": "Capabilities / Reserved",
+    "about.capability.copy": "Control systems, HIL, industry processes, drive control, controller productization, and AI engineering efficiency will be expanded here.",
     "articles.title": "Articles",
     "products.title": "Products",
     "contact.title": "Contact",
-    "contact.heading": "Talk engineering efficiency.",
-    "contact.lead": "For article collaboration, tool trials, engineering consulting, or AI automation solutions, contact me via WeChat, email, CSDN, or the official account.",
+    "contact.heading": "Industrial control is hard. Let us get out of the fire together.",
     "contact.wechat.label": "WeChat",
     "contact.official.label": "Official Account",
     "contact.email.label": "Email",
@@ -93,6 +131,7 @@ function hydrateContentFromData() {
   const articleCard = document.querySelector("#articles .info-card");
   if (article && articleCard) {
     articleCard.href = article.href;
+    articleCard.querySelector("small").textContent = `01 · ${article.type[currentLang]}`;
     articleCard.querySelector("h3").textContent = article.title[currentLang];
     articleCard.querySelector("p").textContent = article.copy[currentLang];
   }
@@ -100,6 +139,7 @@ function hydrateContentFromData() {
   const product = siteData.products[0];
   const productCard = document.querySelector("#products .info-card");
   if (product && productCard) {
+    productCard.querySelector("small").textContent = `01 · ${product.type[currentLang]}`;
     productCard.querySelector("h3").textContent = product.title[currentLang];
     productCard.querySelector("p").textContent = product.copy[currentLang];
   }
@@ -108,6 +148,16 @@ function hydrateContentFromData() {
 // 全站搜索索引：覆盖文章、资源、产品和联系方式；后续接入真实站内内容时优先扩展这里。
 const searchIndex = [
   ...siteData.articles.map((item) => ({ ...item, href: item.searchHref || item.href })),
+  {
+    title: { zh: "关于我", en: "About Me" },
+    type: { zh: "关于我", en: "About Me" },
+    text: {
+      zh: "达姆施达特工业大学 Bosch Fraunhofer IWES 新能源 HIL 烟草 冶金传动 控制器厂家 能力描述",
+      en: "TU Darmstadt Bosch Fraunhofer IWES new energy HIL tobacco metallurgical drive controller manufacturer capabilities",
+    },
+    href: "#about",
+    keywords: "about me experience timeline Darmstadt Bosch Fraunhofer IWES HIL tobacco metallurgical drive controller",
+  },
   {
     title: { zh: "资源库", en: "Resources" },
     type: { zh: "资源", en: "Resource" },
@@ -131,6 +181,10 @@ function applyLanguage(lang) {
   document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
   document.querySelectorAll("[data-i18n]").forEach((node) => {
     const key = node.dataset.i18n;
+    if (key === "contact.heading" && lang === "zh") {
+      node.innerHTML = '工控人太苦了，<span class="no-break">让我们一起告别水深火热</span>';
+      return;
+    }
     if (translations[lang][key]) node.textContent = translations[lang][key];
   });
   document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {

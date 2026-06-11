@@ -3,13 +3,13 @@ from playwright.sync_api import sync_playwright
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-PROTOTYPE = PROJECT_ROOT / "prototypes" / "homepage-open-design" / "index.html"
+APP_HTML = PROJECT_ROOT / "src" / "app" / "index.html"
 OUTPUT_DIR = PROJECT_ROOT / "tests" / "visual" / "baseline"
 
 
 def capture_baseline() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    file_url = PROTOTYPE.resolve().as_uri()
+    file_url = APP_HTML.resolve().as_uri()
 
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
@@ -22,6 +22,7 @@ def capture_baseline() -> None:
             ("03-articles-zh.png", "#articles"),
             ("04-products-zh.png", "#products"),
             ("05-contact-zh.png", "#contact"),
+            ("08-about-zh.png", "#about"),
         ]
 
         for filename, anchor in captures:

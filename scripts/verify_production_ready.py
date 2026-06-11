@@ -46,6 +46,7 @@ def require(condition: bool, message: str) -> None:
 
 def check_utf8() -> None:
     for path in [
+        PROJECT_ROOT / "AGENTS.md",
         PROJECT_ROOT / "README.md",
         PROJECT_ROOT / "项目规划与TODO.md",
         PROJECT_ROOT / "docs" / "requirements" / "网站需求说明.md",
@@ -101,6 +102,7 @@ def check_public_assets() -> None:
         "robots.txt",
         "sitemap.xml",
         "assets/images/brand/controlrookie-og.png",
+        "assets/images/brand/controlrookie-mark.svg",
         "assets/images/brand/controlrookie-portrait.jpg",
         "assets/images/contact/wechat-peaceandbless-qr.jpg",
         "assets/images/contact/wechat-official-account-controlrookie-qr.jpg",
@@ -132,13 +134,45 @@ def check_content_data() -> None:
     require(len(re.findall(r"id:", data_js)) >= 10, "内容数据条目数量异常。")
 
 
+def check_project_rules() -> None:
+    rules = read_text(PROJECT_ROOT / "AGENTS.md")
+    for token in [
+        "E:\\ai-workspace\\projects\\controlrookie-website",
+        "E:\\ai-workspace\\controlrookie-pages-publish",
+        "正文边界",
+        "不可见",
+        "CR` logo",
+        "EN` 语言按钮",
+        "灰色卡片只有在可以点击",
+        "序号标题、卡片名称、概述",
+        "自动弹出浏览器界面预览",
+        "最大安全范围",
+        "首页主体已经由用户确认满意并固定",
+        "关于我",
+        "About Me",
+        "清晰可见的时间线",
+        "标题必须与主体卡片形成同一内容组",
+        "主文案不得放在灰色卡片背景中",
+        "四个圆角露白",
+        "工控人太苦了",
+        "scripts/verify_production_ready.py",
+    ]:
+        require(token in rules, f"项目规则缺少关键约束: {token}")
+
+
 def check_code_contract() -> None:
     html = read_text(PROJECT_ROOT / "src" / "app" / "index.html")
     css = read_text(PROJECT_ROOT / "src" / "styles" / "site.css")
     js = read_text(PROJECT_ROOT / "src" / "lib" / "site.js")
     require("../content/site-data.js" in html, "页面未加载内容数据源。")
     require("aria-expanded" in html and "aria-controls" in html, "搜索按钮缺少 aria 状态。")
+    require('href="#about"' in html and 'data-i18n="nav.about"' in html, "导航缺少关于我首位入口。")
+    require('class="about-timeline"' in html and 'class="timeline-node"' in html, "关于我页缺少真实时间线结构。")
+    require('class="single-section-label"' in html, "文章/产品页标题未并入卡片内容组。")
+    require('class="contact-statement"' in html and "contact-lead" not in html, "联系页主文案仍使用旧灰卡结构。")
+    require("controlrookie-mark.svg" in html and "controlrookie-mark-gray.png" not in html, "联系页 Logo 仍引用白角 PNG 风险素材。")
     require(".skip-link" in css, "缺少跳转主内容样式。")
+    require(".about-timeline::before" in css and ".contact-statement" in css, "样式缺少关于我时间线或联系页无卡片标题约束。")
     require("hydrateContentFromData" in js, "JS 未从内容数据源同步页面。")
     require("keydown" in js and "Escape" in js, "搜索缺少键盘退出逻辑。")
     require("as any" not in js and "@ts-ignore" not in js, "存在禁止的类型绕过标记。")
@@ -164,6 +198,7 @@ def check_dist_build() -> None:
         "content/site-data.js",
         "articles/mqtt-client-open-source-codesys-layer/index.html",
         "assets/images/brand/controlrookie-og.png",
+        "assets/images/brand/controlrookie-mark.svg",
         "robots.txt",
         "sitemap.xml",
         ".nojekyll",
@@ -194,6 +229,7 @@ def main() -> None:
     check_seo()
     check_public_assets()
     check_content_data()
+    check_project_rules()
     check_code_contract()
     check_dist_build()
     run_script("verify_static_app.py")

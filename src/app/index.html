@@ -56,6 +56,7 @@
       </a>
       <!-- 导航中部页面入口：资源、文章、产品、联系四个单页锚点。 -->
       <nav class="nav-links" aria-label="Sections">
+        <a href="#about" data-i18n="nav.about">关于我</a>
         <a href="#works" data-i18n="nav.resources">资源</a>
         <a href="#articles" data-i18n="nav.articles">文章</a>
         <a href="#products" data-i18n="nav.products">产品</a>
@@ -90,7 +91,6 @@
 
           <!-- 首页主文案控件：ControlRookie 品牌名、定位句和愿景句。 -->
           <div class="hero-copy">
-            <p class="kicker" data-i18n="hero.kicker">AI 自动化架构师 / 2026</p>
             <h1>ControlRookie</h1>
             <p class="hero-statement" data-i18n="hero.statement">跟得上时代的 AI 自动化架构师。</p>
             <p class="hero-description" data-i18n="hero.description">致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。</p>
@@ -118,6 +118,78 @@
               <strong>Share</strong>
               <span data-i18n="focus.4.copy">CSDN、公众号、教程、方案和工程复盘。</span>
             </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- 关于我页：按真实路径先做时间线骨架，后续继续补年份、项目和能力描述。 -->
+      <section class="section section-line fade-in" id="about" aria-labelledby="about-title">
+        <div class="section-head compact">
+          <p class="eyebrow" id="about-title" data-i18n="about.title">关于我</p>
+        </div>
+        <div class="about-shell">
+          <!-- 关于我主叙事卡：保持中心轴平衡，只承接时间线和后续能力描述入口。 -->
+          <article class="about-intro-card">
+            <small data-i18n="about.intro.label">时间线 / 工业现场</small>
+            <h2 data-i18n="about.intro.title">从学术研究到工业现场。</h2>
+            <p data-i18n="about.intro.copy">这里先保留个人路径的骨架，后续会补充具体年份、项目职责、行业场景和能力描述。当前重点是把经历按时间顺序清晰放出来。</p>
+          </article>
+          <!-- 关于我时间线：必须体现清晰轴线和节点顺序，不能退化成普通卡片堆叠。 -->
+          <ol class="about-timeline" aria-label="ControlRookie about me timeline">
+            <li class="timeline-node">
+              <span>01</span>
+              <div>
+                <strong data-i18n="about.node.1.name">达姆施达特工业大学</strong>
+                <p data-i18n="about.node.1.copy">控制理论、系统建模和工程方法的学术基础。</p>
+              </div>
+            </li>
+            <li class="timeline-node">
+              <span>02</span>
+              <div>
+                <strong data-i18n="about.node.2.name">Bosch</strong>
+                <p data-i18n="about.node.2.copy">工业研发体系、工程规范和跨团队协作经验。</p>
+              </div>
+            </li>
+            <li class="timeline-node">
+              <span>03</span>
+              <div>
+                <strong data-i18n="about.node.3.name">Fraunhofer IWES</strong>
+                <p data-i18n="about.node.3.copy">新能源测试、仿真验证和研究型工程实践。</p>
+              </div>
+            </li>
+            <li class="timeline-node">
+              <span>04</span>
+              <div>
+                <strong data-i18n="about.node.4.name">新能源 HIL</strong>
+                <p data-i18n="about.node.4.copy">控制器闭环测试、模型接入和自动化验证。</p>
+              </div>
+            </li>
+            <li class="timeline-node">
+              <span>05</span>
+              <div>
+                <strong data-i18n="about.node.5.name">烟草</strong>
+                <p data-i18n="about.node.5.copy">离散制造现场、设备联调和工艺控制落地。</p>
+              </div>
+            </li>
+            <li class="timeline-node">
+              <span>06</span>
+              <div>
+                <strong data-i18n="about.node.6.name">冶金传动</strong>
+                <p data-i18n="about.node.6.copy">大功率传动、现场调试和高可靠控制系统。</p>
+              </div>
+            </li>
+            <li class="timeline-node">
+              <span>07</span>
+              <div>
+                <strong data-i18n="about.node.7.name">控制器厂家</strong>
+                <p data-i18n="about.node.7.copy">控制器产品化、生态工具和工程效率方案。</p>
+              </div>
+            </li>
+          </ol>
+          <!-- 关于我能力描述预留区：用户后续提供真实内容后替换。 -->
+          <div class="about-capability-card">
+            <small data-i18n="about.capability.label">能力描述 / 待补充</small>
+            <p data-i18n="about.capability.copy">控制系统、HIL、行业工艺、传动控制、控制器产品化和 AI 工程效率能力将在这里展开。</p>
           </div>
         </div>
       </section>
@@ -197,14 +269,12 @@
 
       <!-- 文章页：当前先展示官网文章样例，外部平台作为分发入口保留在搜索和后续文章矩阵中。 -->
       <section class="section section-line fade-in" id="articles" aria-labelledby="articles-title">
-        <div class="section-head compact">
-          <p class="eyebrow" id="articles-title" data-i18n="articles.title">文章</p>
-        </div>
         <div class="article-grid article-grid-single">
+          <p class="single-section-label" id="articles-title" data-i18n="articles.title">文章</p>
           <!-- 文章页卡片 01：官网文章页样例，验证 Markdown 图文发布包到官网排版的完整链路。 -->
           <a class="info-card" href="articles/mqtt-client-open-source-codesys-layer/index.html">
             <div>
-              <small>Official Article</small>
+              <small>01 · 文章</small>
               <h3>官方 MQTT 库要花钱？我为什么自己开源了一套 CODESYS MQTT 客户端</h3>
               <p>MQTT Client 系列第一篇：为什么要做开源客户端、MQTT 在哪一层、以及 NBS TCP 与 MQTT 的工程关系。</p>
             </div>
@@ -215,14 +285,12 @@
 
       <!-- 产品页：当前只展示 codesys-llm-synchronizer，未成熟产品不占位。 -->
       <section class="section section-line fade-in" id="products" aria-labelledby="products-title">
-        <div class="section-head compact">
-          <p class="eyebrow" id="products-title" data-i18n="products.title">产品</p>
-        </div>
         <div class="product-grid product-grid-single">
+          <p class="single-section-label" id="products-title" data-i18n="products.title">产品</p>
           <!-- 产品页卡片 01：codesys-llm-synchronizer 产品说明入口。 -->
           <article class="info-card">
             <div>
-              <small>Product 01</small>
+              <small>01 · 产品</small>
               <h3>codesys-llm-synchronizer</h3>
               <p data-i18n="product.1.copy">面向 CODESYS / SmartControl 工程的 LLM 同步与协作工具，用于工程镜像、代码上下文、规则和自动化工作流衔接。</p>
             </div>
@@ -231,48 +299,41 @@
         </div>
       </section>
 
-      <!-- 联系页：上方横向介绍卡，下方二维码卡和横向联系方式卡。 -->
-      <section class="section fade-in" id="contact" aria-labelledby="contact-title">
-        <div class="section-head compact">
-          <p class="eyebrow" id="contact-title" data-i18n="contact.title">联系</p>
-        </div>
+      <!-- 联系页：用主张、二维码、品牌图和直接入口组成平衡布局。 -->
+      <section class="section fade-in" id="contact" aria-label="联系">
         <div class="contact-shell">
-          <!-- 联系页主卡片：说明可沟通的合作方向，保持横向长卡片。 -->
-          <div class="contact-lead">
-            <div>
-              <h2 data-i18n="contact.heading">聊聊工程效率。</h2>
-              <p data-i18n="contact.lead">文章合作、工具试用、工程咨询、AI 自动化方案，可以通过微信、邮箱、CSDN 或公众号联系。</p>
-            </div>
-            <p class="eyebrow">ControlRookie / AI Automation Architect</p>
+          <!-- 联系页主文案：无灰色卡片底，避免把标题误做成普通内容卡。 -->
+          <div class="contact-statement">
+            <h2 data-i18n="contact.heading">工控人太苦了，<span class="no-break">让我们一起告别水深火热</span></h2>
           </div>
-          <div class="contact-grid" aria-label="Contact channels">
-            <div class="contact-qr-grid">
-              <!-- 联系页二维码卡片 01：个人微信 PeaceAndBless。 -->
-              <article class="contact-card qr-card">
-                <small data-i18n="contact.wechat.label">微信</small>
-                <strong>PeaceAndBless</strong>
-                <img class="qr-slot" src="../../public/assets/images/contact/wechat-peaceandbless-qr.jpg" alt="PeaceAndBless WeChat QR code">
-              </article>
-              <!-- 联系页二维码卡片 02：微信公众号 ControlRookie。 -->
-              <article class="contact-card qr-card">
-                <small data-i18n="contact.official.label">公众号</small>
-                <strong>ControlRookie</strong>
-                <img class="qr-slot" src="../../public/assets/images/contact/wechat-official-account-controlrookie-qr.jpg" alt="ControlRookie official account QR code">
-              </article>
-            </div>
-            <div class="contact-link-stack">
-              <!-- 联系页横向联系方式卡片 01：邮箱，保持单行展示。 -->
-              <a class="contact-card text-card" href="mailto:ben_peng0205@hotmail.com">
-                <small data-i18n="contact.email.label">邮箱</small>
-                <strong>ben_peng0205@hotmail.com</strong>
-              </a>
-              <!-- 联系页横向联系方式卡片 02：CSDN 公开博客入口。 -->
-              <a class="contact-card text-card" href="https://blog.csdn.net/weixin_44442562?type=blog" target="_blank" rel="noreferrer">
-                <small>CSDN</small>
-                <strong>ControlRookie 技术博客</strong>
-              </a>
-            </div>
+          <!-- 联系页品牌视觉卡：使用无白角伪影的 SVG 素材平衡右侧视觉重量。 -->
+          <aside class="contact-visual-card" aria-label="ControlRookie brand mark">
+            <img src="../../public/assets/images/brand/controlrookie-mark.svg" alt="ControlRookie logo mark">
+          </aside>
+          <div class="contact-link-stack">
+            <!-- 联系页横向联系方式卡片 01：邮箱，保持单行展示。 -->
+            <a class="contact-card text-card" href="mailto:ben_peng0205@hotmail.com">
+              <small data-i18n="contact.email.label">邮箱</small>
+              <strong>ben_peng0205@hotmail.com</strong>
+            </a>
+            <!-- 联系页横向联系方式卡片 02：CSDN 公开博客入口。 -->
+            <a class="contact-card text-card" href="https://blog.csdn.net/weixin_44442562?type=blog" target="_blank" rel="noreferrer">
+              <small>CSDN</small>
+              <strong>ControlRookie 技术博客</strong>
+            </a>
           </div>
+          <!-- 联系页二维码卡片 01：个人微信 PeaceAndBless。 -->
+          <article class="contact-card qr-card">
+            <small data-i18n="contact.wechat.label">微信</small>
+            <strong>PeaceAndBless</strong>
+            <img class="qr-slot" src="../../public/assets/images/contact/wechat-peaceandbless-qr.jpg" alt="PeaceAndBless WeChat QR code">
+          </article>
+          <!-- 联系页二维码卡片 02：微信公众号 ControlRookie。 -->
+          <article class="contact-card qr-card">
+            <small data-i18n="contact.official.label">公众号</small>
+            <strong>ControlRookie</strong>
+            <img class="qr-slot" src="../../public/assets/images/contact/wechat-official-account-controlrookie-qr.jpg" alt="ControlRookie official account QR code">
+          </article>
         </div>
       </section>
     </main>

@@ -14,6 +14,7 @@ CAPTURES = [
     ("03-articles-zh.png", "#articles"),
     ("04-products-zh.png", "#products"),
     ("05-contact-zh.png", "#contact"),
+    ("08-about-zh.png", "#about"),
 ]
 
 
