@@ -19,6 +19,9 @@ const translations = {
     "nav.articles": "文章",
     "nav.products": "产品",
     "nav.contact": "联系",
+    "nav.article.menu.center": "文章中心",
+    "nav.article.menu.series": "CODESYS MQTT 系列",
+    "nav.article.menu.resources": "相关资源",
     "search.placeholder": "搜索文章、资源、产品",
     "hero.statement": "跟得上时代的 AI 自动化架构师。",
     "hero.description": "致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。",
@@ -52,14 +55,26 @@ const translations = {
     "about.capability.label": "能力描述 / 待补充",
     "about.capability.copy": "控制系统、HIL、行业工艺、传动控制、控制器产品化和 AI 工程效率能力将在这里展开。",
     "articles.title": "文章",
-    "articles.nav.all": "全部",
-    "articles.nav.series": "MQTT 系列",
-    "articles.nav.resources": "相关资源",
-    "articles.nav.contact": "交流讨论",
-    "articles.series.label": "专题 01",
+    "articles.index.label": "知识库索引",
+    "articles.index.title": "按工程问题定位文章",
+    "articles.index.copy": "分类负责找方向，系列负责连续阅读，类型负责筛选阅读目的。",
+    "articles.index.domain": "技术领域",
+    "articles.index.domain.communication": "工业通信",
+    "articles.index.mqtt.client": "客户端",
+    "articles.index.mqtt.server": "服务器",
+    "articles.index.series": "系列专题",
+    "articles.index.planned": "规划中",
+    "articles.index.type": "内容类型",
+    "articles.index.type.tutorial": "教程",
+    "articles.index.type.source": "源码解析",
+    "articles.index.type.experience": "工程经验",
+    "articles.series.label": "系列专题",
     "articles.series.title": "CODESYS MQTT 系列",
     "articles.series.copy": "从协议分层、CONNECT / CONNACK、PUBLISH、QoS 到 ST 状态机，按工程路径逐步整理。",
     "articles.series.progress": "已导入 1 篇 / 系列持续补全",
+    "articles.list.server.title": "CODESYS MQTT 服务器与 Broker 资料",
+    "articles.list.server.copy": "服务器、Broker、主题通信和排障教程暂先连接到 CSDN MQTT 分类页。",
+    "articles.list.server.meta": "外部分发 / CSDN",
     "products.title": "产品",
     "contact.title": "联系",
     "contact.heading": "工控人太苦了，让我们一起告别水深火热",
@@ -75,6 +90,9 @@ const translations = {
     "nav.articles": "Articles",
     "nav.products": "Products",
     "nav.contact": "Contact",
+    "nav.article.menu.center": "Article Center",
+    "nav.article.menu.series": "CODESYS MQTT Series",
+    "nav.article.menu.resources": "Related Resources",
     "search.placeholder": "Search articles, resources, products",
     "hero.statement": "An AI automation architect keeping pace with the era.",
     "hero.description": "ControlRookie shares source code, control ideas, algorithms, architecture, frontier technology, and AI tools to help automation engineers improve engineering efficiency.",
@@ -108,14 +126,26 @@ const translations = {
     "about.capability.label": "Capabilities / Reserved",
     "about.capability.copy": "Control systems, HIL, industry processes, drive control, controller productization, and AI engineering efficiency will be expanded here.",
     "articles.title": "Articles",
-    "articles.nav.all": "All",
-    "articles.nav.series": "MQTT Series",
-    "articles.nav.resources": "Related Resources",
-    "articles.nav.contact": "Discussion",
-    "articles.series.label": "Topic 01",
+    "articles.index.label": "Knowledge Index",
+    "articles.index.title": "Find articles by engineering problem",
+    "articles.index.copy": "Domains find direction, series support continuous reading, and types filter reading intent.",
+    "articles.index.domain": "Domains",
+    "articles.index.domain.communication": "Industrial Communication",
+    "articles.index.mqtt.client": "Client",
+    "articles.index.mqtt.server": "Server",
+    "articles.index.series": "Series",
+    "articles.index.planned": "Planned",
+    "articles.index.type": "Content Type",
+    "articles.index.type.tutorial": "Tutorial",
+    "articles.index.type.source": "Source Review",
+    "articles.index.type.experience": "Engineering Notes",
+    "articles.series.label": "Series",
     "articles.series.title": "CODESYS MQTT Series",
     "articles.series.copy": "From protocol layers, CONNECT / CONNACK, PUBLISH, QoS, to ST state machines, organized along an engineering path.",
     "articles.series.progress": "1 imported / series in progress",
+    "articles.list.server.title": "CODESYS MQTT Server and Broker References",
+    "articles.list.server.copy": "Server, broker, topic communication, and troubleshooting tutorials currently link to the CSDN MQTT category.",
+    "articles.list.server.meta": "External / CSDN",
     "products.title": "Products",
     "contact.title": "Contact",
     "contact.heading": "Industrial control is hard. Let us get out of the fire together.",
@@ -144,13 +174,13 @@ function hydrateContentFromData() {
   });
 
   const article = siteData.articles[0];
-  const articleCard = document.querySelector("#articles .info-card");
+  const articleCard = document.querySelector("#articles .article-feature-card");
   if (article && articleCard) {
     articleCard.href = article.href;
-    articleCard.querySelector("small").textContent = `01 · ${article.type[currentLang]}`;
-    articleCard.querySelector("h3").textContent = article.title[currentLang];
+    articleCard.querySelector("small").textContent = `01 · ${currentLang === "zh" ? "客户端" : "Client"}`;
+    articleCard.querySelector("strong").textContent = article.title[currentLang];
     articleCard.querySelector("p").textContent = article.copy[currentLang];
-    articleCard.querySelector("footer").textContent = localizedText(article.status, currentLang) || "01 / MQTT Client";
+    articleCard.querySelector("em").textContent = currentLang === "zh" ? "官网全文 / 第1篇" : "This Site / Part 1";
   }
 
   const product = siteData.products[0];

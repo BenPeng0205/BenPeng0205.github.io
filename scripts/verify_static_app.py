@@ -4,6 +4,7 @@ from playwright.sync_api import sync_playwright
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 APP_HTML = PROJECT_ROOT / "src" / "app" / "index.html"
+ARTICLE_HTML = PROJECT_ROOT / "dist" / "articles" / "mqtt-client-open-source-codesys-layer" / "index.html"
 
 
 def require(condition: bool, message: str) -> None:
@@ -104,8 +105,12 @@ def check_page_frame_and_cards(page, file_url: str) -> None:
         page.wait_for_timeout(420)
         area = rect(page, anchor)
         group = rect(page, selector)
-        require(group["x"] >= area["x"] + 18, f"{anchor} 内容过度贴近左边界。")
-        require(group["x"] + group["width"] <= area["x"] + area["width"] - 18, f"{anchor} 内容过度贴近右边界。")
+        if anchor == "#articles":
+            require(group["x"] >= area["x"] - 2, f"{anchor} 内容越过左边界。")
+            require(group["x"] + group["width"] <= area["x"] + area["width"] + 2, f"{anchor} 内容越过右边界。")
+        else:
+            require(group["x"] >= area["x"] + 18, f"{anchor} 内容过度贴近左边界。")
+            require(group["x"] + group["width"] <= area["x"] + area["width"] - 18, f"{anchor} 内容过度贴近右边界。")
         assert_close(horizontal_center(group), viewport_center, 100, f"{anchor} 内容视觉重心明显偏离页面中心轴")
 
     for part in [".work-index", ".work-title", ".work-meta"]:
@@ -127,7 +132,7 @@ def check_page_frame_and_cards(page, file_url: str) -> None:
 
     page.goto(f"{file_url}#articles", wait_until="networkidle")
     page.wait_for_timeout(420)
-    require(hover_delta_y(page, "#articles a.info-card") < -1.5, "可点击文章卡片缺少 hover 动画。")
+    require(hover_delta_y(page, "#articles a.article-list-card") < -1.5, "可点击文章卡片缺少 hover 动画。")
 
 
 def check_single_card_heading_attachment(page, file_url: str, anchor: str, label_selector: str, card_selector: str) -> None:
@@ -138,6 +143,67 @@ def check_single_card_heading_attachment(page, file_url: str, anchor: str, label
     require(label["y"] < card["y"], f"{anchor} 标题必须位于主体卡片上方。")
     require(card["y"] - (label["y"] + label["height"]) <= 18, f"{anchor} 标题与主体卡片距离过远。")
     assert_close(label["x"], card["x"], 8, f"{anchor} 标题未与主体卡片左侧对齐。")
+
+
+def check_article_center_navigation(page, file_url: str) -> None:
+    page.goto(f"{file_url}#articles", wait_until="networkidle")
+    page.wait_for_timeout(420)
+    require(page.locator("#articles .article-index-panel").count() == 1, "文章中心缺少左侧知识库索引栏。")
+    require(page.locator("#articles .article-subnav").count() == 0, "文章中心不应继续使用胶囊按钮式 article-subnav。")
+    require(page.locator("#articles .article-index-tree details").count() >= 8, "文章中心索引必须使用可展开/收起的多层项目树。")
+    require(page.locator("#articles .article-index-tree summary").count() >= 8, "文章中心项目树每个层级都应有可点击展开项。")
+    require(page.locator("#articles .article-index-tree a").count() >= 6, "文章中心叶子节点数量不足，无法支撑长期分类导航。")
+    require(page.locator("#articles .article-tree-selected summary").count() == 1, "文章中心项目树必须有当前选中节点。")
+    require(page.locator("#articles .article-library-panel").count() == 1, "文章中心缺少右侧文章视图面板。")
+    require(page.locator("#articles .article-series-heading").count() == 1, "文章中心右侧顶部缺少当前系列标题区。")
+    require(page.locator("#articles .article-row-list").count() == 0 and page.locator("#articles .article-row").count() == 0, "文章中心右侧不应再保留浅导航卡片。")
+    require(page.locator("#articles .article-list-card").count() >= 2, "文章中心右侧必须展示当前节点下的横向文章卡片列表。")
+
+    label = rect(page, "#articles .single-section-label")
+    hub = rect(page, "#articles .article-hub")
+    index_panel = rect(page, "#articles .article-index-panel")
+    library_panel = rect(page, "#articles .article-library-panel")
+    require(label["y"] < index_panel["y"], "文章标题必须位于知识库索引和文章视图上方。")
+    require(index_panel["y"] - (label["y"] + label["height"]) <= 18, "文章标题与文章中心主体距离过远。")
+    assert_close(label["x"], hub["x"], 8, "文章标题未与文章中心主体左侧对齐。")
+
+    page.goto(ARTICLE_HTML.resolve().as_uri(), wait_until="networkidle")
+    page.wait_for_timeout(420)
+    toc = rect(page, ".article-toc")
+    main = rect(page, ".article-main")
+    assert_close(index_panel["x"], toc["x"], 2, "文章中心左侧项目树 x 坐标必须与单篇文章目录一致")
+    assert_close(index_panel["width"], toc["width"], 2, "文章中心左侧项目树宽度必须与单篇文章目录一致")
+    assert_close(library_panel["x"], main["x"], 2, "文章中心右侧内容 x 坐标必须与单篇文章正文一致")
+    assert_close(library_panel["width"], main["width"], 2, "文章中心右侧内容宽度必须与单篇文章正文一致")
+
+    page.goto(f"{file_url}#articles", wait_until="networkidle")
+    page.wait_for_timeout(220)
+    series_style = page.locator("#articles .article-series-heading").evaluate(
+        """node => {
+            const style = getComputedStyle(node);
+            return {
+                borderRadius: parseFloat(style.borderTopLeftRadius) || 0,
+                borderLeftWidth: parseFloat(style.borderLeftWidth) || 0,
+            };
+        }"""
+    )
+    require(series_style["borderRadius"] == 0 and series_style["borderLeftWidth"] >= 4, "系列专题入口必须与普通文章卡片形成清晰视觉层级差异。")
+    first_card = rect(page, "#articles .article-list-card")
+    require(first_card["width"] > 700 and first_card["height"] < 190, "文章列表卡片必须采用横向卡片形态。")
+
+    page.goto(file_url, wait_until="networkidle")
+    page.wait_for_timeout(200)
+    require(page.locator(".nav-article-menu").count() == 1, "顶部导航缺少文章轻量快捷入口。")
+    require(page.locator(".nav-article-panel a").count() == 3, "顶部文章快捷入口应保持轻量，不能承载主文章树。")
+    page.hover(".nav-article-menu")
+    page.wait_for_timeout(160)
+    panel_opacity = page.locator(".nav-article-panel").evaluate("node => parseFloat(getComputedStyle(node).opacity)")
+    require(panel_opacity > 0.9, "顶部文章快捷入口 hover 后未显示。")
+    panel = rect(page, ".nav-article-panel")
+    link_boxes = page.locator(".nav-article-panel a").evaluate_all("nodes => nodes.map((node) => node.getBoundingClientRect()).map((r) => ({x:r.x, y:r.y, width:r.width, height:r.height}))")
+    require(panel["width"] < 230, "顶部文章菜单必须保持极简窄宽度。")
+    require(all(abs(box["x"] - link_boxes[0]["x"]) < 1 for box in link_boxes), "顶部文章菜单必须是纵向文字列表，不得横向排列。")
+    require(link_boxes[1]["y"] > link_boxes[0]["y"] and link_boxes[2]["y"] > link_boxes[1]["y"], "顶部文章菜单必须纵向排列。")
 
 
 def check_about_timeline(page, file_url: str) -> None:
@@ -212,13 +278,13 @@ def main() -> None:
 
         page.click("#langToggle")
         page.wait_for_timeout(200)
-        nav_links = page.locator(".nav-links a").evaluate_all("nodes => nodes.map((node) => node.textContent.trim())")
+        nav_links = page.locator(".nav-links [data-nav-primary]").evaluate_all("nodes => nodes.map((node) => node.textContent.trim())")
         if nav_links[:5] != ["About Me", "Resources", "Articles", "Products", "Contact"]:
             raise SystemExit("英文导航切换失败。")
 
         page.click("#langToggle")
         page.wait_for_timeout(200)
-        nav_links = page.locator(".nav-links a").evaluate_all("nodes => nodes.map((node) => node.textContent.trim())")
+        nav_links = page.locator(".nav-links [data-nav-primary]").evaluate_all("nodes => nodes.map((node) => node.textContent.trim())")
         if nav_links[:5] != ["关于我", "资源", "文章", "产品", "联系"]:
             raise SystemExit("中文导航切换失败。")
 
@@ -232,7 +298,7 @@ def main() -> None:
         require(description_box["y"] - (statement_box["y"] + statement_box["height"]) >= 22, "首页定位句与描述句间距不足。")
 
         check_about_timeline(page, file_url)
-        check_single_card_heading_attachment(page, file_url, "#articles", "#articles .single-section-label", "#articles .info-card")
+        check_article_center_navigation(page, file_url)
         check_single_card_heading_attachment(page, file_url, "#products", "#products .single-section-label", "#products .info-card")
 
         page.goto(f"{file_url}#contact", wait_until="networkidle")

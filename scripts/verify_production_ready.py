@@ -188,7 +188,20 @@ def check_code_contract() -> None:
     require('href="#about"' in html and 'data-i18n="nav.about"' in html, "导航缺少关于我首位入口。")
     require('class="about-timeline"' in html and 'class="timeline-node"' in html, "关于我页缺少真实时间线结构。")
     require('class="single-section-label"' in html, "文章/产品页标题未并入卡片内容组。")
-    require('class="article-grid article-hub"' in html and 'class="article-subnav"' in html, "文章入口页缺少知识库式子导航结构。")
+    require(
+        'class="article-grid article-hub"' in html
+        and 'class="article-index-panel"' in html
+        and 'class="article-index-tree"' in html
+        and "<details" in html
+        and "<summary" in html
+        and 'class="article-library-panel"' in html
+        and 'class="article-series-heading"' in html
+        and 'class="article-list-card"' in html
+        and 'class="article-subnav"' not in html,
+        "文章入口页必须采用左侧知识库索引栏，禁止继续使用胶囊按钮式导航。",
+    )
+    require('class="article-row-list"' not in html and 'class="article-row"' not in html, "文章中心右侧不应继续保留浅导航卡片。")
+    require('class="nav-article-menu"' in html and 'class="nav-article-panel"' in html, "顶部文章导航缺少轻量快捷入口。")
     require('class="contact-statement"' in html and "contact-lead" not in html, "联系页主文案仍使用旧灰卡结构。")
     require(
         "controlrookie-logo-latest.png" in html
@@ -199,7 +212,7 @@ def check_code_contract() -> None:
     )
     require(".skip-link" in css, "缺少跳转主内容样式。")
     require(".about-timeline::before" in css and ".contact-statement" in css, "样式缺少关于我时间线或联系页无卡片标题约束。")
-    require(".article-hub" in css and ".article-scroll-actions" in css and ".copy-code-button" in css and "--link: #4f6f63" in css, "样式缺少文章中心、文章阅读页或琉璃绿链接视觉关键控件。")
+    require(".article-hub" in css and ".article-index-panel" in css and ".article-series-heading" in css and ".article-list-card" in css and ".nav-article-panel" in css and ".article-scroll-actions" in css and ".copy-code-button" in css and "--link: #4f6f63" in css, "样式缺少文章中心、顶部文章快捷入口、文章阅读页或琉璃绿链接视觉关键控件。")
     require("--toc-preserved-right" in css and "--toc-target-left" in css and "--toc-min-readable" in css and "white-space: normal" in css and "overflow-x: hidden" in css, "文章目录未采用固定宽度、左侧扩展和长标题换行策略。")
     for token in ["article-main", "article-scroll-actions", "article-series-nav", "series-nav-card", "article-comments", "copy-code-button"]:
         require(token in article_template and token in article_html, f"文章模板或样例页缺少关键结构: {token}")
