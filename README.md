@@ -41,9 +41,12 @@ scripts/       自动化脚本
 ## 当前正式工程
 
 - 工程入口：`src/app/index.html`
+- 文章模板：`src/app/article-template.html`
+- 文章页目录：`src/app/articles/`
 - 视觉样式：`src/styles/site.css`
 - 页面交互：`src/lib/site.js`
 - 内容数据：`src/content/site-data.js`
+- 文章索引：`src/content/articles.json`
 - 发布资产：`public/favicon.ico`、`public/site.webmanifest`、`public/robots.txt`、`public/sitemap.xml`
 - 视觉基线截图：`tests/visual/baseline/`
 
@@ -56,6 +59,35 @@ scripts/       自动化脚本
 ```
 
 `verify_production_ready.py` 是综合生产级验收入口，会检查 SEO、发布资产、内容数据、UTF-8、代码契约，并调用视觉和功能验证。`verify_visual_parity.py` 会用桌面视口对比工程版和基线截图，防止视觉漂移；`verify_static_app.py` 会检查照片、二维码、搜索、双语、锚点和内容数据可用性。
+
+## 文章导入工作流
+
+分工原则：
+
+- `ben-wemedia-agent`：生成 Markdown、图片、frontmatter 和 manifest 等结构化文章发布包。
+- `controlrookie-website`：负责导入、渲染、排版、SEO、搜索、系列页和 ForAI 底座视觉一致性。
+
+当前样例文章源：
+
+```text
+E:\Obsidian\Work\03_资源\通信\MQTT\MqttClient系列教程\第1篇_官方MQTT库要花钱_那我就自己开源一套CODESYS MQTT客户端_以及MQTT到底跑在哪一层.md
+```
+
+本地导入和验收：
+
+```powershell
+& 'E:\ai-relavant\ben-blog-cli\.venv\Scripts\python.exe' 'scripts\import_article_package.py'
+& 'E:\ai-relavant\ben-blog-cli\.venv\Scripts\python.exe' 'scripts\verify_article_pages.py'
+& 'E:\ai-relavant\ben-blog-cli\.venv\Scripts\python.exe' 'scripts\capture_article_preview.py'
+```
+
+生成结果：
+
+- 文章页：`src/app/articles/mqtt-client-open-source-codesys-layer/index.html`
+- 文章索引：`src/content/articles.json`
+- 本地预览截图：`tests/visual/article-preview-mqtt-client-01.png`
+
+当前文章系统开发阶段只做本地测试；除非用户明确要求上传，否则禁止自动同步到 GitHub 官网。
 
 ## 生产级边界
 

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{TITLE}} | ControlRookie</title>
+  <meta name="description" content="{{DESCRIPTION}}">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#050505">
+  <link rel="canonical" href="{{CANONICAL}}">
+  <link rel="icon" href="{{ASSET_PREFIX}}favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="{{ASSET_PREFIX}}apple-touch-icon.png">
+  <link rel="manifest" href="{{ASSET_PREFIX}}site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="{{TITLE}}">
+  <meta property="og:description" content="{{DESCRIPTION}}">
+  <meta property="og:url" content="{{CANONICAL}}">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{TITLE}}">
+  <meta name="twitter:description" content="{{DESCRIPTION}}">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="{{STYLE_HREF}}">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="{{HOME_HREF}}" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">CR</span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="{{HOME_HREF}}#works">资源</a>
+        <a href="{{HOME_HREF}}#articles">文章</a>
+        <a href="{{HOME_HREF}}#products">产品</a>
+        <a href="{{HOME_HREF}}#contact">联系</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="article-back" href="{{HOME_HREF}}#articles">返回文章</a>
+      </div>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <header class="article-hero">
+          <p class="article-kicker">{{SERIES}} / {{CATEGORY}}</p>
+          <h1>{{TITLE}}</h1>
+          <p class="article-summary">{{DESCRIPTION}}</p>
+          <div class="article-meta">
+            <span>{{DATE}}</span>
+            <span>{{READING_TIME}}</span>
+            <span>{{TAGS}}</span>
+          </div>
+        </header>
+
+        <div class="article-layout">
+          <aside class="article-toc" aria-label="文章目录">
+            <strong>目录</strong>
+            {{TOC}}
+          </aside>
+          <div class="article-content">
+            {{CONTENT}}
+          </div>
+        </div>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

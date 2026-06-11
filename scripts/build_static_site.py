@@ -33,6 +33,8 @@ def main() -> None:
     copy_tree(SRC_STYLES, DIST / "styles")
     copy_tree(SRC_LIB, DIST / "lib")
     copy_tree(SRC_CONTENT, DIST / "content")
+    if (SRC_APP / "articles").exists():
+        copy_tree(SRC_APP / "articles", DIST / "articles")
 
     for item in PUBLIC.iterdir():
         target = DIST / item.name

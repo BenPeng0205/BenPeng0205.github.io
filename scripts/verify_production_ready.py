@@ -162,6 +162,7 @@ def check_dist_build() -> None:
         "styles/site.css",
         "lib/site.js",
         "content/site-data.js",
+        "articles/mqtt-client-open-source-codesys-layer/index.html",
         "assets/images/brand/controlrookie-og.png",
         "robots.txt",
         "sitemap.xml",
@@ -196,6 +197,7 @@ def main() -> None:
     check_code_contract()
     check_dist_build()
     run_script("verify_static_app.py")
+    run_script("verify_article_pages.py")
     run_script("verify_visual_parity.py")
     print("PRODUCTION_READY_OK")
 

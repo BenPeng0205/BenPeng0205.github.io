@@ -93,6 +93,20 @@ window.CONTROLROOKIE_SITE_DATA = {
   ],
   articles: [
     {
+      id: "mqtt-client-open-source-codesys-layer",
+      type: { zh: "文章", en: "Article" },
+      title: {
+        zh: "官方 MQTT 库要花钱？我为什么自己开源了一套 CODESYS MQTT 客户端",
+        en: "Why I Built an Open Source CODESYS MQTT Client",
+      },
+      copy: {
+        zh: "MQTT Client 系列第一篇：为什么要做开源客户端、MQTT 在哪一层、以及 NBS TCP 与 MQTT 的工程关系。",
+        en: "The first MQTT Client article: why this open source client exists, where MQTT sits, and how NBS TCP carries MQTT in CODESYS.",
+      },
+      href: "articles/mqtt-client-open-source-codesys-layer/index.html",
+      keywords: "MQTT Client CODESYS 开源 NBS TCP PLC 协议分层 IEC ST",
+    },
+    {
       id: "codesys-mqtt-series",
       type: { zh: "文章", en: "Article" },
       title: { zh: "CODESYS MQTT 系列", en: "CODESYS MQTT Series" },
