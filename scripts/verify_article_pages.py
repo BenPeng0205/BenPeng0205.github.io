@@ -115,6 +115,9 @@ def main() -> None:
             raise SystemExit("文章页 Hero 缺失。")
         if page.locator(".article-toc a").count() < 5:
             raise SystemExit("文章目录数量异常。")
+        nav_items = page.locator(".article-nav .nav-links a").evaluate_all("nodes => nodes.map(node => node.textContent.trim())")
+        if nav_items[:5] != ["关于我", "资源", "文章", "产品", "联系"]:
+            raise SystemExit(f"单篇文章导航缺少关于我或顺序异常: {nav_items}")
         check_toc_links(page)
         check_article_bounds(page, wide=False)
         if page.locator(".article-main .article-hero").count() != 1:

@@ -150,67 +150,108 @@ def check_article_center_navigation(page, file_url: str) -> None:
     page.wait_for_timeout(420)
     require(page.locator("#articles .article-index-panel").count() == 1, "文章中心缺少左侧知识库索引栏。")
     require(page.locator("#articles .article-subnav").count() == 0, "文章中心不应继续使用胶囊按钮式 article-subnav。")
-    require(page.locator("#articles .article-index-tree details").count() >= 8, "文章中心索引必须使用可展开/收起的多层项目树。")
-    require(page.locator("#articles .article-index-tree summary").count() >= 8, "文章中心项目树每个层级都应有可点击展开项。")
-    require(page.locator("#articles .article-index-tree a").count() >= 6, "文章中心叶子节点数量不足，无法支撑长期分类导航。")
-    require(page.locator("#articles .article-tree-selected summary").count() == 1, "文章中心项目树必须有当前选中节点。")
+    require(page.locator("#articles .single-section-label").count() == 0, "文章中心上方不应再显示独立的“文章”标题。")
+    require(page.locator("#articles .article-index-head strong").inner_text().strip() == "知识库索引", "文章中心索引标题必须保留为“知识库索引”。")
+    require(page.locator("#articles .article-index-tree details").count() >= 5, "文章中心索引必须按当前真实文章层级使用可展开/收起项目树。")
+    require(page.locator("#articles .article-index-tree summary").count() >= 5, "文章中心项目树每个层级都应有可点击展开项。")
+    require(page.locator("#articles .article-index-tree a").count() >= 2, "文章中心叶子节点必须对应当前真实文章入口。")
+    require(page.locator("#articles .article-tree-selected > summary").count() == 1, "文章中心项目树必须有当前选中节点。")
     require(page.locator("#articles .article-library-panel").count() == 1, "文章中心缺少右侧文章视图面板。")
     require(page.locator("#articles .article-series-heading").count() == 1, "文章中心右侧顶部缺少当前系列标题区。")
     require(page.locator("#articles .article-row-list").count() == 0 and page.locator("#articles .article-row").count() == 0, "文章中心右侧不应再保留浅导航卡片。")
     require(page.locator("#articles .article-list-card").count() >= 2, "文章中心右侧必须展示当前节点下的横向文章卡片列表。")
-
-    label = rect(page, "#articles .single-section-label")
+    require(page.locator("#articles .article-list-card").first.inner_text().startswith("01 · 客户端"), "文章卡片左上角必须使用序号加所在文件夹名称。")
+    first_status_weight = page.locator("#articles .article-list-card em").first.evaluate("node => parseFloat(getComputedStyle(node).fontWeight)")
+    require(first_status_weight <= 450, "文章卡片右上角状态文字不应加粗。")
+    tree_state = page.locator("#articles .article-index-tree").evaluate(
+        """node => {
+            const details = [...node.querySelectorAll("details")].map((item) => ({
+                label: item.querySelector(":scope > summary span").textContent.trim(),
+                open: item.open,
+                selected: item.classList.contains("article-tree-selected"),
+            }));
+            return details;
+        }"""
+    )
+    require(any(item["label"] == "CODESYS MQTT" and item["open"] and item["selected"] for item in tree_state), "文章目录树默认必须展开并选中到系列专题层。")
+    for folded_label in ["客户端", "服务器 / Broker"]:
+        require(any(item["label"] == folded_label and not item["open"] for item in tree_state), f"专题下文章文件夹默认必须折叠: {folded_label}")
+    index_html = page.locator("#articles .article-index-panel").evaluate("node => node.innerHTML")
+    require("#works" not in index_html and "#products" not in index_html and "LLM Synchronizer" not in index_html, "文章中心左侧索引不得混入资源页或产品页导航。")
     hub = rect(page, "#articles .article-hub")
     index_panel = rect(page, "#articles .article-index-panel")
     library_panel = rect(page, "#articles .article-library-panel")
-    require(label["y"] < index_panel["y"], "文章标题必须位于知识库索引和文章视图上方。")
-    require(index_panel["y"] - (label["y"] + label["height"]) <= 18, "文章标题与文章中心主体距离过远。")
-    assert_close(label["x"], hub["x"], 8, "文章标题未与文章中心主体左侧对齐。")
+    assert_close(index_panel["y"], library_panel["y"], 2, "文章中心左侧索引上边缘必须与右侧专题标题区上边缘对齐。")
 
     page.goto(ARTICLE_HTML.resolve().as_uri(), wait_until="networkidle")
     page.wait_for_timeout(420)
     toc = rect(page, ".article-toc")
     main = rect(page, ".article-main")
+    hero = rect(page, ".article-hero")
     assert_close(index_panel["x"], toc["x"], 2, "文章中心左侧项目树 x 坐标必须与单篇文章目录一致")
     assert_close(index_panel["width"], toc["width"], 2, "文章中心左侧项目树宽度必须与单篇文章目录一致")
     assert_close(library_panel["x"], main["x"], 2, "文章中心右侧内容 x 坐标必须与单篇文章正文一致")
     assert_close(library_panel["width"], main["width"], 2, "文章中心右侧内容宽度必须与单篇文章正文一致")
+    assert_close(toc["y"], hero["y"], 2, "单篇文章左侧目录上边缘必须与文章总标题卡片上边缘对齐")
 
     page.goto(f"{file_url}#articles", wait_until="networkidle")
     page.wait_for_timeout(220)
     series_style = page.locator("#articles .article-series-heading").evaluate(
         """node => {
             const style = getComputedStyle(node);
+            const before = getComputedStyle(node, "::before");
             return {
                 borderRadius: parseFloat(style.borderTopLeftRadius) || 0,
-                borderLeftWidth: parseFloat(style.borderLeftWidth) || 0,
+                borderTopWidth: parseFloat(style.borderTopWidth) || 0,
+                beforeWidth: parseFloat(before.width) || 0,
+                beforeHeight: parseFloat(before.height) || 0,
+                backgroundImage: style.backgroundImage,
             };
         }"""
     )
-    require(series_style["borderRadius"] == 0 and series_style["borderLeftWidth"] >= 4, "系列专题入口必须与普通文章卡片形成清晰视觉层级差异。")
+    require(
+        series_style["borderRadius"] == 0
+        and series_style["borderTopWidth"] >= 1
+        and series_style["beforeWidth"] >= 90
+        and series_style["beforeHeight"] <= 4
+        and series_style["backgroundImage"] == "none",
+        "系列专题入口必须使用横向编辑式标题板，与普通文章卡片形成清晰视觉层级差异。",
+    )
     first_card = rect(page, "#articles .article-list-card")
     require(first_card["width"] > 700 and first_card["height"] < 190, "文章列表卡片必须采用横向卡片形态。")
 
     page.goto(file_url, wait_until="networkidle")
     page.wait_for_timeout(200)
     require(page.locator(".nav-article-menu").count() == 1, "顶部导航缺少文章轻量快捷入口。")
-    require(page.locator(".nav-article-panel a").count() == 3, "顶部文章快捷入口应保持轻量，不能承载主文章树。")
-    page.hover(".nav-article-menu")
-    page.wait_for_timeout(160)
+    require(page.locator(".nav-article-panel a").count() == 2, "文章按钮本身已导航到文章中心，下拉菜单不应重复包含文章中心。")
+    require("文章中心" not in page.locator(".nav-article-panel").inner_text(), "文章下拉菜单不应包含文章中心入口。")
+    page.hover(".nav-article-trigger")
+    page.wait_for_timeout(220)
     panel_opacity = page.locator(".nav-article-panel").evaluate("node => parseFloat(getComputedStyle(node).opacity)")
-    require(panel_opacity > 0.9, "顶部文章快捷入口 hover 后未显示。")
+    require(panel_opacity > 0.9, "顶部文章快捷入口 hover 后菜单未稳定显示。")
     panel = rect(page, ".nav-article-panel")
+    trigger = rect(page, ".nav-article-trigger")
+    gap_y = trigger["y"] + trigger["height"] + max(1, (panel["y"] - (trigger["y"] + trigger["height"])) / 2)
+    page.mouse.move(trigger["x"] + trigger["width"] / 2, gap_y)
+    page.wait_for_timeout(120)
+    gap_opacity = page.locator(".nav-article-panel").evaluate("node => parseFloat(getComputedStyle(node).opacity)")
+    require(gap_opacity > 0.75, "顶部文章菜单从按钮移动到面板时 hover 热区会断开。")
+    first_nav_link = page.locator(".nav-article-panel a").first.bounding_box()
+    page.mouse.move(first_nav_link["x"] + first_nav_link["width"] / 2, first_nav_link["y"] + first_nav_link["height"] / 2)
+    page.wait_for_timeout(120)
+    link_opacity = page.locator(".nav-article-panel").evaluate("node => parseFloat(getComputedStyle(node).opacity)")
+    require(link_opacity > 0.9, "顶部文章菜单移动到菜单项后未保持显示。")
     link_boxes = page.locator(".nav-article-panel a").evaluate_all("nodes => nodes.map((node) => node.getBoundingClientRect()).map((r) => ({x:r.x, y:r.y, width:r.width, height:r.height}))")
-    require(panel["width"] < 230, "顶部文章菜单必须保持极简窄宽度。")
+    require(panel["width"] <= 260, "顶部文章菜单必须保持极简窄宽度。")
     require(all(abs(box["x"] - link_boxes[0]["x"]) < 1 for box in link_boxes), "顶部文章菜单必须是纵向文字列表，不得横向排列。")
-    require(link_boxes[1]["y"] > link_boxes[0]["y"] and link_boxes[2]["y"] > link_boxes[1]["y"], "顶部文章菜单必须纵向排列。")
+    require(link_boxes[1]["y"] > link_boxes[0]["y"], "顶部文章菜单必须纵向排列。")
 
 
 def check_about_timeline(page, file_url: str) -> None:
     page.goto(f"{file_url}#about", wait_until="networkidle")
     page.wait_for_timeout(300)
     about_text = page.locator("#about").inner_text()
-    for token in ["关于我", "达姆施达特工业大学", "Bosch", "Fraunhofer IWES", "新能源 HIL", "烟草", "冶金传动", "控制器厂家", "能力描述"]:
+    for token in ["达姆施达特工业大学", "Bosch", "Fraunhofer IWES", "新能源 HIL", "烟草", "冶金传动", "控制器厂家", "能力描述"]:
         if token not in about_text:
             raise SystemExit(f"关于我页缺少关键内容: {token}")
 
@@ -299,7 +340,8 @@ def main() -> None:
 
         check_about_timeline(page, file_url)
         check_article_center_navigation(page, file_url)
-        check_single_card_heading_attachment(page, file_url, "#products", "#products .single-section-label", "#products .info-card")
+        for selector in ["#about .section-head", "#works .section-head", "#products .single-section-label", "#articles .single-section-label"]:
+            require(page.locator(selector).count() == 0, f"正文顶部不应显示冗余页名标签: {selector}")
 
         page.goto(f"{file_url}#contact", wait_until="networkidle")
         page.wait_for_timeout(250)

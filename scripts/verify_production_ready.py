@@ -187,7 +187,8 @@ def check_code_contract() -> None:
     require("aria-expanded" in html and "aria-controls" in html, "搜索按钮缺少 aria 状态。")
     require('href="#about"' in html and 'data-i18n="nav.about"' in html, "导航缺少关于我首位入口。")
     require('class="about-timeline"' in html and 'class="timeline-node"' in html, "关于我页缺少真实时间线结构。")
-    require('class="single-section-label"' in html, "文章/产品页标题未并入卡片内容组。")
+    for removed_label in ['id="about-title"', 'id="works-title"', 'id="articles-title"', 'id="products-title"', 'class="section-head compact"', 'class="single-section-label"']:
+        require(removed_label not in html, f"正文顶部不得显示冗余页名标签: {removed_label}")
     require(
         'class="article-grid article-hub"' in html
         and 'class="article-index-panel"' in html
@@ -202,6 +203,9 @@ def check_code_contract() -> None:
     )
     require('class="article-row-list"' not in html and 'class="article-row"' not in html, "文章中心右侧不应继续保留浅导航卡片。")
     require('class="nav-article-menu"' in html and 'class="nav-article-panel"' in html, "顶部文章导航缺少轻量快捷入口。")
+    require('data-i18n="nav.article.menu.center"' not in html and 'href="#articles" data-i18n="nav.article.menu.center"' not in html, "文章按钮本身已导航到文章中心，下拉菜单不应重复包含文章中心。")
+    require('class="article-tree-node article-tree-selected" open' in html and 'data-i18n="articles.index.mqtt.client">客户端</span><em>1</em></summary>' in html and '<details class="article-tree-node" open>\n                            <summary><span data-i18n="articles.index.mqtt.client"' not in html, "文章目录树必须默认展开到系列专题，专题下文章文件夹默认折叠。")
+    require('data-i18n="nav.article.menu.resources"' not in html and 'href="#products"><span>LLM Synchronizer</span>' not in html, "文章导航不得混入资源页或产品页入口。")
     require('class="contact-statement"' in html and "contact-lead" not in html, "联系页主文案仍使用旧灰卡结构。")
     require(
         "controlrookie-logo-latest.png" in html
@@ -212,10 +216,14 @@ def check_code_contract() -> None:
     )
     require(".skip-link" in css, "缺少跳转主内容样式。")
     require(".about-timeline::before" in css and ".contact-statement" in css, "样式缺少关于我时间线或联系页无卡片标题约束。")
-    require(".article-hub" in css and ".article-index-panel" in css and ".article-series-heading" in css and ".article-list-card" in css and ".nav-article-panel" in css and ".article-scroll-actions" in css and ".copy-code-button" in css and "--link: #4f6f63" in css, "样式缺少文章中心、顶部文章快捷入口、文章阅读页或琉璃绿链接视觉关键控件。")
+    require("01 · 客户端" in html and "02 · 服务器 / Broker" in html and "01 · MQTT Client" not in html, "文章卡片左上角必须使用序号加所在文件夹名称，禁止用英文技术名替代文件夹名。")
+    require(".article-hub" in css and ".article-index-panel" in css and ".article-series-heading::before" in css and ".article-list-card" in css and ".nav-article-menu::after" in css and "counter-reset: nav-article-item" in css and ".article-scroll-actions" in css and ".copy-code-button" in css and "--link: #4f6f63" in css, "样式缺少文章中心、顶部文章快捷入口、文章阅读页或琉璃绿链接视觉关键控件。")
+    require("grid-template-areas:" in css and "\"meta title\"" in css and "background: transparent" in css and ".article-tree-selected > summary" in css and "color: #050505" in css, "文章中心必须使用黑白灰编辑式系列标题板，并减少绿琉璃大面积使用。")
+    require("margin-top: 60px" in css and ".article-index-head strong" in css, "文章目录顶端对齐或知识库索引标题样式缺少硬性约束。")
     require("--toc-preserved-right" in css and "--toc-target-left" in css and "--toc-min-readable" in css and "white-space: normal" in css and "overflow-x: hidden" in css, "文章目录未采用固定宽度、左侧扩展和长标题换行策略。")
     for token in ["article-main", "article-scroll-actions", "article-series-nav", "series-nav-card", "article-comments", "copy-code-button"]:
         require(token in article_template and token in article_html, f"文章模板或样例页缺少关键结构: {token}")
+    require('href="{{HOME_HREF}}#about"' in article_template and 'href="../../index.html#about"' in article_html, "单篇文章导航缺少关于我入口。")
     require("{{CATEGORY_PRIMARY}}" in article_template and "{{CATEGORY_SECONDARY}}" in article_template, "文章模板未把面包屑分类层级拆开。")
     require("第1篇/共12篇" in import_script and "第1篇/共12篇" in article_html, "文章页缺少系列进度属性框。")
     require(">通信<" in article_html and ">CODESYS<" in article_html and ">通信 / CODESYS<" not in article_html, "文章面包屑仍把通信和 CODESYS 粘成同一层级。")

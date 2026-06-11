@@ -64,9 +64,8 @@
         <div class="nav-article-menu">
           <a class="nav-article-trigger" href="#articles" data-nav-primary data-i18n="nav.articles">文章</a>
           <div class="nav-article-panel" aria-label="文章快捷导航">
-            <a href="#articles" data-i18n="nav.article.menu.center">文章中心</a>
-            <a href="articles/mqtt-client-open-source-codesys-layer/index.html" data-i18n="nav.article.menu.series">CODESYS MQTT 系列</a>
-            <a href="#works" data-i18n="nav.article.menu.resources">相关资源</a>
+            <a href="articles/mqtt-client-open-source-codesys-layer/index.html" data-i18n="nav.article.menu.client">MQTT Client 第1篇</a>
+            <a href="https://blog.csdn.net/weixin_44442562/category_13163069.html" target="_blank" rel="noreferrer" data-i18n="nav.article.menu.server">MQTT Server 资料</a>
           </div>
         </div>
         <a href="#products" data-nav-primary data-i18n="nav.products">产品</a>
@@ -133,10 +132,7 @@
       </section>
 
       <!-- 关于我页：按真实路径先做时间线骨架，后续继续补年份、项目和能力描述。 -->
-      <section class="section section-line fade-in" id="about" aria-labelledby="about-title">
-        <div class="section-head compact">
-          <p class="eyebrow" id="about-title" data-i18n="about.title">关于我</p>
-        </div>
+      <section class="section section-line fade-in" id="about" aria-label="关于我">
         <div class="about-shell">
           <!-- 关于我主叙事卡：保持中心轴平衡，只承接时间线和后续能力描述入口。 -->
           <article class="about-intro-card">
@@ -205,10 +201,7 @@
       </section>
 
       <!-- 资源页：承载源代码、库文件、标准、模板、协议资料、脚本、AI 工作流、工程资料。 -->
-      <section class="section section-line section-tall fade-in" id="works" aria-labelledby="works-title">
-        <div class="section-head compact">
-          <p class="eyebrow" id="works-title" data-i18n="resources.title">资源</p>
-        </div>
+      <section class="section section-line section-tall fade-in" id="works" aria-label="资源">
         <div class="work-grid" aria-label="Selected ControlRookie work">
           <!-- 资源页卡片 01：源代码入口。 -->
           <article class="work-card">
@@ -278,62 +271,39 @@
       </section>
 
       <!-- 文章页：第一版知识库式文章中心，避免未来文章增长后退化成无限卡片列表。 -->
-      <section class="section section-line fade-in" id="articles" aria-labelledby="articles-title">
+      <section class="section section-line fade-in" id="articles" aria-label="文章">
         <div class="article-grid article-hub">
-          <p class="single-section-label" id="articles-title" data-i18n="articles.title">文章</p>
           <!-- 文章中心左侧索引：这是长期文章库的主导航，不再使用胶囊按钮堆叠。 -->
           <aside class="article-index-panel" aria-label="文章知识库索引">
             <div class="article-index-head">
-              <small data-i18n="articles.index.label">知识库索引</small>
-              <strong data-i18n="articles.index.title">按工程问题定位文章</strong>
-              <span data-i18n="articles.index.copy">分类负责找方向，系列负责连续阅读，类型负责筛选阅读目的。</span>
+              <strong data-i18n="articles.index.label">知识库索引</strong>
             </div>
-            <nav class="article-index-tree" aria-label="文章分类、系列和标签">
+            <nav class="article-index-tree" aria-label="文章知识库目录">
               <details class="article-tree-group" open>
-                <summary><span data-i18n="articles.index.domain">技术领域</span><em>4</em></summary>
+                <summary><span data-i18n="articles.index.domain.communication">工业通信</span><em>2</em></summary>
                 <div class="article-tree-children">
                   <details class="article-tree-node" open>
-                    <summary><span data-i18n="articles.index.domain.communication">工业通信</span><em>2</em></summary>
+                    <summary><span>MQTT</span><em>2</em></summary>
                     <div class="article-tree-children">
                       <details class="article-tree-node article-tree-selected" open>
-                        <summary><span>MQTT</span><em>2</em></summary>
+                        <summary><span>CODESYS MQTT</span><em>1 / 12</em></summary>
                         <div class="article-tree-children">
-                          <a class="active" href="#articles"><span data-i18n="articles.index.mqtt.client">客户端</span><em>1</em></a>
-                          <a href="#articles"><span data-i18n="articles.index.mqtt.server">服务器</span><em>1</em></a>
+                          <details class="article-tree-node">
+                            <summary><span data-i18n="articles.index.mqtt.client">客户端</span><em>1</em></summary>
+                            <div class="article-tree-children">
+                              <a class="active" href="articles/mqtt-client-open-source-codesys-layer/index.html"><span data-i18n="articles.index.article.first">第1篇：开源客户端与协议分层</span><em>官网</em></a>
+                            </div>
+                          </details>
+                          <details class="article-tree-node">
+                            <summary><span data-i18n="articles.index.mqtt.server">服务器 / Broker</span><em>1</em></summary>
+                            <div class="article-tree-children">
+                              <a href="https://blog.csdn.net/weixin_44442562/category_13163069.html" target="_blank" rel="noreferrer"><span data-i18n="articles.index.article.server">CSDN MQTT 资料索引</span><em>CSDN</em></a>
+                            </div>
+                          </details>
                         </div>
-                      </details>
-                      <details class="article-tree-node">
-                        <summary><span>HTTP</span><em>0</em></summary>
-                      </details>
-                      <details class="article-tree-node">
-                        <summary><span>WebSocket</span><em>0</em></summary>
                       </details>
                     </div>
                   </details>
-                  <details class="article-tree-node">
-                    <summary><span>CODESYS / PLC</span><em>2</em></summary>
-                  </details>
-                  <details class="article-tree-node">
-                    <summary><span>AI Automation</span><em>1</em></summary>
-                  </details>
-                  <details class="article-tree-node">
-                    <summary><span>HIL / Test</span><em>0</em></summary>
-                  </details>
-                </div>
-              </details>
-              <details class="article-tree-group" open>
-                <summary><span data-i18n="articles.index.series">系列专题</span><em>2</em></summary>
-                <div class="article-tree-children">
-                  <a class="active" href="#articles"><span>CODESYS MQTT</span><em>1 / 12</em></a>
-                  <a href="#products"><span>LLM Synchronizer</span><em data-i18n="articles.index.planned">规划中</em></a>
-                </div>
-              </details>
-              <details class="article-tree-group" open>
-                <summary><span data-i18n="articles.index.type">内容类型</span><em>3</em></summary>
-                <div class="article-tree-children">
-                  <a href="#articles"><span data-i18n="articles.index.type.tutorial">教程</span><em>1</em></a>
-                  <a href="#articles"><span data-i18n="articles.index.type.source">源码解析</span><em>1</em></a>
-                  <a href="#articles"><span data-i18n="articles.index.type.experience">工程经验</span><em>0</em></a>
                 </div>
               </details>
             </nav>
@@ -354,13 +324,13 @@
             <!-- 文章页卡片 01：官网文章页样例，验证 Markdown 图文发布包到官网排版的完整链路。 -->
             <div class="article-list" aria-label="MQTT 文章列表">
               <a class="article-list-card article-feature-card" href="articles/mqtt-client-open-source-codesys-layer/index.html">
-                <small>01 · <span data-i18n="articles.index.mqtt.client">客户端</span></small>
+                <small>01 · 客户端</small>
                 <strong>官方 MQTT 库要花钱？我为什么自己开源了一套 CODESYS MQTT 客户端</strong>
                 <p>MQTT Client 系列第一篇：为什么要做开源客户端、MQTT 在哪一层、以及 NBS TCP 与 MQTT 的工程关系。</p>
                 <em>官网全文 / 第1篇</em>
               </a>
               <a class="article-list-card" href="https://blog.csdn.net/weixin_44442562/category_13163069.html" target="_blank" rel="noreferrer">
-                <small>EXT · <span data-i18n="articles.index.mqtt.server">服务器</span></small>
+                <small>02 · 服务器 / Broker</small>
                 <strong data-i18n="articles.list.server.title">CODESYS MQTT 服务器与 Broker 资料</strong>
                 <p data-i18n="articles.list.server.copy">服务器、Broker、主题通信和排障教程暂先连接到 CSDN MQTT 分类页。</p>
                 <em data-i18n="articles.list.server.meta">外部分发 / CSDN</em>
@@ -371,9 +341,8 @@
       </section>
 
       <!-- 产品页：当前只展示 codesys-llm-synchronizer，未成熟产品不占位。 -->
-      <section class="section section-line fade-in" id="products" aria-labelledby="products-title">
+      <section class="section section-line fade-in" id="products" aria-label="产品">
         <div class="product-grid product-grid-single">
-          <p class="single-section-label" id="products-title" data-i18n="products.title">产品</p>
           <!-- 产品页卡片 01：codesys-llm-synchronizer 产品说明入口。 -->
           <article class="info-card">
             <div>
