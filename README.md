@@ -88,26 +88,33 @@ scripts/       自动化脚本
 - 文章中心采用黑白灰为主的编辑式界面；琉璃绿只做极少量点缀。顶部文章下拉菜单必须可稳定 hover 操作，文章卡元信息使用 `序号 + 文章所在文件夹名称`。
 - 正文区顶部不显示 `关于我`、`资源`、`文章`、`产品` 等页名标签；文章按钮本身已跳转文章中心时，下拉菜单不重复放 `文章中心`，文章树默认展开到当前系列专题、专题下文章折叠。
 - 代码块必须有复制按钮和适合代码阅读的等宽字体；文章末尾必须预留评论和回复区，具体权限与审核策略后续统一设计。
+- `源码加更` 文章必须明确源码范围：官网正文展示 V1.0 核心实现片段、对象职责和阅读顺序，不默认等同完整工程源码包；如果后续要全量公开 1.0 源码，应在资源/源码页用独立源码包或完整源码清单统一维护。
 
-当前样例文章源：
+当前 MQTT 文章源：
 
 ```text
-E:\Obsidian\Work\03_资源\通信\MQTT\MqttClient系列教程\第1篇_官方MQTT库要花钱_那我就自己开源一套CODESYS MQTT客户端_以及MQTT到底跑在哪一层.md
+E:\Obsidian\Work\03_资源\通信\MQTT\MqttClient系列教程
+E:\Obsidian\Work\03_资源\通信\MQTT\MqttBroker系列教程
 ```
+
+当前官网已接入 MQTT Client 16 篇、MQTT Broker 14 篇，共 30 篇静态文章。
 
 本地导入和验收：
 
 ```powershell
-& 'E:\ai-relavant\ben-blog-cli\.venv\Scripts\python.exe' 'scripts\import_article_package.py'
-& 'E:\ai-relavant\ben-blog-cli\.venv\Scripts\python.exe' 'scripts\verify_article_pages.py'
-& 'E:\ai-relavant\ben-blog-cli\.venv\Scripts\python.exe' 'scripts\capture_article_preview.py'
+& 'E:\ai-relavant\ben-blog-cli\.venv\Scripts\python.exe' -X utf8 'scripts\import_article_package.py'
+& 'E:\ai-relavant\ben-blog-cli\.venv\Scripts\python.exe' -X utf8 'scripts\build_static_site.py'
+& 'E:\ai-relavant\ben-blog-cli\.venv\Scripts\python.exe' -X utf8 'scripts\verify_article_pages.py'
+& 'E:\ai-relavant\ben-blog-cli\.venv\Scripts\python.exe' -X utf8 'scripts\verify_production_ready.py'
 ```
 
 生成结果：
 
-- 文章页：`src/app/articles/mqtt-client-open-source-codesys-layer/index.html`
+- 文章页：`src/app/articles/` 下 30 个 MQTT 静态文章目录。
 - 文章索引：`src/content/articles.json`
-- 本地预览截图：`tests/visual/article-preview-mqtt-client-01.png`
+- 前端文章数据：`src/content/articles-data.js`
+- 文章图片资产：`public/assets/articles/`
+- 站点地图：`public/sitemap.xml`
 
 当前文章系统开发阶段只做本地测试；除非用户明确要求上传，否则禁止自动同步到 GitHub 官网。
 

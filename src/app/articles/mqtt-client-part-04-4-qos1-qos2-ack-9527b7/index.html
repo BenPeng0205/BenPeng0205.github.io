@@ -1,0 +1,1227 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透 | ControlRookie</title>
+  <meta name="description" content="这一篇专门讲高可靠链路为什么最容易出问题，核心内容包括 ACK 链、inflight、超时重发、DUP 位以及高频场景下为什么状态机会最先暴露短板。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#050505">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/mqtt-client-part-04-4-qos1-qos2-ack-9527b7/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透">
+  <meta property="og:description" content="这一篇专门讲高可靠链路为什么最容易出问题，核心内容包括 ACK 链、inflight、超时重发、DUP 位以及高频场景下为什么状态机会最先暴露短板。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-client-part-04-4-qos1-qos2-ack-9527b7/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透">
+  <meta name="twitter:description" content="这一篇专门讲高可靠链路为什么最容易出问题，核心内容包括 ACK 链、inflight、超时重发、DUP 位以及高频场景下为什么状态机会最先暴露短板。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <aside class="article-toc" aria-label="文章目录">
+            <strong>目录</strong>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-31b40706">一、先给工程结论</a></li><li><a href="#qos1">二、先把 QoS1 链路压成一张图</a></li><li><a href="#qos2">三、QoS2 链路为什么更考验实现水平</a></li><li><a href="#qos1-qos2">四、把 QoS1 / QoS2 放回状态机里看</a></li><li><a href="#qos-inflight">五、真正支撑 QoS 的核心：inflight</a></li><li><a href="#section-6e5e79fe">六、超时重发到底怎么实现</a></li><li><a href="#dup">七、DUP 位到底什么时候才有意义</a></li><li><a href="#section-94ae1f17">八、为什么高频场景更容易暴露问题</a></li><li><a href="#section-f8b93f66">九、为什么接收面即时消化这么关键</a></li><li><a href="#immediate-response-timeout">十、为什么 Immediate response timeout 这么常见</a></li><li><a href="#section-644152ed">十一、怎么判断问题到底卡在哪一层</a></li><li><a href="#section-78241d95">十二、把这条链完整串一遍</a></li><li><a href="#6">十三、这一篇你最该记住的 6 句话</a></li><li><a href="#section-865f2185">十四、下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li></ol>
+          </aside>
+          <div class="article-main" id="article-top">
+            <nav class="article-breadcrumb" aria-label="文章路径">
+              <a href="../../index.html#articles">文章</a>
+              <span>/</span>
+              <a href="../../index.html#articles">MQTT Client 系列教程</a>
+              <span>/</span>
+              <a href="../../index.html#articles">通信</a>
+              <span>/</span>
+              <a href="../../index.html#articles">CODESYS</a>
+            </nav>
+            <header class="article-hero">
+              <h1>为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透</h1>
+              <p class="article-summary">这一篇专门讲高可靠链路为什么最容易出问题，核心内容包括 ACK 链、inflight、超时重发、DUP 位以及高频场景下为什么状态机会最先暴露短板。</p>
+              <div class="article-meta">
+                <span>2026-05-06</span>
+                <span>约 42 分钟阅读</span>
+                <span>第4篇/共16篇</span>
+                <span>MQTT / QoS1 / QoS2 / ACK / 状态机 / ST / CSDN / CODESYS</span>
+              </div>
+            </header>
+            <div class="article-content">
+              <blockquote>这一篇专门讲高可靠链路为什么最容易出问题，核心内容包括 ACK 链、inflight、超时重发、DUP 位以及高频场景下为什么状态机会最先暴露短板。</blockquote>
+<h2 id="section-0d70135c">适合谁收藏</h2>
+<ul><li>正在做 CODESYS / PLC / MQTT 项目的人</li><li>想把 MQTT 从报文真正看到 ST 代码的人</li><li>正在排查 QoS1 / QoS2 超时、掉线、重连问题的人</li></ul>
+<hr>
+<p>只要 MQTT 客户端一进现场，最常见的一类评价通常是这样的：</p>
+<ul><li>QoS0 正常</li><li>一上 QoS1 就开始偶发 timeout</li><li>一上 QoS2 更容易暴露问题</li><li>高频时更容易掉进断线重连</li></ul>
+<p>这不是巧合。 也不是 MQTT 故意折磨人。</p>
+<p>真正原因就一句话：</p>
+<blockquote>QoS1 / QoS2 不只是“消息等级更高”，而是要求客户端同时把 <strong>ACK、状态机、inflight、超时、重发</strong> 这几件事一起干对。</blockquote>
+<p>这一篇我们就把这条链讲透。</p>
+<hr>
+<h2 id="section-31b40706">一、先给工程结论</h2>
+<p>为什么 QoS1 / QoS2 最容易炸？</p>
+<p>因为它们不是“发一个包”的问题，而是“发完之后还要维持协议上下文”的问题。</p>
+<p>你只要有任意一层没闭环：</p>
+<ul><li>ACK 匹配错</li><li>ACK 处理慢</li><li>等待状态释放不及时</li><li>inflight 记录没清掉</li><li>超时重发没接上</li></ul>
+<p>最后表现出来的，就很可能是：</p>
+<ul><li><code>Immediate response timeout</code></li><li><code>PubAck timeout</code></li><li><code>PubRec timeout</code></li><li><code>PubComp timeout</code></li><li>状态机跳到 <code>iTcpDisconnect</code></li></ul>
+<hr>
+<h2 id="qos1">二、先把 QoS1 链路压成一张图</h2>
+<div class="mermaid-card"><small>Mermaid</small><pre><code>sequenceDiagram
+    participant PLC as PLC Client
+    participant Broker as Broker
+
+    PLC-&gt;&gt;Broker: PUBLISH(QoS1)
+    Broker--&gt;&gt;PLC: PUBACK</code></pre></div>
+<p>表面看只有两步。 但客户端内部实际至少要做下面这些事：</p>
+<ol><li>构造 PUBLISH</li><li>分配 Packet ID</li><li>建立 inflight</li><li>发送报文</li><li>标记“我正在等 PUBACK”</li><li>收到 PUBACK 后匹配 Packet ID</li><li>删除 inflight</li><li>释放等待状态</li><li>回到 <code>iConnected</code></li></ol>
+<p>所以别被“图很短”骗了。 短的是网络报文，不短的是客户端内部控制逻辑。</p>
+<hr>
+<h2 id="qos2">三、QoS2 链路为什么更考验实现水平</h2>
+<p>QoS2 完整链路是：</p>
+<div class="mermaid-card"><small>Mermaid</small><pre><code>sequenceDiagram
+    participant PLC as PLC Client
+    participant Broker as Broker
+
+    PLC-&gt;&gt;Broker: PUBLISH(QoS2)
+    Broker--&gt;&gt;PLC: PUBREC
+    PLC-&gt;&gt;Broker: PUBREL
+    Broker--&gt;&gt;PLC: PUBCOMP</code></pre></div>
+<p>它的工程难点在于：</p>
+<ul><li>第一段确认：消息到了</li><li>第二段确认：这条消息可以安全完成，且只完成一次</li></ul>
+<p>所以 QoS2 本质上不是“QoS1 再加一个 ACK”。 它更像一条 <strong>双段状态链</strong>。</p>
+<hr>
+<h2 id="qos1-qos2">四、把 QoS1 / QoS2 放回状态机里看</h2>
+<div class="mermaid-card"><small>Mermaid</small><pre><code>flowchart TD
+    A[iConnected] --&gt; B[iPublish]
+    B --&gt; C[QoS0: iConnected]
+    B --&gt; D[QoS1: iPubAck]
+    B --&gt; E[QoS2: iPubRec]
+    E --&gt; F[iPubRel]
+    F --&gt; G[iPubComp]
+    D --&gt; A
+    G --&gt; A</code></pre></div>
+<p>这张图很重要。 因为它说明一个事实：</p>
+<blockquote>MQTT 高可靠发布，不是由某一个方法单独完成的，而是由整条状态链共同完成的。</blockquote>
+<p>所以你现场一旦看到：</p>
+<ul><li>卡在 <code>iPubAck</code></li><li>卡在 <code>iPubRec</code></li><li>卡在 <code>iPubComp</code></li></ul>
+<p>就不要再抽象地说“QoS 有问题”。 你应该立刻问：</p>
+<ul><li>我现在在等哪一跳 ACK？</li><li>这跳 ACK 有没有收到？</li><li>收到了有没有被接收路径及时消化？</li><li>inflight 状态有没有推进？</li></ul>
+<hr>
+<h2 id="qos-inflight">五、真正支撑 QoS 的核心：inflight</h2>
+<p>这一层必须单独讲。</p>
+<h3 id="1-inflight">1. inflight 是什么</h3>
+<p>你可以先把 inflight 理解成：</p>
+<blockquote>客户端对“还没正式完成的 QoS 消息”的一本台账。</blockquote>
+<h3 id="2">2. 为什么必须有它</h3>
+<p>因为 PLC 不是脚本环境，不会“一口气执行完所有网络逻辑”。 它是在扫描周期里一轮一轮推进状态的。</p>
+<p>所以只要消息发出去之后还要继续等待：</p>
+<ul><li>PUBACK</li><li>PUBREC</li><li>PUBCOMP</li></ul>
+<p>你就必须把上下文保存起来。</p>
+<h3 id="3">3. 它至少保存什么</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字段</th><th>作用</th></tr></thead>
+<tbody>
+<tr><td>Packet ID</td><td>匹配 ACK</td></tr>
+<tr><td>QoS</td><td>决定走哪条确认链</td></tr>
+<tr><td>Topic / Payload</td><td>重发时复用</td></tr>
+<tr><td>Retain</td><td>重发时保持一致</td></tr>
+<tr><td>tLastSend</td><td>判断是否超时</td></tr>
+<tr><td>uiRetryCount</td><td>判断是否超过重试上限</td></tr>
+<tr><td>bDup</td><td>重发时置位</td></tr>
+<tr><td>当前在途状态</td><td>判断回到 <code>iPublish</code> 还是 <code>iPubRel</code></td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="section-6e5e79fe">六、超时重发到底怎么实现</h2>
+<p>这个库里，重发扫描是靠 <code>M_InflightCheckTimeout</code> 做的。</p>
+<p>真实代码非常值得看：</p>
+<div class="code-card"><small>iecst</small><pre><code>FOR i := 1 TO GVL_Mqtt.cnMaxInflight DO
+    IF aInflight[i].bUsed THEN
+        IF (tCurrent - aInflight[i].tLastSend) &gt;= GVL_Mqtt.cnInflightTimeout THEN
+            IF aInflight[i].uiRetryCount &lt; GVL_Mqtt.cnMaxRetries THEN
+                aInflight[i].bDup := TRUE;
+                aInflight[i].uiRetryCount := aInflight[i].uiRetryCount + 1;
+                aInflight[i].tLastSend := tCurrent;
+                M_InflightCheckTimeout := i;
+                RETURN;
+            ELSE
+                M_SetError(
+                    uiErrorCode := TO_UINT(E_ReasonCode.uiErrTimeout),
+                    sMessage := &#x27;Inflight publish retry exceeded&#x27;);
+                M_InflightRemove(uiPacketId := aInflight[i].uiPacketId);
+            END_IF
+        END_IF
+    END_IF
+END_FOR</code></pre></div>
+<p>这段代码说明了 4 件事：</p>
+<ol><li>它不是盲目全量重发，而是扫描首个超时项</li><li>超时后会把 <code>bDup</code> 置位</li><li>会累加重试次数</li><li>超过上限后，不再死循环，而是报错并清理</li></ol>
+<p>这就是为什么“能不能超时重发”不是一句空话，而是具体状态管理能力。</p>
+<hr>
+<h2 id="dup">七、DUP 位到底什么时候才有意义</h2>
+<p>很多人知道 PUBLISH 首字节里有个 DUP 位。 但不知道它什么时候该置位。</p>
+<p>结论很简单：</p>
+<blockquote><strong>第一次发，不该乱置 DUP。</strong></blockquote>
+<p>这个库里就是靠 inflight 超时后改 <code>bDup</code> 来驱动的。</p>
+<p>也就是说，DUP 不是“高 QoS 就自动为 1”。 它表达的是：</p>
+<blockquote>这条消息不是第一次发，而是我重新发的。</blockquote>
+<hr>
+<h2 id="section-94ae1f17">八、为什么高频场景更容易暴露问题</h2>
+<p>高频时，客户端同时在干的事更多：</p>
+<ul><li>处理新的发布请求</li><li>等待上一条消息的 ACK</li><li>处理入站 ACK 报文</li><li>可能还要立即回对端 ACK</li><li>还要扫 inflight 超时</li><li>KeepAlive 也可能同时到期</li></ul>
+<p>所以高频场景本质上是在压测两件事：</p>
+<ol><li><strong>状态机是不是清晰</strong></li><li><strong>接收面和发送面有没有互相堵住</strong></li></ol>
+<p>如果这两件事任何一个处理不好，就很容易出现一种现象：</p>
+<blockquote>明明网络没断、消息偶尔也收到了，但状态机却直接走到了 <code>iTcpDisconnect</code>。</blockquote>
+<p>这通常不是“网炸了”，而是协议时序没跟上。</p>
+<hr>
+<h2 id="section-f8b93f66">九、为什么接收面即时消化这么关键</h2>
+<p>这个库有个很关键的方法：<code>M_ProcessPendingFrames</code>。</p>
+<p>它的核心逻辑很短：</p>
+<div class="code-card"><small>iecst</small><pre><code>WHILE uiRxLength &gt; 0 DO
+    IF NOT M_ProcessReceive() THEN
+        EXIT;
+    END_IF
+    bProcessed := TRUE;
+
+    IF xPendingImmediateTx THEN
+        EXIT;
+    END_IF
+END_WHILE</code></pre></div>
+<p>这段短代码，其实体现了一个很成熟的思路：</p>
+<blockquote>只要缓冲区里还有完整帧，就持续处理。</blockquote>
+<p>这件事特别重要。 因为 QoS1 / QoS2 场景下，很多掉线不是因为“没收到包”，而是因为：</p>
+<ul><li>包收到了</li><li>但是 ACK 没有及时发出去</li><li>对端等不到，就按超时处理</li></ul>
+<hr>
+<h2 id="immediate-response-timeout">十、为什么 Immediate response timeout 这么常见</h2>
+<p>这个报错名字本身已经把问题说了一半：</p>
+<blockquote>对某些入站报文，你不是“以后找机会再回”，而是必须尽快回。</blockquote>
+<p>典型场景包括：</p>
+<ul><li>对端发来 QoS1 的 PUBLISH，你要回 <code>PUBACK</code></li><li>对端发来 QoS2 的 PUBLISH，你要回 <code>PUBREC</code></li><li>对端发来 <code>PUBREL</code>，你要回 <code>PUBCOMP</code></li></ul>
+<p>如果这类即时响应被主状态机阻塞住，或者接收面没有及时把帧处理掉，就很容易出现：</p>
+<ul><li>用户看到消息确实收到了</li><li>但状态机还是报 <code>Immediate response timeout</code></li></ul>
+<p>这类问题比“完全收不到消息”更隐蔽，也更像现场会遇到的真问题。</p>
+<hr>
+<h2 id="section-644152ed">十一、怎么判断问题到底卡在哪一层</h2>
+<p>现场排这种问题时，建议直接按下面这个表走。</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>现象</th><th>第一怀疑点</th></tr></thead>
+<tbody>
+<tr><td>QoS0 正常，QoS1 不稳</td><td><code>PUBACK</code> 等待与 inflight 清理</td></tr>
+<tr><td>QoS1 正常，QoS2 不稳</td><td><code>PUBREC/PUBREL/PUBCOMP</code> 状态推进</td></tr>
+<tr><td>收到消息但仍报 Immediate timeout</td><td>接收面即时 ACK 没及时发</td></tr>
+<tr><td>高频时更容易炸</td><td><code>iConnected</code> 调度能力不足</td></tr>
+<tr><td>一超时就掉进 <code>iTcpDisconnect</code></td><td>超时策略直接走统一异常收口</td></tr>
+</tbody></table></div>
+<p>这比泛泛地说“看看网络吧”有效得多。</p>
+<hr>
+<h2 id="section-78241d95">十二、把这条链完整串一遍</h2>
+<h3 id="1">1. 标准层</h3>
+<ul><li>QoS1：至少一次</li><li>QoS2：只一次</li></ul>
+<h3 id="2-2">2. 报文层</h3>
+<ul><li>QoS1：<code>PUBLISH -&gt; PUBACK</code></li><li>QoS2：<code>PUBLISH -&gt; PUBREC -&gt; PUBREL -&gt; PUBCOMP</code></li></ul>
+<h3 id="3-2">3. 状态机层</h3>
+<ul><li><code>iPublish</code></li><li><code>iPubAck</code></li><li><code>iPubRec</code></li><li><code>iPubRel</code></li><li><code>iPubComp</code></li></ul>
+<h3 id="4">4. 实现层</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>能力</th><th>方法 / 机制</th></tr></thead>
+<tbody>
+<tr><td>构包</td><td><code>M_BuildPublishPacket</code></td></tr>
+<tr><td>超时扫描</td><td><code>M_InflightCheckTimeout</code></td></tr>
+<tr><td>接收帧循环消化</td><td><code>M_ProcessPendingFrames</code></td></tr>
+<tr><td>真正解析 ACK / PUBLISH</td><td><code>M_ProcessReceive</code></td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="6">十三、这一篇你最该记住的 6 句话</h2>
+<ol><li><strong>QoS1 / QoS2 的难点从来不是“发包”，而是“发出去以后怎么把后面的链走完”。</strong></li><li><strong>高可靠 MQTT 客户端必须维护 inflight，而不是只靠当前输入参数。</strong></li><li><strong>超时重发不只是再发一次，而是要带着状态、次数、DUP 位一起推进。</strong></li><li><strong>高频场景测的不是网速，测的是状态机调度能力。</strong></li><li><strong>很多 Immediate response timeout，不是没收到消息，而是没及时把协议 ACK 发回去。</strong></li><li><strong>QoS1 / QoS2 能长期跑稳，才说明客户端真正成熟。</strong></li></ol>
+<hr>
+<h2 id="section-865f2185">十四、下篇预告</h2>
+<p>下一篇我们转到另一块非常容易写错的内容：</p>
+<p><strong>SUBSCRIBE / UNSUBSCRIBE 和主题过滤器校验</strong></p>
+<p>重点会讲：</p>
+<ul><li><code>#</code>、<code>+</code>、<code>$</code> 这些规则到底怎么落地</li><li>共享订阅为什么不是随便写个 <code>$share/...</code> 就完了</li><li>为什么取消订阅也不能只会“发个包”</li></ul>
+<p>从下一篇开始，工程味会继续上来。 因为订阅链一旦写错，现场通常不是“完全不工作”，而是“偶尔能用，但总有奇怪边界条件”。</p>
+<hr>
+<h2 id="st">完整 ST 代码</h2>
+<h3 id="section-882dd074">复制使用说明</h3>
+<ul><li>这部分给出的是与本篇主题直接对应的完整 ST 代码，不是零碎片段。</li><li>如果你只是想先跑通，优先整段复制，不要只摘几行变量或几条赋值语句。</li><li>如果是 <code>METHOD</code>，请确认它仍然属于 <code>FB_MqttClient</code>；如果是 <code>PROGRAM</code>，请确认相关 DUT、GVL、FB 已一并导入。</li></ul>
+<h3 id="section-5c5d2c8c">代码阅读重点</h3>
+<ul><li>先按 <code>报文结构 -&gt; 状态机入口 -&gt; 关键变量 -&gt; 返回结果</code> 的顺序看。</li><li>再把正文里的十六进制拆解和这里的字节写入、字节解析语句一行行对上。</li><li>最后回到在线调试，重点盯 <code>uiTxLength</code>、<code>uiRxLength</code>、<code>eState</code>、<code>xWaitingForAck</code> 这类状态量。</li></ul>
+<h3 id="1-mprocessreceive">完整代码 1：MProcessReceive</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/??????/M_ProcessReceive.st</code></li><li>复制使用说明：这是 QoS1/QoS2 最关键的收包分发入口，所有 ACK 类报文几乎都会经过这里。</li><li>阅读重点：先看如何识别报文类型，再看不同 ACK 被分派给哪个 <code>M_Handle...</code> 方法，最后看它对 <code>xWaitingForAck</code>、<code>xPendingImmediateTx</code> 的影响。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_ProcessReceive
+/// 功能      : 统一处理接收到的 MQTT 报文
+/// 说明      : 校验完整帧后，按报文类型执行解析、确认和状态更新。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_ProcessReceive : BOOL
+VAR
+    byHeader             : BYTE;          // 固定报头首字节
+    byMsgType            : BYTE;          // 报文类型
+    byFlags              : BYTE;          // 固定报头标志
+    byReasonCode         : BYTE;          // 原因码
+    bySubAckCode         : BYTE;          // SUBACK 原因码
+    uiFixedHeaderLen     : UINT;          // 固定报头总长度
+    uiRemainingLen       : UINT;          // 剩余长度
+    uiFrameEndPos        : UINT;          // 当前帧结束位置
+    uiTopicPos           : UINT;          // 主题起始偏移
+    uiTopicLen           : UINT;          // 主题长度
+    uiPayloadPos         : UINT;          // 载荷起始偏移
+    uiPayloadLen         : UINT;          // 载荷长度
+    uiPacketId           : UINT;          // 报文标识符
+    uiAliasId            : UINT;          // 主题别名
+    udiSubIdentifier     : UDINT;         // 订阅标识符
+    uiPropsLen           : UINT;          // 属性长度
+    uiPropsHeaderLen     : UINT;          // 属性长度字段字节数
+    uiPropsEnd           : UINT;          // 属性区结束偏移
+    uiPropsPos           : UINT;          // 属性读取偏移
+    uiIndex              : UINT;          // 通用索引
+    uiInflightIndex      : UINT;          // 在途索引
+    uiRxQoS2Index        : UINT;          // QoS2 去重索引
+    i                    : UINT;          // 循环索引
+    j                    : DINT;          // 历史数组循环索引
+    sAliasTopic          : STRING(GVL_Mqtt.cnMaxTopicLen); // 别名映射主题
+END_VAR
+
+// === IMPLEMENTATION ===
+IF uiRxLength &lt; 2 THEN
+    M_ProcessReceive := FALSE;
+    RETURN;
+END_IF
+
+byHeader := aRxBuf[0];
+byMsgType := byHeader AND GVL_Mqtt.cnHdrTypeMask;
+byFlags := byHeader AND GVL_Mqtt.cnHdrFlagsMask;
+
+uiFixedHeaderLen := 1 + M_DecodeRemainingLength(
+    pBuffer := ADR(aRxBuf[1]),
+    uiLength =&gt; uiRemainingLen);
+
+IF uiFixedHeaderLen = 0 THEN
+    M_ProcessReceive := FALSE;
+    RETURN;
+END_IF
+
+uiFrameEndPos := uiFixedHeaderLen + uiRemainingLen;
+IF uiRxLength &lt; uiFrameEndPos THEN
+    M_ProcessReceive := FALSE;
+    RETURN;
+END_IF
+
+CASE byMsgType OF
+    E_MqttPacketType.byConnAck:
+        M_SetError(
+            uiErrorCode := TO_UINT(E_ReasonCode.uiErrProtocolError),
+            sMessage := &#x27;Unexpected CONNACK packet&#x27;);
+        eState := E_MqttState.iTcpDisconnect;
+        M_ProcessReceive := FALSE;
+        RETURN;
+
+    E_MqttPacketType.byPublish:
+        byReceivedQoS := SHR(byFlags AND GVL_Mqtt.cnHdrQoSMask, 1);
+        uiAliasId := 0;
+        udiSubIdentifier := 0;
+        bReceivedRetain := (byFlags AND GVL_Mqtt.cnHdrRetainFlag) &lt;&gt; 0;
+
+        IF (byReceivedQoS &gt; TO_BYTE(E_MqttQoS.byQoS2)) OR
+           ((byReceivedQoS = TO_BYTE(E_MqttQoS.byQoS0)) AND ((byFlags AND GVL_Mqtt.cnHdrDupFlag) &lt;&gt; 0)) THEN
+            M_SetError(
+                uiErrorCode := TO_UINT(E_ReasonCode.uiErrProtocolError),
+                sMessage := &#x27;Invalid PUBLISH header flags&#x27;);
+            eState := E_MqttState.iTcpDisconnect;
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+
+        uiTopicPos := uiFixedHeaderLen;
+        IF uiTopicPos + 1 &gt;= uiFrameEndPos THEN
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+
+        uiTopicLen := SHL(BYTE_TO_UINT(aRxBuf[uiTopicPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiTopicPos + 1]);
+        uiTopicPos := uiTopicPos + 2;
+        uiPayloadPos := uiTopicPos + uiTopicLen;
+
+        sRecTopic := &#x27;&#x27;;
+        IF uiTopicLen &gt; 0 THEN
+            IF uiPayloadPos &gt; uiFrameEndPos THEN
+                M_ProcessReceive := FALSE;
+                RETURN;
+            END_IF
+            FOR i := 1 TO uiTopicLen DO
+                sRecTopic := CONCAT(sRecTopic, Util.WORD_AS_STRING(aRxBuf[uiTopicPos + i - 1], FALSE));
+            END_FOR
+        END_IF
+
+        uiPacketId := 0;
+        IF byReceivedQoS &gt; TO_BYTE(E_MqttQoS.byQoS0) THEN
+            IF uiPayloadPos + 1 &gt;= uiFrameEndPos THEN
+                M_ProcessReceive := FALSE;
+                RETURN;
+            END_IF
+            uiPacketId := SHL(BYTE_TO_UINT(aRxBuf[uiPayloadPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPayloadPos + 1]);
+            IF uiPacketId = 0 THEN
+                M_SetError(
+                    uiErrorCode := TO_UINT(E_ReasonCode.uiErrProtocolError),
+                    sMessage := &#x27;Packet ID must not be zero&#x27;);
+                eState := E_MqttState.iTcpDisconnect;
+                M_ProcessReceive := FALSE;
+                RETURN;
+            END_IF
+            uiPayloadPos := uiPayloadPos + 2;
+        END_IF
+
+        IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+            IF uiPayloadPos &gt;= uiFrameEndPos THEN
+                M_ProcessReceive := FALSE;
+                RETURN;
+            END_IF
+            uiPropsHeaderLen := M_DecodeRemainingLength(
+                pBuffer := ADR(aRxBuf[uiPayloadPos]),
+                uiLength =&gt; uiPropsLen);
+            IF uiPropsHeaderLen = 0 THEN
+                M_ProcessReceive := FALSE;
+                RETURN;
+            END_IF
+            uiPropsPos := uiPayloadPos + uiPropsHeaderLen;
+            uiPropsEnd := uiPropsPos + uiPropsLen;
+            IF uiPropsEnd &gt; uiFrameEndPos THEN
+                M_ProcessReceive := FALSE;
+                RETURN;
+            END_IF
+
+            WHILE uiPropsPos &lt; uiPropsEnd DO
+                CASE aRxBuf[uiPropsPos] OF
+                    GVL_Mqtt.cnPropTopicAlias:
+                        uiPropsPos := uiPropsPos + 1;
+                        IF uiPropsPos + 1 &gt;= uiPropsEnd THEN
+                            M_ProcessReceive := FALSE;
+                            RETURN;
+                        END_IF
+                        uiAliasId := SHL(BYTE_TO_UINT(aRxBuf[uiPropsPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPropsPos + 1]);
+                        uiPropsPos := uiPropsPos + 2;
+                    GVL_Mqtt.cnPropSubscriptionId:
+                        uiPropsPos := uiPropsPos + 1;
+                        uiIndex := 0;
+                        uiPropsHeaderLen := M_DecodeRemainingLength(
+                            pBuffer := ADR(aRxBuf[uiPropsPos]),
+                            uiLength =&gt; uiIndex);
+                        IF uiPropsHeaderLen = 0 THEN
+                            M_ProcessReceive := FALSE;
+                            RETURN;
+                        END_IF
+                        udiSubIdentifier := TO_UDINT(uiIndex);
+                        uiPropsPos := uiPropsPos + uiPropsHeaderLen;
+                    GVL_Mqtt.cnPropPayloadFormat,
+                    GVL_Mqtt.cnPropRetainAvailable,
+                    GVL_Mqtt.cnPropRequestProblemInfo,
+                    GVL_Mqtt.cnPropRequestResponseInfo,
+                    GVL_Mqtt.cnPropWildcardSubAvail,
+                    GVL_Mqtt.cnPropSubIdAvail,
+                    GVL_Mqtt.cnPropSharedSubAvail:
+                        uiPropsPos := uiPropsPos + 2;
+                    GVL_Mqtt.cnPropReceiveMaximum,
+                    GVL_Mqtt.cnPropTopicAliasMax,
+                    GVL_Mqtt.cnPropServerKeepAlive:
+                        uiPropsPos := uiPropsPos + 3;
+                    GVL_Mqtt.cnPropMessageExpiry,
+                    GVL_Mqtt.cnPropSessionExpiry,
+                    GVL_Mqtt.cnPropMaxPacketSize:
+                        uiPropsPos := uiPropsPos + 5;
+                    GVL_Mqtt.cnPropContentType,
+                    GVL_Mqtt.cnPropResponseTopic,
+                    GVL_Mqtt.cnPropCorrelationData,
+                    GVL_Mqtt.cnPropAssignedClientId,
+                    GVL_Mqtt.cnPropAuthMethod,
+                    GVL_Mqtt.cnPropAuthData,
+                    GVL_Mqtt.cnPropResponseInfo,
+                    GVL_Mqtt.cnPropServerReference,
+                    GVL_Mqtt.cnPropReasonString:
+                        uiPropsPos := uiPropsPos + 1;
+                        IF uiPropsPos + 1 &gt;= uiPropsEnd THEN
+                            M_ProcessReceive := FALSE;
+                            RETURN;
+                        END_IF
+                        uiPropsPos := uiPropsPos + 2 + (
+                            SHL(BYTE_TO_UINT(aRxBuf[uiPropsPos]), 8) OR
+                            BYTE_TO_UINT(aRxBuf[uiPropsPos + 1]));
+                    GVL_Mqtt.cnPropUserProperty:
+                        uiPropsPos := uiPropsPos + 1;
+                        FOR i := 1 TO 2 DO
+                            IF uiPropsPos + 1 &gt;= uiPropsEnd THEN
+                                M_ProcessReceive := FALSE;
+                                RETURN;
+                            END_IF
+                            uiPropsPos := uiPropsPos + 2 + (
+                                SHL(BYTE_TO_UINT(aRxBuf[uiPropsPos]), 8) OR
+                                BYTE_TO_UINT(aRxBuf[uiPropsPos + 1]));
+                        END_FOR
+                ELSE
+                    M_SetError(
+                        uiErrorCode := TO_UINT(E_ReasonCode.uiErrProtocolError),
+                        sMessage := &#x27;Unsupported PUBLISH property&#x27;);
+                    eState := E_MqttState.iTcpDisconnect;
+                    M_ProcessReceive := FALSE;
+                    RETURN;
+                END_CASE
+
+                IF uiPropsPos &gt; uiPropsEnd THEN
+                    M_ProcessReceive := FALSE;
+                    RETURN;
+                END_IF
+            END_WHILE
+
+            uiPayloadPos := uiPropsEnd;
+
+            IF uiAliasId &gt; 0 THEN
+                IF uiAliasId &gt; GVL_Mqtt.cnMaxTopicAlias THEN
+                    M_SetError(
+                        uiErrorCode := TO_UINT(E_ReasonCode.uiErrTopicAliasInvalid),
+                        sMessage := &#x27;Topic Alias exceeds client maximum&#x27;);
+                    eState := E_MqttState.iTcpDisconnect;
+                    M_ProcessReceive := FALSE;
+                    RETURN;
+                END_IF
+
+                IF sRecTopic = &#x27;&#x27; THEN
+                    sAliasTopic := M_TopicAliasLookup(uiAliasId := uiAliasId);
+                    IF sAliasTopic = &#x27;&#x27; THEN
+                        M_SetError(
+                            uiErrorCode := TO_UINT(E_ReasonCode.uiErrTopicAliasInvalid),
+                            sMessage := &#x27;Unknown Topic Alias&#x27;);
+                        eState := E_MqttState.iTcpDisconnect;
+                        M_ProcessReceive := FALSE;
+                        RETURN;
+                    END_IF
+                    sRecTopic := sAliasTopic;
+                ELSE
+                    IF NOT M_TopicAliasRegister(uiAliasId := uiAliasId, sTopic := sRecTopic) THEN
+                        M_SetError(
+                            uiErrorCode := TO_UINT(E_ReasonCode.uiErrTopicAliasInvalid),
+                            sMessage := &#x27;Topic Alias registration failed&#x27;);
+                        eState := E_MqttState.iTcpDisconnect;
+                        M_ProcessReceive := FALSE;
+                        RETURN;
+                    END_IF
+                END_IF
+            END_IF
+        END_IF
+
+        uiPayloadLen := uiFrameEndPos - uiPayloadPos;
+        sRecPayload := &#x27;&#x27;;
+        IF uiPayloadLen &gt; 0 THEN
+            FOR i := 1 TO uiPayloadLen DO
+                sRecPayload := CONCAT(sRecPayload, Util.WORD_AS_STRING(aRxBuf[uiPayloadPos + i - 1], FALSE));
+            END_FOR
+        END_IF
+
+        IF byReceivedQoS = TO_BYTE(E_MqttQoS.byQoS1) THEN
+            IF uiRxInFlightQosCount &gt;= uiReceiveMax THEN
+                M_SetError(
+                    uiErrorCode := TO_UINT(E_ReasonCode.uiErrReceiveMaxExceeded),
+                    sMessage := &#x27;Receive Maximum exceeded&#x27;);
+                eState := E_MqttState.iTcpDisconnect;
+                M_ProcessReceive := FALSE;
+                RETURN;
+            END_IF
+            uiRxInFlightQosCount := uiRxInFlightQosCount + 1;
+            IF NOT M_BuildPubAckPacket(uiPacketId := uiPacketId) THEN
+                IF uiRxInFlightQosCount &gt; 0 THEN
+                    uiRxInFlightQosCount := uiRxInFlightQosCount - 1;
+                END_IF
+                M_SetError(
+                    uiErrorCode := TO_UINT(E_ReasonCode.uiErrProtocolError),
+                    sMessage := &#x27;Build PUBACK failed&#x27;);
+                eState := E_MqttState.iTcpDisconnect;
+                M_ProcessReceive := FALSE;
+                RETURN;
+            END_IF
+            xPendingImmediateTx := TRUE;
+
+            FOR j := UPPER_BOUND(aRecTopicList, 1) TO LOWER_BOUND(aRecTopicList, 1) + 1 BY -1 DO
+                aRecTopicList[j] := aRecTopicList[j - 1];
+                aRecPayloadList[j] := aRecPayloadList[j - 1];
+            END_FOR
+            aRecTopicList[0] := sRecTopic;
+            aRecPayloadList[0] := sRecPayload;
+
+            bMessageReceived := TRUE;
+            uiMessagesReceived := uiMessagesReceived + 1;
+            dtLastMessageTime := ULINT_TO_DT(uliSysTime / 1000);
+        ELSIF byReceivedQoS = TO_BYTE(E_MqttQoS.byQoS2) THEN
+            uiRxQoS2Index := M_RxQoS2Find(uiPacketId := uiPacketId);
+            IF uiRxQoS2Index = 0 THEN
+                IF uiRxInFlightQosCount &gt;= uiReceiveMax THEN
+                    M_SetError(
+                        uiErrorCode := TO_UINT(E_ReasonCode.uiErrReceiveMaxExceeded),
+                        sMessage := &#x27;Receive Maximum exceeded&#x27;);
+                    eState := E_MqttState.iTcpDisconnect;
+                    M_ProcessReceive := FALSE;
+                    RETURN;
+                END_IF
+                IF NOT M_RxQoS2Add(uiPacketId := uiPacketId) THEN
+                    M_SetError(
+                        uiErrorCode := TO_UINT(E_ReasonCode.uiErrReceiveMaxExceeded),
+                        sMessage := &#x27;QoS2 dedup queue is full&#x27;);
+                    eState := E_MqttState.iTcpDisconnect;
+                    M_ProcessReceive := FALSE;
+                    RETURN;
+                END_IF
+
+                FOR j := UPPER_BOUND(aRecTopicList, 1) TO LOWER_BOUND(aRecTopicList, 1) + 1 BY -1 DO
+                    aRecTopicList[j] := aRecTopicList[j - 1];
+                    aRecPayloadList[j] := aRecPayloadList[j - 1];
+                END_FOR
+                aRecTopicList[0] := sRecTopic;
+                aRecPayloadList[0] := sRecPayload;
+
+                bMessageReceived := TRUE;
+                uiMessagesReceived := uiMessagesReceived + 1;
+                dtLastMessageTime := ULINT_TO_DT(uliSysTime / 1000);
+            END_IF
+            IF NOT M_BuildPubRecPacket(uiPacketId := uiPacketId) THEN
+                M_SetError(
+                    uiErrorCode := TO_UINT(E_ReasonCode.uiErrProtocolError),
+                    sMessage := &#x27;Build PUBREC failed&#x27;);
+                eState := E_MqttState.iTcpDisconnect;
+                M_ProcessReceive := FALSE;
+                RETURN;
+            END_IF
+            xPendingImmediateTx := TRUE;
+        ELSE
+            FOR j := UPPER_BOUND(aRecTopicList, 1) TO LOWER_BOUND(aRecTopicList, 1) + 1 BY -1 DO
+                aRecTopicList[j] := aRecTopicList[j - 1];
+                aRecPayloadList[j] := aRecPayloadList[j - 1];
+            END_FOR
+            aRecTopicList[0] := sRecTopic;
+            aRecPayloadList[0] := sRecPayload;
+
+            bMessageReceived := TRUE;
+            uiMessagesReceived := uiMessagesReceived + 1;
+            dtLastMessageTime := ULINT_TO_DT(uliSysTime / 1000);
+        END_IF
+
+    E_MqttPacketType.byPubAck:
+        IF (byFlags &lt;&gt; 0) OR (uiFrameEndPos &lt; 4) THEN
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+        uiPacketId := SHL(BYTE_TO_UINT(aRxBuf[uiFixedHeaderLen]), 8) OR BYTE_TO_UINT(aRxBuf[uiFixedHeaderLen + 1]);
+        IF uiPacketId = uiExpectedPacketId THEN
+            byReasonCode := 0;
+            IF (eVersion = E_MqttVersion.byMqttVersion50) AND (uiFrameEndPos &gt; uiFixedHeaderLen + 2) THEN
+                byReasonCode := aRxBuf[uiFixedHeaderLen + 2];
+            END_IF
+            xWaitingForAck := FALSE;
+            bDup := FALSE;
+            IF byReasonCode &gt;= 16#80 THEN
+                M_SetError(
+                    uiErrorCode := TO_UINT(E_ReasonCode.uiErrPubAckRefused),
+                    sMessage := &#x27;PUBACK rejected&#x27;);
+            ELSE
+                xPublishedEvent := TRUE;
+            END_IF
+            M_InflightRemove(uiPacketId := uiPacketId);
+        ELSE
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+
+    E_MqttPacketType.byPubRec:
+        IF (byFlags &lt;&gt; 0) OR (uiFrameEndPos &lt; 4) THEN
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+        uiPacketId := SHL(BYTE_TO_UINT(aRxBuf[uiFixedHeaderLen]), 8) OR BYTE_TO_UINT(aRxBuf[uiFixedHeaderLen + 1]);
+        IF uiPacketId = uiExpectedPacketId THEN
+            byReasonCode := 0;
+            IF (eVersion = E_MqttVersion.byMqttVersion50) AND (uiFrameEndPos &gt;= 5) THEN
+                byReasonCode := aRxBuf[uiFixedHeaderLen + 2];
+                IF byReasonCode &gt;= 16#80 THEN
+                    M_SetError(
+                        uiErrorCode := TO_UINT(E_ReasonCode.uiErrPubRecRefused),
+                        sMessage := &#x27;PUBREC rejected&#x27;);
+                    M_InflightRemove(uiPacketId := uiPacketId);
+                    xWaitingForAck := FALSE;
+                END_IF
+            END_IF
+            IF NOT bError THEN
+                M_InflightUpdateState(
+                    uiPacketId := uiPacketId,
+                    eNewState := E_MqttInflightState.iPubRecReceived);
+                xWaitingForAck := FALSE;
+                uiQoS2PacketId := uiPacketId;
+            END_IF
+        ELSE
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+
+    16#60:
+        IF (byFlags &lt;&gt; 2) OR (uiFrameEndPos &lt; 4) THEN
+            M_SetError(
+                uiErrorCode := TO_UINT(E_ReasonCode.uiErrProtocolError),
+                sMessage := &#x27;Invalid PUBREL flags&#x27;);
+            eState := E_MqttState.iTcpDisconnect;
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+        uiPacketId := SHL(BYTE_TO_UINT(aRxBuf[uiFixedHeaderLen]), 8) OR BYTE_TO_UINT(aRxBuf[uiFixedHeaderLen + 1]);
+        M_RxQoS2Remove(uiPacketId := uiPacketId);
+        IF NOT M_BuildPubCompPacket(uiPacketId := uiPacketId) THEN
+            M_SetError(
+                uiErrorCode := TO_UINT(E_ReasonCode.uiErrProtocolError),
+                sMessage := &#x27;Build PUBCOMP failed&#x27;);
+            eState := E_MqttState.iTcpDisconnect;
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+        xPendingImmediateTx := TRUE;
+
+    E_MqttPacketType.byPubComp:
+        IF (byFlags &lt;&gt; 0) OR (uiFrameEndPos &lt; 4) THEN
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+        uiPacketId := SHL(BYTE_TO_UINT(aRxBuf[uiFixedHeaderLen]), 8) OR BYTE_TO_UINT(aRxBuf[uiFixedHeaderLen + 1]);
+        IF uiPacketId = uiQoS2PacketId THEN
+            byReasonCode := 0;
+            IF (eVersion = E_MqttVersion.byMqttVersion50) AND (uiFrameEndPos &gt; uiFixedHeaderLen + 2) THEN
+                byReasonCode := aRxBuf[uiFixedHeaderLen + 2];
+            END_IF
+            xWaitingForAck := FALSE;
+            bDup := FALSE;
+            IF byReasonCode &gt;= 16#80 THEN
+                M_SetError(
+                    uiErrorCode := TO_UINT(E_ReasonCode.uiErrPubCompRefused),
+                    sMessage := &#x27;PUBCOMP rejected&#x27;);
+            ELSE
+                xPublishedEvent := TRUE;
+            END_IF
+            M_InflightRemove(uiPacketId := uiPacketId);
+        ELSE
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+
+    E_MqttPacketType.bySubAck:
+        IF (byFlags &lt;&gt; 0) OR (uiFrameEndPos &lt; 5) THEN
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+        uiPacketId := SHL(BYTE_TO_UINT(aRxBuf[uiFixedHeaderLen]), 8) OR BYTE_TO_UINT(aRxBuf[uiFixedHeaderLen + 1]);
+        IF uiPacketId = uiPendingSubPacketId THEN
+            uiPayloadPos := uiFixedHeaderLen + 2;
+            IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+                uiPropsHeaderLen := M_DecodeRemainingLength(
+                    pBuffer := ADR(aRxBuf[uiPayloadPos]),
+                    uiLength =&gt; uiPropsLen);
+                IF uiPropsHeaderLen = 0 THEN
+                    M_ProcessReceive := FALSE;
+                    RETURN;
+                END_IF
+                IF uiPayloadPos + uiPropsHeaderLen + uiPropsLen &gt; uiFrameEndPos THEN
+                    M_ProcessReceive := FALSE;
+                    RETURN;
+                END_IF
+                uiPayloadPos := uiPayloadPos + uiPropsHeaderLen + uiPropsLen;
+            END_IF
+            IF uiPayloadPos &gt;= uiFrameEndPos THEN
+                M_ProcessReceive := FALSE;
+                RETURN;
+            END_IF
+            bySubAckCode := aRxBuf[uiPayloadPos];
+            xWaitingForSubAck := FALSE;
+            IF bySubAckCode &lt; 16#80 THEN
+                IF bySubAckCode &gt; TO_BYTE(E_MqttQoS.byQoS2) THEN
+                    M_SetError(
+                        uiErrorCode := TO_UINT(E_ReasonCode.uiErrProtocolError),
+                        sMessage := &#x27;SUBACK reason code is invalid&#x27;);
+                    eState := E_MqttState.iTcpDisconnect;
+                    M_ProcessReceive := FALSE;
+                    RETURN;
+                END_IF
+                xSubscribedEvent := TRUE;
+                M_SubListAdd(
+                    sTopic := sSubTopic,
+                    eQos := eSubQoS,
+                    udiSubscriptionId := udiSubscriptionId);
+            ELSE
+                M_SetError(
+                    uiErrorCode := TO_UINT(E_ReasonCode.uiErrSubscriptionFailed),
+                    sMessage := &#x27;Subscription rejected&#x27;);
+            END_IF
+        ELSE
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+
+    E_MqttPacketType.byUnsubAck:
+        IF byFlags &lt;&gt; 0 THEN
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+        IF ((eVersion = E_MqttVersion.byMqttVersion50) AND (uiFrameEndPos &lt; 5)) OR
+           ((eVersion &lt;&gt; E_MqttVersion.byMqttVersion50) AND (uiFrameEndPos &lt; 4)) THEN
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+        uiPacketId := SHL(BYTE_TO_UINT(aRxBuf[uiFixedHeaderLen]), 8) OR BYTE_TO_UINT(aRxBuf[uiFixedHeaderLen + 1]);
+        IF uiPacketId = uiPendingUnsubPacketId THEN
+            xWaitingForUnsubAck := FALSE;
+            byReasonCode := 0;
+            IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+                uiPayloadPos := uiFixedHeaderLen + 2;
+                uiPropsHeaderLen := M_DecodeRemainingLength(
+                    pBuffer := ADR(aRxBuf[uiPayloadPos]),
+                    uiLength =&gt; uiPropsLen);
+                IF uiPropsHeaderLen = 0 THEN
+                    M_ProcessReceive := FALSE;
+                    RETURN;
+                END_IF
+                IF uiPayloadPos + uiPropsHeaderLen + uiPropsLen &gt; uiFrameEndPos THEN
+                    M_ProcessReceive := FALSE;
+                    RETURN;
+                END_IF
+                uiPayloadPos := uiPayloadPos + uiPropsHeaderLen + uiPropsLen;
+                IF uiPayloadPos &lt; uiFrameEndPos THEN
+                    byReasonCode := aRxBuf[uiPayloadPos];
+                END_IF
+            END_IF
+            IF (byReasonCode &lt;&gt; 0) AND (byReasonCode &lt;&gt; GVL_Mqtt.cnRcNoSubscriptionExisted) AND (byReasonCode &lt; 16#80) THEN
+                M_SetError(
+                    uiErrorCode := TO_UINT(E_ReasonCode.uiErrProtocolError),
+                    sMessage := &#x27;UNSUBACK reason code is invalid&#x27;);
+                eState := E_MqttState.iTcpDisconnect;
+                M_ProcessReceive := FALSE;
+                RETURN;
+            END_IF
+            IF byReasonCode &gt;= 16#80 THEN
+                M_SetError(
+                    uiErrorCode := TO_UINT(E_ReasonCode.uiErrSubscriptionFailed),
+                    sMessage := &#x27;Unsubscribe rejected&#x27;);
+            ELSE
+                xUnsubscribedEvent := TRUE;
+                M_SubListRemove(sTopic := sUnsubTopic);
+            END_IF
+        ELSE
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+
+    E_MqttPacketType.byPingResp:
+        IF (byFlags &lt;&gt; 0) OR (uiRemainingLen &lt;&gt; 0) THEN
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+        bPingPending := FALSE;
+
+    E_MqttPacketType.byDisconnect:
+        byReasonCode := 0;
+        IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+            IF byFlags &lt;&gt; 0 THEN
+                M_SetError(
+                    uiErrorCode := TO_UINT(E_ReasonCode.uiErrProtocolError),
+                    sMessage := &#x27;Invalid DISCONNECT flags&#x27;);
+                eState := E_MqttState.iTcpDisconnect;
+                M_ProcessReceive := FALSE;
+                RETURN;
+            END_IF
+            IF uiRemainingLen &gt;= 1 THEN
+                byReasonCode := aRxBuf[uiFixedHeaderLen];
+            END_IF
+        ELSIF (byFlags &lt;&gt; 0) OR (uiRemainingLen &lt;&gt; 0) THEN
+            M_SetError(
+                uiErrorCode := TO_UINT(E_ReasonCode.uiErrProtocolError),
+                sMessage := &#x27;Invalid MQTT 3.1.1 DISCONNECT&#x27;);
+            eState := E_MqttState.iTcpDisconnect;
+            M_ProcessReceive := FALSE;
+            RETURN;
+        END_IF
+        M_SetError(
+            uiErrorCode := TO_UINT(E_ReasonCode.uiErrNotConnected),
+            sMessage := CONCAT(&#x27;Server sent DISCONNECT rc=&#x27;, BYTE_TO_STRING(byReasonCode)));
+        eState := E_MqttState.iTcpDisconnect;
+
+    E_MqttPacketType.byAuth:
+        IF eVersion &lt;&gt; E_MqttVersion.byMqttVersion50 THEN
+            M_SetError(
+                uiErrorCode := TO_UINT(E_ReasonCode.uiErrProtocolError),
+                sMessage := &#x27;Unexpected AUTH packet&#x27;);
+            eState := E_MqttState.iTcpDisconnect;
+        ELSE
+            M_SetError(
+                uiErrorCode := TO_UINT(E_ReasonCode.uiErrAuthFailed),
+                sMessage := &#x27;AUTH exchange is not supported in MqttClient_V1_0&#x27;);
+            eState := E_MqttState.iTcpDisconnect;
+        END_IF
+
+ELSE
+        M_SetError(
+            uiErrorCode := TO_UINT(E_ReasonCode.uiErrProtocolError),
+            sMessage := &#x27;Unsupported packet type&#x27;);
+        eState := E_MqttState.iTcpDisconnect;
+        M_ProcessReceive := FALSE;
+        RETURN;
+END_CASE
+
+IF uiRxLength &gt; uiFrameEndPos THEN
+    uiPayloadLen := uiRxLength - uiFrameEndPos;
+    IF uiPayloadLen &gt; 0 THEN
+        FOR i := 1 TO uiPayloadLen DO
+            aRxBuf[i - 1] := aRxBuf[uiFrameEndPos + i - 1];
+        END_FOR
+    END_IF
+    uiRxLength := uiPayloadLen;
+ELSE
+    uiRxLength := 0;
+END_IF
+
+M_ProcessReceive := TRUE;</code></pre></div>
+<h3 id="2-minflightchecktimeout">完整代码 2：MInflightCheckTimeout</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/????/M_InflightCheckTimeout.st</code></li><li>复制使用说明：这个方法决定哪一条在途消息超时、是否该触发重发，是高频场景稳定性的关键检查点。</li><li>阅读重点：重点看在途队列扫描、超时判定条件和返回索引，这一层直接决定状态机会不会进入重发分支。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_InflightCheckTimeout
+/// 功能      : 扫描在途消息超时
+/// 说明      : 找到需要重发的首个在途消息并返回其索引
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_InflightCheckTimeout : UINT
+VAR
+    i               : UINT;           // 循环索引
+    tCurrent        : TIME;           // 当前时间
+END_VAR
+
+// === IMPLEMENTATION ===
+tCurrent := TIME();
+
+FOR i := 1 TO GVL_Mqtt.cnMaxInflight DO
+    IF aInflight[i].bUsed THEN
+        IF (tCurrent - aInflight[i].tLastSend) &gt;= GVL_Mqtt.cnInflightTimeout THEN
+            IF aInflight[i].uiRetryCount &lt; GVL_Mqtt.cnMaxRetries THEN
+                aInflight[i].bDup := TRUE;
+                aInflight[i].uiRetryCount := aInflight[i].uiRetryCount + 1;
+                aInflight[i].tLastSend := tCurrent;
+                M_InflightCheckTimeout := i;
+                RETURN;
+            ELSE
+                M_SetError(
+                    uiErrorCode := TO_UINT(E_ReasonCode.uiErrTimeout),
+                    sMessage := &#x27;Inflight publish retry exceeded&#x27;);
+                M_InflightRemove(uiPacketId := aInflight[i].uiPacketId);
+            END_IF
+        END_IF
+    END_IF
+END_FOR
+
+M_InflightCheckTimeout := 0;</code></pre></div>
+<h3 id="3-mprocesspendingframes">完整代码 3：MProcessPendingFrames</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/????/M_ProcessPendingFrames.st</code></li><li>复制使用说明：这个方法负责把接收缓冲区里已经到达的完整帧持续吃掉，避免 QoS 高一点就积帧、超时、掉线。</li><li>阅读重点：先看完整帧边界怎么判，再看循环消费逻辑，最后看为什么它能把“偶发来不及响应”变成“连续稳定处理”。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_ProcessPendingFrames
+/// 功能      : 连续处理缓冲区中的完整报文
+/// 说明      : 只要存在完整报文就循环调用 M_ProcessReceive
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_ProcessPendingFrames : BOOL
+VAR
+    bProcessed      : BOOL;           // 是否处理过至少一帧
+END_VAR
+
+// === IMPLEMENTATION ===
+bProcessed := FALSE;
+
+WHILE uiRxLength &gt; 0 DO
+    IF NOT M_ProcessReceive() THEN
+        EXIT;
+    END_IF
+    bProcessed := TRUE;
+
+    // 生成即时协议响应后，先交还主状态机发送 ACK，再继续处理后续入站帧。
+    IF xPendingImmediateTx THEN
+        EXIT;
+    END_IF
+END_WHILE
+
+M_ProcessPendingFrames := bProcessed;</code></pre></div>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../mqtt-client-part-03-3-publish-qos0-qos1-qos2-120122/index.html">
+                <small>上一篇 / 第3篇</small>
+                <strong>PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪</strong>
+                <span>这一篇把 MQTT 最核心的 PUBLISH 报文拆开讲，重点不是概念，而是首字节怎么编码、Topic 和 Packet ID 怎么排、QoS0 / QoS1 / QoS2 在协议和代码层到底差在哪。</span>
+              </a>
+              <a class="series-nav-card" href="../mqtt-client-part-05-5-subscribe-unsubscribe-869229/index.html">
+                <small>下一篇 / 第5篇</small>
+                <strong>SUBSCRIBE / UNSUBSCRIBE 怎么实现？主题过滤器到底该怎么校验</strong>
+                <span>这一篇把订阅和退订链完整拆开，重点讲 Topic Filter 和发布 Topic 的区别、 + $ 的校验规则、MQTT 5.0 能力边界，以及为什么退订也不是发个字符串这么简单。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", () => window.setTimeout(updateActiveToc, 90));
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

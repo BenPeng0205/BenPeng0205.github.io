@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>接收分发、QoS 事务和诊断闭环 | ControlRookie</title>
+  <meta name="description" content="MQTT Client 最容易出现场问题的地方，通常不是 QoS0，而是 QoS1/QoS2 高频通信。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#050505">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/mqtt-client-source-06-06-qos-2b6c15/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="接收分发、QoS 事务和诊断闭环">
+  <meta property="og:description" content="MQTT Client 最容易出现场问题的地方，通常不是 QoS0，而是 QoS1/QoS2 高频通信。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-client-source-06-06-qos-2b6c15/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="接收分发、QoS 事务和诊断闭环">
+  <meta name="twitter:description" content="MQTT Client 最容易出现场问题的地方，通常不是 QoS0，而是 QoS1/QoS2 高频通信。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <aside class="article-toc" aria-label="文章目录">
+            <strong>目录</strong>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-19141938">本篇核心图</a></li><li><a href="#section-abc19ccd">接收分发主线</a></li><li><a href="#section-acc3a62b">接收入口源码片段</a></li><li><a href="#section-66b1b106">这一篇最该记住的几句话</a></li><li><a href="#section-297346c3">本篇结论</a></li></ol>
+          </aside>
+          <div class="article-main" id="article-top">
+            <nav class="article-breadcrumb" aria-label="文章路径">
+              <a href="../../index.html#articles">文章</a>
+              <span>/</span>
+              <a href="../../index.html#articles">MQTT Client 系列教程</a>
+              <span>/</span>
+              <a href="../../index.html#articles">通信</a>
+              <span>/</span>
+              <a href="../../index.html#articles">CODESYS</a>
+            </nav>
+            <header class="article-hero">
+              <h1>接收分发、QoS 事务和诊断闭环</h1>
+              <p class="article-summary">MQTT Client 最容易出现场问题的地方，通常不是 QoS0，而是 QoS1/QoS2 高频通信。</p>
+              <div class="article-meta">
+                <span>2026-05-06</span>
+                <span>约 3 分钟阅读</span>
+                <span>第16篇/共16篇</span>
+                <span>[MQTT / CodeSys / PLC通信 / ControlRookie] / MQTT / CODESYS / PLC / ControlRookie</span>
+              </div>
+            </header>
+            <div class="article-content">
+              <div class="article-source-scope"><strong>源码范围说明</strong><p>本篇属于 MQTT 源码加更，展示的是 V1.0 运行链路中的核心源码片段、对象职责和阅读顺序；它不是完整工程源码包，也不等同于 1.0 全量源码清单。完整源码资源后续应在资源/源码页统一维护。</p></div>
+<blockquote>MQTT Client 最容易出现场问题的地方，通常不是 QoS0，而是 QoS1/QoS2 高频通信。</blockquote>
+<h2 id="section-0d70135c">适合谁收藏</h2>
+<h2 id="section-19141938">本篇核心图</h2>
+<p>读图重点：先看对象之间的职责边界，再看状态或数据如何流动。</p>
+<figure><img src="../../assets/articles/mqtt-client-source-06-06-qos-2b6c15/client-source-06-qos.png" alt="本篇核心图"><figcaption>本篇核心图</figcaption></figure>
+<ul><li>适合排查 QoS1/QoS2 高频通信超时、掉线、ACK 对不上问题的人。</li><li>适合想理解 M_ProcessReceive 为什么不能只等单一响应的人。</li></ul>
+<h2 id="section-abc19ccd">接收分发主线</h2>
+<p>TCP_Read 字节进入 aRxBuf 后，先判断完整 MQTT 帧，再读取固定报头，解码 Remaining Length，最后按 Packet Type 分发到 PUBLISH、SUBACK、UNSUBACK、PUBACK、PUBREC、PUBREL、PUBCOMP、PINGRESP 等处理路径。</p>
+<h2 id="section-acc3a62b">接收入口源码片段</h2>
+<div class="code-card"><small>iecst</small><pre><code>{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_ProcessReceive : BOOL
+VAR
+    byHeader             : BYTE;          // 固定报头首字节
+    byMsgType            : BYTE;          // 报文类型
+    byFlags              : BYTE;          // 固定报头标志
+    byReasonCode         : BYTE;          // 原因码
+    bySubAckCode         : BYTE;          // SUBACK 原因码
+    uiFixedHeaderLen     : UINT;          // 固定报头总长度
+    uiRemainingLen       : UINT;          // 剩余长度
+    uiFrameEndPos        : UINT;          // 当前帧结束位置
+    uiTopicPos           : UINT;          // 主题起始偏移
+    uiTopicLen           : UINT;          // 主题长度
+    uiPayloadPos         : UINT;          // 载荷起始偏移
+    uiPayloadLen         : UINT;          // 载荷长度
+    uiPacketId           : UINT;          // 报文标识符
+    uiAliasId            : UINT;          // 主题别名
+    udiSubIdentifier     : UDINT;         // 订阅标识符
+    uiPropsLen           : UINT;          // 属性长度
+    uiPropsHeaderLen     : UINT;          // 属性长度字段字节数
+    uiPropsEnd           : UINT;          // 属性区结束偏移
+    uiPropsPos           : UINT;          // 属性读取偏移
+    uiIndex              : UINT;          // 通用索引
+    uiInflightIndex      : UINT;          // 在途索引
+    uiRxQoS2Index        : UINT;          // QoS2 去重索引
+    i                    : UINT;          // 循环索引
+    j                    : DINT;          // 历史数组循环索引
+    sAliasTopic          : STRING(GVL_Mqtt.cnMaxTopicLen); // 别名映射主题
+END_VAR</code></pre></div>
+<p>接收解析中最值得关注的是这些位置变量。主题、载荷、属性、PacketId 全都来自原始 byte buffer 的不同偏移。偏移错一位，后面全错。</p>
+<div class="code-card"><small>iecst</small><pre><code>// === IMPLEMENTATION ===
+IF uiRxLength &lt; 2 THEN
+    M_ProcessReceive := FALSE;
+    RETURN;
+END_IF
+
+byHeader := aRxBuf[0];
+byMsgType := byHeader AND GVL_Mqtt.cnHdrTypeMask;
+byFlags := byHeader AND GVL_Mqtt.cnHdrFlagsMask;
+
+uiFixedHeaderLen := 1 + M_DecodeRemainingLength(
+    pBuffer := ADR(aRxBuf[1]),
+    uiLength =&gt; uiRemainingLen);
+
+IF uiFixedHeaderLen = 0 THEN
+    M_ProcessReceive := FALSE;
+    RETURN;
+END_IF
+
+uiFrameEndPos := uiFixedHeaderLen + uiRemainingLen;
+IF uiRxLength &lt; uiFrameEndPos THEN
+    M_ProcessReceive := FALSE;
+    RETURN;
+END_IF
+
+CASE byMsgType OF</code></pre></div>
+<p>收到 TCP 字节不等于收到 MQTT 消息，只有 uiRxLength 大于等于 uiFrameEndPos 才能进入报文分发。</p>
+<h2 id="section-66b1b106">这一篇最该记住的几句话</h2>
+<p>高频 QoS 的难点不是 ACK 报文，而是 ACK 插队、PacketId 对齐、重发上下文和事务超时。</p>
+<h2 id="section-297346c3">本篇结论</h2>
+<p>高频场景下，真正要防的是半包误解析、ACK 插队、PacketId 对不上、重发丢上下文、状态机只等一个响应而忽略其他报文。理解这一篇，后续改 payload、订阅数量和超时策略，就知道该动哪里。</p>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../mqtt-client-source-05-05-publish-subscribe-unsubscribe-b2559f/index.html">
+                <small>上一篇 / 第15篇</small>
+                <strong>PUBLISH、SUBSCRIBE、UNSUBSCRIBE 业务报文实现</strong>
+                <span>业务报文是用户最关心的部分，但它们本质上仍然是状态机下的一次受控动作。</span>
+              </a>
+              <a class="series-nav-card" href="../../index.html#articles">
+                <small>下一篇 / 系列入口</small>
+                <strong>返回 CODESYS MQTT 文章中心</strong>
+                <span>回到文章中心，继续定位同系列文章和相关 MQTT 资料。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", () => window.setTimeout(updateActiveToc, 90));
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

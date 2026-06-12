@@ -55,6 +55,7 @@ def check_utf8() -> None:
         PROJECT_ROOT / "src" / "app" / "index.html",
         PROJECT_ROOT / "src" / "styles" / "site.css",
         PROJECT_ROOT / "src" / "lib" / "site.js",
+        PROJECT_ROOT / "src" / "content" / "articles-data.js",
         PROJECT_ROOT / "src" / "content" / "site-data.js",
     ]:
         text = read_text(path)
@@ -120,6 +121,7 @@ def check_public_assets() -> None:
 
 def check_content_data() -> None:
     data_js = read_text(PROJECT_ROOT / "src" / "content" / "site-data.js")
+    article_data_js = read_text(PROJECT_ROOT / "src" / "content" / "articles-data.js")
     for token in [
         "CONTROLROOKIE_SITE_DATA",
         "resources",
@@ -132,6 +134,7 @@ def check_content_data() -> None:
         "ben_peng0205@hotmail.com",
     ]:
         require(token in data_js, f"内容数据缺少关键字段: {token}")
+    require("CONTROLROOKIE_ARTICLES" in article_data_js and article_data_js.count('"id":') == 30, "文章目录数据必须包含 30 篇 MQTT 官网文章。")
     require(len(re.findall(r"id:", data_js)) >= 10, "内容数据条目数量异常。")
 
 
@@ -183,7 +186,7 @@ def check_code_contract() -> None:
     import_script = read_text(PROJECT_ROOT / "scripts" / "import_article_package.py")
     css = read_text(PROJECT_ROOT / "src" / "styles" / "site.css")
     js = read_text(PROJECT_ROOT / "src" / "lib" / "site.js")
-    require("../content/site-data.js" in html, "页面未加载内容数据源。")
+    require("../content/articles-data.js" in html and "../content/site-data.js" in html, "页面未加载文章目录或内容数据源。")
     require("aria-expanded" in html and "aria-controls" in html, "搜索按钮缺少 aria 状态。")
     require('href="#about"' in html and 'data-i18n="nav.about"' in html, "导航缺少关于我首位入口。")
     require('class="about-timeline"' in html and 'class="timeline-node"' in html, "关于我页缺少真实时间线结构。")
@@ -225,11 +228,11 @@ def check_code_contract() -> None:
         require(token in article_template and token in article_html, f"文章模板或样例页缺少关键结构: {token}")
     require('href="{{HOME_HREF}}#about"' in article_template and 'href="../../index.html#about"' in article_html, "单篇文章导航缺少关于我入口。")
     require("{{CATEGORY_PRIMARY}}" in article_template and "{{CATEGORY_SECONDARY}}" in article_template, "文章模板未把面包屑分类层级拆开。")
-    require("第1篇/共12篇" in import_script and "第1篇/共12篇" in article_html, "文章页缺少系列进度属性框。")
+    require("len(articles) != 30" in import_script and "ARTICLE_IMPORT_OK" in import_script and "第1篇/共16篇" in article_html, "文章页缺少批量导入后的系列进度属性框。")
     require(">通信<" in article_html and ">CODESYS<" in article_html and ">通信 / CODESYS<" not in article_html, "文章面包屑仍把通信和 CODESYS 粘成同一层级。")
     require("article-relations" not in article_template and "article-relations" not in article_html, "文章页仍包含旧的连体相关入口结构。")
     require("article-kicker" not in article_template and "article-kicker" not in article_html, "文章页仍把系列/分类放在标题容器内。")
-    require("skipped_section_titles" in import_script and "系列导航" in import_script and "项目与资料" in import_script, "文章导入脚本未过滤重复导航章节。")
+    require("SKIPPED_SECTION_TITLES" in import_script and "系列导航" in import_script and "项目与资料" in import_script, "文章导入脚本未过滤重复导航章节。")
     require("unique_anchor" in import_script and "anchor_counts" in import_script, "文章导入脚本未保证目录锚点唯一。")
     require("EMOJI_RE" in import_script, "文章导入脚本未过滤专家文章中禁止出现的 emoji。")
     require("hydrateContentFromData" in js, "JS 未从内容数据源同步页面。")
@@ -254,6 +257,7 @@ def check_dist_build() -> None:
         "index.html",
         "styles/site.css",
         "lib/site.js",
+        "content/articles-data.js",
         "content/site-data.js",
         "articles/mqtt-client-open-source-codesys-layer/index.html",
         "assets/images/brand/controlrookie-og.png",
@@ -268,19 +272,19 @@ def check_dist_build() -> None:
 
     dist_html = read_text(dist / "index.html")
     require("../../public/" not in dist_html, "dist/index.html 仍包含开发期 public 相对路径。")
-    require("styles/site.css" in dist_html and "content/site-data.js" in dist_html, "dist/index.html 资源路径异常。")
+    require("styles/site.css" in dist_html and "content/articles-data.js" in dist_html and "content/site-data.js" in dist_html, "dist/index.html 资源路径异常。")
 
 
 def run_script(script: str) -> None:
     result = subprocess.run(
         [PYTHON, str(PROJECT_ROOT / "scripts" / script)],
         cwd=str(PROJECT_ROOT),
-        text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        timeout=120,
+        timeout=240,
     )
-    print(result.stdout.strip())
+    output = (result.stdout or b"").decode("utf-8", errors="replace").strip()
+    print(output)
     require(result.returncode == 0, f"{script} 执行失败。")
 
 

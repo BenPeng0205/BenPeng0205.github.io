@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪 | ControlRookie</title>
+  <meta name="description" content="这一篇把 MQTT 最核心的 PUBLISH 报文拆开讲，重点不是概念，而是首字节怎么编码、Topic 和 Packet ID 怎么排、QoS0 / QoS1 / QoS2 在协议和代码层到底差在哪。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#050505">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/mqtt-client-part-03-3-publish-qos0-qos1-qos2-120122/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪">
+  <meta property="og:description" content="这一篇把 MQTT 最核心的 PUBLISH 报文拆开讲，重点不是概念，而是首字节怎么编码、Topic 和 Packet ID 怎么排、QoS0 / QoS1 / QoS2 在协议和代码层到底差在哪。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-client-part-03-3-publish-qos0-qos1-qos2-120122/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪">
+  <meta name="twitter:description" content="这一篇把 MQTT 最核心的 PUBLISH 报文拆开讲，重点不是概念，而是首字节怎么编码、Topic 和 Packet ID 怎么排、QoS0 / QoS1 / QoS2 在协议和代码层到底差在哪。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <aside class="article-toc" aria-label="文章目录">
+            <strong>目录</strong>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#publish">一、先看 PUBLISH 在状态机里处于什么位置</a></li><li><a href="#publish-2">二、PUBLISH 报文结构先看表</a></li><li><a href="#publish-3">三、PUBLISH 第一个字节最容易让人混</a></li><li><a href="#publish-4">四、先拆一个最小 PUBLISH 十六进制</a></li><li><a href="#qos1-qos2-packet-identifier">五、QoS1 和 QoS2 为什么会多出 Packet Identifier</a></li><li><a href="#qos1">六、QoS1 的报文链到底是什么</a></li><li><a href="#qos2">七、QoS2 的报文链为什么更重</a></li><li><a href="#mbuildpublishpacket">八、MBuildPublishPacket 的核心工作流</a></li><li><a href="#topic">九、为什么发布 Topic 绝对不能带通配符</a></li><li><a href="#mqtt-5-0-publish">十、MQTT 5.0 下的 PUBLISH 又多了什么</a></li><li><a href="#qos1-qos2-inflight">十一、真正把 QoS1 / QoS2 撑起来的，不是构包，而是 inflight</a></li><li><a href="#qos0-qos1-qos2">十二、为什么 QoS0 很容易通，QoS1 / QoS2 很容易炸</a></li><li><a href="#publish-5">十三、把 PUBLISH 的四层链路再串一遍</a></li><li><a href="#5">十四、这一篇你最该记住的 5 句话</a></li><li><a href="#section-8254a9be">十五、下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li></ol>
+          </aside>
+          <div class="article-main" id="article-top">
+            <nav class="article-breadcrumb" aria-label="文章路径">
+              <a href="../../index.html#articles">文章</a>
+              <span>/</span>
+              <a href="../../index.html#articles">MQTT Client 系列教程</a>
+              <span>/</span>
+              <a href="../../index.html#articles">通信</a>
+              <span>/</span>
+              <a href="../../index.html#articles">CODESYS</a>
+            </nav>
+            <header class="article-hero">
+              <h1>PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪</h1>
+              <p class="article-summary">这一篇把 MQTT 最核心的 PUBLISH 报文拆开讲，重点不是概念，而是首字节怎么编码、Topic 和 Packet ID 怎么排、QoS0 / QoS1 / QoS2 在协议和代码层到底差在哪。</p>
+              <div class="article-meta">
+                <span>2026-05-06</span>
+                <span>约 26 分钟阅读</span>
+                <span>第3篇/共16篇</span>
+                <span>MQTT / PUBLISH / QoS / ST / PLC / CSDN / CODESYS / ControlRookie</span>
+              </div>
+            </header>
+            <div class="article-content">
+              <blockquote>这一篇把 MQTT 最核心的 PUBLISH 报文拆开讲，重点不是概念，而是首字节怎么编码、Topic 和 Packet ID 怎么排、QoS0 / QoS1 / QoS2 在协议和代码层到底差在哪。</blockquote>
+<h2 id="section-0d70135c">适合谁收藏</h2>
+<ul><li>正在做 CODESYS / PLC / MQTT 项目的人</li><li>想把 MQTT 从报文真正看到 ST 代码的人</li><li>正在排查 QoS1 / QoS2 超时、掉线、重连问题的人</li></ul>
+<hr>
+<p>很多人对 MQTT 的理解，停在一句话：</p>
+<blockquote>MQTT 不就是发布订阅吗？</blockquote>
+<p>这句话当然没错。 但一到代码里，这句话基本没什么用。</p>
+<p>因为真正把客户端难住的，不是“知道有发布订阅”，而是下面这些问题：</p>
+<ol><li><code>PUBLISH</code> 报文首字节到底怎么编码</li><li>Topic、Packet Identifier、Payload 到底怎么排</li><li>QoS0、QoS1、QoS2 到底不是一个按钮，而是三种完全不同的协议语义</li><li>为什么 QoS0 很容易跑通，QoS1 / QoS2 一上来就开始暴露问题</li></ol>
+<p>这一篇我们就把这件事一次讲透。</p>
+<p>先给结论：</p>
+<blockquote><code>PUBLISH</code> 是 MQTT 最核心、也最容易把客户端“真实水平”暴露出来的一类报文。</blockquote>
+<hr>
+<h2 id="publish">一、先看 PUBLISH 在状态机里处于什么位置</h2>
+<p>先把这件事放回主状态机看，不然很容易只盯着报文。</p>
+<div class="mermaid-card"><small>Mermaid</small><pre><code>flowchart LR
+    A[iConnected] --&gt; B[iPublish]
+    B --&gt; C[QoS0: 直接回 iConnected]
+    B --&gt; D[QoS1: 进入 iPubAck]
+    B --&gt; E[QoS2: 进入 iPubRec]</code></pre></div>
+<p>这一张图已经把差别说得很明白了：</p>
+<ul><li>QoS0：发完就结束</li><li>QoS1：发完还要等 <code>PUBACK</code></li><li>QoS2：发完还要继续走 <code>PUBREC -&gt; PUBREL -&gt; PUBCOMP</code></li></ul>
+<p>所以你可以先记一句大白话：</p>
+<blockquote>QoS0 是“我发了”。</blockquote>
+<hr>
+<h2 id="publish-2">二、PUBLISH 报文结构先看表</h2>
+<h3 id="1">1. 固定报头</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字段</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>报文类型</td><td><code>0011</code>，也就是 <code>PUBLISH</code></td></tr>
+<tr><td>DUP</td><td>是否重发</td></tr>
+<tr><td>QoS</td><td>0 / 1 / 2</td></tr>
+<tr><td>Retain</td><td>是否保留消息</td></tr>
+<tr><td>Remaining Length</td><td>后续字节总长度</td></tr>
+</tbody></table></div>
+<h3 id="2">2. 可变报头</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字段</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>Topic Name</td><td>发布主题</td></tr>
+<tr><td>Packet Identifier</td><td>QoS1 / QoS2 必须带，QoS0 不带</td></tr>
+<tr><td>Properties</td><td>MQTT 5.0 才有</td></tr>
+</tbody></table></div>
+<h3 id="3">3. 载荷</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字段</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>Payload</td><td>真正的业务数据</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="publish-3">三、PUBLISH 第一个字节最容易让人混</h2>
+<p>PUBLISH 的首字节不是固定值。 它由 4 个部分拼出来：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>位段</th><th>含义</th></tr></thead>
+<tbody>
+<tr><td>高四位</td><td>报文类型，固定是 PUBLISH</td></tr>
+<tr><td>bit3</td><td>DUP</td></tr>
+<tr><td>bit2-bit1</td><td>QoS</td></tr>
+<tr><td>bit0</td><td>Retain</td></tr>
+</tbody></table></div>
+<p>源码里真实写法是：</p>
+<div class="code-card"><small>iecst</small><pre><code>aTxBuf[uiPos] := E_MqttPacketType.byPublish OR
+    (BOOL_TO_BYTE(bDup) * 16#08) OR
+    TO_BYTE(SHL(ePublishQoS AND 16#03, 1)) OR
+    (BOOL_TO_BYTE(bPublishRetainLocal) * 16#01);</code></pre></div>
+<p>这段要是真看懂了，后面很多问题都会顺。</p>
+<p>它等于在干 4 件事：</p>
+<ol><li>先把报文类型位放进去</li><li>如果是重发，DUP 位置 1</li><li>把 QoS 左移到 bit2-bit1</li><li>如果要保留消息，Retain 位置 1</li></ol>
+<hr>
+<h2 id="publish-4">四、先拆一个最小 PUBLISH 十六进制</h2>
+<p>先看一个最小 QoS0 发布：</p>
+<div class="code-card"><small>text</small><pre><code>30 0B 00 04 74 65 73 74 68 69</code></pre></div>
+<p>这个例子可以理解为：</p>
+<ul><li>主题：<code>test</code></li><li>载荷：<code>hi</code></li></ul>
+<p>拆开看：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字节</th><th>含义</th></tr></thead>
+<tbody>
+<tr><td><code>30</code></td><td>PUBLISH，DUP=0，QoS=0，Retain=0</td></tr>
+<tr><td><code>0B</code></td><td>Remaining Length=11</td></tr>
+<tr><td><code>00 04</code></td><td>Topic 长度=4</td></tr>
+<tr><td><code>74 65 73 74</code></td><td><code>test</code></td></tr>
+<tr><td><code>68 69</code></td><td><code>hi</code></td></tr>
+</tbody></table></div>
+<p>注意这里 <strong>没有 Packet Identifier</strong>。 因为它是 QoS0。</p>
+<hr>
+<h2 id="qos1-qos2-packet-identifier">五、QoS1 和 QoS2 为什么会多出 Packet Identifier</h2>
+<p>因为 QoS1 / QoS2 后面还要走确认链。 服务端回 ACK 的时候，必须知道自己是在确认哪一条消息。</p>
+<p>所以：</p>
+<ul><li>QoS0：没有后续确认，不需要 Packet ID</li><li>QoS1 / QoS2：必须有 Packet ID</li></ul>
+<p>源码里也能看到这个分支：</p>
+<div class="code-card"><small>iecst</small><pre><code>IF ePublishQoS = E_MqttQoS.byQoS0 THEN
+    uiVarHeaderLen := 2 + uiTopicLen;
+ELSE
+    uiVarHeaderLen := 2 + uiTopicLen + 2;
+END_IF</code></pre></div>
+<p>后面那 <code>+ 2</code>，就是 Packet Identifier 的两个字节。</p>
+<hr>
+<h2 id="qos1">六、QoS1 的报文链到底是什么</h2>
+<p>QoS1 不是一个单包动作，而是一条两段链。</p>
+<div class="mermaid-card"><small>Mermaid</small><pre><code>sequenceDiagram
+    participant PLC as PLC Client
+    participant Broker as Broker
+
+    PLC-&gt;&gt;Broker: PUBLISH(QoS1)
+    Broker--&gt;&gt;PLC: PUBACK</code></pre></div>
+<p>对应状态机是：</p>
+<div class="code-card"><small>text</small><pre><code>iConnected -&gt; iPublish -&gt; iPubAck -&gt; iConnected</code></pre></div>
+<p>也就是说，QoS1 的重点不只是把 <code>PUBLISH</code> 发出去，而是：</p>
+<ul><li>要记住这条消息的 Packet ID</li><li>要等到匹配的 <code>PUBACK</code></li><li>要在收到 ACK 后把在途记录清掉</li></ul>
+<hr>
+<h2 id="qos2">七、QoS2 的报文链为什么更重</h2>
+<p>QoS2 要保证“只一次”，所以它要拆成两段确认。</p>
+<div class="mermaid-card"><small>Mermaid</small><pre><code>sequenceDiagram
+    participant PLC as PLC Client
+    participant Broker as Broker
+
+    PLC-&gt;&gt;Broker: PUBLISH(QoS2)
+    Broker--&gt;&gt;PLC: PUBREC
+    PLC-&gt;&gt;Broker: PUBREL
+    Broker--&gt;&gt;PLC: PUBCOMP</code></pre></div>
+<p>对应状态机是：</p>
+<div class="code-card"><small>text</small><pre><code>iConnected -&gt; iPublish -&gt; iPubRec -&gt; iPubRel -&gt; iPubComp -&gt; iConnected</code></pre></div>
+<p>所以 QoS2 的复杂度，不是“多两个报文”这么简单。 它意味着客户端必须真的有状态。</p>
+<hr>
+<h2 id="mbuildpublishpacket">八、MBuildPublishPacket 的核心工作流</h2>
+<p>这个方法如果压缩一下，其实可以看成下面这张图：</p>
+<div class="mermaid-card"><small>Mermaid</small><pre><code>flowchart TD
+    A[基本参数校验] --&gt; B[Topic UTF-8 与通配符校验]
+    B --&gt; C[检查 QoS Retain 与服务端能力边界]
+    C --&gt; D[计算固定报头 可变报头 Remaining Length]
+    D --&gt; E[编码首字节 Topic Packet ID Properties]
+    E --&gt; F[追加 Payload]
+    F --&gt; G[如果是 QoS1/2 建立 inflight 记录]</code></pre></div>
+<p>这里最容易被忽略的一层，是“服务端能力边界检查”。</p>
+<p>比如源码里有这段：</p>
+<div class="code-card"><small>iecst</small><pre><code>IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    IF TO_BYTE(ePublishQoS) &gt; byServerMaxQoS THEN
+        M_SetError(
+            uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+            sMessage := &#x27;Publish QoS exceeds server limit&#x27;);
+        M_BuildPublishPacket := FALSE;
+        RETURN;
+    END_IF
+
+    IF bPublishRetainLocal AND (NOT bServerRetainAvailable) THEN
+        M_SetError(
+            uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+            sMessage := &#x27;Retain not supported by server&#x27;);
+        M_BuildPublishPacket := FALSE;
+        RETURN;
+    END_IF
+END_IF</code></pre></div>
+<p>这就是上一篇讲过的那个点： <code>CONNACK</code> 里协商出来的能力，不是摆设，后面真的会影响发包逻辑。</p>
+<hr>
+<h2 id="topic">九、为什么发布 Topic 绝对不能带通配符</h2>
+<p>很多人刚写 MQTT 时，会把订阅过滤器和发布主题混了。</p>
+<p>订阅时：</p>
+<ul><li><code>+</code></li><li><code>#</code></li></ul>
+<p>这些是合法过滤符。</p>
+<p>发布时：</p>
+<blockquote><strong>主题名不能带通配符。</strong></blockquote>
+<p>源码里直接做了拦截：</p>
+<div class="code-card"><small>iecst</small><pre><code>FOR i := 1 TO TO_DINT(uiTopicLen) DO
+    IF (sPublishTopic[i - 1] = 16#2B) OR (sPublishTopic[i - 1] = 16#23) THEN
+        bHasWildcard := TRUE;
+        EXIT;
+    END_IF
+END_FOR
+
+IF bHasWildcard THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Publish topic must not contain wildcards&#x27;);
+    M_BuildPublishPacket := FALSE;
+    RETURN;
+END_IF</code></pre></div>
+<p>这段规则不是实现者自创的，而是协议本身就这么规定。</p>
+<hr>
+<h2 id="mqtt-5-0-publish">十、MQTT 5.0 下的 PUBLISH 又多了什么</h2>
+<p>如果是 MQTT 5.0，这个库当前会在发布报文里支持 <strong>Topic Alias</strong>。</p>
+<p>看源码：</p>
+<div class="code-card"><small>iecst</small><pre><code>IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    uiPropertyDataLen := 0;
+    uiTopicAlias := 0;
+    IF uiServerTopicAliasMax &gt; 0 THEN
+        uiTopicAlias := uiNextTopicAlias;
+        IF uiTopicAlias = 0 THEN
+            uiTopicAlias := 1;
+        END_IF
+        uiPropertyDataLen := uiPropertyDataLen + 3;
+    END_IF
+END_IF</code></pre></div>
+<p>这段的意思很简单：</p>
+<ul><li>如果 Broker 在 CONNACK 里告诉你“我支持 Topic Alias”</li><li>那客户端后面发 PUBLISH 时，就可以开始带这个属性</li></ul>
+<p>这对长主题、高频发布场景是有意义的。 因为它能减少后续报文长度。</p>
+<hr>
+<h2 id="qos1-qos2-inflight">十一、真正把 QoS1 / QoS2 撑起来的，不是构包，而是 inflight</h2>
+<p>PUBLISH 真正难的地方，不在于拼个包。 而在于你发出去之后，怎么保证后面的 ACK 链条还能对得上。</p>
+<p>所以 <code>M_BuildPublishPacket</code> 最后一个关键动作，是建立 inflight 记录：</p>
+<div class="code-card"><small>iecst</small><pre><code>uiInflightIndex := M_InflightAdd(
+    uiPacketId := uiExpectedPacketId,
+    eQoS := ePublishQoS,
+    sTopic := sPublishTopic,
+    sPayload := sPublishPayload,
+    uiPayloadLen := uiPayloadLen,
+    bRetain := bPublishRetainLocal);</code></pre></div>
+<p>你可以把 inflight 先理解成：</p>
+<blockquote>一张“我还有哪些 QoS 消息没有真正走完”的台账。</blockquote>
+<p>它至少要记住：</p>
+<ul><li>Packet ID</li><li>QoS</li><li>Topic</li><li>Payload</li><li>Retain</li><li>最后发送时间</li><li>重试次数</li><li>当前在途状态</li></ul>
+<hr>
+<h2 id="qos0-qos1-qos2">十二、为什么 QoS0 很容易通，QoS1 / QoS2 很容易炸</h2>
+<p>对比一下就很直观。</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>维度</th><th>QoS0</th><th>QoS1</th><th>QoS2</th></tr></thead>
+<tbody>
+<tr><td>Packet ID</td><td>不需要</td><td>需要</td><td>需要</td></tr>
+<tr><td>ACK</td><td>无</td><td><code>PUBACK</code></td><td><code>PUBREC/PUBREL/PUBCOMP</code></td></tr>
+<tr><td>inflight</td><td>不需要</td><td>需要</td><td>需要</td></tr>
+<tr><td>超时重发</td><td>不需要</td><td>需要</td><td>需要</td></tr>
+<tr><td>去重</td><td>不需要</td><td>一般不强调</td><td>必须重点处理</td></tr>
+</tbody></table></div>
+<p>也就是说，QoS0 只是“能发”。 QoS1 / QoS2 则要求客户端有完整的“发送后管理能力”。</p>
+<p>这也是为什么很多项目一开始觉得自己 MQTT 写得挺顺：</p>
+<ul><li>QoS0 全通</li><li>一换 QoS1 / QoS2 就开始掉线、超时、重连</li></ul>
+<p>不是网络突然变差了。 而是你的状态机、ACK 处理、inflight 生命周期没闭环。</p>
+<hr>
+<h2 id="publish-5">十三、把 PUBLISH 的四层链路再串一遍</h2>
+<h3 id="1-2">1. 标准层</h3>
+<ul><li>客户端发 PUBLISH</li><li>QoS 不同，后续确认链不同</li></ul>
+<h3 id="2-2">2. 报文层</h3>
+<ul><li>首字节编码 DUP / QoS / Retain</li><li>Topic 在前</li><li>QoS1 / QoS2 带 Packet ID</li><li>5.0 还可能带属性</li></ul>
+<h3 id="3-2">3. 状态机层</h3>
+<ul><li>QoS0：<code>iPublish -&gt; iConnected</code></li><li>QoS1：<code>iPublish -&gt; iPubAck -&gt; iConnected</code></li><li>QoS2：<code>iPublish -&gt; iPubRec -&gt; iPubRel -&gt; iPubComp -&gt; iConnected</code></li></ul>
+<h3 id="4-st">4. ST 代码层</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>动作</th><th>方法 / 状态</th></tr></thead>
+<tbody>
+<tr><td>构造发布报文</td><td><code>M_BuildPublishPacket</code></td></tr>
+<tr><td>等待 ACK</td><td><code>iPubAck / iPubRec / iPubComp</code></td></tr>
+<tr><td>管理在途消息</td><td><code>M_InflightAdd</code></td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="5">十四、这一篇你最该记住的 5 句话</h2>
+<ol><li><strong>PUBLISH 首字节不是固定值，而是报文类型、DUP、QoS、Retain 拼出来的。</strong></li><li><strong>QoS0 没有 Packet ID，QoS1 / QoS2 必须有。</strong></li><li><strong>QoS1 和 QoS2 的难点不是构包，而是后面的确认链。</strong></li><li><strong>真正把高可靠发布撑起来的，是 inflight 记录和状态机。</strong></li><li><strong>QoS0 跑得通，不代表你的 MQTT 客户端真的成熟。</strong></li></ol>
+<hr>
+<h2 id="section-8254a9be">十五、下篇预告</h2>
+<p>下一篇我们直接进入最值钱的一块：</p>
+<p><strong>为什么 QoS1 / QoS2 最容易把状态机搞崩</strong></p>
+<p>重点会讲：</p>
+<ul><li><code>PUBACK / PUBREC / PUBREL / PUBCOMP</code></li><li>inflight 超时</li><li>重发</li><li>DUP 位</li><li>为什么高频场景最容易把问题打出来</li></ul>
+<p>如果说这一篇是“看懂 PUBLISH 长什么样”， 那下一篇就是“看懂它为什么能稳，或者为什么会炸”。</p>
+<hr>
+<h2 id="st">完整 ST 代码</h2>
+<h3 id="section-882dd074">复制使用说明</h3>
+<ul><li>这部分给出的是与本篇主题直接对应的完整 ST 代码，不是零碎片段。</li><li>如果你只是想先跑通，优先整段复制，不要只摘几行变量或几条赋值语句。</li><li>如果是 <code>METHOD</code>，请确认它仍然属于 <code>FB_MqttClient</code>；如果是 <code>PROGRAM</code>，请确认相关 DUT、GVL、FB 已一并导入。</li></ul>
+<h3 id="section-5c5d2c8c">代码阅读重点</h3>
+<ul><li>先按 <code>报文结构 -&gt; 状态机入口 -&gt; 关键变量 -&gt; 返回结果</code> 的顺序看。</li><li>再把正文里的十六进制拆解和这里的字节写入、字节解析语句一行行对上。</li><li>最后回到在线调试，重点盯 <code>uiTxLength</code>、<code>uiRxLength</code>、<code>eState</code>、<code>xWaitingForAck</code> 这类状态量。</li></ul>
+<h3 id="1-mbuildpublishpacket">完整代码 1：MBuildPublishPacket</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/??????/M_BuildPublishPacket.st</code></li><li>复制使用说明：这是 PUBLISH 的主方法，QoS0、QoS1、QoS2 都从这里起步。</li><li>阅读重点：先盯报文头里 DUP/QoS/Retain 的拼接，再看 Packet ID 和 Inflight 入队，最后看 MQTT 5.0 Topic Alias 和服务端限制校验。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_BuildPublishPacket
+/// 功能      : 构建 PUBLISH 发送报文
+/// 说明      : 根据主题、载荷、QoS 和协议版本组装发布报文。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.1
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_BuildPublishPacket : BOOL
+VAR
+    uiPos               : UINT := 0;
+    uiVarHeaderLen      : UINT;
+    uiPayloadLen        : UINT;
+    uiRemainingLen      : UINT;
+    uiPropsLen          : UINT;
+    uiPropertyDataLen   : UINT;
+    uiTopicAlias        : UINT;
+    uiInflightIndex     : UINT;
+    uiPublishPacketId   : UINT;
+    i                   : DINT;
+    sPublishTopic       : STRING(GVL_Mqtt.cnMaxTopicLen);
+    sPublishPayload     : STRING(GVL_Mqtt.cnMaxPayloadSize);
+    ePublishQoS         : E_MqttQoS;
+    bPublishRetainLocal : BOOL;
+    bHasWildcard        : BOOL;
+END_VAR
+
+// === IMPLEMENTATION ===
+IF SIZEOF(aTxBuf) &lt; 256 THEN
+    M_BuildPublishPacket := FALSE;
+    RETURN;
+END_IF
+
+IF (ePubQoS &gt; E_MqttQoS.byQoS0) AND (eVersion = E_MqttVersion.byMqttVersion50) AND (uiSendQuota = 0) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrReceiveMaxExceeded),
+        sMessage := &#x27;Send quota exhausted&#x27;);
+    M_BuildPublishPacket := FALSE;
+    RETURN;
+END_IF
+
+FOR i := LOWER_BOUND(aTxBuf, 1) TO UPPER_BOUND(aTxBuf, 1) DO
+    aTxBuf[i] := 0;
+END_FOR
+
+sPublishTopic := sPubTopic;
+sPublishPayload := sPubPayload;
+ePublishQoS := ePubQoS;
+bPublishRetainLocal := bPubRetain;
+uiPublishPacketId := 0;
+
+IF (uiRetryInflightIndex &gt; 0) AND (uiRetryInflightIndex &lt;= GVL_Mqtt.cnMaxInflight) THEN
+    IF aInflight[uiRetryInflightIndex].bUsed THEN
+        sPublishTopic := aInflight[uiRetryInflightIndex].sTopic;
+        sPublishPayload := aInflight[uiRetryInflightIndex].sPayload;
+        ePublishQoS := aInflight[uiRetryInflightIndex].eQoS;
+        bPublishRetainLocal := aInflight[uiRetryInflightIndex].bRetain;
+        uiPublishPacketId := aInflight[uiRetryInflightIndex].uiPacketId;
+        bDup := aInflight[uiRetryInflightIndex].bDup;
+    END_IF
+END_IF
+
+IF sPublishTopic = &#x27;&#x27; THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Publish topic is required&#x27;);
+    M_BuildPublishPacket := FALSE;
+    RETURN;
+END_IF
+
+IF TO_UINT(LEN(sPublishTopic)) &gt; GVL_Mqtt.cnMaxTopicLen THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Publish topic exceeds maximum length&#x27;);
+    M_BuildPublishPacket := FALSE;
+    RETURN;
+END_IF
+
+IF NOT M_IsValidUtf8String(sValue := sPublishTopic) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Publish topic is not valid UTF-8&#x27;);
+    M_BuildPublishPacket := FALSE;
+    RETURN;
+END_IF
+
+bHasWildcard := FALSE;
+FOR i := 1 TO TO_DINT(LEN(sPublishTopic)) DO
+    IF (sPublishTopic[i - 1] = 16#2B) OR (sPublishTopic[i - 1] = 16#23) THEN
+        bHasWildcard := TRUE;
+        EXIT;
+    END_IF
+END_FOR
+
+IF bHasWildcard THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Publish topic must not contain wildcards&#x27;);
+    M_BuildPublishPacket := FALSE;
+    RETURN;
+END_IF
+
+IF TO_UINT(LEN(sPublishPayload)) &gt; GVL_Mqtt.cnMaxPayloadSize THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrPacketTooLarge),
+        sMessage := &#x27;Publish payload exceeds configured maximum&#x27;);
+    M_BuildPublishPacket := FALSE;
+    RETURN;
+END_IF
+
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    IF TO_BYTE(ePublishQoS) &gt; byServerMaxQoS THEN
+        M_SetError(
+            uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+            sMessage := &#x27;Publish QoS exceeds server limit&#x27;);
+        M_BuildPublishPacket := FALSE;
+        RETURN;
+    END_IF
+
+    IF bPublishRetainLocal AND (NOT bServerRetainAvailable) THEN
+        M_SetError(
+            uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+            sMessage := &#x27;Retain not supported by server&#x27;);
+        M_BuildPublishPacket := FALSE;
+        RETURN;
+    END_IF
+END_IF
+
+IF ePublishQoS = E_MqttQoS.byQoS0 THEN
+    uiVarHeaderLen := 2 + TO_UINT(LEN(sPublishTopic));
+ELSE
+    uiVarHeaderLen := 2 + TO_UINT(LEN(sPublishTopic)) + 2;
+END_IF
+
+uiPayloadLen := TO_UINT(LEN(sPublishPayload));
+uiRemainingLen := uiVarHeaderLen + uiPayloadLen;
+
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    uiPropertyDataLen := 0;
+    uiTopicAlias := 0;
+    IF uiServerTopicAliasMax &gt; 0 THEN
+        uiTopicAlias := uiNextTopicAlias;
+        IF uiTopicAlias = 0 THEN
+            uiTopicAlias := 1;
+        END_IF
+        uiPropertyDataLen := uiPropertyDataLen + 3;
+    END_IF
+    uiPropsLen := 1 + uiPropertyDataLen;
+    uiRemainingLen := uiRemainingLen + uiPropsLen;
+
+    IF (udServerMaxPacketSize &gt; 0) AND (TO_UDINT(uiRemainingLen + 5) &gt; udServerMaxPacketSize) THEN
+        M_SetError(
+            uiErrorCode := TO_UINT(E_ReasonCode.uiErrPacketTooLarge),
+            sMessage := &#x27;Publish packet exceeds server maximum packet size&#x27;);
+        M_BuildPublishPacket := FALSE;
+        RETURN;
+    END_IF
+END_IF
+
+IF uiRemainingLen + 5 &gt; SIZEOF(aTxBuf) THEN
+    M_BuildPublishPacket := FALSE;
+    RETURN;
+END_IF
+
+IF ePublishQoS = E_MqttQoS.byQoS0 THEN
+    bDup := FALSE;
+END_IF
+
+aTxBuf[uiPos] := E_MqttPacketType.byPublish OR
+    (BOOL_TO_BYTE(bDup) * 16#08) OR
+    TO_BYTE(SHL(ePublishQoS AND 16#03, 1)) OR
+    (BOOL_TO_BYTE(bPublishRetainLocal) * 16#01);
+uiPos := uiPos + 1;
+
+uiPos := uiPos + M_EncodeRemainingLength(udiLength := uiRemainingLen, pBuffer := ADR(aTxBuf[uiPos]));
+uiPos := uiPos + M_AppendString(sStr := sPublishTopic, pBuffer := ADR(aTxBuf[uiPos]));
+
+IF ePublishQoS &gt; E_MqttQoS.byQoS0 THEN
+    IF uiPublishPacketId = 0 THEN
+        uiExpectedPacketId := M_GetNextPacketId();
+    ELSE
+        uiExpectedPacketId := uiPublishPacketId;
+    END_IF
+    IF uiExpectedPacketId = 0 THEN
+        M_SetError(
+            uiErrorCode := TO_UINT(E_ReasonCode.uiErrReceiveMaxExceeded),
+            sMessage := &#x27;No Packet ID available&#x27;);
+        M_BuildPublishPacket := FALSE;
+        RETURN;
+    END_IF
+    uiQoS2PacketId := uiExpectedPacketId;
+    aTxBuf[uiPos] := UINT_TO_BYTE(SHR(uiExpectedPacketId, 8));
+    uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UINT_TO_BYTE(uiExpectedPacketId AND 16#FF);
+    uiPos := uiPos + 1;
+END_IF
+
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    uiPos := uiPos + M_EncodeRemainingLength(udiLength := uiPropertyDataLen, pBuffer := ADR(aTxBuf[uiPos]));
+    IF uiTopicAlias &gt; 0 THEN
+        aTxBuf[uiPos] := GVL_Mqtt.cnPropTopicAlias;
+        uiPos := uiPos + 1;
+        aTxBuf[uiPos] := UINT_TO_BYTE(SHR(uiTopicAlias, 8));
+        uiPos := uiPos + 1;
+        aTxBuf[uiPos] := UINT_TO_BYTE(uiTopicAlias AND 16#FF);
+        uiPos := uiPos + 1;
+        uiNextTopicAlias := uiTopicAlias + 1;
+        IF (uiNextTopicAlias = 0) OR (uiNextTopicAlias &gt; uiServerTopicAliasMax) THEN
+            uiNextTopicAlias := 1;
+        END_IF
+    END_IF
+END_IF
+
+uiPos := uiPos + M_AppendPayload(sPayload := sPublishPayload, pBuffer := ADR(aTxBuf[uiPos]));
+uiTxLength := uiPos;
+
+IF ePublishQoS &gt; E_MqttQoS.byQoS0 THEN
+    IF uiPublishPacketId = 0 THEN
+        uiInflightIndex := M_InflightAdd(
+            uiPacketId := uiExpectedPacketId,
+            eQoS := ePublishQoS,
+            sTopic := sPublishTopic,
+            sPayload := sPublishPayload,
+            uiPayloadLen := uiPayloadLen,
+            bRetain := bPublishRetainLocal);
+        IF uiInflightIndex = 0 THEN
+            M_SetError(
+                uiErrorCode := TO_UINT(E_ReasonCode.uiErrReceiveMaxExceeded),
+                sMessage := &#x27;Inflight queue is full&#x27;);
+            M_BuildPublishPacket := FALSE;
+            RETURN;
+        END_IF
+    ELSIF (uiRetryInflightIndex &gt; 0) AND (uiRetryInflightIndex &lt;= GVL_Mqtt.cnMaxInflight) THEN
+        aInflight[uiRetryInflightIndex].tLastSend := TIME();
+    END_IF
+END_IF
+
+M_BuildPublishPacket := TRUE;</code></pre></div>
+<h3 id="2-mappendstring">完整代码 2：MAppendString</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/????/M_AppendString.st</code></li><li>复制使用说明：这个方法专门负责把 MQTT 字符串写进缓冲区，复制时建议和 PUBLISH、SUBSCRIBE、CONNECT 相关方法一起保留。</li><li>阅读重点：重点看前 2 字节长度前缀，这就是 MQTT 报文里字符串字段最容易被忽略的地方。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_AppendString
+/// 功能      : 追加 UTF-8 字符串到发送缓冲区
+/// 说明      : 先写入 2 字节长度前缀，再写入字符串内容并返回总字节数。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_AppendString : UINT
+VAR_INPUT
+    sStr        : STRING;
+    pBuffer     : POINTER TO BYTE;
+END_VAR
+VAR
+    uiLen       : UINT;
+    i           : DINT;
+    pWrite      : POINTER TO BYTE;
+END_VAR
+
+// === IMPLEMENTATION ===
+uiLen := TO_UINT(LEN(sStr));
+
+// 长度前缀（MSB + LSB）
+pWrite := pBuffer;
+pWrite^ := UINT_TO_BYTE(SHR(uiLen, 8));
+pWrite := pWrite + 1;
+pWrite^ := UINT_TO_BYTE(uiLen AND 16#FF);
+
+// 字符串内容
+pWrite := pBuffer + 2;
+IF uiLen &gt; 0 THEN
+    FOR i := 1 TO TO_DINT(uiLen) DO
+        pWrite^ := TO_BYTE(sStr[i - 1]);
+        pWrite := pWrite + 1;
+    END_FOR
+END_IF
+
+M_AppendString := uiLen + 2;</code></pre></div>
+<h3 id="3-mappendpayload">完整代码 3：MAppendPayload</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/????/M_AppendPayload.st</code></li><li>复制使用说明：这个方法负责把业务载荷逐字节落到发送缓冲区，是 PUBLISH 组包的最后一跳。</li><li>阅读重点：重点看它和 <code>M_AppendString</code> 的差别：Payload 不带长度前缀，而 Topic/ClientID 这类 UTF-8 字符串必须带长度前缀。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_AppendPayload
+/// 功能      : 追加消息载荷到发送缓冲区
+/// 说明      : 按字节拷贝字符串载荷并返回写入字节数。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_AppendPayload : UINT
+VAR_INPUT
+    sPayload    : STRING;
+    pBuffer     : POINTER TO BYTE;
+END_VAR
+VAR
+    uiLen       : UINT;
+    i           : DINT;
+    pWrite      : POINTER TO BYTE;
+END_VAR
+
+// === IMPLEMENTATION ===
+uiLen := TO_UINT(LEN(sPayload));
+
+pWrite := pBuffer;
+IF uiLen &gt; 0 THEN
+    FOR i := 1 TO TO_DINT(uiLen) DO
+        pWrite^ := TO_BYTE(sPayload[i - 1]);
+        pWrite := pWrite + 1;
+    END_FOR
+END_IF
+
+M_AppendPayload := uiLen;</code></pre></div>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../mqtt-client-part-02-2-connect-connack-st-d994be/index.html">
+                <small>上一篇 / 第2篇</small>
+                <strong>CONNECT 和 CONNACK 怎么读？我带你把十六进制和 ST 代码对上</strong>
+                <span>这一篇正式进入 MQTT 握手核心，重点讲清 CONNECT 和 CONNACK 的报文结构、十六进制拆解、状态机推进关系，以及它们在 MqttClientV10 里的真实 ST 落点。</span>
+              </a>
+              <a class="series-nav-card" href="../mqtt-client-part-04-4-qos1-qos2-ack-9527b7/index.html">
+                <small>下一篇 / 第4篇</small>
+                <strong>为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透</strong>
+                <span>这一篇专门讲高可靠链路为什么最容易出问题，核心内容包括 ACK 链、inflight、超时重发、DUP 位以及高频场景下为什么状态机会最先暴露短板。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", () => window.setTimeout(updateActiveToc, 90));
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

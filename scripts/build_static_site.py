@@ -25,6 +25,7 @@ def main() -> None:
     # 发布根目录：GitHub Pages 直接读取 dist/index.html。
     html = (SRC_APP / "index.html").read_text(encoding="utf-8")
     html = html.replace("../styles/site.css", "styles/site.css")
+    html = html.replace("../content/articles-data.js", "content/articles-data.js")
     html = html.replace("../content/site-data.js", "content/site-data.js")
     html = html.replace("../lib/site.js", "lib/site.js")
     html = html.replace("../../public/", "")

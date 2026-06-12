@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失 | ControlRookie</title>
+  <meta name="description" content="这一篇完全从工程排障视角切入，把最常见的 MQTT 现场故障按连接层、ACK 链、状态机和会话恢复几条主线拆开，帮助你快速定位到底是网络、Broker 还是客户端时序出了问题。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#050505">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/mqtt-client-part-07-7-mqtt-77aa5d/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失">
+  <meta property="og:description" content="这一篇完全从工程排障视角切入，把最常见的 MQTT 现场故障按连接层、ACK 链、状态机和会话恢复几条主线拆开，帮助你快速定位到底是网络、Broker 还是客户端时序出了问题。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-client-part-07-7-mqtt-77aa5d/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失">
+  <meta name="twitter:description" content="这一篇完全从工程排障视角切入，把最常见的 MQTT 现场故障按连接层、ACK 链、状态机和会话恢复几条主线拆开，帮助你快速定位到底是网络、Broker 还是客户端时序出了问题。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <aside class="article-toc" aria-label="文章目录">
+            <strong>目录</strong>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-fa2c21b5">一、先给一张排障总图</a></li><li><a href="#tcpconnect-timeout">二、TcpConnect timeout 先查什么</a></li><li><a href="#connack">三、CONNACK 失败先查什么</a></li><li><a href="#immediate-response-timeout">四、为什么 Immediate response timeout 很容易让人误判</a></li><li><a href="#qos0-qos1-qos2">五、为什么 QoS0 正常而 QoS1 / QoS2 容易炸</a></li><li><a href="#itcpdisconnect">六、如果状态机掉进 iTcpDisconnect，怎么看</a></li><li><a href="#section-eff8e6a7">七、为什么退订有时会“看起来像卡死”</a></li><li><a href="#section-c6f4be67">八、为什么高频多客户端同主题场景最容易把问题打出来</a></li><li><a href="#section-51eb8033">九、为什么重连后订阅会丢</a></li><li><a href="#6">十、排障时最推荐的 6 个观察点</a></li><li><a href="#3">十一、现场排障最容易犯的 3 个错误</a></li><li><a href="#section-512eabc5">十二、给一张现场快速定位表</a></li><li><a href="#6-2">十三、这一篇你最该记住的 6 句话</a></li><li><a href="#section-865f2185">十四、下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li></ol>
+          </aside>
+          <div class="article-main" id="article-top">
+            <nav class="article-breadcrumb" aria-label="文章路径">
+              <a href="../../index.html#articles">文章</a>
+              <span>/</span>
+              <a href="../../index.html#articles">MQTT Client 系列教程</a>
+              <span>/</span>
+              <a href="../../index.html#articles">通信</a>
+              <span>/</span>
+              <a href="../../index.html#articles">CODESYS</a>
+            </nav>
+            <header class="article-hero">
+              <h1>MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失</h1>
+              <p class="article-summary">这一篇完全从工程排障视角切入，把最常见的 MQTT 现场故障按连接层、ACK 链、状态机和会话恢复几条主线拆开，帮助你快速定位到底是网络、Broker 还是客户端时序出了问题。</p>
+              <div class="article-meta">
+                <span>2026-05-06</span>
+                <span>约 16 分钟阅读</span>
+                <span>第7篇/共16篇</span>
+                <span>MQTT / 排障 / PLC / CODESYS / 超时 / CSDN / ControlRookie</span>
+              </div>
+            </header>
+            <div class="article-content">
+              <blockquote>这一篇完全从工程排障视角切入，把最常见的 MQTT 现场故障按连接层、ACK 链、状态机和会话恢复几条主线拆开，帮助你快速定位到底是网络、Broker 还是客户端时序出了问题。</blockquote>
+<h2 id="section-0d70135c">适合谁收藏</h2>
+<ul><li>正在做 CODESYS / PLC / MQTT 项目的人</li><li>想把 MQTT 从报文真正看到 ST 代码的人</li><li>正在排查 QoS1 / QoS2 超时、掉线、重连问题的人</li></ul>
+<hr>
+<p>前面几篇，我们一直在讲：</p>
+<ul><li>报文怎么长</li><li>ACK 怎么走</li><li>状态机怎么分</li></ul>
+<p>但对现场工程师来说，最有价值的问题其实是：</p>
+<blockquote>出问题了，我该先查哪？</blockquote>
+<p>这一篇就完全站在排障视角来说。</p>
+<p>先给结论：</p>
+<blockquote>MQTT 现场大多数问题，最后都能落到 4 条主线里：</blockquote>
+<hr>
+<h2 id="section-fa2c21b5">一、先给一张排障总图</h2>
+<div class="mermaid-card"><small>Mermaid</small><pre><code>flowchart TD
+    A[现象] --&gt; B{连不上还是连上后出问题}
+    B --&gt;|连不上| C[TCP层 / CONNECT层]
+    B --&gt;|连上后出问题| D{QoS0还是QoS1/QoS2}
+    D --&gt;|QoS0也异常| E[接收链 / Topic / Broker配置]
+    D --&gt;|QoS1 QoS2异常| F[ACK链 / inflight / 状态机]
+    F --&gt; G{是否重连后恢复}
+    G --&gt;|没有恢复| H[会话与订阅恢复逻辑]
+    G --&gt;|恢复但不稳定| I[高频调度 / 即时ACK / 超时参数]</code></pre></div>
+<p>这张图的意思很简单：</p>
+<blockquote>不要一出问题就一锅端。</blockquote>
+<hr>
+<h2 id="tcpconnect-timeout">二、TcpConnect timeout 先查什么</h2>
+<p>如果报的是：</p>
+<div class="code-card"><small>text</small><pre><code>TcpConnect timeout</code></pre></div>
+<p>先不要上来怀疑 MQTT 报文。 因为这时候大概率还没进 MQTT 层。</p>
+<h3 id="4">优先检查 4 项</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>检查项</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>Broker IP 是否可达</td><td><code>ping</code> 通不代表端口一定可连，但至少先排 IP</td></tr>
+<tr><td>Broker 端口是否正确</td><td>1883 / 自定义端口</td></tr>
+<tr><td>Windows 防火墙 / 网卡网络配置</td><td>这类环境问题非常常见</td></tr>
+<tr><td>PLC 到 Broker 的 TCP 路是否真通</td><td>能在线监控 PLC，不等于 PLC 到 Broker 的 TCP 也通</td></tr>
+</tbody></table></div>
+<h3 id="section-54bbba80">结论</h3>
+<p><code>TcpConnect timeout</code> 大概率属于：</p>
+<ul><li>TCP 层问题</li><li>端口连通性问题</li><li>Broker 没监听</li><li>PC 防火墙 / 网卡配置问题</li></ul>
+<p>而不是 MQTT 报文问题。</p>
+<hr>
+<h2 id="connack">三、CONNACK 失败先查什么</h2>
+<p>如果 TCP 已经通了，但卡在连接确认阶段，就往 <code>CONNECT / CONNACK</code> 这条链看。</p>
+<h3 id="section-67c34b8d">常见原因</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>现象</th><th>优先怀疑点</th></tr></thead>
+<tbody>
+<tr><td>协议版本不支持</td><td><code>eVersion</code> 配错，Broker 不支持</td></tr>
+<tr><td>Client ID 被拒绝</td><td>Client ID 非法或冲突</td></tr>
+<tr><td>用户名密码错误</td><td>凭据问题</td></tr>
+<tr><td>5.0 能连，3.1.1 不连，或反过来</td><td>Broker 配置与协议版本不匹配</td></tr>
+</tbody></table></div>
+<h3 id="section-c2e7e701">排障思路</h3>
+<ol><li>看 <code>M_HandleConnAck</code> 是否拿到非 0 原因码</li><li>看 <code>sDiagMsg</code> 最后落的是什么</li><li>先排 Broker 是否真支持你选择的 MQTT 版本</li></ol>
+<hr>
+<h2 id="immediate-response-timeout">四、为什么 Immediate response timeout 很容易让人误判</h2>
+<p>这是现场特别容易把人绕进去的一个问题。</p>
+<p>因为用户常常会说：</p>
+<blockquote>但消息明明收到了啊。</blockquote>
+<p>这句话通常是真的。 但它只说明：</p>
+<ul><li>数据帧进来了</li><li>业务层可能也看到了</li></ul>
+<p>它<strong>不说明</strong>：</p>
+<ul><li>你的协议响应发及时了</li></ul>
+<p>这类超时最常见的根因是：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>场景</th><th>必须及时发的响应</th></tr></thead>
+<tbody>
+<tr><td>收到 QoS1 PUBLISH</td><td><code>PUBACK</code></td></tr>
+<tr><td>收到 QoS2 PUBLISH</td><td><code>PUBREC</code></td></tr>
+<tr><td>收到 <code>PUBREL</code></td><td><code>PUBCOMP</code></td></tr>
+</tbody></table></div>
+<p>也就是说：</p>
+<blockquote>你可以“收到消息”，但只要 ACK 回晚了，对端照样可以按超时处理你。</blockquote>
+<hr>
+<h2 id="qos0-qos1-qos2">五、为什么 QoS0 正常而 QoS1 / QoS2 容易炸</h2>
+<p>这类现象基本可以直接判：</p>
+<blockquote>重点不要再查 Topic 和普通 TCP 收发了，直接查 ACK 链和 inflight。</blockquote>
+<h3 id="section-dce105f9">原因很简单</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>维度</th><th>QoS0</th><th>QoS1 / QoS2</th></tr></thead>
+<tbody>
+<tr><td>需要 ACK</td><td>否</td><td>是</td></tr>
+<tr><td>需要 inflight</td><td>否</td><td>是</td></tr>
+<tr><td>需要超时重发</td><td>否</td><td>是</td></tr>
+<tr><td>需要状态释放</td><td>简单</td><td>复杂</td></tr>
+</tbody></table></div>
+<p>所以一旦出现：</p>
+<ul><li>QoS0 全绿</li><li>QoS1 / QoS2 高频就掉线</li></ul>
+<p>优先去看：</p>
+<ol><li>等待状态有没有及时释放</li><li>inflight 有没有积压</li><li>ACK 有没有被接收链及时消化</li><li>超时参数是不是过紧</li></ol>
+<hr>
+<h2 id="itcpdisconnect">六、如果状态机掉进 iTcpDisconnect，怎么看</h2>
+<p>很多人一看到 <code>iTcpDisconnect</code> 就以为：</p>
+<blockquote>网络断了。</blockquote>
+<p>其实不一定。</p>
+<p>前面我们已经讲过，<code>iTcpDisconnect</code> 是统一异常收口。 也就是说，下面这些问题都可能把你送进去：</p>
+<ul><li>TCP 真的断了</li><li>CONNACK 超时</li><li><code>PUBACK / PUBREC / PUBCOMP</code> 超时</li><li><code>SUBACK / UNSUBACK</code> 超时</li><li>即时 ACK 发送失败</li></ul>
+<p>所以正确问法不是：</p>
+<blockquote>为什么进了 <code>iTcpDisconnect</code>？</blockquote>
+<p>而是：</p>
+<blockquote>进 <code>iTcpDisconnect</code> 之前，我最后卡在哪个等待状态？</blockquote>
+<p>这个顺序非常重要。</p>
+<hr>
+<h2 id="section-eff8e6a7">七、为什么退订有时会“看起来像卡死”</h2>
+<p>退订链的问题很典型：</p>
+<ul><li>订阅能成功</li><li>退订一触发，状态机卡在 <code>iUnsubAck</code></li><li>拉低 <code>connect</code> 和 <code>enable</code> 都没立刻恢复</li></ul>
+<p>这类问题通常优先看：</p>
+<ol><li><code>UNSUBSCRIBE</code> 报文 Packet ID 是否正确</li><li>发送后是否真的进入了等待 <code>UNSUBACK</code></li><li>接收路径是否正确识别了 <code>UNSUBACK</code></li><li>收到 <code>UNSUBACK</code> 后等待标志是否释放</li></ol>
+<p>也就是说，别把它当“退订字符串问题”。 它本质上还是 <strong>ACK 等待链问题</strong>。</p>
+<hr>
+<h2 id="section-c6f4be67">八、为什么高频多客户端同主题场景最容易把问题打出来</h2>
+<p>这个场景之所以值钱，是因为它同时压了几层：</p>
+<ol><li>接收面吞吐</li><li>即时 ACK 时序</li><li>inflight 管理</li><li><code>iConnected</code> 调度能力</li><li>KeepAlive 与业务流的共存</li></ol>
+<p>如果这个场景能长期稳定跑：</p>
+<ul><li>多客户端</li><li>同主题</li><li>QoS1 / QoS2</li><li>高频</li></ul>
+<p>那基本说明你的 MQTT 客户端已经不是“演示级”，而是进入可用级了。</p>
+<hr>
+<h2 id="section-51eb8033">九、为什么重连后订阅会丢</h2>
+<p>这个问题现场非常常见，而且很多人第一反应会怪 Broker。</p>
+<p>实际上要分两层看：</p>
+<h3 id="1">1. 协议层</h3>
+<p>重连后订阅要不要还在，跟下面这些有关：</p>
+<ul><li>Clean Session / Clean Start</li><li>Session Expiry</li><li>Broker 的会话保留策略</li></ul>
+<h3 id="2">2. 客户端实现层</h3>
+<p>就算 Broker 会话没保住，客户端要不要自动重建订阅，也取决于你本地有没有：</p>
+<ul><li>订阅列表</li><li>重连后重放策略</li></ul>
+<p>所以“重连后订阅丢失”不是一个单点问题，而是：</p>
+<blockquote>协议语义 + Broker 行为 + 客户端恢复策略</blockquote>
+<hr>
+<h2 id="6">十、排障时最推荐的 6 个观察点</h2>
+<p>这个清单很实用，建议你真正在现场用。</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>观察点</th><th>你要看什么</th></tr></thead>
+<tbody>
+<tr><td>当前主状态</td><td>卡在哪个状态</td></tr>
+<tr><td>等待标志</td><td><code>xWaitingForAck</code> 是否释放</td></tr>
+<tr><td>期待报文类型</td><td><code>byExpectedMsgType</code> 对不对</td></tr>
+<tr><td>Packet ID</td><td>发出去和收回来的是否匹配</td></tr>
+<tr><td>inflight 队列</td><td>是否堆积、是否反复超时</td></tr>
+<tr><td>诊断信息</td><td><code>sDiagMsg</code> 最后写了什么</td></tr>
+</tbody></table></div>
+<p>这 6 个点比“盲抓包 + 猜原因”效率高很多。</p>
+<hr>
+<h2 id="3">十一、现场排障最容易犯的 3 个错误</h2>
+<h3 id="1-2">错误 1：一看到超时就怀疑网络</h3>
+<p>网络当然可能有问题。 但 MQTT 里很多超时，本质是协议时序没跑顺。</p>
+<h3 id="2-ack">错误 2：只看收没收到消息，不看 ACK 有没有回</h3>
+<p>尤其是 QoS1 / QoS2，这个误判非常多。</p>
+<h3 id="3-itcpdisconnect">错误 3：只看最后掉到 iTcpDisconnect，不看它之前卡在哪</h3>
+<p>这会让你把很多不同根因都误归成“断线问题”。</p>
+<hr>
+<h2 id="section-512eabc5">十二、给一张现场快速定位表</h2>
+<div class="article-table-wrap"><table>
+<thead><tr><th>现象</th><th>最短定位路径</th></tr></thead>
+<tbody>
+<tr><td><code>TcpConnect timeout</code></td><td>先查 TCP 路由、端口、防火墙</td></tr>
+<tr><td>TCP 通但连不上 MQTT</td><td>查 CONNECT / CONNACK</td></tr>
+<tr><td>QoS0 正常，QoS1 炸</td><td>查 <code>PUBACK</code> 等待链</td></tr>
+<tr><td>QoS1 正常，QoS2 炸</td><td>查 <code>PUBREC/PUBREL/PUBCOMP</code></td></tr>
+<tr><td>收到消息但仍超时</td><td>查即时 ACK 是否及时回发</td></tr>
+<tr><td>退订卡死</td><td>查 <code>UNSUBACK</code> 等待链</td></tr>
+<tr><td>重连后订阅没了</td><td>查会话语义和本地恢复策略</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="6-2">十三、这一篇你最该记住的 6 句话</h2>
+<ol><li><strong>排 MQTT 故障，先分层，不要一上来全怀疑。</strong></li><li><strong><code>TcpConnect timeout</code> 大概率还是 TCP 层问题，不是 MQTT 报文问题。</strong></li><li><strong><code>Immediate response timeout</code> 很多时候是 ACK 回慢了，不是消息没收到。</strong></li><li><strong>QoS0 正常而 QoS1 / QoS2 异常，优先查 ACK 链和 inflight。</strong></li><li><strong><code>iTcpDisconnect</code> 是统一异常收口，不等于根因就是网络断了。</strong></li><li><strong>重连后订阅丢失，必须同时从协议语义、Broker 行为、客户端恢复策略三层看。</strong></li></ol>
+<hr>
+<h2 id="section-865f2185">十四、下篇预告</h2>
+<p>下一篇我们收回到用户最关心的落地视角：</p>
+<p><strong>怎么把这套开源 MQTT 客户端真正用起来</strong></p>
+<p>会讲：</p>
+<ul><li>接入思路</li><li>参数怎么配</li><li>用 PLC 内置 Broker、EMQX、Mosquitto 分别要注意什么</li><li>真正上线前至少该过哪些测试项</li></ul>
+<hr>
+<h2 id="st">完整 ST 代码</h2>
+<h3 id="section-882dd074">复制使用说明</h3>
+<ul><li>这部分给出的是与本篇主题直接对应的完整 ST 代码，不是零碎片段。</li><li>如果你只是想先跑通，优先整段复制，不要只摘几行变量或几条赋值语句。</li><li>如果是 <code>METHOD</code>，请确认它仍然属于 <code>FB_MqttClient</code>；如果是 <code>PROGRAM</code>，请确认相关 DUT、GVL、FB 已一并导入。</li></ul>
+<h3 id="section-5c5d2c8c">代码阅读重点</h3>
+<ul><li>先按 <code>报文结构 -&gt; 状态机入口 -&gt; 关键变量 -&gt; 返回结果</code> 的顺序看。</li><li>再把正文里的十六进制拆解和这里的字节写入、字节解析语句一行行对上。</li><li>最后回到在线调试，重点盯 <code>uiTxLength</code>、<code>uiRxLength</code>、<code>eState</code>、<code>xWaitingForAck</code> 这类状态量。</li></ul>
+<h3 id="1-mtcpclient">完整代码 1：MTcpClient</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient.M_TcpClient.st</code></li><li>复制使用说明：这是 TCP 连接层的完整封装，现场一旦报 <code>TcpConnect timeout</code>，首先就该看这里。</li><li>阅读重点：重点看 NBS TCP 客户端的使能、句柄、连接结果回传，先把“底层通不通”和“MQTT 通不通”分开。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_TcpClient
+/// 功能      : 控制 TCP 客户端的连接与断开
+/// 说明      : 封装 NBS TCP 客户端连接调用，输出连接状态与错误信息。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-01-10
+/// 版本      : V1.1
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_TcpClient
+VAR_INPUT
+    bEnable                : BOOL;           // TCP 连接使能标志
+    sIP                    : STRING;         // 服务器 IP 地址
+    uiPortNum              : UINT;           // 服务器端口号
+END_VAR
+VAR_OUTPUT
+    bIsConnected           : BOOL;           // 连接成功标志
+    bError                 : BOOL;           // 错误标志
+    eError                 : NBS.ERROR;      // NBS 错误码
+END_VAR
+VAR
+    stIP                   : NBS.IP_ADDR;    // 服务器地址结构
+END_VAR
+
+// === IMPLEMENTATION ===
+stIP.sAddr := sIP;
+
+fbTcpClient(
+    xEnable     := bEnable,
+    ipAddr      := stIP,
+    uiPort      := uiPortNum,
+    eError      =&gt; eError,
+    hConnection =&gt; hConnection);
+
+bError := fbTcpClient.xError;
+
+IF fbTcpClient.xActive AND fbTcpClient.hConnection &lt;&gt; 0 THEN
+    bIsConnected := TRUE;
+ELSE
+    bIsConnected := FALSE;
+END_IF</code></pre></div>
+<h3 id="2-mtcpread">完整代码 2：MTcpRead</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient.M_TcpRead.st</code></li><li>复制使用说明：这是收包入口，很多“明明网络通但总超时”的问题最后都能追到读取节拍上。</li><li>阅读重点：重点看执行条件、读取完成标志和字节数回传，这里会直接影响接收状态机是否误判超时。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_TcpRead
+/// 功能      : 从 TCP 连接读取数据到接收缓冲区
+/// 说明      : 包装 NBS.TCP_Read，读取成功后更新 uiRxLength。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.1
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_TcpRead
+VAR_INPUT
+    bEnable                : BOOL;              // TCP 读取使能标志
+    pDataReceive           : POINTER TO BYTE;   // 接收数据区首地址
+    udiDataSize            : UDINT;             // 接收数据区大小
+END_VAR
+VAR_OUTPUT
+    bDone                  : BOOL;              // 读取完成标志
+    bError                 : BOOL;              // 错误标志
+    eError                 : NBS.ERROR;         // NBS 错误码
+    udiBytesRead           : UDINT;             // 本次读取到的字节数
+END_VAR
+
+// === IMPLEMENTATION ===
+fbTcpRead(
+    xEnable      := bEnable,
+    xError       =&gt; bError,
+    hConnection  := hConnection,
+    szSize       := udiDataSize,
+    pData        := pDataReceive,
+    eError       =&gt; eError);
+
+IF fbTcpRead.xReady AND NOT fbTcpRead.xError THEN
+    bDone := TRUE;
+    udiBytesRead := TO_UDINT(fbTcpRead.szCount);
+ELSE
+    bDone := FALSE;
+    udiBytesRead := 0;
+END_IF
+
+IF NOT bEnable THEN
+    bDone := FALSE;
+    udiBytesRead := 0;
+END_IF</code></pre></div>
+<h3 id="3-mtcpwrite">完整代码 3：MTcpWrite</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient.M_TcpWrite.st</code></li><li>复制使用说明：这是发包入口，出现 <code>Immediate response timeout</code>、发送超时、QoS 回包跟不上时要优先看这里。</li><li>阅读重点：重点看执行沿、完成锁存和发送长度，理解为什么“报文已经组好了”不等于“报文已经真正发出去了”。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_TcpWrite
+/// 功能      : 向 TCP 连接发送缓冲区数据
+/// 说明      : 包装 NBS.TCP_Write，发送成功后置位完成标志。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.1
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_TcpWrite
+VAR_INPUT
+    bExecute               : BOOL;              // TCP 写入执行标志
+    pDataSend              : POINTER TO BYTE;   // 发送数据区首地址
+    udiDataSize            : UDINT;             // 发送数据区大小
+END_VAR
+VAR_OUTPUT
+    bDone                  : BOOL;              // 发送完成标志
+    bError                 : BOOL;              // 错误标志
+    eError                 : NBS.ERROR;         // NBS 错误码
+END_VAR
+
+// === IMPLEMENTATION ===
+fbTcpWrite(
+    xExecute     := bExecute,
+    xError       =&gt; bError,
+    hConnection  := hConnection,
+    szSize       := udiDataSize,
+    pData        := pDataSend,
+    eError       =&gt; eError);
+
+IF NOT bExecute THEN
+    bWriteDoneLatched := FALSE;
+ELSIF fbTcpWrite.xError THEN
+    bWriteDoneLatched := FALSE;
+ELSIF fbTcpWrite.xDone THEN
+    bWriteDoneLatched := TRUE;
+END_IF
+
+bDone := bWriteDoneLatched;</code></pre></div>
+<h3 id="4-mseterror">完整代码 4：MSetError</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/????/M_SetError.st</code></li><li>复制使用说明：这是统一错误上报入口，现场诊断时最好和状态机、TCP 方法一起看。</li><li>阅读重点：重点看错误码和诊断字符串是怎么被统一落到输出引脚上的，这直接决定了排障效率。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_SetError
+/// 功能      : 设置错误状态和诊断信息
+/// 说明      : 写入内部错误码与诊断文本，并置位错误标志。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_SetError : BOOL
+VAR_INPUT
+    uiErrorCode         : UINT;          // 内部错误码
+    sMessage            : STRING(2048);  // 诊断信息文本
+END_VAR
+
+// === IMPLEMENTATION ===
+bError := TRUE;
+eErrorID := TO_INT(uiErrorCode);
+sDiagMsg := sMessage;
+M_SetError := TRUE;</code></pre></div>
+<h3 id="5-mreseterror">完整代码 5：MResetError</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/????/M_ResetError.st</code></li><li>复制使用说明：这是错误复位入口，和 <code>M_SetError</code> 配套使用。</li><li>阅读重点：重点看哪些状态量会被清掉，理解为什么有些问题不是简单拉低 <code>bConnect</code> 就一定能恢复。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_ResetError
+/// 功能      : 复位错误状态
+/// 说明      : 清除错误标志、错误码与诊断信息并返回成功状态。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_ResetError : BOOL
+
+// === IMPLEMENTATION ===
+bError := FALSE;
+eErrorID := 0;
+sDiagMsg := &#x27;&#x27;;
+M_ResetError := TRUE;</code></pre></div>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../mqtt-client-part-06-6-plc-mqtt-b91df7/index.html">
+                <small>上一篇 / 第6篇</small>
+                <strong>PLC 里写 MQTT，最难的不是报文，而是状态机</strong>
+                <span>这一篇站在架构层看 FBMqttClient，重点讲主状态机为什么才是系统骨架、iConnected 为什么是调度中心、接收链和发送链为什么必须拆开，以及异常为什么统一收口到 iTcpDisconnect。</span>
+              </a>
+              <a class="series-nav-card" href="../mqtt-client-part-08-8-mqtt-d475ac/index.html">
+                <small>下一篇 / 第8篇</small>
+                <strong>怎么把这套开源 MQTT 客户端真正用起来</strong>
+                <span>这一篇不再偏协议，而是直接回到工程落地，重点讲接入顺序、关键参数、Broker 选择、推荐测试组合、联调观察点，以及什么标准下才算这套客户端真的能用。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", () => window.setTimeout(updateActiveToc, 90));
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

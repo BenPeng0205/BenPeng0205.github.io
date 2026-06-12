@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>官方 MQTT 库要花钱？我为什么自己开源了一套 CODESYS MQTT 客户端 | ControlRookie</title>
-  <meta name="description" content="这一篇先解决为什么要做开源 CODESYS MQTT 客户端、MQTT 在协议分层中的位置，以及 NBS TCP 与 MQTT 的工程关系。">
+  <meta name="description" content="这一篇先不讲报文细节，只解决 3 个基础问题：为什么要做这套开源客户端、MQTT 到底处于哪一层、以及当前项目为什么是 NBS 上的 TCP 再往上跑 MQTT。适合刚准备从 PLC 进入 MQTT 的自动化工程师先。">
   <meta name="author" content="ControlRookie">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#050505">
@@ -15,13 +15,13 @@
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="ControlRookie">
   <meta property="og:title" content="官方 MQTT 库要花钱？我为什么自己开源了一套 CODESYS MQTT 客户端">
-  <meta property="og:description" content="这一篇先解决为什么要做开源 CODESYS MQTT 客户端、MQTT 在协议分层中的位置，以及 NBS TCP 与 MQTT 的工程关系。">
+  <meta property="og:description" content="这一篇先不讲报文细节，只解决 3 个基础问题：为什么要做这套开源客户端、MQTT 到底处于哪一层、以及当前项目为什么是 NBS 上的 TCP 再往上跑 MQTT。适合刚准备从 PLC 进入 MQTT 的自动化工程师先。">
   <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-client-open-source-codesys-layer/">
   <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="官方 MQTT 库要花钱？我为什么自己开源了一套 CODESYS MQTT 客户端">
-  <meta name="twitter:description" content="这一篇先解决为什么要做开源 CODESYS MQTT 客户端、MQTT 在协议分层中的位置，以及 NBS TCP 与 MQTT 的工程关系。">
+  <meta name="twitter:description" content="这一篇先不讲报文细节，只解决 3 个基础问题：为什么要做这套开源客户端、MQTT 到底处于哪一层、以及当前项目为什么是 NBS 上的 TCP 再往上跑 MQTT。适合刚准备从 PLC 进入 MQTT 的自动化工程师先。">
   <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <link rel="stylesheet" href="../../styles/site.css">
 </head>
@@ -66,20 +66,21 @@
             </nav>
             <header class="article-hero">
               <h1>官方 MQTT 库要花钱？我为什么自己开源了一套 CODESYS MQTT 客户端</h1>
-              <p class="article-summary">这一篇先解决为什么要做开源 CODESYS MQTT 客户端、MQTT 在协议分层中的位置，以及 NBS TCP 与 MQTT 的工程关系。</p>
+              <p class="article-summary">这一篇先不讲报文细节，只解决 3 个基础问题：为什么要做这套开源客户端、MQTT 到底处于哪一层、以及当前项目为什么是 NBS 上的 TCP 再往上跑 MQTT。适合刚准备从 PLC 进入 MQTT 的自动化工程师先。</p>
               <div class="article-meta">
                 <span>2026-05-06</span>
                 <span>约 17 分钟阅读</span>
-                <span>第1篇/共12篇</span>
-                <span>MQTT / CODESYS / PLC / 开源 / CSDN / 系列教程</span>
+                <span>第1篇/共16篇</span>
+                <span>MQTT / CODESYS / PLC / 开源 / CSDN / 系列教程 / ControlRookie</span>
               </div>
             </header>
             <div class="article-content">
               <blockquote>这一篇先不讲报文细节，只解决 3 个基础问题：为什么要做这套开源客户端、MQTT 到底处于哪一层、以及当前项目为什么是 NBS 上的 TCP 再往上跑 MQTT。适合刚准备从 PLC 进入 MQTT 的自动化工程师先建立整体坐标。</blockquote>
 <h2 id="section-0d70135c">适合谁收藏</h2>
 <ul><li>正在做 CODESYS / PLC / MQTT 项目的人</li><li>想把 MQTT 从报文真正看到 ST 代码的人</li><li>正在排查 QoS1 / QoS2 超时、掉线、重连问题的人</li></ul>
+<hr>
 <p>很多自动化工程师刚接触 MQTT 时，最容易卡住的地方其实不是代码，而是两个更前面的事：</p>
-<ul><li><strong>库怎么选</strong></li><li><strong>协议到底跑在哪一层</strong></li></ul>
+<ol><li><strong>库怎么选</strong></li><li><strong>协议到底跑在哪一层</strong></li></ol>
 <p>第一个问题很现实。 很多人准备在 CODESYS 里接 MQTT，结果一看官方 MQTT Client SL，需要额外成本，第一反应通常都是：</p>
 <blockquote>这玩意儿还要花钱？</blockquote>
 <p>第二个问题更普遍。 很多自动化工程师一听到协议，就容易把：</p>
@@ -88,7 +89,7 @@
 <p>最后脑子里只剩一句话：</p>
 <blockquote>反正都是通信协议，但它们到底谁在上面、谁在下面，完全理不清。</blockquote>
 <p>所以这一篇我不打算先讲报文字节，也不先讲 QoS。 这一篇只做三件事：</p>
-<ul><li>说清楚为什么我要自己开源一套 CODESYS MQTT 客户端</li><li>用最短路径把协议分层讲清楚</li><li>明确这套项目到底是什么架构：<strong>NBS 上的 TCP，再往上跑 MQTT</strong></li></ul>
+<ol><li>说清楚为什么我要自己开源一套 CODESYS MQTT 客户端</li><li>用最短路径把协议分层讲清楚</li><li>明确这套项目到底是什么架构：<strong>NBS 上的 TCP，再往上跑 MQTT</strong></li></ol>
 <p>如果你把这一篇看明白了，后面看 CONNECT、PUBLISH、QoS、状态机和 ST 代码，都会顺很多。</p>
 <hr>
 <h2 id="mqtt">一、为什么我要自己写一套开源 MQTT 客户端</h2>
@@ -252,7 +253,7 @@
     C --&gt; D[ST代码怎么组织]
     D --&gt; E[现场问题怎么排]</code></pre></div>
 <p>也就是说，后面每一篇的重点都不是“背定义”，而是尽量把这四个问题讲清楚：</p>
-<ul><li>这个报文标准里怎么规定</li><li>抓包里长什么样</li><li>状态机为什么这样走</li><li>ST 代码为什么这样写</li></ul>
+<ol><li>这个报文标准里怎么规定</li><li>抓包里长什么样</li><li>状态机为什么这样走</li><li>ST 代码为什么这样写</li></ol>
 <p>这才是我认为最适合自动化工程师的讲法。</p>
 <hr>
 <h2 id="section-1ee64608">十一、这一篇你现在最该记住的结论</h2>
@@ -292,7 +293,7 @@
 <ul><li>这部分给出的是与本篇主题直接对应的完整 ST 代码，不是零碎片段。</li><li>如果你只是想先跑通，优先整段复制，不要只摘几行变量或几条赋值语句。</li><li>如果是 <code>METHOD</code>，请确认它仍然属于 <code>FB_MqttClient</code>；如果是 <code>PROGRAM</code>，请确认相关 DUT、GVL、FB 已一并导入。</li></ul>
 <h3 id="section-5c5d2c8c">代码阅读重点</h3>
 <ul><li>先按 <code>报文结构 -&gt; 状态机入口 -&gt; 关键变量 -&gt; 返回结果</code> 的顺序看。</li><li>再把正文里的十六进制拆解和这里的字节写入、字节解析语句一行行对上。</li><li>最后回到在线调试，重点盯 <code>uiTxLength</code>、<code>uiRxLength</code>、<code>eState</code>、<code>xWaitingForAck</code> 这类状态量。</li></ul>
-<h3 id="1-prg-test">完整代码 1：PRG_Test</h3>
+<h3 id="1-prgtest">完整代码 1：PRGTest</h3>
 <ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/PRG_Test.st</code></li><li>复制使用说明：这是最适合先复制试跑的测试程序，直接展示了外部工程如何调用 <code>FB_MqttClient</code>。</li><li>阅读重点：先看输入参数区，再看 <code>fbMqttClient(...)</code> 的整段实例调用，你会立刻明白 MQTT 功能块在工程里的落地方式。</li></ul>
 <div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
 /// 名称      : PRG_Test
@@ -407,7 +408,7 @@ fbMqttClient(
     aRecPayloadList        =&gt; aRecPayloadList,
     byReceivedQoS          =&gt; byReceivedQoS,
     bReceivedRetain        =&gt; bReceivedRetain);</code></pre></div>
-<h3 id="2-plc-prg">完整代码 2：PLC_PRG</h3>
+<h3 id="2-plcprg">完整代码 2：PLCPRG</h3>
 <ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/PLC_PRG.st</code></li><li>复制使用说明：这是最小运行入口，适合和 <code>PRG_Test</code> 配套复制。</li><li>阅读重点：重点看 <code>PRG_Test();</code> 这一层封装关系，理解示例工程是怎么把测试程序挂到主循环里的。</li></ul>
 <div class="code-card"><small>iecst</small><pre><code>PROGRAM PLC_PRG
 VAR
@@ -452,13 +453,13 @@ PRG_Test();</code></pre></div>
             <nav class="article-series-nav" aria-label="系列导航">
               <a class="series-nav-card" href="../../index.html#articles">
                 <small>上一篇 / 系列入口</small>
-                <strong>CODESYS MQTT 系列总览</strong>
-                <span>返回文章中心，查看当前系列和相关资源。</span>
+                <strong>返回 CODESYS MQTT 文章中心</strong>
+                <span>回到文章中心，继续定位同系列文章和相关 MQTT 资料。</span>
               </a>
-              <a class="series-nav-card" href="../../index.html#articles">
-                <small>下一篇 / 待导入</small>
-                <strong>CONNECT / CONNACK 报文拆解</strong>
-                <span>下一篇会进入握手链、十六进制和 ST 状态机。</span>
+              <a class="series-nav-card" href="../mqtt-client-part-02-2-connect-connack-st-d994be/index.html">
+                <small>下一篇 / 第2篇</small>
+                <strong>CONNECT 和 CONNACK 怎么读？我带你把十六进制和 ST 代码对上</strong>
+                <span>这一篇正式进入 MQTT 握手核心，重点讲清 CONNECT 和 CONNACK 的报文结构、十六进制拆解、状态机推进关系，以及它们在 MqttClientV10 里的真实 ST 落点。</span>
               </a>
             </nav>
             <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
@@ -531,6 +532,49 @@ PRG_Test();</code></pre></div>
         const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
         return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
       };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
       const renderMermaidCard = (card, cardIndex = 0) => {
         const code = card.querySelector("pre code");
         if (!code || card.querySelector("svg")) return;
@@ -546,7 +590,10 @@ PRG_Test();</code></pre></div>
           if (from && to) edges.push([from, to]);
         });
         const ids = [...labels.keys()];
-        if (!ids.length || !edges.length) return;
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
         const horizontal = direction === "LR";
         const nodeWidth = horizontal ? 150 : 250;
         const nodeHeight = 54;

@@ -78,15 +78,15 @@
               {{CONTENT}}
             </div>
             <nav class="article-series-nav" aria-label="系列导航">
-              <a class="series-nav-card" href="{{HOME_HREF}}#articles">
-                <small>上一篇 / 系列入口</small>
-                <strong>CODESYS MQTT 系列总览</strong>
-                <span>返回文章中心，查看当前系列和相关资源。</span>
+              <a class="series-nav-card" href="{{PREV_HREF}}">
+                <small>{{PREV_LABEL}}</small>
+                <strong>{{PREV_TITLE}}</strong>
+                <span>{{PREV_SUMMARY}}</span>
               </a>
-              <a class="series-nav-card" href="{{HOME_HREF}}#articles">
-                <small>下一篇 / 待导入</small>
-                <strong>CONNECT / CONNACK 报文拆解</strong>
-                <span>下一篇会进入握手链、十六进制和 ST 状态机。</span>
+              <a class="series-nav-card" href="{{NEXT_HREF}}">
+                <small>{{NEXT_LABEL}}</small>
+                <strong>{{NEXT_TITLE}}</strong>
+                <span>{{NEXT_SUMMARY}}</span>
               </a>
             </nav>
             <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
@@ -159,6 +159,49 @@
         const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
         return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
       };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
       const renderMermaidCard = (card, cardIndex = 0) => {
         const code = card.querySelector("pre code");
         if (!code || card.querySelector("svg")) return;
@@ -174,7 +217,10 @@
           if (from && to) edges.push([from, to]);
         });
         const ids = [...labels.keys()];
-        if (!ids.length || !edges.length) return;
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
         const horizontal = direction === "LR";
         const nodeWidth = horizontal ? 150 : 250;
         const nodeHeight = 54;

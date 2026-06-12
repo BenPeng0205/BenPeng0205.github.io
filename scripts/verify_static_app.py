@@ -154,12 +154,12 @@ def check_article_center_navigation(page, file_url: str) -> None:
     require(page.locator("#articles .article-index-head strong").inner_text().strip() == "知识库索引", "文章中心索引标题必须保留为“知识库索引”。")
     require(page.locator("#articles .article-index-tree details").count() >= 5, "文章中心索引必须按当前真实文章层级使用可展开/收起项目树。")
     require(page.locator("#articles .article-index-tree summary").count() >= 5, "文章中心项目树每个层级都应有可点击展开项。")
-    require(page.locator("#articles .article-index-tree a").count() >= 2, "文章中心叶子节点必须对应当前真实文章入口。")
+    require(page.locator("#articles .article-index-tree a").count() == 30, "文章中心叶子节点必须同步到全部 30 篇 MQTT 文章。")
     require(page.locator("#articles .article-tree-selected > summary").count() == 1, "文章中心项目树必须有当前选中节点。")
     require(page.locator("#articles .article-library-panel").count() == 1, "文章中心缺少右侧文章视图面板。")
     require(page.locator("#articles .article-series-heading").count() == 1, "文章中心右侧顶部缺少当前系列标题区。")
     require(page.locator("#articles .article-row-list").count() == 0 and page.locator("#articles .article-row").count() == 0, "文章中心右侧不应再保留浅导航卡片。")
-    require(page.locator("#articles .article-list-card").count() >= 2, "文章中心右侧必须展示当前节点下的横向文章卡片列表。")
+    require(page.locator("#articles .article-list-card").count() == 30, "文章中心右侧必须展示全部 30 篇 MQTT 横向文章卡片。")
     require(page.locator("#articles .article-list-card").first.inner_text().startswith("01 · 客户端"), "文章卡片左上角必须使用序号加所在文件夹名称。")
     first_status_weight = page.locator("#articles .article-list-card em").first.evaluate("node => parseFloat(getComputedStyle(node).fontWeight)")
     require(first_status_weight <= 450, "文章卡片右上角状态文字不应加粗。")
@@ -174,8 +174,9 @@ def check_article_center_navigation(page, file_url: str) -> None:
         }"""
     )
     require(any(item["label"] == "CODESYS MQTT" and item["open"] and item["selected"] for item in tree_state), "文章目录树默认必须展开并选中到系列专题层。")
-    for folded_label in ["客户端", "服务器 / Broker"]:
+    for folded_label in ["客户端", "Broker"]:
         require(any(item["label"] == folded_label and not item["open"] for item in tree_state), f"专题下文章文件夹默认必须折叠: {folded_label}")
+    require("已导入 30 篇" in page.locator("#articles .article-series-heading").inner_text(), "文章中心系列总标题必须显示 30 篇导入进度。")
     index_html = page.locator("#articles .article-index-panel").evaluate("node => node.innerHTML")
     require("#works" not in index_html and "#products" not in index_html and "LLM Synchronizer" not in index_html, "文章中心左侧索引不得混入资源页或产品页导航。")
     hub = rect(page, "#articles .article-hub")
@@ -310,6 +311,27 @@ def main() -> None:
         page.wait_for_timeout(200)
         if "CODESYS MQTT" not in page.locator("#searchPanel").inner_text():
             raise SystemExit("搜索 MQTT 未匹配文章结果。")
+        search_panel_layout = page.locator("#searchPanel").evaluate(
+            """node => {
+                const rect = node.getBoundingClientRect();
+                const style = getComputedStyle(node);
+                return {
+                    bottom: rect.bottom,
+                    viewportHeight: window.innerHeight,
+                    overflowY: style.overflowY,
+                    scrollHeight: node.scrollHeight,
+                    clientHeight: node.clientHeight,
+                    resultCount: node.querySelectorAll(".search-result").length,
+                };
+            }"""
+        )
+        if (
+            search_panel_layout["overflowY"] not in ["auto", "scroll"]
+            or search_panel_layout["resultCount"] < 30
+            or search_panel_layout["scrollHeight"] <= search_panel_layout["clientHeight"]
+            or search_panel_layout["bottom"] > search_panel_layout["viewportHeight"] - 12
+        ):
+            raise SystemExit(f"搜索结果必须收在可滚动浮层中，不得压住正文: {search_panel_layout}")
 
         page.keyboard.press("Escape")
         page.wait_for_timeout(120)

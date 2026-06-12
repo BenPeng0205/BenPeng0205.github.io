@@ -91,7 +91,7 @@ window.CONTROLROOKIE_SITE_DATA = {
       href: "#works",
     },
   ],
-  articles: [
+  articles: window.CONTROLROOKIE_ARTICLES || [
     {
       id: "mqtt-client-open-source-codesys-layer",
       type: { zh: "文章", en: "Article" },

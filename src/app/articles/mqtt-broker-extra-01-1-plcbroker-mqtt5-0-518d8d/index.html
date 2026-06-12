@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏 | ControlRookie</title>
+  <meta name="description" content="这一篇是 MQTT 5.0 加更。结论很直接：PLC 侧轻量 Broker 应该支持 MQTT 5.0 基础兼容接入，但当前阶段不应该盲目追完整 MQTT 5.0 属性系统。工业现场更需要稳定、可诊断、易维护。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#050505">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/mqtt-broker-extra-01-1-plcbroker-mqtt5-0-518d8d/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏">
+  <meta property="og:description" content="这一篇是 MQTT 5.0 加更。结论很直接：PLC 侧轻量 Broker 应该支持 MQTT 5.0 基础兼容接入，但当前阶段不应该盲目追完整 MQTT 5.0 属性系统。工业现场更需要稳定、可诊断、易维护。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-broker-extra-01-1-plcbroker-mqtt5-0-518d8d/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏">
+  <meta name="twitter:description" content="这一篇是 MQTT 5.0 加更。结论很直接：PLC 侧轻量 Broker 应该支持 MQTT 5.0 基础兼容接入，但当前阶段不应该盲目追完整 MQTT 5.0 属性系统。工业现场更需要稳定、可诊断、易维护。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <aside class="article-toc" aria-label="文章目录">
+            <strong>目录</strong>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#mqtt-5-0">一、MQTT 5.0 到底多了什么</a></li><li><a href="#broker-mqtt-5-0">二、当前 Broker 的 MQTT 5.0 策略</a></li><li><a href="#section-5feba446">三、为什么零属性响应很关键</a></li><li><a href="#mqtt-5-0-broker">四、完整 MQTT 5.0 会把轻量 Broker 拉向另一条路</a></li><li><a href="#section-362247d7">五、工业现场推荐怎么选版本</a></li><li><a href="#st">六、ST 代码入口</a></li><li><a href="#section-2a0f949f">模型边界与验证路径</a></li><li><a href="#5">七、这一篇你最该记住的 5 句话</a></li><li><a href="#section-db37e882">下篇预告</a></li><li><a href="#st-2">完整 ST 代码</a></li></ol>
+          </aside>
+          <div class="article-main" id="article-top">
+            <nav class="article-breadcrumb" aria-label="文章路径">
+              <a href="../../index.html#articles">文章</a>
+              <span>/</span>
+              <a href="../../index.html#articles">MQTT Broker 系列教程</a>
+              <span>/</span>
+              <a href="../../index.html#articles">通信</a>
+              <span>/</span>
+              <a href="../../index.html#articles">CODESYS</a>
+            </nav>
+            <header class="article-hero">
+              <h1>PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏</h1>
+              <p class="article-summary">这一篇是 MQTT 5.0 加更。结论很直接：PLC 侧轻量 Broker 应该支持 MQTT 5.0 基础兼容接入，但当前阶段不应该盲目追完整 MQTT 5.0 属性系统。工业现场更需要稳定、可诊断、易维护。</p>
+              <div class="article-meta">
+                <span>2026-05-08</span>
+                <span>约 10 分钟阅读</span>
+                <span>第9篇/共14篇</span>
+                <span>MQTT / MQTT5 / Broker / PLC / CODESYS / CSDN / ControlRookie</span>
+              </div>
+            </header>
+            <div class="article-content">
+              <blockquote>这一篇是 MQTT 5.0 加更。结论很直接：PLC 侧轻量 Broker 应该支持 MQTT 5.0 基础兼容接入，但当前阶段不应该盲目追完整 MQTT 5.0 属性系统。工业现场更需要稳定、可诊断、易维护。</blockquote>
+<h2 id="section-0d70135c">适合谁收藏</h2>
+<ul><li>客户端选择 MQTT 5.0 后连不上 Broker 的人</li><li>不确定 PLC Broker 是否要完整支持 MQTT 5.0 的人</li><li>正在写产品功能边界说明的人</li><li>想避免被“新版本”带偏工程节奏的人</li></ul>
+<hr>
+<p>客户端界面里有个选项：</p>
+<div class="code-card"><small>text</small><pre><code>MQTT 5.0</code></pre></div>
+<p>很多人会本能觉得：</p>
+<blockquote>新版本肯定更好，那 Broker 也必须完整支持 5.0。</blockquote>
+<p>先给结论：</p>
+<blockquote>PLC 侧轻量 Broker 应该兼容 MQTT 5.0 客户端连接。 但不应该在当前阶段盲目实现完整 MQTT 5.0 属性系统。</blockquote>
+<p>这不是保守。 这是工程取舍。</p>
+<hr>
+<h2 id="mqtt-5-0">一、MQTT 5.0 到底多了什么</h2>
+<p>MQTT 5.0 相比 3.1.1，多了大量属性和原因码。</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>类别</th><th>示例</th></tr></thead>
+<tbody>
+<tr><td>连接属性</td><td>Session Expiry、Receive Maximum、Maximum Packet Size</td></tr>
+<tr><td>发布属性</td><td>Payload Format Indicator、Message Expiry、Topic Alias</td></tr>
+<tr><td>订阅属性</td><td>Subscription Identifier、No Local、Retain Handling</td></tr>
+<tr><td>用户属性</td><td>User Property</td></tr>
+<tr><td>响应信息</td><td>Reason String、Server Reference</td></tr>
+</tbody></table></div>
+<p>这些能力对云平台和大型 Broker 很有价值。</p>
+<p>但对一个 PLC 内置轻量 Broker 来说，每个属性都意味着：</p>
+<ol><li>更多解析分支。</li><li>更多缓冲区边界。</li><li>更多状态字段。</li><li>更多兼容测试矩阵。</li><li>更多现场误用可能。</li></ol>
+<hr>
+<h2 id="broker-mqtt-5-0">二、当前 Broker 的 MQTT 5.0 策略</h2>
+<p>当前策略是“基础兼容”，不是“完整实现”。</p>
+<figure><img src="../../assets/articles/mqtt-broker-extra-01-1-plcbroker-mqtt5-0-518d8d/加更1_PLCBroker要不要完整支持MQTT5_0_工业现场别被新版本带偏-csdn流程图-01.png" alt="图表说明"><figcaption>图表说明</figcaption></figure>
+<div class="article-table-wrap"><table>
+<thead><tr><th>项目</th><th>当前处理</th></tr></thead>
+<tbody>
+<tr><td>CONNECT level 5</td><td>接受</td></tr>
+<tr><td>CONNECT Properties</td><td>读取属性长度并跳过</td></tr>
+<tr><td>CONNACK</td><td>返回 Success + 零属性长度</td></tr>
+<tr><td>PUBLISH Properties</td><td>基础跳过</td></tr>
+<tr><td>完整属性语义</td><td>暂不实现</td></tr>
+<tr><td>Reason String / User Property</td><td>暂不实现</td></tr>
+</tbody></table></div>
+<p>也就是说，客户端选择 MQTT 5.0 时能连上、能基础发布订阅，但不能把它当成具备完整 5.0 属性语义的服务器。</p>
+<p>这句话必须写进手册，不能含糊。</p>
+<hr>
+<h2 id="section-5feba446">三、为什么零属性响应很关键</h2>
+<p>MQTT 3.1.1 CONNACK：</p>
+<div class="code-card"><small>text</small><pre><code>20 02 00 00</code></pre></div>
+<p>MQTT 5.0 CONNACK：</p>
+<div class="code-card"><small>text</small><pre><code>20 03 00 00 00</code></pre></div>
+<p>多出来的最后一个 <code>00</code> 是 Properties Length。</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字节</th><th>MQTT 5.0 CONNACK 含义</th></tr></thead>
+<tbody>
+<tr><td><code>20</code></td><td>CONNACK</td></tr>
+<tr><td><code>03</code></td><td>Remaining Length</td></tr>
+<tr><td><code>00</code></td><td>Acknowledge Flags</td></tr>
+<tr><td><code>00</code></td><td>Reason Code</td></tr>
+<tr><td><code>00</code></td><td>Properties Length = 0</td></tr>
+</tbody></table></div>
+<p>如果 Broker 少发这个字节，有些客户端会表现成：</p>
+<ul><li>连接时变量闪烁。</li><li>客户端显示连接失败。</li><li>Broker 槽位接入后立刻释放。</li><li>工具日志只给 <code>rc -1</code>，看不出细节。</li></ul>
+<hr>
+<h2 id="mqtt-5-0-broker">四、完整 MQTT 5.0 会把轻量 Broker 拉向另一条路</h2>
+<p>如果完整支持 MQTT 5.0，至少要继续做：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>能力</th><th>复杂度来源</th></tr></thead>
+<tbody>
+<tr><td>Session Expiry</td><td>需要会话生命周期和离线状态</td></tr>
+<tr><td>Receive Maximum</td><td>影响 QoS 并发窗口</td></tr>
+<tr><td>Maximum Packet Size</td><td>影响所有构包和拒绝策略</td></tr>
+<tr><td>Topic Alias</td><td>需要每连接别名表</td></tr>
+<tr><td>Message Expiry</td><td>需要消息过期时间管理</td></tr>
+<tr><td>Subscription Identifier</td><td>影响路由和返回属性</td></tr>
+<tr><td>User Property</td><td>需要变长属性保存和转发</td></tr>
+</tbody></table></div>
+<p>这些都不是“加几个字段”。</p>
+<p>它会改变 Broker 的资源模型。</p>
+<p>而当前 PLC Broker 的第一优先级是：</p>
+<blockquote>小规模、稳定、低延迟、可诊断、易维护。</blockquote>
+<p>不是把 MQTT 5.0 标准逐页复刻。</p>
+<hr>
+<h2 id="section-362247d7">五、工业现场推荐怎么选版本</h2>
+<div class="article-table-wrap"><table>
+<thead><tr><th>场景</th><th>建议</th></tr></thead>
+<tbody>
+<tr><td>普通 PLC、HMI、上位机、调试工具</td><td>优先 MQTT 3.1.1</td></tr>
+<tr><td>旧工具只支持 MQTT 3.1</td><td>使用 <code>MQIsdp + level 3</code> 基础兼容</td></tr>
+<tr><td>客户端默认 MQTT 5.0 且无法切换</td><td>使用当前基础兼容</td></tr>
+<tr><td>明确依赖 MQTT 5.0 属性</td><td>当前版本不适合作为完整 5.0 Broker</td></tr>
+<tr><td>云平台、大规模、复杂规则</td><td>使用 EMQX / Mosquitto 等通用 Broker</td></tr>
+</tbody></table></div>
+<p>这不是谁高级谁低级的问题。</p>
+<p>这是组件定位不同。</p>
+<hr>
+<h2 id="st">六、ST 代码入口</h2>
+<div class="article-table-wrap"><table>
+<thead><tr><th>代码入口</th><th>作用</th></tr></thead>
+<tbody>
+<tr><td><code>FB_MqttBrokerCodec.M_ParseConnect</code></td><td>识别 <code>MQTT + level 5</code></td></tr>
+<tr><td><code>F_MqttSkipVariableByteInteger</code></td><td>跳过 MQTT 5.0 Properties 长度</td></tr>
+<tr><td><code>FB_MqttBrokerCodec.M_BuildSimpleAck</code></td><td>构造带零属性长度的 5.0 CONNACK</td></tr>
+<tr><td><code>FB_MqttBrokerCodec.M_ParsePublish</code></td><td>基础跳过 PUBLISH Properties</td></tr>
+</tbody></table></div>
+<p>核心思想：</p>
+<div class="code-card"><small>text</small><pre><code>IF byProtocolLevel = 5 THEN
+    xOk := F_MqttSkipVariableByteInteger(
+        aBuffer := aRxBuf,
+        uiOffset := uiOffset,
+        uiBufferLen := uiFrameLen);
+
+    IF NOT xOk THEN
+        eParseError := E_MqttBrokerError.uiMalformedPacket;
+        RETURN;
+    END_IF
+END_IF</code></pre></div>
+<p>跳过，不等于理解全部属性。 返回零属性，也不等于完整 5.0 能力。</p>
+<hr>
+<h2 id="section-2a0f949f">模型边界与验证路径</h2>
+<p>MQTT 5.0 的取舍，本质不是“新旧版本选择”，而是资源模型选择。</p>
+<p>完整属性系统会把 Broker 从固定小表、固定队列、固定状态机，推向更复杂的会话能力、属性转发和离线语义。这个方向不是不能做，但不能在没有需求和测试矩阵时顺手做。</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>结论</th><th>可信度</th><th>依据</th><th>验证路径</th></tr></thead>
+<tbody>
+<tr><td>当前 Broker 支持 MQTT 5.0 基础连接兼容</td><td>high</td><td>CONNECT level 5、属性跳过、零属性 CONNACK</td><td>MQTT 5.0 客户端连接并完成订阅发布</td></tr>
+<tr><td>当前 Broker 不等同具备完整属性语义的 5.0 服务器</td><td>high</td><td>未实现完整属性语义</td><td>用依赖属性的 5.0 客户端功能测试</td></tr>
+<tr><td>工业现场优先 3.1.1 主链路更稳妥</td><td>medium</td><td>当前小规模 PLC Broker 定位</td><td>根据客户端版本和现场功能需求选择</td></tr>
+</tbody></table></div>
+<p>如果后续要做完整 MQTT 5.0，不建议从“支持某个属性”零散开始。更稳的路线是先重新定义会话模型、属性存储模型、转发模型和兼容测试矩阵。</p>
+<hr>
+<h2 id="5">七、这一篇你最该记住的 5 句话</h2>
+<ol><li>PLC Broker 当前应该兼容 MQTT 5.0 连接，但不必盲目完整实现 5.0 属性系统。</li><li>MQTT 5.0 CONNACK 必须带 Properties Length，即使长度为 0。</li><li>跳过属性长度是基础兼容，不是完整属性语义。</li><li>完整 MQTT 5.0 会显著改变轻量 Broker 的资源和状态模型。</li><li>工业现场优先选择稳定、可维护、可诊断，而不是盲目追版本号。</li></ol>
+<hr>
+<h2 id="section-db37e882">下篇预告</h2>
+<p>下一篇是最后一篇加更：</p>
+<blockquote>这套 PLC 侧 MQTT Broker，我是怎么从连不上、掉线、延迟一路修到稳定的。</blockquote>
+<p>我们不讲标准条文，讲真实踩坑。</p>
+<hr>
+<h2 id="st-2">完整 ST 代码</h2>
+<p>下面这段来自 <code>F_MqttSkipVariableByteInteger.st</code>。这就是本文说的“基础兼容”：不实现完整 MQTT 5.0 属性语义，但必须能按标准跳过变长整数编码的属性长度。</p>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : F_MqttSkipVariableByteInteger
+/// 功能      : 跳过 MQTT 变长整数编码字段
+/// 说明      : MQTT 5.0 属性长度采用变长整数编码，当前轻量兼容层只需要校验并跳过该长度字段。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+FUNCTION F_MqttSkipVariableByteInteger : BOOL
+VAR_INPUT
+    uiBufferLen  : UINT; // 当前 MQTT 完整报文长度或可用缓冲长度[byte]
+END_VAR
+VAR_IN_OUT
+    aBuffer      : ARRAY[*] OF BYTE; // MQTT 原始报文缓冲区
+    uiOffset     : UINT; // 输入为变长整数起始偏移，成功后推进到变长整数之后[byte]
+END_VAR
+VAR_OUTPUT
+    udiValue     : UDINT; // 解码出的变长整数数值，MQTT 5.0 属性长度使用该值[byte]
+END_VAR
+VAR
+    udiMultiplier : UDINT; // MQTT 变长整数倍率，依次为 1、128、16384、2097152
+    byEncoded     : BYTE; // 当前读取的编码字节
+    uiLoop        : UINT; // 变长整数最多允许 4 个字节
+END_VAR
+
+// === IMPLEMENTATION ===
+udiValue := 0;
+udiMultiplier := 1;
+
+IF uiOffset &gt;= uiBufferLen THEN
+    F_MqttSkipVariableByteInteger := FALSE;
+    RETURN;
+END_IF
+
+FOR uiLoop := 1 TO 4 DO
+    IF uiOffset &gt;= uiBufferLen THEN
+        F_MqttSkipVariableByteInteger := FALSE;
+        RETURN;
+    END_IF
+
+    byEncoded := aBuffer[uiOffset];
+    udiValue := udiValue + TO_UDINT(byEncoded AND 16#7F) * udiMultiplier;
+    uiOffset := uiOffset + 1;
+
+    IF (byEncoded AND 16#80) = 0 THEN
+        F_MqttSkipVariableByteInteger := TRUE;
+        RETURN;
+    END_IF
+
+    udiMultiplier := udiMultiplier * 128;
+END_FOR
+
+F_MqttSkipVariableByteInteger := FALSE;</code></pre></div>
+<p>CONNACK 也要按协议级别区分。MQTT 5.0 多一个 Properties 字段，当前实现固定返回零属性长度。</p>
+<div class="code-card"><small>iecst</small><pre><code>CASE ePacketType OF
+    E_MqttPacketType.byConnAck:
+        IF byProtocolLevel = GVL_MqttBroker.cnMqttProtocolLevel5 THEN
+            udiNeededLen := 5;
+        ELSE
+            udiNeededLen := 4;
+        END_IF
+
+        IF (TO_UDINT(uiWriteOffset) + udiNeededLen) &gt; udiBufferSize THEN
+            M_BuildSimpleAck := FALSE;
+            RETURN;
+        END_IF
+        aBuffer[uiWriteOffset] := TO_BYTE(E_MqttPacketType.byConnAck);
+        aBuffer[uiWriteOffset + 2] := 0;
+        aBuffer[uiWriteOffset + 3] := byReturnCode;
+        IF byProtocolLevel = GVL_MqttBroker.cnMqttProtocolLevel5 THEN
+            // MQTT 5.0 CONNACK = Acknowledge Flags + Reason Code + Properties。
+            // 当前轻量兼容层不返回任何属性，因此属性长度固定写 0。
+            aBuffer[uiWriteOffset + 1] := 3;
+            aBuffer[uiWriteOffset + 4] := 0;
+            uiFrameLen := 5;
+        ELSE
+            aBuffer[uiWriteOffset + 1] := 2;
+            uiFrameLen := 4;
+        END_IF</code></pre></div>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../mqtt-broker-part-08-8-plc-mqttbroker-retain-bd65fd/index.html">
+                <small>上一篇 / 第8篇</small>
+                <strong>PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查</strong>
+                <span>这一篇是主线收口，专门整理 PLC 侧 MQTT Broker 的现场排障路线。连不上先看监听和槽位，订阅失败先看 SUBACK 和订阅表，发布延迟先看队列和批量写出，Retain 收不到先看 Retain 表和订阅补发。</span>
+              </a>
+              <a class="series-nav-card" href="../mqtt-broker-extra-02-2-plc-mqttbroker-cc9b12/index.html">
+                <small>下一篇 / 第10篇</small>
+                <strong>这套 PLC 侧 MQTT Broker，我是怎么从连不上、掉线、延迟一路修到稳定的</strong>
+                <span>这一篇是项目复盘。它不再按标准条文讲，而是把这套 PLC 侧 MQTT Broker 从规划、编译错误、连接闪烁、订阅失败、发布掉线、Retain 漏实现、性能延迟、MQTT 3.1/5.0 兼容一路修到稳定的过程完。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", () => window.setTimeout(updateActiveToc, 90));
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

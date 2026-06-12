@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CONNECT 和 CONNACK 怎么读？我带你把十六进制和 ST 代码对上 | ControlRookie</title>
+  <meta name="description" content="这一篇正式进入 MQTT 握手核心，重点讲清 CONNECT 和 CONNACK 的报文结构、十六进制拆解、状态机推进关系，以及它们在 MqttClientV10 里的真实 ST 落点。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#050505">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/mqtt-client-part-02-2-connect-connack-st-d994be/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="CONNECT 和 CONNACK 怎么读？我带你把十六进制和 ST 代码对上">
+  <meta property="og:description" content="这一篇正式进入 MQTT 握手核心，重点讲清 CONNECT 和 CONNACK 的报文结构、十六进制拆解、状态机推进关系，以及它们在 MqttClientV10 里的真实 ST 落点。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-client-part-02-2-connect-connack-st-d994be/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CONNECT 和 CONNACK 怎么读？我带你把十六进制和 ST 代码对上">
+  <meta name="twitter:description" content="这一篇正式进入 MQTT 握手核心，重点讲清 CONNECT 和 CONNACK 的报文结构、十六进制拆解、状态机推进关系，以及它们在 MqttClientV10 里的真实 ST 落点。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <aside class="article-toc" aria-label="文章目录">
+            <strong>目录</strong>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-1ccc3611">一、先看完整握手链</a></li><li><a href="#connect">二、CONNECT 报文到底在干嘛</a></li><li><a href="#connect-2">三、CONNECT 报文结构先看表</a></li><li><a href="#connect-3">四、先拆一个最典型的 CONNECT 十六进制</a></li><li><a href="#connect-flags">五、Connect Flags 为什么很关键</a></li><li><a href="#mbuildconnectpacket">六、MBuildConnectPacket 到底怎么拼包</a></li><li><a href="#mqtt-5-0-3-1-1">七、MQTT 5.0 比 3.1.1 多了什么</a></li><li><a href="#broker-connack">八、Broker 回的 CONNACK 不是“收到就算完”</a></li><li><a href="#connack">九、CONNACK 报文先看结构</a></li><li><a href="#connack-2">十、先拆一个 CONNACK 十六进制</a></li><li><a href="#mhandleconnack">十一、MHandleConnAck 到底做了什么</a></li><li><a href="#mqtt-5-0-connack">十二、MQTT 5.0 真正的价值，在 CONNACK 里才开始体现</a></li><li><a href="#connack-3">十三、为什么很多“连接成功后的故障”，根其实都在 CONNACK</a></li><li><a href="#section-0d6253a2">十四、把标准、报文、状态机、代码串起来看一遍</a></li><li><a href="#4">十五、这一篇你最该记住的 4 句话</a></li><li><a href="#section-e8bb9408">十六、下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li></ol>
+          </aside>
+          <div class="article-main" id="article-top">
+            <nav class="article-breadcrumb" aria-label="文章路径">
+              <a href="../../index.html#articles">文章</a>
+              <span>/</span>
+              <a href="../../index.html#articles">MQTT Client 系列教程</a>
+              <span>/</span>
+              <a href="../../index.html#articles">通信</a>
+              <span>/</span>
+              <a href="../../index.html#articles">CODESYS</a>
+            </nav>
+            <header class="article-hero">
+              <h1>CONNECT 和 CONNACK 怎么读？我带你把十六进制和 ST 代码对上</h1>
+              <p class="article-summary">这一篇正式进入 MQTT 握手核心，重点讲清 CONNECT 和 CONNACK 的报文结构、十六进制拆解、状态机推进关系，以及它们在 MqttClientV10 里的真实 ST 落点。</p>
+              <div class="article-meta">
+                <span>2026-05-06</span>
+                <span>约 39 分钟阅读</span>
+                <span>第2篇/共16篇</span>
+                <span>MQTT / CODESYS / PLC / CONNECT / CONNACK / ST / CSDN / ControlRookie</span>
+              </div>
+            </header>
+            <div class="article-content">
+              <blockquote>这一篇正式进入 MQTT 握手核心，重点讲清 CONNECT 和 CONNACK 的报文结构、十六进制拆解、状态机推进关系，以及它们在 MqttClient_V1_0 里的真实 ST 落点。</blockquote>
+<h2 id="section-0d70135c">适合谁收藏</h2>
+<ul><li>正在做 CODESYS / PLC / MQTT 项目的人</li><li>想把 MQTT 从报文真正看到 ST 代码的人</li><li>正在排查 QoS1 / QoS2 超时、掉线、重连问题的人</li></ul>
+<hr>
+<p>上一篇我们只干了一件事： 把 MQTT 在协议栈里的位置钉死了。</p>
+<p>这一篇开始，正式进核心。</p>
+<p>这一篇只解决 3 个问题：</p>
+<ol><li><strong>MQTT 连接为什么不是 TCP 通了就结束</strong></li><li><strong>CONNECT / CONNACK 报文到底长什么样</strong></li><li><strong>在 <code>MqttClient_V1_0</code> 里，这两类报文是怎么落到 ST 代码里的</strong></li></ol>
+<p>先给结论：</p>
+<blockquote>TCP 连上，只说明“路打通了”。</blockquote>
+<hr>
+<h2 id="section-1ccc3611">一、先看完整握手链</h2>
+<p>先别急着看字节。 先看一次完整握手到底发生了什么。</p>
+<div class="mermaid-card"><small>Mermaid</small><pre><code>sequenceDiagram
+    participant App as 用户逻辑
+    participant PLC as FB_MqttClient
+    participant TCP as NBS.TCP_Client
+    participant Broker as MQTT Broker
+
+    App-&gt;&gt;PLC: bEnable=TRUE, bConnect 上升沿
+    PLC-&gt;&gt;PLC: iDisconnected -&gt; iTcpConnect
+    PLC-&gt;&gt;TCP: M_TcpClient()
+    TCP--&gt;&gt;PLC: TCP connected
+    PLC-&gt;&gt;PLC: iTcpConnect -&gt; iConnect
+    PLC-&gt;&gt;PLC: M_BuildConnectPacket()
+    PLC-&gt;&gt;Broker: CONNECT
+    PLC-&gt;&gt;PLC: xWaitingForAck=TRUE
+    PLC-&gt;&gt;PLC: byExpectedMsgType=CONNACK
+    PLC-&gt;&gt;PLC: iConnect -&gt; iConnAck
+    Broker--&gt;&gt;PLC: CONNACK
+    PLC-&gt;&gt;PLC: M_HandleConnAck()
+    PLC-&gt;&gt;PLC: 保存服务端能力
+    PLC-&gt;&gt;PLC: iConnAck -&gt; iConnected</code></pre></div>
+<p>这张图先记住两句话：</p>
+<ol><li><code>iTcpConnect</code> 只是 TCP 层，<code>iConnect</code> 才真正进入 MQTT 层。</li><li><code>iConnAck</code> 不是“等个回包”这么简单，而是在等 <strong>Broker 对本次连接的正式裁决</strong>。</li></ol>
+<hr>
+<h2 id="connect">二、CONNECT 报文到底在干嘛</h2>
+<p>CONNECT 报文本质上是在告诉 Broker：</p>
+<ul><li>我是谁</li><li>我要用哪个 MQTT 版本</li><li>我的 KeepAlive 是多少</li><li>我要不要 Clean Session / Clean Start</li><li>我有没有用户名密码</li><li>我有没有遗嘱消息</li><li>如果是 MQTT 5.0，我还有哪些连接属性</li></ul>
+<p>也就是说，CONNECT 不是“你好我来了”这么简单。 它其实是一份比较完整的“连接申请表”。</p>
+<hr>
+<h2 id="connect-2">三、CONNECT 报文结构先看表</h2>
+<h3 id="1">1. 固定报头</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字段</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>报文类型</td><td><code>0x10</code>，表示 CONNECT</td></tr>
+<tr><td>Remaining Length</td><td>后面所有字节的总长度</td></tr>
+</tbody></table></div>
+<h3 id="2">2. 可变报头</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字段</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>Protocol Name</td><td>一般是 <code>MQTT</code></td></tr>
+<tr><td>Protocol Level</td><td>3.1.1 对应 <code>0x04</code>，5.0 对应 <code>0x05</code></td></tr>
+<tr><td>Connect Flags</td><td>用户名、密码、遗嘱、Clean Session 等都在这里</td></tr>
+<tr><td>Keep Alive</td><td>心跳周期，单位秒</td></tr>
+<tr><td>Properties</td><td>仅 MQTT 5.0 有</td></tr>
+</tbody></table></div>
+<h3 id="3">3. 载荷</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字段</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>Client ID</td><td>客户端标识</td></tr>
+<tr><td>Will Properties</td><td>仅 MQTT 5.0 且 Will Flag=1 时存在</td></tr>
+<tr><td>Will Topic</td><td>遗嘱主题</td></tr>
+<tr><td>Will Payload</td><td>遗嘱内容</td></tr>
+<tr><td>Username</td><td>可选</td></tr>
+<tr><td>Password</td><td>可选</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="connect-3">四、先拆一个最典型的 CONNECT 十六进制</h2>
+<p>我们先看一个最小可用版 MQTT 3.1.1 CONNECT：</p>
+<div class="code-card"><small>text</small><pre><code>10 13 00 04 4D 51 54 54 04 02 00 3C 00 07 70 6C 63 5F 30 30 31</code></pre></div>
+<p>拆开看：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字节</th><th>含义</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><code>10</code></td><td>CONNECT</td><td>高四位是报文类型</td></tr>
+<tr><td><code>13</code></td><td>Remaining Length</td><td>后面共有 19 字节</td></tr>
+<tr><td><code>00 04</code></td><td>协议名长度</td><td><code>MQTT</code> 长度 4</td></tr>
+<tr><td><code>4D 51 54 54</code></td><td><code>M Q T T</code></td><td>协议名</td></tr>
+<tr><td><code>04</code></td><td>协议版本</td><td>MQTT 3.1.1</td></tr>
+<tr><td><code>02</code></td><td>Connect Flags</td><td><code>Clean Session=1</code></td></tr>
+<tr><td><code>00 3C</code></td><td>KeepAlive</td><td>60 秒</td></tr>
+<tr><td><code>00 07</code></td><td>Client ID 长度</td><td>7</td></tr>
+<tr><td><code>70 6C 63 5F 30 30 31</code></td><td><code>plc_001</code></td><td>Client ID</td></tr>
+</tbody></table></div>
+<p>这里最关键的是第 10 个字节，也就是 <code>Connect Flags</code>。</p>
+<hr>
+<h2 id="connect-flags">五、Connect Flags 为什么很关键</h2>
+<p><code>Connect Flags</code> 是个单字节，但是信息密度很高。</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>Bit</th><th>含义</th></tr></thead>
+<tbody>
+<tr><td>bit7</td><td>Username Flag</td></tr>
+<tr><td>bit6</td><td>Password Flag</td></tr>
+<tr><td>bit5</td><td>Will Retain</td></tr>
+<tr><td>bit4-bit3</td><td>Will QoS</td></tr>
+<tr><td>bit2</td><td>Will Flag</td></tr>
+<tr><td>bit1</td><td>Clean Session</td></tr>
+<tr><td>bit0</td><td>保留位，必须为 0</td></tr>
+</tbody></table></div>
+<p>如果这 1 个字节拼错，Broker 直接就能拒绝你。</p>
+<p>这也是为什么源码里没有偷懒，而是在构包前就先做参数一致性校验。</p>
+<p>看真实 ST 代码：</p>
+<div class="code-card"><small>iecst</small><pre><code>IF (sPassword &lt;&gt; &#x27;&#x27;) AND (sUsername = &#x27;&#x27;) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Password requires username&#x27;);
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+IF (NOT bWillFlag) AND ((sWillTopic &lt;&gt; &#x27;&#x27;) OR (sWillMessage &lt;&gt; &#x27;&#x27;)) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Will fields require Will Flag&#x27;);
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF</code></pre></div>
+<p>这段代码很值钱。 它不是为了“写得严谨一点”，而是为了避免你发出去的 CONNECT 先天就不合法。</p>
+<hr>
+<h2 id="mbuildconnectpacket">六、MBuildConnectPacket 到底怎么拼包</h2>
+<p>这段方法的主线其实很清楚，可以压成 4 步：</p>
+<div class="mermaid-card"><small>Mermaid</small><pre><code>flowchart TD
+    A[参数一致性校验] --&gt; B[计算可变报头和载荷长度]
+    B --&gt; C[写固定报头和 Remaining Length]
+    C --&gt; D[写协议名 版本 Flags KeepAlive]
+    D --&gt; E[如果是 MQTT 5.0 再写连接属性]
+    E --&gt; F[写 Client ID Will Username Password]</code></pre></div>
+<p>源码里最核心的一段就是协议头拼接：</p>
+<div class="code-card"><small>iecst</small><pre><code>aTxBuf[0] := E_MqttPacketType.byConnect;
+uiPos := uiPos + 1;
+
+uiPos := uiPos + M_EncodeRemainingLength(uiRemainingLen, ADR(aTxBuf[uiPos]));
+
+aTxBuf[uiPos] := 0;
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 4;
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 77;
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 81;
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 84;
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 84;
+uiPos := uiPos + 1;</code></pre></div>
+<p>你不用纠结 <code>77 81 84 84</code> 这种写法看起来有点笨。 它的好处恰恰是：</p>
+<ul><li>明确</li><li>不依赖额外库</li><li>在 PLC 里非常可控</li></ul>
+<hr>
+<h2 id="mqtt-5-0-3-1-1">七、MQTT 5.0 比 3.1.1 多了什么</h2>
+<p>如果是 MQTT 5.0，CONNECT 里会多一块 <strong>Properties</strong>。</p>
+<p>在这个开源库里，当前会构造的连接属性包括：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>属性</th><th>作用</th></tr></thead>
+<tbody>
+<tr><td>Session Expiry Interval</td><td>会话过期时间</td></tr>
+<tr><td>Receive Maximum</td><td>声明自己接收窗口</td></tr>
+<tr><td>Maximum Packet Size</td><td>声明自己可接收的最大报文</td></tr>
+<tr><td>Topic Alias Maximum</td><td>声明自己支持的主题别名上限</td></tr>
+<tr><td>Request Problem Information</td><td>请求问题信息</td></tr>
+<tr><td>Request Response Information</td><td>请求响应信息</td></tr>
+</tbody></table></div>
+<p>源码里能直接看到这段长度计算：</p>
+<div class="code-card"><small>iecst</small><pre><code>IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    IF udiSessionExpiry &gt; 0 THEN
+        uiPropsLen := uiPropsLen + 5;
+    END_IF
+    uiPropsLen := uiPropsLen + 3;
+    uiPropsLen := uiPropsLen + 5;
+    uiPropsLen := uiPropsLen + 3;
+    uiPropsLen := uiPropsLen + 2;
+    IF bRequestResponseInfo THEN
+        uiPropsLen := uiPropsLen + 2;
+    END_IF
+END_IF</code></pre></div>
+<p>这段背后的工程意义是：</p>
+<blockquote>MQTT 5.0 不是多几个花哨字段。</blockquote>
+<hr>
+<h2 id="broker-connack">八、Broker 回的 CONNACK 不是“收到就算完”</h2>
+<p>客户端发完 CONNECT 后，状态机不会直接宣布成功。 它会进入 <code>iConnAck</code>，并且明确设置：</p>
+<div class="code-card"><small>iecst</small><pre><code>xWaitingForAck := TRUE
+byExpectedMsgType := CONNACK</code></pre></div>
+<p>也就是说，后面收上来的第一帧 MQTT 报文，必须满足：</p>
+<ol><li>类型对</li><li>格式对</li><li>原因码成功</li><li>如果是 5.0，属性也要解析对</li></ol>
+<p>否则就不能进 <code>iConnected</code>。</p>
+<hr>
+<h2 id="connack">九、CONNACK 报文先看结构</h2>
+<h3 id="mqtt-3-1-1">MQTT 3.1.1</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字段</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>Acknowledge Flags</td><td>bit0 是 Session Present</td></tr>
+<tr><td>Return Code</td><td>是否接受连接</td></tr>
+</tbody></table></div>
+<h3 id="mqtt-5-0">MQTT 5.0</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字段</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>Acknowledge Flags</td><td>会话相关标志</td></tr>
+<tr><td>Reason Code</td><td>成功或失败原因</td></tr>
+<tr><td>Properties</td><td>服务端能力说明</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="connack-2">十、先拆一个 CONNACK 十六进制</h2>
+<p>最小 MQTT 3.1.1 成功 CONNACK：</p>
+<div class="code-card"><small>text</small><pre><code>20 02 00 00</code></pre></div>
+<p>拆开看：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字节</th><th>含义</th></tr></thead>
+<tbody>
+<tr><td><code>20</code></td><td>CONNACK</td></tr>
+<tr><td><code>02</code></td><td>Remaining Length=2</td></tr>
+<tr><td><code>00</code></td><td>Acknowledge Flags，Session Present=0</td></tr>
+<tr><td><code>00</code></td><td>Return Code=0，连接成功</td></tr>
+</tbody></table></div>
+<p>如果最后一个字节不是 <code>00</code>，那就不是“连上了但状态机没处理好”，而是 <strong>Broker 明确拒绝了你</strong>。</p>
+<hr>
+<h2 id="mhandleconnack">十一、MHandleConnAck 到底做了什么</h2>
+<p>这个方法的职责，不是简单清个标志位。 它至少做了 5 件事：</p>
+<ol><li>检查当前是不是确实在等待 CONNACK</li><li>检查 CONNACK 固定格式是否合法</li><li>解析原因码，失败就输出诊断信息</li><li>如果是 MQTT 5.0，解析服务端属性</li><li>把服务端能力落地保存，供后续发布/订阅使用</li></ol>
+<p>先看最前面的合法性判断：</p>
+<div class="code-card"><small>iecst</small><pre><code>IF uiRxLength &lt; 4 THEN
+    M_HandleConnAck := FALSE;
+    RETURN;
+END_IF
+
+IF NOT xWaitingForAck OR aRxBuf[0] &lt;&gt; byExpectedMsgType THEN
+    M_HandleConnAck := FALSE;
+    RETURN;
+END_IF
+
+byConnAckFlags := aRxBuf[2];
+
+IF (byConnAckFlags AND 16#FE) &lt;&gt; 0 THEN
+    sDiagMsg := &#x27;Invalid CONNACK flags&#x27;;
+    M_HandleConnAck := FALSE;
+    RETURN;
+END_IF</code></pre></div>
+<p>这段很典型： 不是“只要收到了包就往下跑”，而是一步步卡住协议条件。</p>
+<hr>
+<h2 id="mqtt-5-0-connack">十二、MQTT 5.0 真正的价值，在 CONNACK 里才开始体现</h2>
+<p><code>M_HandleConnAck</code> 里最值钱的一段，不是判断成功失败，而是解析服务端能力：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>变量</th><th>含义</th></tr></thead>
+<tbody>
+<tr><td><code>uiServerReceiveMax</code></td><td>Broker 接收窗口</td></tr>
+<tr><td><code>byServerMaxQoS</code></td><td>服务端允许的最大 QoS</td></tr>
+<tr><td><code>bServerRetainAvailable</code></td><td>是否支持 Retain</td></tr>
+<tr><td><code>udServerMaxPacketSize</code></td><td>最大报文限制</td></tr>
+<tr><td><code>uiServerTopicAliasMax</code></td><td>主题别名上限</td></tr>
+<tr><td><code>bServerWildcardSubAvail</code></td><td>是否支持通配订阅</td></tr>
+<tr><td><code>bServerSubIdAvail</code></td><td>是否支持 Subscription Identifier</td></tr>
+<tr><td><code>bServerSharedSubAvail</code></td><td>是否支持共享订阅</td></tr>
+</tbody></table></div>
+<p>也就是说，后面你能不能发某些 MQTT 5.0 特性，不是客户端想发就发。 你得先看 Broker 在 CONNACK 里有没有给你这个权限。</p>
+<hr>
+<h2 id="connack-3">十三、为什么很多“连接成功后的故障”，根其实都在 CONNACK</h2>
+<p>现场很容易出现一种错觉：</p>
+<blockquote>TCP 通了，CONNECT 发了，CONNACK 也回了，那后面肯定没问题。</blockquote>
+<p>这句话只对一半。</p>
+<p>更准确的说法是：</p>
+<blockquote>CONNACK 成功，只说明 Broker 接受了这次连接。</blockquote>
+<p>比如：</p>
+<ul><li>你想发 QoS2，但 Broker 最大只给到 QoS1</li><li>你想发 Retain，但 Broker 不支持</li><li>你想用共享订阅或订阅标识符，但 Broker 不开放</li></ul>
+<p>这些坑，根本不是后面订阅/发布阶段才突然冒出来的。 它们在 CONNACK 里就已经埋下了。</p>
+<hr>
+<h2 id="section-0d6253a2">十四、把标准、报文、状态机、代码串起来看一遍</h2>
+<h3 id="1-2">1. 标准层</h3>
+<ul><li>客户端发 CONNECT</li><li>服务端回 CONNACK</li></ul>
+<h3 id="2-2">2. 报文层</h3>
+<ul><li>CONNECT 带版本、Flags、KeepAlive、身份信息、5.0 属性</li><li>CONNACK 带会话标志、原因码、5.0 能力属性</li></ul>
+<h3 id="3-2">3. 状态机层</h3>
+<div class="code-card"><small>text</small><pre><code>iDisconnected -&gt; iTcpConnect -&gt; iConnect -&gt; iConnAck -&gt; iConnected</code></pre></div>
+<h3 id="4-st">4. ST 实现层</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>动作</th><th>方法</th></tr></thead>
+<tbody>
+<tr><td>构包</td><td><code>M_BuildConnectPacket</code></td></tr>
+<tr><td>等待连接确认</td><td><code>iConnAck</code></td></tr>
+<tr><td>解析连接确认</td><td><code>M_HandleConnAck</code></td></tr>
+</tbody></table></div>
+<p>这才是这套系列后面一直要坚持的讲法。 不是把它拆成四门课，而是把四层一起看。</p>
+<hr>
+<h2 id="4">十五、这一篇你最该记住的 4 句话</h2>
+<ol><li><strong>TCP 连上，不等于 MQTT 连上。</strong></li><li><strong>CONNECT 是连接申请，CONNACK 是服务端正式裁决。</strong></li><li><strong>MQTT 5.0 的很多能力边界，不是在客户端写死的，而是在 CONNACK 里协商出来的。</strong></li><li><strong>真正靠谱的客户端，必须把报文校验、状态机推进和能力保存三件事一起做好。</strong></li></ol>
+<hr>
+<h2 id="section-e8bb9408">十六、下篇预告</h2>
+<p>下一篇我们开始拆最核心的一类报文：</p>
+<p><strong>PUBLISH</strong></p>
+<p>也就是：</p>
+<ul><li>消息到底怎么发出去</li><li>QoS0 / QoS1 / QoS2 为什么差这么大</li><li>报文里的 DUP、QoS、Retain 这几个位到底怎么落到代码里</li></ul>
+<p>下一篇开始，代码味会更重。 因为从 PUBLISH 开始，MQTT 才真正进入“能跑”和“跑稳”之间的分水岭。</p>
+<hr>
+<h2 id="st">完整 ST 代码</h2>
+<h3 id="section-882dd074">复制使用说明</h3>
+<ul><li>这部分给出的是与本篇主题直接对应的完整 ST 代码，不是零碎片段。</li><li>如果你只是想先跑通，优先整段复制，不要只摘几行变量或几条赋值语句。</li><li>如果是 <code>METHOD</code>，请确认它仍然属于 <code>FB_MqttClient</code>；如果是 <code>PROGRAM</code>，请确认相关 DUT、GVL、FB 已一并导入。</li></ul>
+<h3 id="section-5c5d2c8c">代码阅读重点</h3>
+<ul><li>先按 <code>报文结构 -&gt; 状态机入口 -&gt; 关键变量 -&gt; 返回结果</code> 的顺序看。</li><li>再把正文里的十六进制拆解和这里的字节写入、字节解析语句一行行对上。</li><li>最后回到在线调试，重点盯 <code>uiTxLength</code>、<code>uiRxLength</code>、<code>eState</code>、<code>xWaitingForAck</code> 这类状态量。</li></ul>
+<h3 id="1-mbuildconnectpacket">完整代码 1：MBuildConnectPacket</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/??????/M_BuildConnectPacket.st</code></li><li>复制使用说明：直接复制到 <code>FB_MqttClient</code> 的同名 <code>METHOD</code> 中即可，对应的是客户端发起连接时的组包逻辑。</li><li>阅读重点：重点看固定报头、连接标志字节、KeepAlive、MQTT 5.0 属性长度这几段，它们和 CONNECT 十六进制拆解是一一对应的。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>﻿/// =======================================================================
+/// 名称      : M_BuildConnectPacket
+/// 功能      : 构建 CONNECT 发送报文
+/// 说明      : 按 MQTT 3.1.1/5.0 规则组装 CONNECT 报文并写入发送缓冲区。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_BuildConnectPacket : BOOL
+VAR
+    uiPos               : UINT := 0;                                        //字节索引
+    uiVarHeaderLen      : UINT;                                             //可变报头长度
+    uiPayloadLen        : UINT;                                             //载荷长度
+    uiRemainingLen      : UINT;                                             //剩余长度
+    uiPropsLen          : UINT;                                             //MQTT 5.0属性长度
+    i                   : DINT;
+    byConnectFlags      : BYTE;                                             //连接标志字节
+    uiTopicAliasMax     : UINT;                                             //客户端接收方向主题别名上限
+END_VAR
+
+// === IMPLEMENTATION ===
+
+// BUG-10: 缓冲区溢出保护
+IF SIZEOF(aTxBuf) &lt; 256 THEN
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+IF (sPassword &lt;&gt; &#x27;&#x27;) AND (sUsername = &#x27;&#x27;) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Password requires username&#x27;);
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+IF (NOT bWillFlag) AND ((sWillTopic &lt;&gt; &#x27;&#x27;) OR (sWillMessage &lt;&gt; &#x27;&#x27;)) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Will fields require Will Flag&#x27;);
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+IF (bWillRetain OR (eWillQoS &lt;&gt; E_MqttQoS.byQoS0)) AND (NOT bWillFlag) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Invalid will flag combination&#x27;);
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+IF bWillFlag AND (sWillTopic = &#x27;&#x27;) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Will topic is required&#x27;);
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+// 清空发送缓冲区，避免数据干扰
+FOR i := LOWER_BOUND(aTxBuf, 1) TO UPPER_BOUND(aTxBuf, 1) DO
+    aTxBuf[i] := 0;
+END_FOR
+
+/// =======================================================================
+/// 长度计算
+/// =======================================================================
+// 可变报头长度: 协议名(6) + 协议版本(1) + 连接标志(1) + 保持连接(2)
+uiVarHeaderLen := 10;
+
+// MQTT 5.0: 连接属性长度
+uiPropsLen := 0;
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    // Session Expiry Interval (4字节值 + 1字节标识符)
+    IF udiSessionExpiry &gt; 0 THEN
+        uiPropsLen := uiPropsLen + 5;
+    END_IF
+    // Receive Maximum (2字节值 + 1字节标识符)
+    uiPropsLen := uiPropsLen + 3;
+    // Maximum Packet Size (4字节值 + 1字节标识符)
+    uiPropsLen := uiPropsLen + 5;
+    // Topic Alias Maximum (2字节值 + 1字节标识符)
+    uiPropsLen := uiPropsLen + 3;
+    // Request Problem Information (1字节值 + 1字节标识符)
+    uiPropsLen := uiPropsLen + 2;
+    // Request Response Information (1字节值 + 1字节标识符)
+    IF bRequestResponseInfo THEN
+        uiPropsLen := uiPropsLen + 2;
+    END_IF
+    // 属性长度字段的编码长度
+    IF uiPropsLen &lt; 128 THEN
+        uiVarHeaderLen := uiVarHeaderLen + 1 + uiPropsLen;                  //1字节属性长度
+    ELSE
+        uiVarHeaderLen := uiVarHeaderLen + 2 + uiPropsLen;                  //2字节属性长度
+    END_IF
+END_IF
+
+// 载荷长度
+uiPayloadLen := TO_UINT(2 + LEN(sClientID));                                    //Client ID
+IF sUsername &lt;&gt; &#x27;&#x27; THEN
+    uiPayloadLen := uiPayloadLen + TO_UINT(2 + LEN(sUsername));
+END_IF
+IF sPassword &lt;&gt; &#x27;&#x27; THEN
+    uiPayloadLen := uiPayloadLen + TO_UINT(2 + LEN(sPassword));
+END_IF
+IF bWillFlag THEN
+    IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+        uiPayloadLen := uiPayloadLen + 1;
+    END_IF
+    uiPayloadLen := uiPayloadLen + TO_UINT(2 + LEN(sWillTopic) + 2 + LEN(sWillMessage));
+END_IF
+
+IF uiReceiveMax = 0 THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Receive Maximum must not be zero&#x27;);
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+IF udMaxPacketSize = 0 THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Maximum Packet Size must not be zero&#x27;);
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+// 剩余长度
+uiRemainingLen := uiVarHeaderLen + uiPayloadLen;
+
+// 缓冲区长度检查
+IF uiRemainingLen + 5 &gt; SIZEOF(aTxBuf) THEN
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+/// =======================================================================
+/// 创建报文
+/// =======================================================================
+uiPos := 0;
+
+// ****************** 固定报文头 = 报文类型 + 剩余长度 ******************
+// 报文类型
+aTxBuf[0] := E_MqttPacketType.byConnect;
+uiPos := uiPos + 1;
+
+// 剩余长度
+uiPos := uiPos + M_EncodeRemainingLength(uiRemainingLen, ADR(aTxBuf[uiPos]));
+
+// ****************** 可变报文头 = 协议名(6) + 协议版本(1) + 连接标志(1) + 保持连接(2) ******************
+// 协议名：&quot;MQTT&quot;
+aTxBuf[uiPos] := 0;                                                         //长度高字节MSB
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 4;                                                         //长度低字节LSB
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 77;                                                            // &#x27;M&#x27;
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 81;                                                            // &#x27;Q&#x27;
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 84;                                                            // &#x27;T&#x27;
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 84;                                                            // &#x27;T&#x27;
+uiPos := uiPos + 1;
+
+// 协议版本（根据eVersion选择）
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    aTxBuf[uiPos] := 5;                                                     //MQTT 5.0
+ELSE
+    aTxBuf[uiPos] := 4;                                                     //MQTT 3.1.1
+END_IF
+uiPos := uiPos + 1;
+
+// 连接标志
+byConnectFlags :=
+        (BOOL_TO_BYTE(FALSE) * 1) OR                                            //Bit 0: Reserved。服务端必须验证保留标志位是否为0
+        (BOOL_TO_BYTE(bCleanSession) * 2) OR                                    //Bit 1: Clean Session
+        (BOOL_TO_BYTE(bWillFlag AND sWillTopic &lt;&gt; &#x27;&#x27;) * 4) OR                   //Bit 2: Will Flag
+        (BOOL_TO_BYTE(eWillQoS = 1 OR eWillQoS = 3) * 8) OR                 //Bit 3: Will QoS低位
+        (BOOL_TO_BYTE(eWillQoS = 2 OR eWillQoS = 3) * 16) OR                    //Bit 4: Will QoS高位
+        (BOOL_TO_BYTE(bWillFlag AND bWillRetain) * 32) OR                       //Bit 5: Will Retain
+        (BOOL_TO_BYTE(sPassword &lt;&gt; &#x27;&#x27;) * 64) OR                             //Bit 6: Password Flag
+        (BOOL_TO_BYTE(sUsername &lt;&gt; &#x27;&#x27;) * 128);                                  //Bit 7: Username Flag
+aTxBuf[uiPos] := byConnectFlags;
+uiPos := uiPos + 1;
+
+// 保持连接
+aTxBuf[uiPos] := UINT_TO_BYTE(SHR(uiKeepAlive, 8));                         //KeepAlive高字节
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := UINT_TO_BYTE(uiKeepAlive AND 16#FF);                           //KeepAlive低字节
+uiPos := uiPos + 1;
+
+// ****************** MQTT 5.0: 连接属性 ******************
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    // 属性长度（可变字节编码）
+    IF uiPropsLen &lt; 128 THEN
+        aTxBuf[uiPos] := TO_BYTE(uiPropsLen);
+        uiPos := uiPos + 1;
+    ELSE
+        aTxBuf[uiPos] := TO_BYTE((uiPropsLen / 128) OR 16#80);
+        uiPos := uiPos + 1;
+        aTxBuf[uiPos] := TO_BYTE(uiPropsLen MOD 128);
+        uiPos := uiPos + 1;
+    END_IF
+
+    // Session Expiry Interval
+    IF udiSessionExpiry &gt; 0 THEN
+        aTxBuf[uiPos] := GVL_Mqtt.cnPropSessionExpiry;  uiPos := uiPos + 1;
+        aTxBuf[uiPos] := UDINT_TO_BYTE(SHR(udiSessionExpiry, 24) AND 16#FF);    uiPos := uiPos + 1;
+        aTxBuf[uiPos] := UDINT_TO_BYTE(SHR(udiSessionExpiry, 16) AND 16#FF);    uiPos := uiPos + 1;
+        aTxBuf[uiPos] := UDINT_TO_BYTE(SHR(udiSessionExpiry, 8) AND 16#FF); uiPos := uiPos + 1;
+        aTxBuf[uiPos] := UDINT_TO_BYTE(udiSessionExpiry AND 16#FF);         uiPos := uiPos + 1;
+    END_IF
+
+    // Receive Maximum
+    aTxBuf[uiPos] := GVL_Mqtt.cnPropReceiveMaximum; uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UINT_TO_BYTE(SHR(uiReceiveMax, 8));    uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UINT_TO_BYTE(uiReceiveMax AND 16#FF);  uiPos := uiPos + 1;
+
+    // Maximum Packet Size
+    aTxBuf[uiPos] := GVL_Mqtt.cnPropMaxPacketSize;  uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UDINT_TO_BYTE(SHR(udMaxPacketSize, 24) AND 16#FF); uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UDINT_TO_BYTE(SHR(udMaxPacketSize, 16) AND 16#FF); uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UDINT_TO_BYTE(SHR(udMaxPacketSize, 8) AND 16#FF);  uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UDINT_TO_BYTE(udMaxPacketSize AND 16#FF);          uiPos := uiPos + 1;
+
+    // Topic Alias Maximum
+    uiTopicAliasMax := GVL_Mqtt.cnMaxTopicAlias;
+    aTxBuf[uiPos] := GVL_Mqtt.cnPropTopicAliasMax;  uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UINT_TO_BYTE(SHR(uiTopicAliasMax, 8)); uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UINT_TO_BYTE(uiTopicAliasMax AND 16#FF); uiPos := uiPos + 1;
+
+    // Request Problem Information
+    aTxBuf[uiPos] := GVL_Mqtt.cnPropRequestProblemInfo; uiPos := uiPos + 1;
+    aTxBuf[uiPos] := BOOL_TO_BYTE(bRequestProblemInfo);             uiPos := uiPos + 1;
+
+    // Request Response Information
+    IF bRequestResponseInfo THEN
+        aTxBuf[uiPos] := GVL_Mqtt.cnPropRequestResponseInfo; uiPos := uiPos + 1;
+        aTxBuf[uiPos] := 1; uiPos := uiPos + 1;
+    END_IF
+END_IF
+
+// ****************** 载荷 = 客户端标识符 + 遗嘱主题 + 遗嘱消息 + 用户名 + 密码 ******************
+// 客户端标识符
+uiPos := uiPos + M_AppendString(sClientID, ADR(aTxBuf[uiPos]));
+
+// 遗嘱主题 + 遗嘱消息
+IF bWillFlag THEN
+    IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+        aTxBuf[uiPos] := 0;
+        uiPos := uiPos + 1;
+    END_IF
+    uiPos := uiPos + M_AppendString(sWillTopic, ADR(aTxBuf[uiPos]));
+    uiPos := uiPos + M_AppendString(sWillMessage, ADR(aTxBuf[uiPos]));
+END_IF
+
+// 用户名
+IF sUsername &lt;&gt; &#x27;&#x27; THEN
+    uiPos := uiPos + M_AppendString(sUsername, ADR(aTxBuf[uiPos]));
+END_IF
+
+// 密码
+IF sPassword &lt;&gt; &#x27;&#x27; THEN
+    uiPos := uiPos + M_AppendString(sPassword, ADR(aTxBuf[uiPos]));
+END_IF
+
+uiTxLength := uiPos;                                                            //需要发送的报文总字节数
+M_BuildConnectPacket := TRUE;</code></pre></div>
+<h3 id="2-mhandleconnack">完整代码 2：MHandleConnAck</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/??????/M_HandleConnAck.st</code></li><li>复制使用说明：这是 CONNECT 对应的收包处理代码，负责把 Broker 回来的 CONNACK 解析成状态机可用的数据。</li><li>阅读重点：先看 Reason Code 判定，再看 MQTT 5.0 属性遍历，最后看 <code>xWaitingForAck</code>、<code>M_InflightClear()</code>、<code>M_SubListClear()</code> 这些连接收尾动作。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_HandleConnAck
+/// 功能      : 处理 CONNACK 接收报文
+/// 说明      : 解析连接确认结果与服务器属性，成功后清除等待确认状态。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.1
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_HandleConnAck : BOOL
+VAR
+    byReasonCode            : BYTE;  // CONNACK 原因码
+    byConnAckFlags          : BYTE;  // CONNACK 标志位
+    uiPropsLen              : UINT;  // 属性总长度
+    uiPropertyHeaderBytes   : UINT;  // 属性长度字段字节数
+    uiPropsStart            : UINT;  // 属性起始偏移
+    uiPropsEnd              : UINT;  // 属性结束偏移
+    uiPos                   : UINT;  // 当前解析偏移
+    byPropId                : BYTE;  // 当前属性标识符
+    uiLoopGuard             : UINT;  // 循环安全计数器
+END_VAR
+
+// === IMPLEMENTATION ===
+IF uiRxLength &lt; 4 THEN
+    M_HandleConnAck := FALSE;
+    RETURN;
+END_IF
+
+IF NOT xWaitingForAck OR aRxBuf[0] &lt;&gt; byExpectedMsgType THEN
+    M_HandleConnAck := FALSE;
+    RETURN;
+END_IF
+
+byConnAckFlags := aRxBuf[2];
+
+IF (byConnAckFlags AND 16#FE) &lt;&gt; 0 THEN
+    sDiagMsg := &#x27;Invalid CONNACK flags&#x27;;
+    M_HandleConnAck := FALSE;
+    RETURN;
+END_IF
+
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    byReasonCode := aRxBuf[3];
+ELSE
+    byReasonCode := aRxBuf[3];
+END_IF
+
+IF byReasonCode &lt;&gt; 0 THEN
+    IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+        CASE byReasonCode OF
+            E_MqttReasonCode.byUnsupportedProtocolVersion: sDiagMsg := &#x27;Protocol version not supported&#x27;;
+            E_MqttReasonCode.byClientIdentifierInvalid: sDiagMsg := &#x27;Client identifier invalid&#x27;;
+            E_MqttReasonCode.byBadUserNamePassword: sDiagMsg := &#x27;Bad username or password&#x27;;
+            E_MqttReasonCode.byNotAuthorized: sDiagMsg := &#x27;Not authorized&#x27;;
+            E_MqttReasonCode.byServerUnavailable: sDiagMsg := &#x27;Server unavailable&#x27;;
+            E_MqttReasonCode.byServerBusy: sDiagMsg := &#x27;Server busy&#x27;;
+            E_MqttReasonCode.byBanned: sDiagMsg := &#x27;Banned&#x27;;
+            E_MqttReasonCode.byServerShuttingDown: sDiagMsg := &#x27;Server shutting down&#x27;;
+            E_MqttReasonCode.byBadAuthMethod: sDiagMsg := &#x27;Bad authentication method&#x27;;
+            E_MqttReasonCode.byQuotaExceeded: sDiagMsg := &#x27;Quota exceeded&#x27;;
+            E_MqttReasonCode.byRetainNotSupported: sDiagMsg := &#x27;Retain not supported&#x27;;
+            E_MqttReasonCode.byQosNotSupported: sDiagMsg := &#x27;QoS not supported&#x27;;
+            E_MqttReasonCode.byUseAnotherServer: sDiagMsg := &#x27;Use another server&#x27;;
+            E_MqttReasonCode.byServerMoved: sDiagMsg := &#x27;Server moved&#x27;;
+        ELSE
+            sDiagMsg := CONCAT(&#x27;CONNACK reason code: &#x27;, BYTE_TO_STRING(byReasonCode));
+        END_CASE
+    ELSE
+        CASE byReasonCode OF
+            1: sDiagMsg := &#x27;Unacceptable protocol version&#x27;;
+            2: sDiagMsg := &#x27;Identifier rejected&#x27;;
+            3: sDiagMsg := &#x27;Server unavailable&#x27;;
+            4: sDiagMsg := &#x27;Bad username or password&#x27;;
+            5: sDiagMsg := &#x27;Not authorized&#x27;;
+        ELSE
+            sDiagMsg := CONCAT(&#x27;CONNACK return code: &#x27;, BYTE_TO_STRING(byReasonCode));
+        END_CASE
+    END_IF
+    M_HandleConnAck := FALSE;
+    RETURN;
+END_IF
+
+uiServerReceiveMax := GVL_Mqtt.cnDefaultReceiveMax;
+byServerMaxQoS := TO_BYTE(E_MqttQoS.byQoS2);
+bServerRetainAvailable := TRUE;
+udServerMaxPacketSize := GVL_Mqtt.cnMaxPacketSize;
+uiServerTopicAliasMax := 0;
+uiSendQuota := GVL_Mqtt.cnDefaultReceiveMax;
+bServerWildcardSubAvail := TRUE;
+bServerSubIdAvail := TRUE;
+bServerSharedSubAvail := TRUE;
+
+IF eVersion = E_MqttVersion.byMqttVersion50 AND uiRxLength &gt;= 5 THEN
+    uiPos := 4;
+    uiPropertyHeaderBytes := M_DecodeRemainingLength(pBuffer := ADR(aRxBuf[uiPos]), uiLength =&gt; uiPropsLen);
+    IF uiPropertyHeaderBytes = 0 THEN
+        M_HandleConnAck := FALSE;
+        RETURN;
+    END_IF
+    uiPos := uiPos + uiPropertyHeaderBytes;
+    uiPropsStart := uiPos;
+    uiPropsEnd := uiPropsStart + uiPropsLen;
+    IF uiPropsEnd &gt; uiRxLength THEN
+        M_HandleConnAck := FALSE;
+        RETURN;
+    END_IF
+    uiLoopGuard := 0;
+
+    WHILE uiPos &lt; uiPropsEnd AND uiPos &lt; uiRxLength AND uiLoopGuard &lt; GVL_Mqtt.cnMaxPropertyLoop DO
+        byPropId := aRxBuf[uiPos];
+        uiPos := uiPos + 1;
+
+        CASE byPropId OF
+            GVL_Mqtt.cnPropReceiveMaximum:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiServerReceiveMax := SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]);
+                IF uiServerReceiveMax = 0 THEN
+                    sDiagMsg := &#x27;Receive Maximum must not be zero&#x27;;
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 2;
+
+            GVL_Mqtt.cnPropMaxQoS:
+                IF uiPos &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                byServerMaxQoS := aRxBuf[uiPos];
+                IF byServerMaxQoS &gt; TO_BYTE(E_MqttQoS.byQoS2) THEN
+                    sDiagMsg := &#x27;Server Max QoS is invalid&#x27;;
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 1;
+
+            GVL_Mqtt.cnPropRetainAvailable:
+                IF uiPos &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                bServerRetainAvailable := BYTE_TO_BOOL(aRxBuf[uiPos]);
+                uiPos := uiPos + 1;
+
+            GVL_Mqtt.cnPropMaxPacketSize:
+                IF uiPos + 3 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                udServerMaxPacketSize := SHL(BYTE_TO_UDINT(aRxBuf[uiPos]), 24) OR SHL(BYTE_TO_UDINT(aRxBuf[uiPos + 1]), 16) OR SHL(BYTE_TO_UDINT(aRxBuf[uiPos + 2]), 8) OR BYTE_TO_UDINT(aRxBuf[uiPos + 3]);
+                IF udServerMaxPacketSize = 0 THEN
+                    sDiagMsg := &#x27;Server Maximum Packet Size must not be zero&#x27;;
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 4;
+
+            GVL_Mqtt.cnPropTopicAliasMax:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiServerTopicAliasMax := SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]);
+                uiPos := uiPos + 2;
+
+            GVL_Mqtt.cnPropReasonString:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 2 + (SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]));
+
+            GVL_Mqtt.cnPropServerKeepAlive:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiKeepAlive := SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]);
+                uiPos := uiPos + 2;
+
+            GVL_Mqtt.cnPropAssignedClientId:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 2 + (SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]));
+
+            GVL_Mqtt.cnPropAuthMethod,
+            GVL_Mqtt.cnPropAuthData,
+            GVL_Mqtt.cnPropServerReference:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 2 + (SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]));
+
+            GVL_Mqtt.cnPropResponseInfo:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 2 + (SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]));
+
+            GVL_Mqtt.cnPropUserProperty:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 2 + (SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]));
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 2 + (SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]));
+
+            GVL_Mqtt.cnPropWildcardSubAvail,
+            GVL_Mqtt.cnPropSubIdAvail,
+            GVL_Mqtt.cnPropSharedSubAvail:
+                IF uiPos &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                CASE byPropId OF
+                    GVL_Mqtt.cnPropWildcardSubAvail:
+                        bServerWildcardSubAvail := BYTE_TO_BOOL(aRxBuf[uiPos]);
+                    GVL_Mqtt.cnPropSubIdAvail:
+                        bServerSubIdAvail := BYTE_TO_BOOL(aRxBuf[uiPos]);
+                    GVL_Mqtt.cnPropSharedSubAvail:
+                        bServerSharedSubAvail := BYTE_TO_BOOL(aRxBuf[uiPos]);
+                END_CASE
+                uiPos := uiPos + 1;
+
+            GVL_Mqtt.cnPropRequestProblemInfo,
+            GVL_Mqtt.cnPropRequestResponseInfo:
+                IF uiPos &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 1;
+
+        ELSE
+            M_HandleConnAck := FALSE;
+            RETURN;
+        END_CASE
+
+        uiLoopGuard := uiLoopGuard + 1;
+    END_WHILE
+END_IF
+
+uiRxLength := 0;
+xWaitingForAck := FALSE;
+
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    uiSendQuota := uiServerReceiveMax;
+END_IF
+
+IF NOT bCleanSession THEN
+    IF (byConnAckFlags AND GVL_Mqtt.cnConnAckSessionPresent) = 0 THEN
+        M_InflightClear();
+        M_SubListClear();
+    END_IF
+ELSE
+    M_InflightClear();
+    M_SubListClear();
+END_IF
+
+M_TopicAliasClear();
+
+M_HandleConnAck := TRUE;</code></pre></div>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../mqtt-client-open-source-codesys-layer/index.html">
+                <small>上一篇 / 第1篇</small>
+                <strong>官方 MQTT 库要花钱？我为什么自己开源了一套 CODESYS MQTT 客户端</strong>
+                <span>这一篇先不讲报文细节，只解决 3 个基础问题：为什么要做这套开源客户端、MQTT 到底处于哪一层、以及当前项目为什么是 NBS 上的 TCP 再往上跑 MQTT。适合刚准备从 PLC 进入 MQTT 的自动化工程师先。</span>
+              </a>
+              <a class="series-nav-card" href="../mqtt-client-part-03-3-publish-qos0-qos1-qos2-120122/index.html">
+                <small>下一篇 / 第3篇</small>
+                <strong>PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪</strong>
+                <span>这一篇把 MQTT 最核心的 PUBLISH 报文拆开讲，重点不是概念，而是首字节怎么编码、Topic 和 Packet ID 怎么排、QoS0 / QoS1 / QoS2 在协议和代码层到底差在哪。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", () => window.setTimeout(updateActiveToc, 90));
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CONNECT 解析别写死：MQTT 3.1、3.1.1、5.0 为什么会让 Broker 反复断开 | ControlRookie</title>
+  <meta name="description" content="这一篇讲 Broker 侧 CONNECT 解析。重点不是重复 MQTT 标准字段，而是解释为什么 MQTT + level 4、MQTT + level 5、MQIsdp + level 3 必须分开处理，以及 M。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#050505">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/mqtt-broker-part-03-3-connect-mqtt3-1-3-1-1-5-0-broker-b6ffd1/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="CONNECT 解析别写死：MQTT 3.1、3.1.1、5.0 为什么会让 Broker 反复断开">
+  <meta property="og:description" content="这一篇讲 Broker 侧 CONNECT 解析。重点不是重复 MQTT 标准字段，而是解释为什么 MQTT + level 4、MQTT + level 5、MQIsdp + level 3 必须分开处理，以及 M。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-broker-part-03-3-connect-mqtt3-1-3-1-1-5-0-broker-b6ffd1/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CONNECT 解析别写死：MQTT 3.1、3.1.1、5.0 为什么会让 Broker 反复断开">
+  <meta name="twitter:description" content="这一篇讲 Broker 侧 CONNECT 解析。重点不是重复 MQTT 标准字段，而是解释为什么 MQTT + level 4、MQTT + level 5、MQIsdp + level 3 必须分开处理，以及 M。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <aside class="article-toc" aria-label="文章目录">
+            <strong>目录</strong>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#connect-broker">一、CONNECT 是 Broker 的第一份申请表</a></li><li><a href="#section-075917d8">二、三个版本的协议名不是一样的</a></li><li><a href="#connect">三、CONNECT 解析流程</a></li><li><a href="#mqtt-5-0">四、MQTT 5.0 基础兼容要做两件事</a></li><li><a href="#broker">五、Broker 侧诊断要把协议解析暴露出来</a></li><li><a href="#st">六、ST 代码入口</a></li><li><a href="#section-2a0f949f">模型边界与验证路径</a></li><li><a href="#6">七、这一篇你最该记住的 6 句话</a></li><li><a href="#section-db37e882">下篇预告</a></li><li><a href="#st-2">完整 ST 代码</a></li></ol>
+          </aside>
+          <div class="article-main" id="article-top">
+            <nav class="article-breadcrumb" aria-label="文章路径">
+              <a href="../../index.html#articles">文章</a>
+              <span>/</span>
+              <a href="../../index.html#articles">MQTT Broker 系列教程</a>
+              <span>/</span>
+              <a href="../../index.html#articles">通信</a>
+              <span>/</span>
+              <a href="../../index.html#articles">CODESYS</a>
+            </nav>
+            <header class="article-hero">
+              <h1>CONNECT 解析别写死：MQTT 3.1、3.1.1、5.0 为什么会让 Broker 反复断开</h1>
+              <p class="article-summary">这一篇讲 Broker 侧 CONNECT 解析。重点不是重复 MQTT 标准字段，而是解释为什么 MQTT + level 4、MQTT + level 5、MQIsdp + level 3 必须分开处理，以及 M。</p>
+              <div class="article-meta">
+                <span>2026-05-08</span>
+                <span>约 11 分钟阅读</span>
+                <span>第3篇/共14篇</span>
+                <span>MQTT / CONNECT / Broker / MQTT5 / CODESYS / ST / CSDN / PLC</span>
+              </div>
+            </header>
+            <div class="article-content">
+              <blockquote>这一篇讲 Broker 侧 CONNECT 解析。重点不是重复 MQTT 标准字段，而是解释为什么 <code>MQTT + level 4</code>、<code>MQTT + level 5</code>、<code>MQIsdp + level 3</code> 必须分开处理，以及 MQTT 5.0 为什么要跳过属性长度并返回零属性响应。</blockquote>
+<h2 id="section-0d70135c">适合谁收藏</h2>
+<ul><li>MQTT 客户端连接 Broker 时反复断开的人</li><li>想兼容 MQTT 3.1 / 3.1.1 / 5.0 的人</li><li>正在看 <code>byLastConnectLevel</code>、<code>eLastParseError</code> 的人</li><li>想把 MQTT 报文解析写成可诊断代码的人</li></ul>
+<hr>
+<p>客户端连不上 Broker，很多人第一反应是网络问题。</p>
+<p>但如果你看到：</p>
+<div class="code-card"><small>text</small><pre><code>udiLastBytesRead &gt; 0
+eLastParseError = uiUnsupportedProtocol
+byLastConnectLevel = 100</code></pre></div>
+<p>先别查交换机。</p>
+<p>这说明 TCP 已经读到 CONNECT 了，问题在 MQTT 报文解析。</p>
+<p>先给结论：</p>
+<blockquote>Broker 侧 CONNECT 不能只认 <code>MQTT</code> 四个字节。 MQTT 3.1 老协议用的是 <code>MQIsdp + level 3</code>；MQTT 3.1.1 用 <code>MQTT + level 4</code>；MQTT 5.0 用 <code>MQTT + level 5</code>。解析偏移写死，Broker 就会把协议名里的字符当成协议级别。</blockquote>
+<hr>
+<h2 id="connect-broker">一、CONNECT 是 Broker 的第一份申请表</h2>
+<p>Client 侧构造 CONNECT，是“我要申请连接”。 Broker 侧解析 CONNECT，是“我要裁决你能不能进来”。</p>
+<p>CONNECT 里至少要回答这些问题：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>问题</th><th>对应字段</th></tr></thead>
+<tbody>
+<tr><td>你用哪个协议名</td><td>Protocol Name</td></tr>
+<tr><td>你用哪个协议级别</td><td>Protocol Level</td></tr>
+<tr><td>你是谁</td><td>Client ID</td></tr>
+<tr><td>你是否清理会话</td><td>Clean Session / Clean Start</td></tr>
+<tr><td>你多久发心跳</td><td>KeepAlive</td></tr>
+<tr><td>你有没有遗嘱</td><td>Will Flag / Will Topic / Will Payload</td></tr>
+<tr><td>你有没有认证信息</td><td>Username / Password</td></tr>
+<tr><td>你是不是 MQTT 5.0</td><td>Properties 是否存在</td></tr>
+</tbody></table></div>
+<p>Broker 如果这里判断错，后面 PUBLISH、SUBSCRIBE 都没有意义。</p>
+<hr>
+<h2 id="section-075917d8">二、三个版本的协议名不是一样的</h2>
+<p>最容易踩坑的表在这里：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>协议版本</th><th>Protocol Name</th><th>Protocol Level</th><th>典型十六进制</th></tr></thead>
+<tbody>
+<tr><td>MQTT 3.1</td><td><code>MQIsdp</code></td><td><code>3</code></td><td><code>00 06 4D 51 49 73 64 70 03</code></td></tr>
+<tr><td>MQTT 3.1.1</td><td><code>MQTT</code></td><td><code>4</code></td><td><code>00 04 4D 51 54 54 04</code></td></tr>
+<tr><td>MQTT 5.0</td><td><code>MQTT</code></td><td><code>5</code></td><td><code>00 04 4D 51 54 54 05</code></td></tr>
+</tbody></table></div>
+<p>你看出问题了吗？</p>
+<p>MQTT 3.1 的协议名是 6 字节，不是 4 字节。</p>
+<p>如果代码写死：</p>
+<div class="code-card"><small>text</small><pre><code>协议级别 = 协议名起始 + 2 + 4</code></pre></div>
+<p>那么遇到 <code>MQIsdp</code> 时，就会读到协议名中间的字符。</p>
+<p><code>MQIsdp</code> 的十六进制是：</p>
+<div class="code-card"><small>text</small><pre><code>4D 51 49 73 64 70
+M  Q  I  s  d  p</code></pre></div>
+<p>字符 <code>d</code> 的 ASCII 是 <code>100</code>。 这就是 <code>byLastConnectLevel = 100</code> 的真实来源。</p>
+<p>它不是协议级别 100。 它是偏移算错了。</p>
+<hr>
+<h2 id="connect">三、CONNECT 解析流程</h2>
+<p>正确流程应该先读字符串长度，再根据长度读协议名，再读协议级别。</p>
+<figure><img src="../../assets/articles/mqtt-broker-part-03-3-connect-mqtt3-1-3-1-1-5-0-broker-b6ffd1/第3篇_CONNECT解析别写死_MQTT3_1_3_1_1_5_0为什么会让Broker反复断开-csdn流程图-01.png" alt="图表说明"><figcaption>图表说明</figcaption></figure>
+<p>这个流程的关键不是复杂，而是不能偷懒。</p>
+<hr>
+<h2 id="mqtt-5-0">四、MQTT 5.0 基础兼容要做两件事</h2>
+<p>很多客户端默认会尝试 MQTT 5.0。</p>
+<p>如果 Broker 完全不理解 MQTT 5.0，可能出现连接闪烁、客户端报 <code>rc -1</code>、服务端槽位一闪即释放。</p>
+<p>当前轻量 Broker 的策略不是完整支持 MQTT 5.0 属性系统，而是基础兼容：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>处理点</th><th>当前策略</th></tr></thead>
+<tbody>
+<tr><td>CONNECT Properties</td><td>读取属性长度，并跳过对应字节</td></tr>
+<tr><td>CONNACK Properties</td><td>返回零属性长度</td></tr>
+<tr><td>PUBLISH Properties</td><td>基础跳过，不解析完整属性</td></tr>
+<tr><td>原因码 / 用户属性 / 会话过期</td><td>当前不做完整实现</td></tr>
+</tbody></table></div>
+<p>MQTT 5.0 的 CONNACK 最小响应不是 3.1.1 那种 4 字节，而是要带属性长度：</p>
+<div class="code-card"><small>text</small><pre><code>20 03 00 00 00</code></pre></div>
+<p>拆开看：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字节</th><th>含义</th></tr></thead>
+<tbody>
+<tr><td><code>20</code></td><td>CONNACK</td></tr>
+<tr><td><code>03</code></td><td>Remaining Length = 3</td></tr>
+<tr><td><code>00</code></td><td>Connect Acknowledge Flags</td></tr>
+<tr><td><code>00</code></td><td>Reason Code = Success</td></tr>
+<tr><td><code>00</code></td><td>Properties Length = 0</td></tr>
+</tbody></table></div>
+<p>如果少了最后这个 <code>00</code>，有些 MQTT 5.0 客户端会认为响应格式不完整。</p>
+<hr>
+<h2 id="broker">五、Broker 侧诊断要把协议解析暴露出来</h2>
+<p>如果只给一个“连接失败”，现场根本没法查。</p>
+<p>当前 Broker 诊断里最有价值的是这些字段：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字段</th><th>价值</th></tr></thead>
+<tbody>
+<tr><td><code>udiLastBytesRead</code></td><td>判断 TCP 是否已经读到数据</td></tr>
+<tr><td><code>xLastConnectParsed</code></td><td>判断 CONNECT 是否解析成功</td></tr>
+<tr><td><code>sLastProtocolName</code></td><td>判断客户端到底发了 <code>MQTT</code> 还是 <code>MQIsdp</code></td></tr>
+<tr><td><code>byLastConnectLevel</code></td><td>判断协议级别</td></tr>
+<tr><td><code>eLastParseError</code></td><td>判断是协议名、Flags、ClientID 还是长度失败</td></tr>
+<tr><td><code>stLastCleanupSnapshot</code></td><td>槽位释放前保留最后现场</td></tr>
+</tbody></table></div>
+<p>现场排查顺序建议：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>现象</th><th>判断</th></tr></thead>
+<tbody>
+<tr><td><code>udiLastBytesRead = 0</code></td><td>TCP 接入后还没收到 MQTT 首包</td></tr>
+<tr><td><code>udiLastBytesRead &gt; 0</code> 且 <code>xLastConnectParsed = FALSE</code></td><td>报文已到，解析失败</td></tr>
+<tr><td><code>sLastProtocolName = MQIsdp</code></td><td>MQTT 3.1 老客户端路径</td></tr>
+<tr><td><code>byLastConnectLevel = 100</code></td><td>基本就是协议级别偏移误读</td></tr>
+<tr><td>MQTT 5.0 客户端连接后断开</td><td>看 CONNACK 是否带零属性长度</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="st">六、ST 代码入口</h2>
+<p>这一篇重点看这些方法：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>代码入口</th><th>作用</th></tr></thead>
+<tbody>
+<tr><td><code>FB_MqttBrokerCodec.M_ParseConnect</code></td><td>解析 CONNECT，并填充连接信息</td></tr>
+<tr><td><code>FB_MqttBrokerConnection.M_ProcessFrame</code></td><td>根据报文类型调用解析和状态迁移</td></tr>
+<tr><td><code>FB_MqttBrokerCodec.M_BuildSimpleAck</code></td><td>构造 CONNACK、PUBACK、SUBACK 等简单响应</td></tr>
+<tr><td><code>F_MqttSkipVariableByteInteger</code></td><td>跳过 MQTT 5.0 可变字节整数属性长度</td></tr>
+</tbody></table></div>
+<p>解析协议名时，原则应该像这样：</p>
+<div class="code-card"><small>text</small><pre><code>// 先读取 MQTT UTF-8 字符串，不能假定协议名长度固定。
+xOk := F_MqttReadString(
+    aBuffer := aRxBuf,
+    uiOffset := uiOffset,
+    uiBufferLen := uiFrameLen,
+    sValue := sProtocolName);
+
+IF NOT xOk THEN
+    eParseError := E_MqttBrokerError.uiMalformedPacket;
+    RETURN;
+END_IF
+
+// 再读取紧跟在协议名之后的 Protocol Level。
+byProtocolLevel := aRxBuf[uiOffset];
+uiOffset := uiOffset + 1;
+
+IF (sProtocolName = &#x27;MQTT&#x27;) AND (byProtocolLevel = 4) THEN
+    byProtocolVersion := 4;
+ELSIF (sProtocolName = &#x27;MQTT&#x27;) AND (byProtocolLevel = 5) THEN
+    byProtocolVersion := 5;
+ELSIF (sProtocolName = &#x27;MQIsdp&#x27;) AND (byProtocolLevel = 3) THEN
+    byProtocolVersion := 3;
+ELSE
+    eParseError := E_MqttBrokerError.uiUnsupportedProtocol;
+    RETURN;
+END_IF</code></pre></div>
+<p>核心思想就一句：</p>
+<blockquote>先按字符串真实长度移动偏移，再读协议级别。</blockquote>
+<hr>
+<h2 id="section-2a0f949f">模型边界与验证路径</h2>
+<p>CONNECT 解析属于协议边界问题，不是普通字符串解析问题。</p>
+<p>协议名、协议级别、属性长度和 Payload 顺序共同决定一个客户端能不能进入 MQTT 会话。如果这里的偏移错了，后面所有状态机都建立在错误数据上。</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>结论</th><th>可信度</th><th>依据</th><th>验证路径</th></tr></thead>
+<tbody>
+<tr><td>MQTT 3.1 使用 <code>MQIsdp + level 3</code></td><td>high</td><td>MQTT 协议兼容事实和现场解析结果</td><td>抓取 CONNECT 或观察 <code>sLastProtocolName</code></td></tr>
+<tr><td><code>byLastConnectLevel = 100</code> 是偏移误读的强信号</td><td>high</td><td>字符 <code>d</code> 的 ASCII 为 100，且来自 <code>MQIsdp</code></td><td>同时观察 <code>sLastProtocolName</code> 和原始首包</td></tr>
+<tr><td>MQTT 5.0 基础兼容需要零属性响应</td><td>high</td><td>MQTT 5.0 CONNACK 报文结构</td><td>客户端 5.0 连接后观察是否稳定进入 Connected</td></tr>
+</tbody></table></div>
+<p>这个判断的边界也要说清楚：当前文章讲的是 MQTT 5.0 基础兼容，不是完整属性语义。只要读者依赖 <code>Session Expiry</code>、<code>Topic Alias</code>、<code>User Property</code> 这类能力，就不能把当前轻量 Broker 当成完整 5.0 Broker。</p>
+<hr>
+<h2 id="6">七、这一篇你最该记住的 6 句话</h2>
+<ol><li>Broker 侧 CONNECT 解析不能把协议名长度写死成 4。</li><li>MQTT 3.1 是 <code>MQIsdp + level 3</code>，不是 <code>MQTT + level 3</code>。</li><li><code>byLastConnectLevel = 100</code> 通常不是协议等级，而是误读到了字符 <code>d</code>。</li><li>MQTT 5.0 基础兼容至少要跳过属性长度，并在 CONNACK 返回零属性长度。</li><li>连接失败时，如果 <code>udiLastBytesRead &gt; 0</code>，问题大概率已经不在 TCP 层。</li><li>诊断字段要暴露协议名、协议级别和解析错误，否则现场只能猜。</li></ol>
+<hr>
+<h2 id="section-db37e882">下篇预告</h2>
+<p>下一篇讲订阅。</p>
+<p>重点是：</p>
+<blockquote>SUBSCRIBE 不是存个字符串，Broker 必须维护订阅表、通配符和多客户端路由。</blockquote>
+<p>我们会把 Topic Name、Topic Filter、<code>+</code>、<code>#</code>、多 Topic SUBACK、路由匹配全部拆开。</p>
+<hr>
+<h2 id="st-2">完整 ST 代码</h2>
+<p>下面这段来自 <code>FB_MqttBrokerCodec.M_ParseConnect.st</code>。重点不是“识别一个字符串”，而是同时支持 MQTT 3.1 的 <code>MQIsdp</code>、MQTT 3.1.1/5.0 的 <code>MQTT</code>，并用协议级别字节决定后续解析规则。</p>
+<div class="code-card"><small>iecst</small><pre><code>uiProtocolLen := TO_UINT(aBuffer[uiOffset]) * 256 + TO_UINT(aBuffer[uiOffset + 1]);
+CASE uiProtocolLen OF
+    4:
+        IF (uiOffset + 5) &gt;= uiFrameLen THEN
+            eError := E_MqttBrokerError.uiProtocolMalformed;
+            M_ParseConnect := FALSE;
+            RETURN;
+        END_IF
+
+        IF (aBuffer[uiOffset + 2] &lt;&gt; 16#4D)
+            OR (aBuffer[uiOffset + 3] &lt;&gt; 16#51)
+            OR (aBuffer[uiOffset + 4] &lt;&gt; 16#54)
+            OR (aBuffer[uiOffset + 5] &lt;&gt; 16#54) THEN
+            eError := E_MqttBrokerError.uiUnsupportedProtocol;
+            M_ParseConnect := FALSE;
+            RETURN;
+        END_IF
+        uiOffset := uiOffset + 6;
+
+    6:
+        IF (uiOffset + 7) &gt;= uiFrameLen THEN
+            eError := E_MqttBrokerError.uiProtocolMalformed;
+            M_ParseConnect := FALSE;
+            RETURN;
+        END_IF
+
+        // MQTT 3.1 老客户端使用协议名 MQIsdp，协议级别为 3。
+        // 此处单独分支处理，避免把 3.1.1/5.0 的标准 MQTT 协议名校验放宽。
+        IF (aBuffer[uiOffset + 2] &lt;&gt; 16#4D)
+            OR (aBuffer[uiOffset + 3] &lt;&gt; 16#51)
+            OR (aBuffer[uiOffset + 4] &lt;&gt; 16#49)
+            OR (aBuffer[uiOffset + 5] &lt;&gt; 16#73)
+            OR (aBuffer[uiOffset + 6] &lt;&gt; 16#64)
+            OR (aBuffer[uiOffset + 7] &lt;&gt; 16#70) THEN
+            eError := E_MqttBrokerError.uiUnsupportedProtocol;
+            M_ParseConnect := FALSE;
+            RETURN;
+        END_IF
+        uiOffset := uiOffset + 8;
+
+ELSE
+    eError := E_MqttBrokerError.uiUnsupportedProtocol;
+    M_ParseConnect := FALSE;
+    RETURN;
+END_CASE</code></pre></div>
+<p>MQTT 5.0 的关键坑在属性区。当前 Broker 不解释高级属性，但必须把属性长度字段正确跳过，否则 ClientID 解析会整体错位。</p>
+<div class="code-card"><small>iecst</small><pre><code>IF stConnection.byProtocolLevel = GVL_MqttBroker.cnMqttProtocolLevel5 THEN
+    // MQTT 5.0 在 KeepAlive 后增加 CONNECT Properties。
+    // 当前 Broker 定位为工业轻量兼容，不解释 User Property / Session Expiry 等高级属性，
+    // 但必须严格跳过属性长度字段，避免后续 ClientID 解析错位导致 5.0 客户端无法连接。
+    IF NOT F_MqttSkipVariableByteInteger(
+        aBuffer := aBuffer,
+        uiOffset := uiOffset,
+        uiBufferLen := uiFrameLen,
+        udiValue =&gt; udiPropertyLen) THEN
+        eError := E_MqttBrokerError.uiProtocolMalformed;
+        M_ParseConnect := FALSE;
+        RETURN;
+    END_IF
+
+    IF (TO_UDINT(uiOffset) + udiPropertyLen) &gt; TO_UDINT(uiFrameLen) THEN
+        eError := E_MqttBrokerError.uiProtocolMalformed;
+        M_ParseConnect := FALSE;
+        RETURN;
+    END_IF
+    uiOffset := uiOffset + TO_UINT(udiPropertyLen);
+END_IF</code></pre></div>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../mqtt-broker-part-02-2-mqttbroker-publish-f18f7a/index.html">
+                <small>上一篇 / 第2篇</small>
+                <strong>写 MQTT Broker，第一关不是 PUBLISH，而是怎么让多个客户端稳稳连上同一个端口</strong>
+                <span>这一篇只讲 Broker 的第一道硬门槛：多个客户端为什么都应该连接同一个 1883 端口，以及 PLC 里应该怎样用监听句柄、接入句柄、客户端槽位把这件事做稳定。</span>
+              </a>
+              <a class="series-nav-card" href="../mqtt-broker-part-04-4-subscribe-broker-13f91f/index.html">
+                <small>下一篇 / 第4篇</small>
+                <strong>SUBSCRIBE 不是存个字符串：Broker 怎么维护订阅表、通配符和多客户端路由</strong>
+                <span>这一篇讲 Broker 侧订阅系统。SUBSCRIBE 不是把主题字符串存起来就完事，Broker 必须区分 Topic Name 和 Topic Filter，校验 +、，维护多客户端订阅表，并在 PUBLISH。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", () => window.setTimeout(updateActiveToc, 90));
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

@@ -147,6 +147,109 @@ if (!siteData) {
   throw new Error("缺少 CONTROLROOKIE_SITE_DATA，搜索和内容数据无法初始化。");
 }
 
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value).replaceAll("'", "&#39;");
+}
+
+function externalAttrs(href) {
+  return /^https?:\/\//.test(href || "") ? ' target="_blank" rel="noreferrer"' : "";
+}
+
+function articlesForFolder(folderZh) {
+  return siteData.articles.filter((item) => localizedText(item.folder, "zh") === folderZh);
+}
+
+function renderArticleHub() {
+  const articles = siteData.articles || [];
+  const articlePanel = document.querySelector(".nav-article-panel");
+  const indexTree = document.querySelector("#articles .article-index-tree");
+  const seriesHeading = document.querySelector("#articles .article-series-heading");
+  const articleList = document.querySelector("#articles .article-list");
+  if (!articles.length || !indexTree || !seriesHeading || !articleList) return;
+
+  const clientArticles = articlesForFolder("客户端");
+  const brokerArticles = articlesForFolder("Broker");
+  const total = articles.length;
+  const firstClient = clientArticles[0] || articles[0];
+  const firstBroker = brokerArticles[0] || articles[1] || articles[0];
+
+  if (articlePanel) {
+    const menuEntries = [
+      { item: firstClient, label: { zh: "MQTT Client 系列", en: "MQTT Client Series" } },
+      { item: firstBroker, label: { zh: "MQTT Broker 系列", en: "MQTT Broker Series" } },
+    ];
+    articlePanel.innerHTML = menuEntries.map(({ item, label }) => (
+      `<a href="${escapeAttribute(item.href)}"${externalAttrs(item.href)}>${escapeHtml(label[currentLang])}</a>`
+    )).join("");
+  }
+
+  const renderLeaf = (item) => {
+    const active = item.id === articles[0].id ? "active" : "";
+    return `<a class="${active.trim()}" href="${escapeAttribute(item.href)}"${externalAttrs(item.href)}><span>${escapeHtml(item.title[currentLang])}</span><em>${escapeHtml(item.kind[currentLang])}</em></a>`;
+  };
+
+  const renderFolder = (labelZh, labelEn, items) => (
+    `<details class="article-tree-node">
+      <summary><span>${escapeHtml(currentLang === "zh" ? labelZh : labelEn)}</span><em>${items.length}</em></summary>
+      <div class="article-tree-children">
+        ${items.map(renderLeaf).join("")}
+      </div>
+    </details>`
+  );
+
+  indexTree.innerHTML = `
+    <details class="article-tree-group" open>
+      <summary><span>${escapeHtml(translations[currentLang]["articles.index.domain.communication"])}</span><em>${total}</em></summary>
+      <div class="article-tree-children">
+        <details class="article-tree-node" open>
+          <summary><span>MQTT</span><em>${total}</em></summary>
+          <div class="article-tree-children">
+            <details class="article-tree-node article-tree-selected" open>
+              <summary><span>CODESYS MQTT</span><em>${clientArticles.length} + ${brokerArticles.length}</em></summary>
+              <div class="article-tree-children">
+                ${renderFolder("客户端", "Client", clientArticles)}
+                ${renderFolder("Broker", "Broker", brokerArticles)}
+              </div>
+            </details>
+          </div>
+        </details>
+      </div>
+    </details>
+  `;
+
+  seriesHeading.setAttribute("aria-label", currentLang === "zh" ? "CODESYS MQTT 双系列" : "CODESYS MQTT Dual Series");
+  seriesHeading.innerHTML = `
+    <small>${escapeHtml(translations[currentLang]["articles.series.label"])}</small>
+    <h3>${currentLang === "zh" ? "CODESYS MQTT 双系列" : "CODESYS MQTT Dual Series"}</h3>
+    <p>${currentLang === "zh"
+      ? "官网已承接 MQTT Client 与 MQTT Broker 两条主线，按客户端、Broker、加更和源码加更组织为可持续扩展的文章库。"
+      : "The site now hosts both MQTT Client and MQTT Broker tracks, organized for long-term expansion across main articles, extras, and source-code notes."}</p>
+    <div class="series-progress" aria-label="MQTT series progress">
+      <span>${currentLang === "zh"
+        ? `已导入 ${total} 篇 / Client ${clientArticles.length} 篇 / Broker ${brokerArticles.length} 篇`
+        : `${total} imported / Client ${clientArticles.length} / Broker ${brokerArticles.length}`}</span>
+      <b><i style="width: 100%;"></i></b>
+    </div>
+  `;
+
+  articleList.innerHTML = articles.map((item) => (
+    `<a class="article-list-card" href="${escapeAttribute(item.href)}"${externalAttrs(item.href)}>
+      <small>${escapeHtml(item.cardMeta[currentLang])}</small>
+      <strong>${escapeHtml(item.title[currentLang])}</strong>
+      <p>${escapeHtml(item.copy[currentLang])}</p>
+      <em>${escapeHtml(item.status[currentLang])}</em>
+    </a>`
+  )).join("");
+}
+
 // 内容数据同步到页面已有 DOM：保持已验收视觉结构不变，只把文字从统一数据源灌入。
 function hydrateContentFromData() {
   siteData.resources.forEach((item, index) => {
@@ -157,15 +260,7 @@ function hydrateContentFromData() {
     card.querySelector(".work-meta").textContent = item.copy[currentLang];
   });
 
-  const article = siteData.articles[0];
-  const articleCard = document.querySelector("#articles .article-feature-card");
-  if (article && articleCard) {
-    articleCard.href = article.href;
-    articleCard.querySelector("small").textContent = currentLang === "zh" ? "01 · 客户端" : "01 · Client";
-    articleCard.querySelector("strong").textContent = article.title[currentLang];
-    articleCard.querySelector("p").textContent = article.copy[currentLang];
-    articleCard.querySelector("em").textContent = currentLang === "zh" ? "官网全文 / 第1篇" : "This Site / Part 1";
-  }
+  renderArticleHub();
 
   const product = siteData.products[0];
   const productCard = document.querySelector("#products .info-card");

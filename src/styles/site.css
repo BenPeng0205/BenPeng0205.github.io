@@ -325,6 +325,9 @@
       z-index: 41;
       width: min(420px, calc(100vw - 40px));
       max-height: 360px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
       padding: 8px;
       border: 1px solid var(--line);
       border-radius: 22px;
@@ -336,6 +339,20 @@
       pointer-events: none;
       transform: translateY(-6px);
       transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .search-panel::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .search-panel::-webkit-scrollbar-thumb {
+      border: 2px solid rgba(255, 255, 255, 0.92);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .search-panel::-webkit-scrollbar-track {
+      background: transparent;
     }
 
     /* 语言切换按钮：位于搜索框右侧，保持浅灰圆形按钮。 */
@@ -1754,6 +1771,32 @@
       gap: 8px;
       margin: 0 0 24px;
       padding: 0 0 0 20px;
+    }
+
+    .article-source-scope {
+      margin: 0 0 34px;
+      padding: 18px 0 18px 22px;
+      border-left: 4px solid #050505;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(90deg, rgba(245, 245, 245, 0.92), rgba(255, 255, 255, 0));
+    }
+
+    .article-source-scope strong {
+      display: block;
+      margin: 0 0 8px;
+      color: #050505;
+      font-size: 13px;
+      font-weight: 680;
+      line-height: 1.2;
+    }
+
+    .article-source-scope p {
+      max-width: 860px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.72;
     }
 
     .article-content blockquote {
