@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SUBSCRIBE / UNSUBSCRIBE 怎么实现？主题过滤器到底该怎么校验 | ControlRookie</title>
+  <meta name="description" content="这一篇把订阅和退订链完整拆开，重点讲 Topic Filter 和发布 Topic 的区别、 + $ 的校验规则、MQTT 5.0 能力边界，以及为什么退订也不是发个字符串这么简单。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#050505">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/mqtt-client-part-05-5-subscribe-unsubscribe-869229/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="SUBSCRIBE / UNSUBSCRIBE 怎么实现？主题过滤器到底该怎么校验">
+  <meta property="og:description" content="这一篇把订阅和退订链完整拆开，重点讲 Topic Filter 和发布 Topic 的区别、 + $ 的校验规则、MQTT 5.0 能力边界，以及为什么退订也不是发个字符串这么简单。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-client-part-05-5-subscribe-unsubscribe-869229/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SUBSCRIBE / UNSUBSCRIBE 怎么实现？主题过滤器到底该怎么校验">
+  <meta name="twitter:description" content="这一篇把订阅和退订链完整拆开，重点讲 Topic Filter 和发布 Topic 的区别、 + $ 的校验规则、MQTT 5.0 能力边界，以及为什么退订也不是发个字符串这么简单。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <aside class="article-toc" aria-label="文章目录">
+            <strong>目录</strong>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-1a7113f5">一、先看订阅链在状态机里的位置</a></li><li><a href="#subscribe">二、SUBSCRIBE 报文最核心的组成是什么</a></li><li><a href="#section-bd9a3105">三、主题过滤器和发布主题，不是一回事</a></li><li><a href="#topic-filter-3">四、Topic Filter 的 3 条硬规则</a></li><li><a href="#misvalidtopicfilter">五、MIsValidTopicFilter 怎么把规则落成代码</a></li><li><a href="#mbuildsubscribepacket">六、MBuildSubscribePacket 的核心工作流</a></li><li><a href="#mqtt-5-0">七、为什么 MQTT 5.0 下订阅不能只看本地字符串</a></li><li><a href="#share">八、共享订阅为什么不是随便写个 $share/... 就完了</a></li><li><a href="#unsubscribe">九、UNSUBSCRIBE 为什么也不能写得太随便</a></li><li><a href="#mbuildunsubscribepacket">十、MBuildUnsubscribePacket 的重点其实更纯粹</a></li><li><a href="#section-d3eeb90e">十一、为什么订阅链常见的问题不是“完全错”，而是“边界错”</a></li><li><a href="#section-8e354b5a">十二、把订阅链的四层关系串起来</a></li><li><a href="#5">十三、这一篇你最该记住的 5 句话</a></li><li><a href="#section-865f2185">十四、下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li></ol>
+          </aside>
+          <div class="article-main" id="article-top">
+            <nav class="article-breadcrumb" aria-label="文章路径">
+              <a href="../../index.html#articles">文章</a>
+              <span>/</span>
+              <a href="../../index.html#articles">MQTT Client 系列教程</a>
+              <span>/</span>
+              <a href="../../index.html#articles">通信</a>
+              <span>/</span>
+              <a href="../../index.html#articles">CODESYS</a>
+            </nav>
+            <header class="article-hero">
+              <h1>SUBSCRIBE / UNSUBSCRIBE 怎么实现？主题过滤器到底该怎么校验</h1>
+              <p class="article-summary">这一篇把订阅和退订链完整拆开，重点讲 Topic Filter 和发布 Topic 的区别、 + $ 的校验规则、MQTT 5.0 能力边界，以及为什么退订也不是发个字符串这么简单。</p>
+              <div class="article-meta">
+                <span>2026-05-06</span>
+                <span>约 29 分钟阅读</span>
+                <span>第5篇/共16篇</span>
+                <span>MQTT / SUBSCRIBE / UNSUBSCRIBE / Topic Filter / ST / PLC / CSDN / CODESYS</span>
+              </div>
+            </header>
+            <div class="article-content">
+              <blockquote>这一篇把订阅和退订链完整拆开，重点讲 Topic Filter 和发布 Topic 的区别、# + $ 的校验规则、MQTT 5.0 能力边界，以及为什么退订也不是发个字符串这么简单。</blockquote>
+<h2 id="section-0d70135c">适合谁收藏</h2>
+<ul><li>正在做 CODESYS / PLC / MQTT 项目的人</li><li>想把 MQTT 从报文真正看到 ST 代码的人</li><li>正在排查 QoS1 / QoS2 超时、掉线、重连问题的人</li></ul>
+<hr>
+<p>发布链讲完之后，下一块最容易踩坑的就是订阅链。</p>
+<p>很多工程师第一次写订阅，脑子里想得很简单：</p>
+<blockquote>我把主题字符串发给 Broker，不就完了吗？</blockquote>
+<p>真到现场，问题马上就来了：</p>
+<ul><li>为什么有些主题一订就报错</li><li>为什么 <code>sport/#/a</code> 不行</li><li>为什么 <code>$SYS/#</code> 和普通通配订阅不是一回事</li><li>为什么 MQTT 5.0 下共享订阅、订阅标识符还要看 Broker 脸色</li><li>为什么取消订阅也会把状态机卡死</li></ul>
+<p>这一篇就把这条链一次讲清楚。</p>
+<p>先给结论：</p>
+<blockquote>SUBSCRIBE / UNSUBSCRIBE 真正难的地方，不是构包，而是 <strong>主题过滤器校验 + 服务端能力边界 + ACK 等待链</strong>。</blockquote>
+<hr>
+<h2 id="section-1a7113f5">一、先看订阅链在状态机里的位置</h2>
+<div class="mermaid-card"><small>Mermaid</small><pre><code>flowchart LR
+    A[iConnected] --&gt; B[iSubscribe]
+    B --&gt; C[iSubAck]
+    C --&gt; A
+
+    A --&gt; D[iUnsubscribe]
+    D --&gt; E[iUnsubAck]
+    E --&gt; A</code></pre></div>
+<p>这张图先说明两个事实：</p>
+<ol><li>订阅和退订都不是“发完就算了”，而是都要等 ACK。</li><li>订阅链和发布链一样，都是标准状态链，而不是随手塞到 <code>iConnected</code> 里发一下。</li></ol>
+<hr>
+<h2 id="subscribe">二、SUBSCRIBE 报文最核心的组成是什么</h2>
+<h3 id="1">1. 固定报头</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字段</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>报文类型</td><td><code>SUBSCRIBE</code></td></tr>
+<tr><td>Remaining Length</td><td>后续字节总长度</td></tr>
+</tbody></table></div>
+<h3 id="2">2. 可变报头</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字段</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>Packet Identifier</td><td>订阅请求标识</td></tr>
+<tr><td>Properties</td><td>仅 MQTT 5.0 存在</td></tr>
+</tbody></table></div>
+<h3 id="3">3. 载荷</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>字段</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>Topic Filter</td><td>订阅过滤器</td></tr>
+<tr><td>Subscribe Options</td><td>QoS 等选项</td></tr>
+</tbody></table></div>
+<p>所以你会发现，SUBSCRIBE 跟 PUBLISH 很像：</p>
+<ul><li>都有 Packet ID</li><li>都要等后续确认</li><li>都会进入等待状态</li></ul>
+<p>但它的重点不在载荷内容多复杂，而在于 <strong>Topic Filter 合法不合法</strong>。</p>
+<hr>
+<h2 id="section-bd9a3105">三、主题过滤器和发布主题，不是一回事</h2>
+<p>这一点必须先钉死。</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>场景</th><th>是否允许 <code>+</code> / <code>#</code></th></tr></thead>
+<tbody>
+<tr><td>发布主题 Topic Name</td><td>不允许</td></tr>
+<tr><td>订阅过滤器 Topic Filter</td><td>允许，但要按规则用</td></tr>
+</tbody></table></div>
+<p>所以你不能把：</p>
+<ul><li>发布用的 Topic Name</li><li>订阅用的 Topic Filter</li></ul>
+<p>当成同一种字符串看。</p>
+<p>这也是为什么源码里对发布和订阅用了两套不同校验路径。</p>
+<hr>
+<h2 id="topic-filter-3">四、Topic Filter 的 3 条硬规则</h2>
+<h3 id="1-2">规则 1： 只能出现在最后一级</h3>
+<p>合法：</p>
+<ul><li><code>factory/#</code></li><li><code>#</code></li></ul>
+<p>非法：</p>
+<ul><li><code>factory/#/alarm</code></li><li><code>a/b/#/c</code></li></ul>
+<h3 id="2-2">规则 2：+ 必须独占一个层级</h3>
+<p>合法：</p>
+<ul><li><code>factory/+/temp</code></li><li><code>+/status</code></li></ul>
+<p>非法：</p>
+<ul><li><code>factory+1/temp</code></li><li><code>room+/status</code></li><li><code>a/+b/c</code></li></ul>
+<h3 id="3-2">规则 3：以 $ 开头的系统主题，不能直接拿 或 + 在第二个字符位上乱配</h3>
+<p>也就是说，这种要拦：</p>
+<ul><li><code>$#</code></li><li><code>$+</code></li></ul>
+<hr>
+<h2 id="misvalidtopicfilter">五、MIsValidTopicFilter 怎么把规则落成代码</h2>
+<p>这段方法非常值得拿出来看，因为它不是抽象讲规则，而是真正把规则敲成了离线校验逻辑。</p>
+<h3 id="1-3">1. 先看 的判断</h3>
+<div class="code-card"><small>iecst</small><pre><code>IF byChar = 16#23 THEN
+    IF i &lt;&gt; uiLen THEN
+        M_IsValidTopicFilter := FALSE;
+        RETURN;
+    END_IF
+
+    IF (i &gt; 1) AND (TO_BYTE(sTopicFilter[i - 2]) &lt;&gt; 16#2F) THEN
+        M_IsValidTopicFilter := FALSE;
+        RETURN;
+    END_IF
+END_IF</code></pre></div>
+<p>翻成人话就是：</p>
+<ol><li><code>#</code> 只能在最后</li><li>如果前面还有字符，那它前一个字符必须是 <code>/</code></li></ol>
+<h3 id="2-3">2. 再看 + 的判断</h3>
+<div class="code-card"><small>iecst</small><pre><code>IF byChar = 16#2B THEN
+    byPrev := 0;
+    byNext := 0;
+
+    IF i &gt; 1 THEN
+        byPrev := TO_BYTE(sTopicFilter[i - 2]);
+    END_IF
+
+    IF i &lt; uiLen THEN
+        byNext := TO_BYTE(sTopicFilter[i]);
+    END_IF
+
+    IF ((i &gt; 1) AND (byPrev &lt;&gt; 16#2F)) OR
+       ((i &lt; uiLen) AND (byNext &lt;&gt; 16#2F)) THEN
+        M_IsValidTopicFilter := FALSE;
+        RETURN;
+    END_IF
+END_IF</code></pre></div>
+<p>翻成人话就是：</p>
+<blockquote><code>+</code> 左边如果有字符，必须是 <code>/</code>；右边如果还有字符，也必须是 <code>/</code>。</blockquote>
+<h3 id="3-3">3. 再看 $ 的特殊限制</h3>
+<div class="code-card"><small>iecst</small><pre><code>IF (uiLen &gt;= 2) AND (sTopicFilter[0] = 16#24) THEN
+    IF (sTopicFilter[1] = 16#23) OR (sTopicFilter[1] = 16#2B) THEN
+        M_IsValidTopicFilter := FALSE;
+        RETURN;
+    END_IF
+END_IF</code></pre></div>
+<p>这段就是你之前已经碰到过的那类边界条件修正点。 别看代码短，它非常关键。</p>
+<hr>
+<h2 id="mbuildsubscribepacket">六、MBuildSubscribePacket 的核心工作流</h2>
+<p>把这个方法压缩一下，大概就是下面这张图：</p>
+<div class="mermaid-card"><small>Mermaid</small><pre><code>flowchart TD
+    A[检查 Topic 是否为空] --&gt; B[长度与 UTF-8 校验]
+    B --&gt; C[M_IsValidTopicFilter]
+    C --&gt; D[识别是否包含通配符]
+    D --&gt; E[识别是否共享订阅]
+    E --&gt; F[检查 MQTT 5.0 服务端能力]
+    F --&gt; G[分配 Packet ID]
+    G --&gt; H[写 Packet ID Properties Topic Filter QoS]</code></pre></div>
+<p>你会发现，它在真正构包前，做了很多“前置裁决”。</p>
+<p>这其实就是成熟实现和 demo 实现的差别。</p>
+<hr>
+<h2 id="mqtt-5-0">七、为什么 MQTT 5.0 下订阅不能只看本地字符串</h2>
+<p>如果是 MQTT 5.0，这个库在 SUBSCRIBE 前还会额外检查 Broker 能力。</p>
+<h3 id="1-4">1. 订阅标识符能力</h3>
+<div class="code-card"><small>iecst</small><pre><code>IF (eVersion = E_MqttVersion.byMqttVersion50) AND (udiSubscriptionId &gt; 0) AND (NOT bServerSubIdAvail) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Server does not support subscription identifiers&#x27;);
+    M_BuildSubscribePacket := FALSE;
+    RETURN;
+END_IF</code></pre></div>
+<h3 id="2-4">2. 通配订阅能力</h3>
+<div class="code-card"><small>iecst</small><pre><code>IF (eVersion = E_MqttVersion.byMqttVersion50) AND (NOT bServerWildcardSubAvail) AND bHasWildcard THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Server does not support wildcard subscriptions&#x27;);
+    M_BuildSubscribePacket := FALSE;
+    RETURN;
+END_IF</code></pre></div>
+<h3 id="3-4">3. 共享订阅能力</h3>
+<div class="code-card"><small>iecst</small><pre><code>IF (eVersion = E_MqttVersion.byMqttVersion50) AND (NOT bServerSharedSubAvail) AND bIsSharedSubscription THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Server does not support shared subscriptions&#x27;);
+    M_BuildSubscribePacket := FALSE;
+    RETURN;
+END_IF</code></pre></div>
+<p>这三段把 MQTT 5.0 的工程味一下就拉满了：</p>
+<blockquote>不是你会拼格式就够了，</blockquote>
+<hr>
+<h2 id="share">八、共享订阅为什么不是随便写个 $share/... 就完了</h2>
+<p>源码里识别共享订阅的方式很直接：</p>
+<div class="code-card"><small>iecst</small><pre><code>IF LEN(sSubTopic) &gt;= 7 THEN
+    IF (sSubTopic[0] = 16#24) AND
+       (sSubTopic[1] = 16#73) AND
+       (sSubTopic[2] = 16#68) AND
+       (sSubTopic[3] = 16#61) AND
+       (sSubTopic[4] = 16#72) AND
+       (sSubTopic[5] = 16#65) AND
+       (sSubTopic[6] = 16#2F) THEN
+        bIsSharedSubscription := TRUE;
+    END_IF
+END_IF</code></pre></div>
+<p>也就是明确检查前缀是不是：</p>
+<div class="code-card"><small>text</small><pre><code>$share/</code></pre></div>
+<p>但识别出来不等于就能用。 还得继续看 Broker 在 CONNACK 里有没有声明支持 <code>Shared Subscription</code>。</p>
+<hr>
+<h2 id="unsubscribe">九、UNSUBSCRIBE 为什么也不能写得太随便</h2>
+<p>很多人会觉得：</p>
+<blockquote>取消订阅不就是把主题再发一次吗？</blockquote>
+<p>实际上，UNSUBSCRIBE 也有自己的 ACK 链：</p>
+<div class="mermaid-card"><small>Mermaid</small><pre><code>sequenceDiagram
+    participant PLC as PLC Client
+    participant Broker as Broker
+
+    PLC-&gt;&gt;Broker: UNSUBSCRIBE
+    Broker--&gt;&gt;PLC: UNSUBACK</code></pre></div>
+<p>对应状态机是：</p>
+<div class="code-card"><small>text</small><pre><code>iConnected -&gt; iUnsubscribe -&gt; iUnsubAck -&gt; iConnected</code></pre></div>
+<p>所以退订卡死，往往不是“主题字符串错了”这么简单。 也可能是：</p>
+<ul><li>Packet ID 没管好</li><li>ACK 没等对</li><li>状态机等待状态没释放</li></ul>
+<hr>
+<h2 id="mbuildunsubscribepacket">十、MBuildUnsubscribePacket 的重点其实更纯粹</h2>
+<p>这个方法的逻辑相对订阅更简单，主线就是：</p>
+<ol><li>校验退订主题</li><li>分配 Packet ID</li><li>如果是 MQTT 5.0，写一个空属性长度</li><li>写主题过滤器</li></ol>
+<p>注意这句：</p>
+<div class="code-card"><small>iecst</small><pre><code>uiPendingUnsubPacketId := M_GetNextPacketId();
+IF uiPendingUnsubPacketId = 0 THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrReceiveMaxExceeded),
+        sMessage := &#x27;No Packet ID available for unsubscribe&#x27;);
+    M_BuildUnsubscribePacket := FALSE;
+    RETURN;
+END_IF</code></pre></div>
+<p>这说明退订不是随便发个字符串，它同样是一个有身份、有等待链的协议动作。</p>
+<hr>
+<h2 id="section-d3eeb90e">十一、为什么订阅链常见的问题不是“完全错”，而是“边界错”</h2>
+<p>订阅链很有意思。 它比发布链更容易出现“多数时候能用，但总有几个边角不对”的情况。</p>
+<p>最典型的边界就是：</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>问题</th><th>常见原因</th></tr></thead>
+<tbody>
+<tr><td>某些过滤器一订就错</td><td><code>#</code> / <code>+</code> 规则没写严</td></tr>
+<tr><td>系统主题订阅不对</td><td><code>$</code> 前缀规则没处理</td></tr>
+<tr><td>共享订阅格式能过但 Broker 拒绝</td><td>只做了字符串判断，没做能力判断</td></tr>
+<tr><td>MQTT 5.0 订阅标识符报错</td><td>Broker 不支持，但客户端硬发</td></tr>
+<tr><td>退订后状态机卡住</td><td><code>UNSUBACK</code> 等待链处理不完整</td></tr>
+</tbody></table></div>
+<p>所以订阅链的成熟度，不看“能不能订到一个主题”，而看 <strong>边界条件能不能全站住</strong>。</p>
+<hr>
+<h2 id="section-8e354b5a">十二、把订阅链的四层关系串起来</h2>
+<h3 id="1-5">1. 标准层</h3>
+<ul><li><code>SUBSCRIBE -&gt; SUBACK</code></li><li><code>UNSUBSCRIBE -&gt; UNSUBACK</code></li></ul>
+<h3 id="2-5">2. 报文层</h3>
+<ul><li>都带 Packet ID</li><li>SUBSCRIBE 载荷里是 Topic Filter + Options</li><li>UNSUBSCRIBE 载荷里是 Topic Filter</li></ul>
+<h3 id="3-5">3. 状态机层</h3>
+<ul><li><code>iSubscribe -&gt; iSubAck</code></li><li><code>iUnsubscribe -&gt; iUnsubAck</code></li></ul>
+<h3 id="4-st">4. ST 实现层</h3>
+<div class="article-table-wrap"><table>
+<thead><tr><th>动作</th><th>方法</th></tr></thead>
+<tbody>
+<tr><td>订阅过滤器校验</td><td><code>M_IsValidTopicFilter</code></td></tr>
+<tr><td>构造订阅报文</td><td><code>M_BuildSubscribePacket</code></td></tr>
+<tr><td>构造退订报文</td><td><code>M_BuildUnsubscribePacket</code></td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="5">十三、这一篇你最该记住的 5 句话</h2>
+<ol><li><strong>订阅过滤器和发布主题不是一种字符串。</strong></li><li><strong><code>#</code> 只能在最后，<code>+</code> 必须独占一个层级。</strong></li><li><strong>共享订阅不是只看 <code>$share/</code> 前缀，还要看 Broker 能力。</strong></li><li><strong>SUBSCRIBE / UNSUBSCRIBE 都是完整状态链，不是发完就结束。</strong></li><li><strong>订阅链真正考验的是边界条件，而不是最简单那一个主题能不能跑通。</strong></li></ol>
+<hr>
+<h2 id="section-865f2185">十四、下篇预告</h2>
+<p>下一篇我们不再盯单个报文，直接上总控：</p>
+<p><strong>PLC 里写 MQTT，最难的其实不是报文，而是状态机</strong></p>
+<p>重点会讲：</p>
+<ul><li><code>FB_MqttClient</code> 主状态机怎么分层</li><li>为什么 <code>iConnected</code> 才是真正的调度中心</li><li>为什么接收链和发送链不能乱绞在一起</li></ul>
+<p>到这里，我们才算真正进入“这套客户端为什么能跑稳”的核心。</p>
+<hr>
+<h2 id="st">完整 ST 代码</h2>
+<h3 id="section-882dd074">复制使用说明</h3>
+<ul><li>这部分给出的是与本篇主题直接对应的完整 ST 代码，不是零碎片段。</li><li>如果你只是想先跑通，优先整段复制，不要只摘几行变量或几条赋值语句。</li><li>如果是 <code>METHOD</code>，请确认它仍然属于 <code>FB_MqttClient</code>；如果是 <code>PROGRAM</code>，请确认相关 DUT、GVL、FB 已一并导入。</li></ul>
+<h3 id="section-5c5d2c8c">代码阅读重点</h3>
+<ul><li>先按 <code>报文结构 -&gt; 状态机入口 -&gt; 关键变量 -&gt; 返回结果</code> 的顺序看。</li><li>再把正文里的十六进制拆解和这里的字节写入、字节解析语句一行行对上。</li><li>最后回到在线调试，重点盯 <code>uiTxLength</code>、<code>uiRxLength</code>、<code>eState</code>、<code>xWaitingForAck</code> 这类状态量。</li></ul>
+<h3 id="1-mbuildsubscribepacket">完整代码 1：MBuildSubscribePacket</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/??????/M_BuildSubscribePacket.st</code></li><li>复制使用说明：这是 SUBSCRIBE 主方法，复制后就能直接对应到订阅报文的组包流程。</li><li>阅读重点：重点看 Topic Filter 校验、Packet ID 生成、MQTT 5.0 订阅属性以及最后一字节订阅选项的拼接。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_BuildSubscribePacket
+/// 功能      : 构建 SUBSCRIBE 发送报文
+/// 说明      : 根据 MQTT 版本组装订阅报文，并在发送前执行基础协议校验。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.2
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_BuildSubscribePacket : BOOL
+VAR
+    uiPos                   : UINT := 0;   // 当前写入偏移
+    uiVarHeaderLen          : UINT;        // 可变报头长度
+    uiPayloadLen            : UINT;        // 载荷长度
+    uiRemainingLen          : UINT;        // 剩余长度
+    uiPropsLen              : UINT;        // MQTT 5.0 属性总长度
+    uiSubIdVbiBytes         : UINT;        // 订阅标识符 VBI 编码字节数
+    i                       : DINT;        // 通用循环索引
+    bHasWildcard            : BOOL;        // 是否包含通配符
+    bIsSharedSubscription   : BOOL;        // 是否共享订阅
+END_VAR
+
+// === IMPLEMENTATION ===
+IF SIZEOF(aTxBuf) &lt; 256 THEN
+    M_BuildSubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+IF sSubTopic = &#x27;&#x27; THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Subscribe topic is required&#x27;);
+    M_BuildSubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+IF TO_UINT(LEN(sSubTopic)) &gt; GVL_Mqtt.cnMaxTopicLen THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Subscribe topic exceeds maximum length&#x27;);
+    M_BuildSubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+IF NOT M_IsValidUtf8String(sValue := sSubTopic) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Subscribe topic filter is not valid UTF-8&#x27;);
+    M_BuildSubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+IF NOT M_IsValidTopicFilter(sTopicFilter := sSubTopic) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Subscribe topic filter is invalid&#x27;);
+    M_BuildSubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+bHasWildcard := FALSE;
+FOR i := 1 TO TO_DINT(LEN(sSubTopic)) DO
+    IF (sSubTopic[i - 1] = 16#2B) OR (sSubTopic[i - 1] = 16#23) THEN
+        bHasWildcard := TRUE;
+        EXIT;
+    END_IF
+END_FOR
+
+bIsSharedSubscription := FALSE;
+IF LEN(sSubTopic) &gt;= 7 THEN
+    IF (sSubTopic[0] = 16#24) AND
+       (sSubTopic[1] = 16#73) AND
+       (sSubTopic[2] = 16#68) AND
+       (sSubTopic[3] = 16#61) AND
+       (sSubTopic[4] = 16#72) AND
+       (sSubTopic[5] = 16#65) AND
+       (sSubTopic[6] = 16#2F) THEN
+        bIsSharedSubscription := TRUE;
+    END_IF
+END_IF
+
+IF (eVersion = E_MqttVersion.byMqttVersion50) AND (udiSubscriptionId &gt; 0) AND (NOT bServerSubIdAvail) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Server does not support subscription identifiers&#x27;);
+    M_BuildSubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+IF (eVersion = E_MqttVersion.byMqttVersion50) AND (NOT bServerWildcardSubAvail) AND bHasWildcard THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Server does not support wildcard subscriptions&#x27;);
+    M_BuildSubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+IF (eVersion = E_MqttVersion.byMqttVersion50) AND (NOT bServerSharedSubAvail) AND bIsSharedSubscription THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Server does not support shared subscriptions&#x27;);
+    M_BuildSubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+FOR i := LOWER_BOUND(aTxBuf, 1) TO UPPER_BOUND(aTxBuf, 1) DO
+    aTxBuf[i] := 0;
+END_FOR
+
+uiVarHeaderLen := 2;
+uiPropsLen := 0;
+uiSubIdVbiBytes := 0;
+
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    IF udiSubscriptionId &gt; 0 THEN
+        IF udiSubscriptionId &lt; 128 THEN
+            uiSubIdVbiBytes := 1;
+        ELSIF udiSubscriptionId &lt; 16384 THEN
+            uiSubIdVbiBytes := 2;
+        ELSIF udiSubscriptionId &lt; 2097152 THEN
+            uiSubIdVbiBytes := 3;
+        ELSE
+            uiSubIdVbiBytes := 4;
+        END_IF
+        uiPropsLen := uiPropsLen + 1 + uiSubIdVbiBytes;
+    END_IF
+
+    IF uiPropsLen &lt; 128 THEN
+        uiVarHeaderLen := uiVarHeaderLen + 1 + uiPropsLen;
+    ELSE
+        uiVarHeaderLen := uiVarHeaderLen + 2 + uiPropsLen;
+    END_IF
+END_IF
+
+uiPayloadLen := TO_UINT(LEN(sSubTopic)) + 3;
+uiRemainingLen := uiVarHeaderLen + uiPayloadLen;
+
+IF uiRemainingLen + 5 &gt; SIZEOF(aTxBuf) THEN
+    M_BuildSubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+uiPos := 0;
+aTxBuf[uiPos] := E_MqttPacketType.bySubscribe;
+uiPos := uiPos + 1;
+uiPos := uiPos + M_EncodeRemainingLength(udiLength := uiRemainingLen, pBuffer := ADR(aTxBuf[uiPos]));
+
+uiPendingSubPacketId := M_GetNextPacketId();
+IF uiPendingSubPacketId = 0 THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrReceiveMaxExceeded),
+        sMessage := &#x27;No Packet ID available for subscribe&#x27;);
+    M_BuildSubscribePacket := FALSE;
+    RETURN;
+END_IF
+uiExpectedPacketId := uiPendingSubPacketId;
+aTxBuf[uiPos] := UINT_TO_BYTE(SHR(uiPendingSubPacketId, 8));
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := UINT_TO_BYTE(uiPendingSubPacketId AND 16#FF);
+uiPos := uiPos + 1;
+
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    uiPos := uiPos + M_EncodeRemainingLength(udiLength := uiPropsLen, pBuffer := ADR(aTxBuf[uiPos]));
+    IF udiSubscriptionId &gt; 0 THEN
+        aTxBuf[uiPos] := GVL_Mqtt.cnPropSubscriptionId;
+        uiPos := uiPos + 1;
+        uiPos := uiPos + M_EncodeRemainingLength(udiLength := udiSubscriptionId, pBuffer := ADR(aTxBuf[uiPos]));
+    END_IF
+END_IF
+
+uiPos := uiPos + M_AppendString(sStr := sSubTopic, pBuffer := ADR(aTxBuf[uiPos]));
+aTxBuf[uiPos] := TO_BYTE(eSubQoS AND 16#03);
+uiPos := uiPos + 1;
+
+uiTxLength := uiPos;
+M_BuildSubscribePacket := TRUE;</code></pre></div>
+<h3 id="2-mbuildunsubscribepacket">完整代码 2：MBuildUnsubscribePacket</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/??????/M_BuildUnsubscribePacket.st</code></li><li>复制使用说明：这是取消订阅的完整组包方法，和订阅一起看最容易把配对逻辑理清。</li><li>阅读重点：重点看固定报头、Packet ID、主题字符串写入，以及为什么 UNSUBSCRIBE 也必须走独立的等待 ACK 流程。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>﻿/// =======================================================================
+/// 名称      : M_BuildUnsubscribePacket
+/// 功能      : 构建 UNSUBSCRIBE 发送报文
+/// 说明      : 根据 MQTT 版本组装取消订阅报文并更新发送长度。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_BuildUnsubscribePacket : BOOL
+VAR
+    uiPos               : UINT := 0;
+    uiVarHeaderLen      : UINT;
+    uiPayloadLen        : UINT;
+    uiRemainingLen      : UINT;
+    uiPropsLen          : UINT;                                                 //MQTT 5.0属性总长度
+    i                   : DINT;
+END_VAR
+
+// === IMPLEMENTATION ===
+// BUG-10: 缓冲区溢出保护
+IF SIZEOF(aTxBuf) &lt; 256 THEN
+    M_BuildUnsubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+IF sUnsubTopic = &#x27;&#x27; THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Unsubscribe topic is required&#x27;);
+    M_BuildUnsubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+IF TO_UINT(LEN(sUnsubTopic)) &gt; GVL_Mqtt.cnMaxTopicLen THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Unsubscribe topic exceeds maximum length&#x27;);
+    M_BuildUnsubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+IF NOT M_IsValidUtf8String(sValue := sUnsubTopic) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Unsubscribe topic filter is not valid UTF-8&#x27;);
+    M_BuildUnsubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+IF NOT M_IsValidTopicFilter(sTopicFilter := sUnsubTopic) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Unsubscribe topic filter is invalid&#x27;);
+    M_BuildUnsubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+// 清空发送缓冲区，避免数据干扰
+FOR i := LOWER_BOUND(aTxBuf, 1) TO UPPER_BOUND(aTxBuf, 1) DO
+    aTxBuf[i] := 0;
+END_FOR
+
+/// =======================================================================
+/// 长度计算
+/// =======================================================================
+// 可变报头长度 = Packet ID(2)
+uiVarHeaderLen := 2;
+
+// MQTT 5.0: 取消订阅属性（当前无属性，长度为0）
+uiPropsLen := 0;
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    // 属性长度(0)的VBI编码 = 1字节
+    uiVarHeaderLen := uiVarHeaderLen + 1 + uiPropsLen;
+END_IF
+
+// 载荷长度 = 主题(2+len)
+uiPayloadLen := TO_UINT(LEN(sUnsubTopic) + 2);
+
+uiRemainingLen := uiVarHeaderLen + uiPayloadLen;
+
+// BUG-10: 缓冲区长度检查
+IF uiRemainingLen + 5 &gt; SIZEOF(aTxBuf) THEN
+    M_BuildUnsubscribePacket := FALSE;
+    RETURN;
+END_IF
+
+/// =======================================================================
+/// 创建报文
+/// =======================================================================
+uiPos := 0;
+
+// ****************** 固定报文头 = 报文类型 + 剩余长度 ******************
+aTxBuf[0] := E_MqttPacketType.byUnsubscribe;
+uiPos := uiPos + 1;
+
+uiPos := uiPos + M_EncodeRemainingLength(uiRemainingLen, ADR(aTxBuf[uiPos]));
+
+// ****************** 可变报文头: Packet ID ******************
+    uiPendingUnsubPacketId := M_GetNextPacketId();
+    IF uiPendingUnsubPacketId = 0 THEN
+        M_SetError(
+            uiErrorCode := TO_UINT(E_ReasonCode.uiErrReceiveMaxExceeded),
+            sMessage := &#x27;No Packet ID available for unsubscribe&#x27;);
+        M_BuildUnsubscribePacket := FALSE;
+        RETURN;
+    END_IF
+    uiExpectedPacketId := uiPendingUnsubPacketId;
+    aTxBuf[uiPos] := UINT_TO_BYTE(SHR(uiPendingUnsubPacketId, 8));              uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UINT_TO_BYTE(uiPendingUnsubPacketId AND 16#FF);            uiPos := uiPos + 1;
+
+// ****************** MQTT 5.0: 取消订阅属性 ******************
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    // 属性长度（VBI编码，当前为0=无属性）
+    uiPos := uiPos + M_EncodeRemainingLength(uiPropsLen, ADR(aTxBuf[uiPos]));
+END_IF
+
+// ****************** 载荷: 主题 ******************
+uiPos := uiPos + M_AppendString(sUnsubTopic, ADR(aTxBuf[uiPos]));
+
+uiTxLength := uiPos;
+M_BuildUnsubscribePacket := TRUE;</code></pre></div>
+<h3 id="3-misvalidtopicfilter">完整代码 3：MIsValidTopicFilter</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/????/M_IsValidTopicFilter.st</code></li><li>复制使用说明：这是主题过滤器合法性校验方法，建议和 SUBSCRIBE 一起复制，不要只复制订阅组包而漏掉校验层。</li><li>阅读重点：重点看 <code>#</code>、<code>+</code>、<code>$</code> 系统主题这些规则怎么落成 ST 判断，这正是“标准语言”翻译成“工程代码”的最好例子。</li></ul>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_IsValidTopicFilter
+/// 功能      : 校验 MQTT Topic Filter 合法性
+/// 说明      : 用于 SUBSCRIBE 主题过滤器的离线格式校验
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_IsValidTopicFilter : BOOL
+VAR_INPUT
+    sTopicFilter         : STRING;         // 待校验主题过滤器
+END_VAR
+VAR
+    uiLen                : UINT;           // 过滤器长度
+    i                    : UINT;           // 遍历索引
+    byChar               : BYTE;           // 当前字符
+    byPrev               : BYTE;           // 前一字符
+    byNext               : BYTE;           // 后一字符
+END_VAR
+
+// === IMPLEMENTATION ===
+uiLen := TO_UINT(LEN(sTopicFilter));
+IF uiLen = 0 THEN
+    M_IsValidTopicFilter := FALSE;
+    RETURN;
+END_IF
+
+FOR i := 1 TO uiLen DO
+    byChar := TO_BYTE(sTopicFilter[i - 1]);
+
+    IF byChar = 0 THEN
+        M_IsValidTopicFilter := FALSE;
+        RETURN;
+    END_IF
+
+    IF byChar = 16#23 THEN
+        IF i &lt;&gt; uiLen THEN
+            M_IsValidTopicFilter := FALSE;
+            RETURN;
+        END_IF
+
+        IF (i &gt; 1) AND (TO_BYTE(sTopicFilter[i - 2]) &lt;&gt; 16#2F) THEN
+            M_IsValidTopicFilter := FALSE;
+            RETURN;
+        END_IF
+    END_IF
+
+    IF byChar = 16#2B THEN
+        byPrev := 0;
+        byNext := 0;
+
+        IF i &gt; 1 THEN
+            byPrev := TO_BYTE(sTopicFilter[i - 2]);
+        END_IF
+
+        IF i &lt; uiLen THEN
+            byNext := TO_BYTE(sTopicFilter[i]);
+        END_IF
+
+        IF ((i &gt; 1) AND (byPrev &lt;&gt; 16#2F)) OR
+           ((i &lt; uiLen) AND (byNext &lt;&gt; 16#2F)) THEN
+            M_IsValidTopicFilter := FALSE;
+            RETURN;
+        END_IF
+    END_IF
+END_FOR
+
+IF (uiLen &gt;= 2) AND (sTopicFilter[0] = 16#24) THEN
+    IF (sTopicFilter[1] = 16#23) OR (sTopicFilter[1] = 16#2B) THEN
+        M_IsValidTopicFilter := FALSE;
+        RETURN;
+    END_IF
+END_IF
+
+M_IsValidTopicFilter := TRUE;</code></pre></div>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../mqtt-client-part-04-4-qos1-qos2-ack-9527b7/index.html">
+                <small>上一篇 / 第4篇</small>
+                <strong>为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透</strong>
+                <span>这一篇专门讲高可靠链路为什么最容易出问题，核心内容包括 ACK 链、inflight、超时重发、DUP 位以及高频场景下为什么状态机会最先暴露短板。</span>
+              </a>
+              <a class="series-nav-card" href="../mqtt-client-part-06-6-plc-mqtt-b91df7/index.html">
+                <small>下一篇 / 第6篇</small>
+                <strong>PLC 里写 MQTT，最难的不是报文，而是状态机</strong>
+                <span>这一篇站在架构层看 FBMqttClient，重点讲主状态机为什么才是系统骨架、iConnected 为什么是调度中心、接收链和发送链为什么必须拆开，以及异常为什么统一收口到 iTcpDisconnect。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", () => window.setTimeout(updateActiveToc, 90));
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

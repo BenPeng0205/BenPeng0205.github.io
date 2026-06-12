@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Broker 不是一个大循环，先看监听和连接池 | ControlRookie</title>
+  <meta name="description" content="Client 是一条连接的状态机；Broker 是多条连接的调度器。这个差异决定了源码结构完全不同。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#050505">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/mqtt-broker-source-01-01-broker-663036/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="Broker 不是一个大循环，先看监听和连接池">
+  <meta property="og:description" content="Client 是一条连接的状态机；Broker 是多条连接的调度器。这个差异决定了源码结构完全不同。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-broker-source-01-01-broker-663036/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Broker 不是一个大循环，先看监听和连接池">
+  <meta name="twitter:description" content="Client 是一条连接的状态机；Broker 是多条连接的调度器。这个差异决定了源码结构完全不同。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <aside class="article-toc" aria-label="文章目录">
+            <strong>目录</strong>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-19141938">本篇核心图</a></li><li><a href="#section-40801861">顶层架构</a></li><li><a href="#section-fcd193f3">顶层功能块源码片段</a></li><li><a href="#section-64bb1e6d">容量表就是产品边界</a></li><li><a href="#section-66b1b106">这一篇最该记住的几句话</a></li><li><a href="#section-297346c3">本篇结论</a></li></ol>
+          </aside>
+          <div class="article-main" id="article-top">
+            <nav class="article-breadcrumb" aria-label="文章路径">
+              <a href="../../index.html#articles">文章</a>
+              <span>/</span>
+              <a href="../../index.html#articles">MQTT Broker 系列教程</a>
+              <span>/</span>
+              <a href="../../index.html#articles">通信</a>
+              <span>/</span>
+              <a href="../../index.html#articles">CODESYS</a>
+            </nav>
+            <header class="article-hero">
+              <h1>Broker 不是一个大循环，先看监听和连接池</h1>
+              <p class="article-summary">Client 是一条连接的状态机；Broker 是多条连接的调度器。这个差异决定了源码结构完全不同。</p>
+              <div class="article-meta">
+                <span>2026-05-06</span>
+                <span>约 4 分钟阅读</span>
+                <span>第11篇/共14篇</span>
+                <span>[MQTT / CodeSys / PLC通信 / ControlRookie] / MQTT / CODESYS / PLC / ControlRookie</span>
+              </div>
+            </header>
+            <div class="article-content">
+              <div class="article-source-scope"><strong>源码范围说明</strong><p>本篇属于 MQTT 源码加更，展示的是 V1.0 运行链路中的核心源码片段、对象职责和阅读顺序；它不是完整工程源码包，也不等同于 1.0 全量源码清单。完整源码资源后续应在资源/源码页统一维护。</p></div>
+<blockquote>Client 是一条连接的状态机；Broker 是多条连接的调度器。这个差异决定了源码结构完全不同。</blockquote>
+<h2 id="section-0d70135c">适合谁收藏</h2>
+<h2 id="section-19141938">本篇核心图</h2>
+<p>读图重点：先看对象之间的职责边界，再看状态或数据如何流动。</p>
+<figure><img src="../../assets/articles/mqtt-broker-source-01-01-broker-663036/broker-source-01-pool.png" alt="本篇核心图"><figcaption>本篇核心图</figcaption></figure>
+<ul><li>适合看完 Client 后，想理解 PLC 侧 Broker 为什么要固定连接槽位的人。</li><li>适合排查多个客户端同时连接、掉线、槽位释放问题的人。</li></ul>
+<h2 id="section-40801861">顶层架构</h2>
+<p>FB_MqttBroker 负责 TCP 监听、连接槽位、路由器、接收事务调度器、发送事务调度器、诊断和统计。它没有用动态对象，也不靠系统线程池，而是采用固定容量槽位。</p>
+<h2 id="section-fcd193f3">顶层功能块源码片段</h2>
+<div class="code-card"><small>iecst</small><pre><code>FUNCTION_BLOCK FB_MqttBroker
+VAR_INPUT
+    bEnable       : BOOL := TRUE; // Broker 总使能，FALSE 时关闭监听并释放连接槽位运行态
+    sBindIP       : STRING := &#x27;0.0.0.0&#x27;; // TCP 监听绑定地址，0.0.0.0 表示所有网卡
+    uiPort        : UINT := GVL_MqttBroker.cnDefaultPort; // MQTT Broker TCP 监听端口号
+    xAuthEnable   : BOOL := FALSE; // 是否启用固定用户表基础认证
+    xAclEnable    : BOOL := FALSE; // 是否启用固定 Topic ACL 权限控制
+    xClearDiag    : BOOL := FALSE; // 上升沿清除诊断环形历史
+    xClearMetrics : BOOL := FALSE; // 上升沿清除运行统计计数
+    xKickClient   : BOOL := FALSE; // 上升沿踢掉指定 ClientID 对应连接
+    sKickClientId : STRING(GVL_MqttBroker.cnMaxClientIdLen); // 需要踢掉的 MQTT ClientID
+END_VAR</code></pre></div>
+<p>Broker 的输入很少，因为大部分行为不是用户每周期触发，而是客户端报文驱动。</p>
+<h2 id="section-64bb1e6d">容量表就是产品边界</h2>
+<div class="code-card"><small>iecst</small><pre><code>{attribute &#x27;qualified_only&#x27;}
+VAR_GLOBAL CONSTANT
+    cnDefaultPort              : UINT  := 1883;  // Broker 默认 MQTT TCP 监听端口号
+    cnMaxClientSlots           : UINT  := 8;     // PLC 侧 Broker 同时允许保持的最大客户端槽位数量
+    cnMaxSubscriptions         : UINT  := 64;    // 全局订阅表最大条目数，所有客户端共享
+    cnMaxRetainedMessages      : UINT  := 32;    // Retain 保留消息表最大条目数
+    cnMaxRxInflight            : UINT  := 16;    // 入站 QoS&gt;0 事务表容量，为未来 QoS2 接收去重预留
+    cnMaxTxInflight            : UINT  := 32;    // 出站 QoS&gt;0 事务表容量，为 QoS1 重发和未来 QoS2 投递预留
+    cnMaxTopicLen              : UINT  := 256;   // MQTT Topic Name / Topic Filter 最大长度[byte]
+    cnMaxClientIdLen           : UINT  := 128;   // MQTT ClientID 最大缓存长度[byte]
+    cnMaxUsernameLen           : UINT  := 64;    // MQTT 用户名最大缓存长度[byte]
+    cnMaxPasswordLen           : UINT  := 64;    // MQTT 密码最大缓存长度[byte]
+    cnMaxPayloadLen            : UINT  := 1024;  // 单条消息载荷最大缓存长度[byte]
+    cnRxBufferSize             : UINT  := 2048;  // 单连接 TCP 接收缓冲区容量[byte]
+    cnTxBufferSize             : UINT  := 2048;  // 单连接 TCP 发送缓冲区容量[byte]
+    cnMaxTopicItemsPerPacket   : UINT  := 8;     // 单个 SUBSCRIBE / UNSUBSCRIBE 报文最多解析的主题条目数
+    cnMaxAuthUsers             : UINT  := 8;     // 固定用户表最大条目数，用于轻量基础认证
+    cnMaxAclRules              : UINT  := 16;    // 固定 Topic 权限表最大条目数，用于轻量 ACL
+    cnProtocolQueueSize        : UINT  := 8;     // 单连接协议优先队列容量，PUBACK/SUBACK/PINGRESP 等优先使用</code></pre></div>
+<p>PLC Broker 的核心取舍是稳定可控，不是无限扩容。容量固定后，调试和资源评估才有边界。</p>
+<h2 id="section-66b1b106">这一篇最该记住的几句话</h2>
+<p>Broker 不是一个大循环，而是监听层、连接槽位、路由器和调度器的协作。</p>
+<h2 id="section-297346c3">本篇结论</h2>
+<p>Broker 源码先看 FB_MqttBroker 和 GVL_MqttBroker。前者告诉你调度结构，后者告诉你容量边界。下一篇进入单连接槽位：一个 TCP 连接如何被解析成 MQTT 会话。</p>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../mqtt-broker-extra-02-2-plc-mqttbroker-cc9b12/index.html">
+                <small>上一篇 / 第10篇</small>
+                <strong>这套 PLC 侧 MQTT Broker，我是怎么从连不上、掉线、延迟一路修到稳定的</strong>
+                <span>这一篇是项目复盘。它不再按标准条文讲，而是把这套 PLC 侧 MQTT Broker 从规划、编译错误、连接闪烁、订阅失败、发布掉线、Retain 漏实现、性能延迟、MQTT 3.1/5.0 兼容一路修到稳定的过程完。</span>
+              </a>
+              <a class="series-nav-card" href="../mqtt-broker-source-02-02-connect-51f183/index.html">
+                <small>下一篇 / 第12篇</small>
+                <strong>CONNECT 解析和单连接状态机</strong>
+                <span>Broker 接收到 TCP 连接，不代表它已经接收了一个 MQTT 客户端。必须等 CONNECT 解析成功，才能创建 MQTT 会话。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", () => window.setTimeout(updateActiveToc, 90));
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

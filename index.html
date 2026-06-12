@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ControlRookie | AI 自动化架构师</title>
+  <meta name="description" content="ControlRookie 致力于工业自动化领域控制、算法、架构、AI 与工程工具的开源分享，帮助自动化工程师提升工程效率。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#050505">
+  <link rel="canonical" href="https://benpeng0205.github.io/">
+  <link rel="alternate" hreflang="zh-CN" href="https://benpeng0205.github.io/">
+  <link rel="alternate" hreflang="en" href="https://benpeng0205.github.io/">
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="ControlRookie | AI 自动化架构师">
+  <meta property="og:description" content="面向自动化工程师的控制、算法、架构、AI 工具和工程效率源码分享。">
+  <meta property="og:url" content="https://benpeng0205.github.io/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ControlRookie | AI 自动化架构师">
+  <meta name="twitter:description" content="跟得上时代的 AI 自动化架构师，分享工业自动化工程效率实践。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="styles/site.css">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "ControlRookie",
+      "alternateName": "Ben Peng",
+      "jobTitle": "AI 自动化架构师",
+      "description": "ControlRookie 致力于工业自动化领域控制、算法、架构、前沿技术和 AI 工具的源码开源分享。",
+      "url": "https://benpeng0205.github.io/",
+      "image": "https://benpeng0205.github.io/assets/images/brand/controlrookie-portrait.jpg",
+      "sameAs": [
+        "https://blog.csdn.net/weixin_44442562?type=blog",
+        "https://blog.csdn.net/weixin_44442562/category_13163069.html"
+      ],
+      "knowsAbout": ["PLC", "CODESYS", "MQTT", "SmartControl", "AI Automation", "Engineering Efficiency"]
+    }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#top">跳到主要内容</a>
+  <div class="site-shell">
+    <!-- 全站固定导航：对应每一页顶部的 ForAI 风格透明导航条。 -->
+    <header class="nav" aria-label="Primary navigation">
+      <!-- 导航左侧品牌控件：后续替换正式 Logo 时优先改这里。 -->
+      <a class="brand" href="#top" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="assets/images/brand/controlrookie-logo-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <!-- 导航中部页面入口：资源、文章、产品、联系四个单页锚点。 -->
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#about" data-nav-primary data-i18n="nav.about">关于我</a>
+        <a href="#works" data-nav-primary data-i18n="nav.resources">资源</a>
+        <!-- 顶部文章入口：只做轻量快捷入口，真正的文章主导航在文章中心左侧索引栏。 -->
+        <div class="nav-article-menu">
+          <a class="nav-article-trigger" href="#articles" data-nav-primary data-i18n="nav.articles">文章</a>
+          <div class="nav-article-panel" aria-label="文章快捷导航">
+            <a href="articles/mqtt-client-open-source-codesys-layer/index.html" data-i18n="nav.article.menu.client">MQTT Client 第1篇</a>
+            <a href="https://blog.csdn.net/weixin_44442562/category_13163069.html" target="_blank" rel="noreferrer" data-i18n="nav.article.menu.server">MQTT Server 资料</a>
+          </div>
+        </div>
+        <a href="#products" data-nav-primary data-i18n="nav.products">产品</a>
+        <a href="#contact" data-nav-primary data-i18n="nav.contact">联系</a>
+      </nav>
+      <!-- 导航右侧操作区：搜索控件在左，语言切换控件在最右。 -->
+      <div class="nav-actions">
+        <!-- 全站搜索控件：默认收起为黑色图标，选中后展开输入框和结果面板。 -->
+        <div class="search-shell" id="searchShell">
+          <button class="search-icon" id="searchButton" type="button" aria-label="Search" aria-expanded="false" aria-controls="searchPanel">
+            <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M10.8 18.1a7.3 7.3 0 1 1 0-14.6 7.3 7.3 0 0 1 0 14.6Zm5.2-2.1 4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <input class="search-input" id="siteSearch" type="search" placeholder="搜索文章、资源、产品" autocomplete="off" data-i18n-placeholder="search.placeholder" aria-label="搜索文章、资源、产品">
+        </div>
+        <!-- 中英文切换控件：中文界面显示 EN，英文界面显示“中”。 -->
+        <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language">EN</button>
+      </div>
+      <!-- 搜索结果浮层：由 src/lib/site.js 根据 searchIndex 动态渲染。 -->
+      <div class="search-panel" id="searchPanel" aria-label="Search results" role="region"></div>
+    </header>
+
+    <main id="top">
+      <!-- 首页首屏：左侧个人照片，右侧定位文案，下方四个领域卡片。 -->
+      <section class="hero" aria-label="ControlRookie introduction">
+        <div class="hero-inner">
+          <!-- 首页照片控件：保留左侧位置，适配人脸朝右的个人照片。 -->
+          <div class="portrait-frame" aria-label="ControlRookie portrait placeholder">
+            <img class="portrait-image" src="assets/images/brand/controlrookie-portrait.jpg" alt="ControlRookie portrait">
+          </div>
+
+          <!-- 首页主文案控件：ControlRookie 品牌名、定位句和愿景句。 -->
+          <div class="hero-copy">
+            <h1>ControlRookie</h1>
+            <p class="hero-statement" data-i18n="hero.statement">跟得上时代的 AI 自动化架构师。</p>
+            <p class="hero-description" data-i18n="hero.description">致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。</p>
+          </div>
+
+          <!-- 首页四领域控件：PLC、AI、Code、Share 必须在首屏内完整可见。 -->
+          <div class="focus-strip" aria-label="Core domains">
+            <article class="focus-card">
+              <small data-i18n="focus.1.kicker">领域 01</small>
+              <strong>PLC</strong>
+              <span data-i18n="focus.1.copy">控制逻辑、状态机、设备通信与工程现场问题。</span>
+            </article>
+            <article class="focus-card">
+              <small data-i18n="focus.2.kicker">领域 02</small>
+              <strong>AI</strong>
+              <span data-i18n="focus.2.copy">Agent、自动化编程、知识蒸馏和工程提效。</span>
+            </article>
+            <article class="focus-card">
+              <small data-i18n="focus.3.kicker">领域 03</small>
+              <strong>Code</strong>
+              <span data-i18n="focus.3.copy">源码开源、工具封装、脚本化和可复用工作流。</span>
+            </article>
+            <article class="focus-card">
+              <small data-i18n="focus.4.kicker">领域 04</small>
+              <strong>Share</strong>
+              <span data-i18n="focus.4.copy">CSDN、公众号、教程、方案和工程复盘。</span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- 关于我页：按真实路径先做时间线骨架，后续继续补年份、项目和能力描述。 -->
+      <section class="section section-line fade-in" id="about" aria-label="关于我">
+        <div class="about-shell">
+          <!-- 关于我主叙事卡：保持中心轴平衡，只承接时间线和后续能力描述入口。 -->
+          <article class="about-intro-card">
+            <small data-i18n="about.intro.label">时间线 / 工业现场</small>
+            <h2 data-i18n="about.intro.title">从学术研究到工业现场。</h2>
+            <p data-i18n="about.intro.copy">这里先保留个人路径的骨架，后续会补充具体年份、项目职责、行业场景和能力描述。当前重点是把经历按时间顺序清晰放出来。</p>
+          </article>
+          <!-- 关于我时间线：必须体现清晰轴线和节点顺序，不能退化成普通卡片堆叠。 -->
+          <ol class="about-timeline" aria-label="ControlRookie about me timeline">
+            <li class="timeline-node">
+              <span>01</span>
+              <div>
+                <strong data-i18n="about.node.1.name">达姆施达特工业大学</strong>
+                <p data-i18n="about.node.1.copy">控制理论、系统建模和工程方法的学术基础。</p>
+              </div>
+            </li>
+            <li class="timeline-node">
+              <span>02</span>
+              <div>
+                <strong data-i18n="about.node.2.name">Bosch</strong>
+                <p data-i18n="about.node.2.copy">工业研发体系、工程规范和跨团队协作经验。</p>
+              </div>
+            </li>
+            <li class="timeline-node">
+              <span>03</span>
+              <div>
+                <strong data-i18n="about.node.3.name">Fraunhofer IWES</strong>
+                <p data-i18n="about.node.3.copy">新能源测试、仿真验证和研究型工程实践。</p>
+              </div>
+            </li>
+            <li class="timeline-node">
+              <span>04</span>
+              <div>
+                <strong data-i18n="about.node.4.name">新能源 HIL</strong>
+                <p data-i18n="about.node.4.copy">控制器闭环测试、模型接入和自动化验证。</p>
+              </div>
+            </li>
+            <li class="timeline-node">
+              <span>05</span>
+              <div>
+                <strong data-i18n="about.node.5.name">烟草</strong>
+                <p data-i18n="about.node.5.copy">离散制造现场、设备联调和工艺控制落地。</p>
+              </div>
+            </li>
+            <li class="timeline-node">
+              <span>06</span>
+              <div>
+                <strong data-i18n="about.node.6.name">冶金传动</strong>
+                <p data-i18n="about.node.6.copy">大功率传动、现场调试和高可靠控制系统。</p>
+              </div>
+            </li>
+            <li class="timeline-node">
+              <span>07</span>
+              <div>
+                <strong data-i18n="about.node.7.name">控制器厂家</strong>
+                <p data-i18n="about.node.7.copy">控制器产品化、生态工具和工程效率方案。</p>
+              </div>
+            </li>
+          </ol>
+          <!-- 关于我能力描述预留区：用户后续提供真实内容后替换。 -->
+          <div class="about-capability-card">
+            <small data-i18n="about.capability.label">能力描述 / 待补充</small>
+            <p data-i18n="about.capability.copy">控制系统、HIL、行业工艺、传动控制、控制器产品化和 AI 工程效率能力将在这里展开。</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 资源页：承载源代码、库文件、标准、模板、协议资料、脚本、AI 工作流、工程资料。 -->
+      <section class="section section-line section-tall fade-in" id="works" aria-label="资源">
+        <div class="work-grid" aria-label="Selected ControlRookie work">
+          <!-- 资源页卡片 01：源代码入口。 -->
+          <article class="work-card">
+            <div class="work-content">
+              <span class="work-index" data-i18n="resource.1.type">01 · 源代码</span>
+              <strong class="work-title" data-i18n="resource.1.title">CODESYS 示例工程</strong>
+              <span class="work-meta" data-i18n="resource.1.copy">控制逻辑、通信、状态机和工程模板源码。</span>
+            </div>
+          </article>
+          <!-- 资源页卡片 02：库文件入口。 -->
+          <article class="work-card">
+            <div class="work-content">
+              <span class="work-index" data-i18n="resource.2.type">02 · 库文件</span>
+              <strong class="work-title" data-i18n="resource.2.title">PLC Library</strong>
+              <span class="work-meta" data-i18n="resource.2.copy">可复用功能块、通信封装和工程基础库。</span>
+            </div>
+          </article>
+          <!-- 资源页卡片 03：工程标准入口。 -->
+          <article class="work-card">
+            <div class="work-content">
+              <span class="work-index" data-i18n="resource.3.type">03 · 标准</span>
+              <strong class="work-title" data-i18n="resource.3.title">工程标准</strong>
+              <span class="work-meta" data-i18n="resource.3.copy">命名、状态机、交付、测试和文档规范。</span>
+            </div>
+          </article>
+          <!-- 资源页卡片 04：项目模板入口。 -->
+          <article class="work-card">
+            <div class="work-content">
+              <span class="work-index" data-i18n="resource.4.type">04 · 模板</span>
+              <strong class="work-title" data-i18n="resource.4.title">项目脚手架</strong>
+              <span class="work-meta" data-i18n="resource.4.copy">工程初始化、目录结构、清单和验证流程。</span>
+            </div>
+          </article>
+          <!-- 资源页卡片 05：MQTT 协议资料入口。 -->
+          <article class="work-card">
+            <div class="work-content">
+              <span class="work-index" data-i18n="resource.5.type">05 · 协议</span>
+              <strong class="work-title" data-i18n="resource.5.title">MQTT 资料</strong>
+              <span class="work-meta" data-i18n="resource.5.copy">服务器、客户端、主题设计和排障资料。</span>
+            </div>
+          </article>
+          <!-- 资源页卡片 06：自动化脚本入口。 -->
+          <article class="work-card">
+            <div class="work-content">
+              <span class="work-index" data-i18n="resource.6.type">06 · 脚本</span>
+              <strong class="work-title" data-i18n="resource.6.title">自动化脚本</strong>
+              <span class="work-meta" data-i18n="resource.6.copy">面向工程效率的批处理、检查和生成工具。</span>
+            </div>
+          </article>
+          <!-- 资源页卡片 07：LLM 工作流入口。 -->
+          <article class="work-card">
+            <div class="work-content">
+              <span class="work-index" data-i18n="resource.7.type">07 · AI</span>
+              <strong class="work-title" data-i18n="resource.7.title">LLM 工作流</strong>
+              <span class="work-meta" data-i18n="resource.7.copy">提示词、技能、Agent 和自动化协作规则。</span>
+            </div>
+          </article>
+          <!-- 资源页卡片 08：工程资料库入口。 -->
+          <article class="work-card">
+            <div class="work-content">
+              <span class="work-index" data-i18n="resource.8.type">08 · 资料</span>
+              <strong class="work-title" data-i18n="resource.8.title">工程资料库</strong>
+              <span class="work-meta" data-i18n="resource.8.copy">手册、笔记、复盘和关键技术路线图。</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 文章页：第一版知识库式文章中心，避免未来文章增长后退化成无限卡片列表。 -->
+      <section class="section section-line fade-in" id="articles" aria-label="文章">
+        <div class="article-grid article-hub">
+          <!-- 文章中心左侧索引：这是长期文章库的主导航，不再使用胶囊按钮堆叠。 -->
+          <aside class="article-index-panel" aria-label="文章知识库索引">
+            <div class="article-index-head">
+              <strong data-i18n="articles.index.label">知识库索引</strong>
+            </div>
+            <nav class="article-index-tree" aria-label="文章知识库目录">
+              <details class="article-tree-group" open>
+                <summary><span data-i18n="articles.index.domain.communication">工业通信</span><em>2</em></summary>
+                <div class="article-tree-children">
+                  <details class="article-tree-node" open>
+                    <summary><span>MQTT</span><em>2</em></summary>
+                    <div class="article-tree-children">
+                      <details class="article-tree-node article-tree-selected" open>
+                        <summary><span>CODESYS MQTT</span><em>1 / 12</em></summary>
+                        <div class="article-tree-children">
+                          <details class="article-tree-node">
+                            <summary><span data-i18n="articles.index.mqtt.client">客户端</span><em>1</em></summary>
+                            <div class="article-tree-children">
+                              <a class="active" href="articles/mqtt-client-open-source-codesys-layer/index.html"><span data-i18n="articles.index.article.first">第1篇：开源客户端与协议分层</span><em>官网</em></a>
+                            </div>
+                          </details>
+                          <details class="article-tree-node">
+                            <summary><span data-i18n="articles.index.mqtt.server">服务器 / Broker</span><em>1</em></summary>
+                            <div class="article-tree-children">
+                              <a href="https://blog.csdn.net/weixin_44442562/category_13163069.html" target="_blank" rel="noreferrer"><span data-i18n="articles.index.article.server">CSDN MQTT 资料索引</span><em>CSDN</em></a>
+                            </div>
+                          </details>
+                        </div>
+                      </details>
+                    </div>
+                  </details>
+                </div>
+              </details>
+            </nav>
+          </aside>
+
+          <!-- 文章中心右侧内容：专题、最新文章和文章路径分层展示，避免专题与文章混成同级卡片。 -->
+          <div class="article-library-panel">
+            <section class="article-series-heading" aria-label="CODESYS MQTT 系列">
+              <small data-i18n="articles.series.label">系列专题</small>
+              <h3 data-i18n="articles.series.title">CODESYS MQTT 系列</h3>
+              <p data-i18n="articles.series.copy">从协议分层、CONNECT / CONNACK、PUBLISH、QoS 到 ST 状态机，按工程路径逐步整理。</p>
+              <div class="series-progress" aria-label="MQTT series progress">
+                <span data-i18n="articles.series.progress">已导入 1 篇 / 系列持续补全</span>
+                <b><i></i></b>
+              </div>
+            </section>
+
+            <!-- 文章页卡片 01：官网文章页样例，验证 Markdown 图文发布包到官网排版的完整链路。 -->
+            <div class="article-list" aria-label="MQTT 文章列表">
+              <a class="article-list-card article-feature-card" href="articles/mqtt-client-open-source-codesys-layer/index.html">
+                <small>01 · 客户端</small>
+                <strong>官方 MQTT 库要花钱？我为什么自己开源了一套 CODESYS MQTT 客户端</strong>
+                <p>MQTT Client 系列第一篇：为什么要做开源客户端、MQTT 在哪一层、以及 NBS TCP 与 MQTT 的工程关系。</p>
+                <em>官网全文 / 第1篇</em>
+              </a>
+              <a class="article-list-card" href="https://blog.csdn.net/weixin_44442562/category_13163069.html" target="_blank" rel="noreferrer">
+                <small>02 · 服务器 / Broker</small>
+                <strong data-i18n="articles.list.server.title">CODESYS MQTT 服务器与 Broker 资料</strong>
+                <p data-i18n="articles.list.server.copy">服务器、Broker、主题通信和排障教程暂先连接到 CSDN MQTT 分类页。</p>
+                <em data-i18n="articles.list.server.meta">外部分发 / CSDN</em>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 产品页：当前只展示 codesys-llm-synchronizer，未成熟产品不占位。 -->
+      <section class="section section-line fade-in" id="products" aria-label="产品">
+        <div class="product-grid product-grid-single">
+          <!-- 产品页卡片 01：codesys-llm-synchronizer 产品说明入口。 -->
+          <article class="info-card">
+            <div>
+              <small>01 · 产品</small>
+              <h3>codesys-llm-synchronizer</h3>
+              <p data-i18n="product.1.copy">面向 CODESYS / SmartControl 工程的 LLM 同步与协作工具，用于工程镜像、代码上下文、规则和自动化工作流衔接。</p>
+            </div>
+            <footer>Current / Details later</footer>
+          </article>
+        </div>
+      </section>
+
+      <!-- 联系页：用主张、二维码、品牌图和直接入口组成平衡布局。 -->
+      <section class="section fade-in" id="contact" aria-label="联系">
+        <div class="contact-shell">
+          <!-- 联系页主文案：无灰色卡片底，避免把标题误做成普通内容卡。 -->
+          <div class="contact-statement">
+            <h2 data-i18n="contact.heading">工控人太苦了，<span class="no-break">让我们一起告别水深火热</span></h2>
+          </div>
+          <!-- 联系页品牌视觉卡：使用无白角伪影的 SVG 素材平衡右侧视觉重量。 -->
+          <aside class="contact-visual-card" aria-label="ControlRookie brand mark">
+            <img src="assets/images/brand/controlrookie-logo-latest.png" alt="ControlRookie logo mark">
+          </aside>
+          <div class="contact-link-stack">
+            <!-- 联系页横向联系方式卡片 01：邮箱，保持单行展示。 -->
+            <a class="contact-card text-card" href="mailto:ben_peng0205@hotmail.com">
+              <small data-i18n="contact.email.label">邮箱</small>
+              <strong>ben_peng0205@hotmail.com</strong>
+            </a>
+            <!-- 联系页横向联系方式卡片 02：CSDN 公开博客入口。 -->
+            <a class="contact-card text-card" href="https://blog.csdn.net/weixin_44442562?type=blog" target="_blank" rel="noreferrer">
+              <small>CSDN</small>
+              <strong>ControlRookie 技术博客</strong>
+            </a>
+          </div>
+          <!-- 联系页二维码卡片 01：个人微信 PeaceAndBless。 -->
+          <article class="contact-card qr-card">
+            <small data-i18n="contact.wechat.label">微信</small>
+            <strong>PeaceAndBless</strong>
+            <img class="qr-slot" src="assets/images/contact/wechat-peaceandbless-qr.jpg" alt="PeaceAndBless WeChat QR code">
+          </article>
+          <!-- 联系页二维码卡片 02：微信公众号 ControlRookie。 -->
+          <article class="contact-card qr-card">
+            <small data-i18n="contact.official.label">公众号</small>
+            <strong>ControlRookie</strong>
+            <img class="qr-slot" src="assets/images/contact/wechat-official-account-controlrookie-qr.jpg" alt="ControlRookie official account QR code">
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>ControlRookie</span>
+      <span data-i18n="footer.copy">一名跟得上时代的 AI 自动化架构师</span>
+    </footer>
+  </div>
+
+  <script src="content/articles-data.js"></script>
+  <script src="content/site-data.js"></script>
+  <script src="lib/site.js"></script>
+</body>
+</html>
