@@ -1,0 +1,1080 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>源码加更06_QoS 事务调度、重试和生产级闭环 | ControlRookie</title>
+  <meta name="description" content="这一组源码加更只有一个目标：把 MqttBroker 的真实 ST 源码按工程阅读顺序讲完整。不是再补几段“看起来像源码”的片段，而是让读者能沿着源码对象理解这个 Broker 怎么组织、怎么运行、怎么排障。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#050505">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/mqtt-broker-source-06-06-qos-fecb8d/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="源码加更06_QoS 事务调度、重试和生产级闭环">
+  <meta property="og:description" content="这一组源码加更只有一个目标：把 MqttBroker 的真实 ST 源码按工程阅读顺序讲完整。不是再补几段“看起来像源码”的片段，而是让读者能沿着源码对象理解这个 Broker 怎么组织、怎么运行、怎么排障。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-broker-source-06-06-qos-fecb8d/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="源码加更06_QoS 事务调度、重试和生产级闭环">
+  <meta name="twitter:description" content="这一组源码加更只有一个目标：把 MqttBroker 的真实 ST 源码按工程阅读顺序讲完整。不是再补几段“看起来像源码”的片段，而是让读者能沿着源码对象理解这个 Broker 怎么组织、怎么运行、怎么排障。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <aside class="article-toc" aria-label="文章目录">
+            <strong>目录</strong>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-c769c1e4">先给结论</a></li><li><a href="#section-80ce18a0">从工程问题到代码职责</a></li><li><a href="#section-8c65a325">本篇源码覆盖表</a></li><li><a href="#section-c4267e54">推荐阅读顺序</a></li><li><a href="#section-528df7a9">验证和排障边界</a></li><li><a href="#section-6d6577bb">本篇完整开源代码</a></li><li><a href="#01-fb-mqttbroker-m-serviceretries-st">完整代码 01: FB_MqttBroker.M_ServiceRetries.st</a></li><li><a href="#02-fb-mqttbrokerrxscheduler-m-clearslot-st">完整代码 02: FB_MqttBrokerRxScheduler.M_ClearSlot.st</a></li><li><a href="#03-fb-mqttbrokerrxscheduler-m-completepublish-st">完整代码 03: FB_MqttBrokerRxScheduler.M_CompletePublish.st</a></li><li><a href="#04-fb-mqttbrokerrxscheduler-m-countslot-st">完整代码 04: FB_MqttBrokerRxScheduler.M_CountSlot.st</a></li><li><a href="#05-fb-mqttbrokerrxscheduler-m-recordpublish-st">完整代码 05: FB_MqttBrokerRxScheduler.M_RecordPublish.st</a></li><li><a href="#06-fb-mqttbrokerrxscheduler-m-takepublishforpubrel-st">完整代码 06: FB_MqttBrokerRxScheduler.M_TakePublishForPubRel.st</a></li><li><a href="#07-fb-mqttbrokerrxscheduler-st">完整代码 07: FB_MqttBrokerRxScheduler.st</a></li><li><a href="#08-fb-mqttbrokertxscheduler-m-ackpublish-st">完整代码 08: FB_MqttBrokerTxScheduler.M_AckPublish.st</a></li><li><a href="#09-fb-mqttbrokertxscheduler-m-clearslot-st">完整代码 09: FB_MqttBrokerTxScheduler.M_ClearSlot.st</a></li><li><a href="#10-fb-mqttbrokertxscheduler-m-countslot-st">完整代码 10: FB_MqttBrokerTxScheduler.M_CountSlot.st</a></li><li><a href="#11-fb-mqttbrokertxscheduler-m-findretry-st">完整代码 11: FB_MqttBrokerTxScheduler.M_FindRetry.st</a></li><li><a href="#12-fb-mqttbrokertxscheduler-m-receivepubcomp-st">完整代码 12: FB_MqttBrokerTxScheduler.M_ReceivePubComp.st</a></li><li><a href="#13-fb-mqttbrokertxscheduler-m-receivepubrec-st">完整代码 13: FB_MqttBrokerTxScheduler.M_ReceivePubRec.st</a></li><li><a href="#14-fb-mqttbrokertxscheduler-m-registerpublish-st">完整代码 14: FB_MqttBrokerTxScheduler.M_RegisterPublish.st</a></li><li><a href="#15-fb-mqttbrokertxscheduler-st">完整代码 15: FB_MqttBrokerTxScheduler.st</a></li><li><a href="#section-f1bcd0b6">这一篇你最该记住的几句话</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
+          </aside>
+          <div class="article-main" id="article-top">
+            <nav class="article-breadcrumb" aria-label="文章路径">
+              <a href="../../index.html#articles">文章中心</a>
+              <span>/</span>
+              <a href="../../index.html#articles">工业通信</a>
+              <span>/</span>
+              <a href="../../index.html#articles-mqtt">MQTT</a>
+              <span>/</span>
+              <a href="../../index.html#articles-mqtt">Broker</a>
+            </nav>
+            <header class="article-hero">
+              <h1>源码加更06_QoS 事务调度、重试和生产级闭环</h1>
+              <p class="article-summary">这一组源码加更只有一个目标：把 MqttBroker 的真实 ST 源码按工程阅读顺序讲完整。不是再补几段“看起来像源码”的片段，而是让读者能沿着源码对象理解这个 Broker 怎么组织、怎么运行、怎么排障。</p>
+              <div class="article-meta">
+                <span>2026-05-06</span>
+                <span>约 41 分钟阅读</span>
+                <span>第16篇/共16篇</span>
+                <span>MQTT / Broker / CodeSys / PLC通信 / ST源码 / ControlRookie / CODESYS / PLC</span>
+              </div>
+            </header>
+            <div class="article-content">
+              <blockquote>这一组源码加更只有一个目标：把 MqttBroker 的真实 ST 源码按工程阅读顺序讲完整。不是再补几段“看起来像源码”的片段，而是让读者能沿着源码对象理解这个 Broker 怎么组织、怎么运行、怎么排障。</blockquote>
+<h2 id="section-0d70135c">适合谁收藏</h2>
+<ul><li>已经读过 MqttBroker 主线教程，想继续看真实源码实现的工程师。</li><li>想学习 CodeSys ST 工程如何拆分 Broker、连接池、编解码、路由和 QoS 调度的人。</li><li>想把 MQTT Broker 移植到 PLC、边缘控制器或教学工程里的开发者。</li></ul>
+<hr>
+<figure><img src="../../assets/articles/mqtt-broker-source-06-06-qos-fecb8d/broker-source-full-06-qos.png" alt="源码加更06_QoS 事务调度、重试和生产级闭环"><figcaption>源码加更06_QoS 事务调度、重试和生产级闭环</figcaption></figure>
+<h2 id="section-c769c1e4">先给结论</h2>
+<p>这一篇看 Tx/Rx 两套调度器如何保存 Inflight 事务、推进 PUBACK/PUBREC/PUBREL/PUBCOMP、处理重试，并由顶层周期服务兜底。</p>
+<p>QoS1/QoS2 的稳定性不是靠一次 TCP_Write。只要涉及 ACK、PacketId、Inflight、重试和清理，就必须把它当成事务闭环来做。</p>
+<p>这篇覆盖 <code>15</code> 个源码文件，合计约 <code>688</code> 行 ST 代码。为了保持公开教程可读性，正文先讲源码阅读路径，再给完整源码。读代码时建议不要从第一个代码块一路机械读到底，而是按本篇的“读代码顺序”来抓主线。</p>
+<h2 id="section-80ce18a0">从工程问题到代码职责</h2>
+<div class="article-table-wrap"><table>
+<thead><tr><th>层次</th><th>本篇重点</th><th>你读源码时要抓住的判断</th></tr></thead>
+<tbody>
+<tr><td>工程入口</td><td>程序如何启动、对象如何被实例化</td><td>先确认谁是入口，谁只是被调度的对象</td></tr>
+<tr><td>数据边界</td><td>容量、状态、错误、缓冲区和表结构</td><td>先知道边界，后面排障才不会乱猜</td></tr>
+<tr><td>协作关系</td><td>各 FB、函数和结构体如何互相传递数据</td><td>不按文件夹读，按数据流和状态流读</td></tr>
+<tr><td>验证路径</td><td>在线观察应该看哪些变量</td><td>代码最终要能落到现场排障，而不是只停在源码阅读</td></tr>
+</tbody></table></div>
+<h2 id="section-8c65a325">本篇源码覆盖表</h2>
+<div class="article-table-wrap"><table>
+<thead><tr><th>序号</th><th>源码对象</th><th>行数</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>FB_MqttBroker.M_ServiceRetries.st</code></td><td>68</td></tr>
+<tr><td>2</td><td><code>FB_MqttBrokerRxScheduler.M_ClearSlot.st</code></td><td>35</td></tr>
+<tr><td>3</td><td><code>FB_MqttBrokerRxScheduler.M_CompletePublish.st</code></td><td>41</td></tr>
+<tr><td>4</td><td><code>FB_MqttBrokerRxScheduler.M_CountSlot.st</code></td><td>25</td></tr>
+<tr><td>5</td><td><code>FB_MqttBrokerRxScheduler.M_RecordPublish.st</code></td><td>78</td></tr>
+<tr><td>6</td><td><code>FB_MqttBrokerRxScheduler.M_TakePublishForPubRel.st</code></td><td>52</td></tr>
+<tr><td>7</td><td><code>FB_MqttBrokerRxScheduler.st</code></td><td>18</td></tr>
+<tr><td>8</td><td><code>FB_MqttBrokerTxScheduler.M_AckPublish.st</code></td><td>42</td></tr>
+<tr><td>9</td><td><code>FB_MqttBrokerTxScheduler.M_ClearSlot.st</code></td><td>35</td></tr>
+<tr><td>10</td><td><code>FB_MqttBrokerTxScheduler.M_CountSlot.st</code></td><td>25</td></tr>
+<tr><td>11</td><td><code>FB_MqttBrokerTxScheduler.M_FindRetry.st</code></td><td>89</td></tr>
+<tr><td>12</td><td><code>FB_MqttBrokerTxScheduler.M_ReceivePubComp.st</code></td><td>42</td></tr>
+<tr><td>13</td><td><code>FB_MqttBrokerTxScheduler.M_ReceivePubRec.st</code></td><td>42</td></tr>
+<tr><td>14</td><td><code>FB_MqttBrokerTxScheduler.M_RegisterPublish.st</code></td><td>78</td></tr>
+<tr><td>15</td><td><code>FB_MqttBrokerTxScheduler.st</code></td><td>18</td></tr>
+</tbody></table></div>
+<h2 id="section-c4267e54">推荐阅读顺序</h2>
+<ul><li>先看 TxScheduler，理解 Broker 向客户端投递消息后的等待和重试。</li><li>再看 RxScheduler，理解客户端向 Broker 发布 QoS2 时的接收闭环。</li><li>最后看 <code>M_ServiceRetries</code> 如何周期性推动未完成事务。</li></ul>
+<h2 id="section-528df7a9">验证和排障边界</h2>
+<ul><li>使用 QoS1/QoS2 高频发布订阅，观察是否重复、丢失或卡住。</li><li>断开客户端后重连，检查 Inflight 清理和重试边界是否符合预期。</li></ul>
+<h2 id="section-6d6577bb">本篇完整开源代码</h2>
+<p>下面代码来自对应 <code>.st</code> 源文件的连续完整内容。为方便公开阅读，只保留源码对象名，不放本机工程路径。</p>
+<h2 id="01-fb-mqttbroker-m-serviceretries-st">完整代码 01: FB_MqttBroker.M_ServiceRetries.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_ServiceRetries
+/// 功能      : 服务 QoS1 / QoS2 出站事务重发
+/// 说明      : QoS1/QoS2 PUBLISH 重新进入投递队列，QoS2 PUBREL 进入协议优先队列。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_ServiceRetries : BOOL
+VAR
+    uiRetryIndex : UINT; // 本周期可处理的重试事务扫描索引[1..cnMaxRetryPerScan]
+END_VAR
+
+// === IMPLEMENTATION ===
+FOR uiRetryIndex := 1 TO GVL_MqttBroker.cnMaxRetryPerScan DO
+    IF NOT fbTxScheduler.M_FindRetry(
+        stRetry := stRetry,
+        udiNowMs := udiNowMs,
+        xFound =&gt; xRetryFound,
+        xNeedPubRel =&gt; xRetryPubRel,
+        uiPubRelSlot =&gt; uiRetryPubRelSlot,
+        uiPubRelPacketId =&gt; uiRetryPubRelPacketId,
+        xRetryFailed =&gt; xRetryFailed,
+        uiFailedSlot =&gt; uiFailedSlot) THEN
+        EXIT;
+    END_IF
+
+    IF NOT xRetryFailed AND NOT xRetryPubRel AND NOT xRetryFound THEN
+        // M_FindRetry 在“扫描成功但当前没有任何到期重试事务”时也会返回 TRUE。
+        // 这里必须立即退出预算循环，否则每个 PLC 周期都会空扫多次 TxInflight 表，
+        // 在高频发布场景下会明显拉长扫描周期，表现为客户端之间消息转发延迟增大。
+        EXIT;
+    END_IF
+
+    IF xRetryFailed THEN
+        // 单条 QoS 出站投递重试耗尽，只丢弃该投递并记录统计，不再主动断开整个 MQTT 客户端。
+        // 断开连接会导致通信猫/MQTTBox 在连续发布压力测试中表现为“发送一段时间突然掉线”，
+        // 而工业轻量 Broker 更合适的策略是保护连接、释放事务槽、让后续消息继续流动。
+        stMetrics.udiPublishDropped := stMetrics.udiPublishDropped + 1;
+        IF uiFailedSlot &lt;&gt; 0 THEN
+            M_LogDiag(uiSlot := uiFailedSlot, eError := E_MqttBrokerError.uiQoS1RetryExceeded, sMessage := &#x27;Outbound QoS retry exceeded, message dropped&#x27;);
+        END_IF
+    ELSIF xRetryPubRel THEN
+        IF (uiRetryPubRelSlot &gt;= 1) AND (uiRetryPubRelSlot &lt;= GVL_MqttBroker.cnMaxClientSlots) THEN
+            IF aConnections[uiRetryPubRelSlot].M_EnqueueProtocolAck(
+                ePacketType := E_MqttPacketType.byPubRel,
+                uiPacketId := uiRetryPubRelPacketId,
+                byReturnCode := 0) THEN
+                stMetrics.udiQoS2Retries := stMetrics.udiQoS2Retries + 1;
+            END_IF
+        END_IF
+    ELSIF xRetryFound THEN
+        IF (stRetry.uiTargetSlot &gt;= 1) AND (stRetry.uiTargetSlot &lt;= GVL_MqttBroker.cnMaxClientSlots) THEN
+            IF aConnections[stRetry.uiTargetSlot].M_EnqueueDelivery(stDelivery := stRetry) THEN
+                IF stRetry.eQoS = E_MqttQoS.byQoS1 THEN
+                    stMetrics.udiQoS1Retries := stMetrics.udiQoS1Retries + 1;
+                ELSE
+                    stMetrics.udiQoS2Retries := stMetrics.udiQoS2Retries + 1;
+                END_IF
+            ELSE
+                stMetrics.udiPublishDropped := stMetrics.udiPublishDropped + 1;
+            END_IF
+        END_IF
+    END_IF
+END_FOR
+
+M_ServiceRetries := TRUE;</code></pre></div>
+<h2 id="02-fb-mqttbrokerrxscheduler-m-clearslot-st">完整代码 02: FB_MqttBrokerRxScheduler.M_ClearSlot.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_ClearSlot
+/// 功能      : 清理指定客户端的所有入站事务
+/// 说明      : 客户端断线或槽位释放时调用，避免旧 PacketId 影响新会话。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_ClearSlot : BOOL
+VAR_INPUT
+    uiSlot  : UINT; // 需要清理的客户端槽位编号[1..cnMaxClientSlots]
+END_VAR
+VAR
+    uiIndex : UINT; // 入站事务表扫描索引
+END_VAR
+
+// === IMPLEMENTATION ===
+FOR uiIndex := 1 TO GVL_MqttBroker.cnMaxRxInflight DO
+    IF aRxInflight[uiIndex].xUsed AND (aRxInflight[uiIndex].uiSlot = uiSlot) THEN
+        aRxInflight[uiIndex].xUsed := FALSE;
+        aRxInflight[uiIndex].uiSlot := 0;
+        aRxInflight[uiIndex].uiPacketId := 0;
+        aRxInflight[uiIndex].eDirection := E_MqttInflightDirection.iNone;
+        aRxInflight[uiIndex].eState := E_MqttInflightState.iFree;
+        aRxInflight[uiIndex].eQoS := E_MqttQoS.byQoS0;
+        aRxInflight[uiIndex].stPublish.xValid := FALSE;
+        IF uiInflightCount &gt; 0 THEN
+            uiInflightCount := uiInflightCount - 1;
+        END_IF
+    END_IF
+END_FOR
+
+eLastError := E_MqttBrokerError.uiNoError;
+M_ClearSlot := TRUE;</code></pre></div>
+<h2 id="03-fb-mqttbrokerrxscheduler-m-completepublish-st">完整代码 03: FB_MqttBrokerRxScheduler.M_CompletePublish.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_CompletePublish
+/// 功能      : 完成并清理入站事务
+/// 说明      : QoS1 在 PUBACK 排队成功后即可清理；QoS2 后续在 PUBCOMP 后清理。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_CompletePublish : BOOL
+VAR_INPUT
+    uiSlot     : UINT; // 入站事务所属客户端槽位编号[1..cnMaxClientSlots]
+    uiPacketId : UINT; // 需要完成的 Packet Identifier
+END_VAR
+VAR
+    uiIndex    : UINT; // 入站事务表扫描索引
+END_VAR
+
+// === IMPLEMENTATION ===
+FOR uiIndex := 1 TO GVL_MqttBroker.cnMaxRxInflight DO
+    IF aRxInflight[uiIndex].xUsed
+        AND (aRxInflight[uiIndex].uiSlot = uiSlot)
+        AND (aRxInflight[uiIndex].uiPacketId = uiPacketId) THEN
+        aRxInflight[uiIndex].xUsed := FALSE;
+        aRxInflight[uiIndex].uiSlot := 0;
+        aRxInflight[uiIndex].uiPacketId := 0;
+        aRxInflight[uiIndex].eDirection := E_MqttInflightDirection.iNone;
+        aRxInflight[uiIndex].eState := E_MqttInflightState.iFree;
+        aRxInflight[uiIndex].eQoS := E_MqttQoS.byQoS0;
+        aRxInflight[uiIndex].stPublish.xValid := FALSE;
+        IF uiInflightCount &gt; 0 THEN
+            uiInflightCount := uiInflightCount - 1;
+        END_IF
+        eLastError := E_MqttBrokerError.uiNoError;
+        M_CompletePublish := TRUE;
+        RETURN;
+    END_IF
+END_FOR
+
+eLastError := E_MqttBrokerError.uiNoError;
+M_CompletePublish := TRUE;</code></pre></div>
+<h2 id="04-fb-mqttbrokerrxscheduler-m-countslot-st">完整代码 04: FB_MqttBrokerRxScheduler.M_CountSlot.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_CountSlot
+/// 功能      : 统计指定客户端槽位的入站事务数量
+/// 说明      : 用于连接快照诊断，不改变事务状态。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_CountSlot : UINT
+VAR_INPUT
+    uiSlot  : UINT; // 需要统计的客户端槽位编号[1..cnMaxClientSlots]
+END_VAR
+VAR
+    uiIndex : UINT; // 入站事务表扫描索引
+END_VAR
+
+// === IMPLEMENTATION ===
+M_CountSlot := 0;
+
+FOR uiIndex := 1 TO GVL_MqttBroker.cnMaxRxInflight DO
+    IF aRxInflight[uiIndex].xUsed AND (aRxInflight[uiIndex].uiSlot = uiSlot) THEN
+        M_CountSlot := M_CountSlot + 1;
+    END_IF
+END_FOR</code></pre></div>
+<h2 id="05-fb-mqttbrokerrxscheduler-m-recordpublish-st">完整代码 05: FB_MqttBrokerRxScheduler.M_RecordPublish.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_RecordPublish
+/// 功能      : 记录入站 QoS&gt;0 PUBLISH 事务
+/// 说明      : QoS1 用于诊断和重复 PacketId 防护；QoS2 后续在此扩展去重闭环。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_RecordPublish : BOOL
+VAR_INPUT
+    stPublish : ST_MqttBrokerPublishFrame; // 入站发布帧
+    udiNowMs  : ULINT; // 当前系统时间戳[ms]
+END_VAR
+VAR
+    uiIndex   : UINT; // 入站事务表扫描索引
+    uiFree    : UINT; // 首个空闲入站事务槽位索引
+END_VAR
+
+// === IMPLEMENTATION ===
+IF stPublish.eQoS = E_MqttQoS.byQoS0 THEN
+    M_RecordPublish := TRUE;
+    RETURN;
+END_IF
+
+IF stPublish.uiPacketId = 0 THEN
+    eLastError := E_MqttBrokerError.uiProtocolMalformed;
+    M_RecordPublish := FALSE;
+    RETURN;
+END_IF
+
+uiFree := 0;
+
+FOR uiIndex := 1 TO GVL_MqttBroker.cnMaxRxInflight DO
+    IF aRxInflight[uiIndex].xUsed THEN
+        IF (aRxInflight[uiIndex].uiSlot = stPublish.uiSourceSlot)
+            AND (aRxInflight[uiIndex].uiPacketId = stPublish.uiPacketId) THEN
+            aRxInflight[uiIndex].udiLastActionMs := udiNowMs;
+            aRxInflight[uiIndex].stPublish := stPublish;
+            eLastError := E_MqttBrokerError.uiNoError;
+            M_RecordPublish := TRUE;
+            RETURN;
+        END_IF
+    ELSIF uiFree = 0 THEN
+        uiFree := uiIndex;
+    END_IF
+END_FOR
+
+IF uiFree = 0 THEN
+    eLastError := E_MqttBrokerError.uiRxInflightFull;
+    M_RecordPublish := FALSE;
+    RETURN;
+END_IF
+
+aRxInflight[uiFree].xUsed := TRUE;
+aRxInflight[uiFree].xDupOnRetry := FALSE;
+aRxInflight[uiFree].xRouteDone := stPublish.eQoS &lt;&gt; E_MqttQoS.byQoS2;
+aRxInflight[uiFree].uiSlot := stPublish.uiSourceSlot;
+aRxInflight[uiFree].uiPacketId := stPublish.uiPacketId;
+aRxInflight[uiFree].uiRetryCount := 0;
+aRxInflight[uiFree].eDirection := E_MqttInflightDirection.iRx;
+aRxInflight[uiFree].eQoS := stPublish.eQoS;
+aRxInflight[uiFree].udiCreatedAtMs := udiNowMs;
+aRxInflight[uiFree].udiLastActionMs := udiNowMs;
+aRxInflight[uiFree].stPublish := stPublish;
+
+CASE stPublish.eQoS OF
+    E_MqttQoS.byQoS1:
+        aRxInflight[uiFree].eState := E_MqttInflightState.iRxPublishSeen;
+    E_MqttQoS.byQoS2:
+        aRxInflight[uiFree].eState := E_MqttInflightState.iWaitPubRel;
+ELSE
+        aRxInflight[uiFree].eState := E_MqttInflightState.iFault;
+END_CASE
+
+uiInflightCount := uiInflightCount + 1;
+eLastError := E_MqttBrokerError.uiNoError;
+M_RecordPublish := TRUE;</code></pre></div>
+<h2 id="06-fb-mqttbrokerrxscheduler-m-takepublishforpubrel-st">完整代码 06: FB_MqttBrokerRxScheduler.M_TakePublishForPubRel.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_TakePublishForPubRel
+/// 功能      : 根据 PUBREL 取出入站 QoS2 发布帧
+/// 说明      : 只有未路由过的 QoS2 事务会返回发布帧，保证 exactly once 路由语义。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_TakePublishForPubRel : BOOL
+VAR_INPUT
+    uiSlot     : UINT; // 收到 PUBREL 的客户端槽位编号[1..cnMaxClientSlots]
+    uiPacketId : UINT; // PUBREL 携带的 Packet Identifier
+    udiNowMs   : ULINT; // 当前系统时间戳[ms]
+END_VAR
+VAR_IN_OUT
+    stPublish  : ST_MqttBrokerPublishFrame; // 返回给顶层路由的原始 QoS2 发布帧
+END_VAR
+VAR_OUTPUT
+    xNeedRoute : BOOL; // TRUE 表示本次 PUBREL 首次完成，应执行一次路由
+END_VAR
+VAR
+    uiIndex    : UINT; // 入站事务表扫描索引
+END_VAR
+
+// === IMPLEMENTATION ===
+xNeedRoute := FALSE;
+stPublish.xValid := FALSE;
+
+FOR uiIndex := 1 TO GVL_MqttBroker.cnMaxRxInflight DO
+    IF aRxInflight[uiIndex].xUsed
+        AND (aRxInflight[uiIndex].uiSlot = uiSlot)
+        AND (aRxInflight[uiIndex].uiPacketId = uiPacketId)
+        AND (aRxInflight[uiIndex].eQoS = E_MqttQoS.byQoS2) THEN
+        aRxInflight[uiIndex].udiLastActionMs := udiNowMs;
+
+        IF NOT aRxInflight[uiIndex].xRouteDone THEN
+            stPublish := aRxInflight[uiIndex].stPublish;
+            stPublish.xValid := TRUE;
+            aRxInflight[uiIndex].xRouteDone := TRUE;
+            aRxInflight[uiIndex].eState := E_MqttInflightState.iCompleted;
+            xNeedRoute := TRUE;
+        END_IF
+
+        eLastError := E_MqttBrokerError.uiNoError;
+        M_TakePublishForPubRel := TRUE;
+        RETURN;
+    END_IF
+END_FOR
+
+eLastError := E_MqttBrokerError.uiProtocolMalformed;
+M_TakePublishForPubRel := FALSE;</code></pre></div>
+<h2 id="07-fb-mqttbrokerrxscheduler-st">完整代码 07: FB_MqttBrokerRxScheduler.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : FB_MqttBrokerRxScheduler
+/// 功能      : Broker 入站 QoS 事务调度器
+/// 说明      : 首版记录 QoS1 入站 PUBLISH 并立即允许 PUBACK，QoS2 状态位完整预留。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+FUNCTION_BLOCK FB_MqttBrokerRxScheduler
+VAR_OUTPUT
+    uiInflightCount : UINT; // 当前入站事务表有效数量
+    eLastError      : E_MqttBrokerError; // 接收事务调度器最近一次错误码
+END_VAR
+VAR
+    aRxInflight : ARRAY[1..GVL_MqttBroker.cnMaxRxInflight] OF ST_MqttBrokerInflightMessage; // 入站 QoS&gt;0 事务表
+END_VAR
+// === IMPLEMENTATION ===</code></pre></div>
+<h2 id="08-fb-mqttbrokertxscheduler-m-ackpublish-st">完整代码 08: FB_MqttBrokerTxScheduler.M_AckPublish.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_AckPublish
+/// 功能      : 处理订阅者返回的 PUBACK
+/// 说明      : QoS1 出站事务收到匹配 PacketId 后清理；QoS2 后续在此扩展 PUBREC/PUBCOMP。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_AckPublish : BOOL
+VAR_INPUT
+    uiSlot     : UINT; // 返回 PUBACK 的订阅者槽位编号[1..cnMaxClientSlots]
+    uiPacketId : UINT; // PUBACK 携带的 Packet Identifier
+END_VAR
+VAR
+    uiIndex    : UINT; // 出站事务表扫描索引
+END_VAR
+
+// === IMPLEMENTATION ===
+FOR uiIndex := 1 TO GVL_MqttBroker.cnMaxTxInflight DO
+    IF aTxInflight[uiIndex].xUsed
+        AND (aTxInflight[uiIndex].uiSlot = uiSlot)
+        AND (aTxInflight[uiIndex].uiPacketId = uiPacketId)
+        AND (aTxInflight[uiIndex].eState = E_MqttInflightState.iWaitPubAck) THEN
+        aTxInflight[uiIndex].xUsed := FALSE;
+        aTxInflight[uiIndex].uiSlot := 0;
+        aTxInflight[uiIndex].uiPacketId := 0;
+        aTxInflight[uiIndex].eDirection := E_MqttInflightDirection.iNone;
+        aTxInflight[uiIndex].eState := E_MqttInflightState.iFree;
+        aTxInflight[uiIndex].eQoS := E_MqttQoS.byQoS0;
+        aTxInflight[uiIndex].stPublish.xValid := FALSE;
+        IF uiInflightCount &gt; 0 THEN
+            uiInflightCount := uiInflightCount - 1;
+        END_IF
+        eLastError := E_MqttBrokerError.uiNoError;
+        M_AckPublish := TRUE;
+        RETURN;
+    END_IF
+END_FOR
+
+eLastError := E_MqttBrokerError.uiProtocolMalformed;
+M_AckPublish := FALSE;</code></pre></div>
+<h2 id="09-fb-mqttbrokertxscheduler-m-clearslot-st">完整代码 09: FB_MqttBrokerTxScheduler.M_ClearSlot.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_ClearSlot
+/// 功能      : 清理指定客户端的所有出站事务
+/// 说明      : 断线或槽位释放时调用，防止旧事务在新连接上误重发。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_ClearSlot : BOOL
+VAR_INPUT
+    uiSlot  : UINT; // 需要清理的客户端槽位编号[1..cnMaxClientSlots]
+END_VAR
+VAR
+    uiIndex : UINT; // 出站事务表扫描索引
+END_VAR
+
+// === IMPLEMENTATION ===
+FOR uiIndex := 1 TO GVL_MqttBroker.cnMaxTxInflight DO
+    IF aTxInflight[uiIndex].xUsed AND (aTxInflight[uiIndex].uiSlot = uiSlot) THEN
+        aTxInflight[uiIndex].xUsed := FALSE;
+        aTxInflight[uiIndex].uiSlot := 0;
+        aTxInflight[uiIndex].uiPacketId := 0;
+        aTxInflight[uiIndex].eDirection := E_MqttInflightDirection.iNone;
+        aTxInflight[uiIndex].eState := E_MqttInflightState.iFree;
+        aTxInflight[uiIndex].eQoS := E_MqttQoS.byQoS0;
+        aTxInflight[uiIndex].stPublish.xValid := FALSE;
+        IF uiInflightCount &gt; 0 THEN
+            uiInflightCount := uiInflightCount - 1;
+        END_IF
+    END_IF
+END_FOR
+
+eLastError := E_MqttBrokerError.uiNoError;
+M_ClearSlot := TRUE;</code></pre></div>
+<h2 id="10-fb-mqttbrokertxscheduler-m-countslot-st">完整代码 10: FB_MqttBrokerTxScheduler.M_CountSlot.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_CountSlot
+/// 功能      : 统计指定客户端槽位的出站事务数量
+/// 说明      : 用于连接快照诊断，不改变事务状态。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_CountSlot : UINT
+VAR_INPUT
+    uiSlot  : UINT; // 需要统计的客户端槽位编号[1..cnMaxClientSlots]
+END_VAR
+VAR
+    uiIndex : UINT; // 出站事务表扫描索引
+END_VAR
+
+// === IMPLEMENTATION ===
+M_CountSlot := 0;
+
+FOR uiIndex := 1 TO GVL_MqttBroker.cnMaxTxInflight DO
+    IF aTxInflight[uiIndex].xUsed AND (aTxInflight[uiIndex].uiSlot = uiSlot) THEN
+        M_CountSlot := M_CountSlot + 1;
+    END_IF
+END_FOR</code></pre></div>
+<h2 id="11-fb-mqttbrokertxscheduler-m-findretry-st">完整代码 11: FB_MqttBrokerTxScheduler.M_FindRetry.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_FindRetry
+/// 功能      : 查找需要重发的 QoS1 出站事务
+/// 说明      : QoS1 重发 PUBLISH；QoS2 在等待 PUBREC 时重发 PUBLISH，在等待 PUBCOMP 时重发 PUBREL。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_FindRetry : BOOL
+VAR_INPUT
+    udiNowMs     : ULINT; // 当前系统时间戳[ms]
+END_VAR
+VAR_IN_OUT
+    stRetry      : ST_MqttBrokerPublishFrame; // 返回给发送队列的重发发布帧
+END_VAR
+VAR_OUTPUT
+    xFound       : BOOL; // TRUE 表示找到一条需要重发的事务
+    xNeedPubRel  : BOOL; // TRUE 表示本次需要重发 PUBREL，而不是重发 PUBLISH
+    uiPubRelSlot : UINT; // 需要重发 PUBREL 的目标槽位编号[1..cnMaxClientSlots]
+    uiPubRelPacketId : UINT; // 需要重发 PUBREL 的 Packet Identifier
+    xRetryFailed : BOOL; // TRUE 表示有事务达到最大重试次数
+    uiFailedSlot : UINT; // 重试失败事务所属槽位编号[1..cnMaxClientSlots]
+END_VAR
+VAR
+    uiIndex      : UINT; // 出站事务表扫描索引
+    udiElapsedMs : ULINT; // 距离该事务上次发送已经过去的时间[ms]
+END_VAR
+
+// === IMPLEMENTATION ===
+xFound := FALSE;
+xNeedPubRel := FALSE;
+uiPubRelSlot := 0;
+uiPubRelPacketId := 0;
+xRetryFailed := FALSE;
+uiFailedSlot := 0;
+
+FOR uiIndex := 1 TO GVL_MqttBroker.cnMaxTxInflight DO
+    IF aTxInflight[uiIndex].xUsed
+        AND ((aTxInflight[uiIndex].eState = E_MqttInflightState.iWaitPubAck)
+            OR (aTxInflight[uiIndex].eState = E_MqttInflightState.iWaitPubRec)
+            OR (aTxInflight[uiIndex].eState = E_MqttInflightState.iWaitPubComp)) THEN
+        udiElapsedMs := udiNowMs - aTxInflight[uiIndex].udiLastActionMs;
+
+        IF udiElapsedMs &gt;= TO_ULINT(GVL_MqttBroker.cnQoS2RetryIntervalMs) THEN
+            IF aTxInflight[uiIndex].uiRetryCount &gt;= GVL_MqttBroker.cnQoS2MaxRetry THEN
+                xRetryFailed := TRUE;
+                uiFailedSlot := aTxInflight[uiIndex].uiSlot;
+                // 工业轻量 Broker 不能因为单条出站 QoS 投递重试耗尽就长期占住事务槽。
+                // 这里释放失败事务，由顶层记录丢弃计数和诊断，但不强制断开整个客户端连接。
+                aTxInflight[uiIndex].xUsed := FALSE;
+                aTxInflight[uiIndex].uiSlot := 0;
+                aTxInflight[uiIndex].uiPacketId := 0;
+                aTxInflight[uiIndex].uiRetryCount := 0;
+                aTxInflight[uiIndex].eDirection := E_MqttInflightDirection.iNone;
+                aTxInflight[uiIndex].eState := E_MqttInflightState.iFree;
+                aTxInflight[uiIndex].eQoS := E_MqttQoS.byQoS0;
+                aTxInflight[uiIndex].stPublish.xValid := FALSE;
+                IF uiInflightCount &gt; 0 THEN
+                    uiInflightCount := uiInflightCount - 1;
+                END_IF
+                eLastError := E_MqttBrokerError.uiQoS1RetryExceeded;
+                M_FindRetry := TRUE;
+                RETURN;
+            END_IF
+
+            aTxInflight[uiIndex].uiRetryCount := aTxInflight[uiIndex].uiRetryCount + 1;
+            aTxInflight[uiIndex].udiLastActionMs := udiNowMs;
+            aTxInflight[uiIndex].xDupOnRetry := TRUE;
+
+            IF aTxInflight[uiIndex].eState = E_MqttInflightState.iWaitPubComp THEN
+                xNeedPubRel := TRUE;
+                uiPubRelSlot := aTxInflight[uiIndex].uiSlot;
+                uiPubRelPacketId := aTxInflight[uiIndex].uiPacketId;
+            ELSE
+                stRetry := aTxInflight[uiIndex].stPublish;
+                stRetry.xDup := TRUE;
+                xFound := TRUE;
+            END_IF
+
+            eLastError := E_MqttBrokerError.uiNoError;
+            M_FindRetry := TRUE;
+            RETURN;
+        END_IF
+    END_IF
+END_FOR
+
+eLastError := E_MqttBrokerError.uiNoError;
+M_FindRetry := TRUE;</code></pre></div>
+<h2 id="12-fb-mqttbrokertxscheduler-m-receivepubcomp-st">完整代码 12: FB_MqttBrokerTxScheduler.M_ReceivePubComp.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_ReceivePubComp
+/// 功能      : 处理订阅者返回的 PUBCOMP
+/// 说明      : QoS2 出站事务收到 PUBCOMP 后完成 exactly once 投递闭环并清理事务。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_ReceivePubComp : BOOL
+VAR_INPUT
+    uiSlot     : UINT; // 返回 PUBCOMP 的订阅者槽位编号[1..cnMaxClientSlots]
+    uiPacketId : UINT; // PUBCOMP 携带的 Packet Identifier
+END_VAR
+VAR
+    uiIndex    : UINT; // 出站事务表扫描索引
+END_VAR
+
+// === IMPLEMENTATION ===
+FOR uiIndex := 1 TO GVL_MqttBroker.cnMaxTxInflight DO
+    IF aTxInflight[uiIndex].xUsed
+        AND (aTxInflight[uiIndex].uiSlot = uiSlot)
+        AND (aTxInflight[uiIndex].uiPacketId = uiPacketId)
+        AND (aTxInflight[uiIndex].eState = E_MqttInflightState.iWaitPubComp) THEN
+        aTxInflight[uiIndex].xUsed := FALSE;
+        aTxInflight[uiIndex].uiSlot := 0;
+        aTxInflight[uiIndex].uiPacketId := 0;
+        aTxInflight[uiIndex].eDirection := E_MqttInflightDirection.iNone;
+        aTxInflight[uiIndex].eState := E_MqttInflightState.iFree;
+        aTxInflight[uiIndex].eQoS := E_MqttQoS.byQoS0;
+        aTxInflight[uiIndex].stPublish.xValid := FALSE;
+        IF uiInflightCount &gt; 0 THEN
+            uiInflightCount := uiInflightCount - 1;
+        END_IF
+        eLastError := E_MqttBrokerError.uiNoError;
+        M_ReceivePubComp := TRUE;
+        RETURN;
+    END_IF
+END_FOR
+
+eLastError := E_MqttBrokerError.uiProtocolMalformed;
+M_ReceivePubComp := FALSE;</code></pre></div>
+<h2 id="13-fb-mqttbrokertxscheduler-m-receivepubrec-st">完整代码 13: FB_MqttBrokerTxScheduler.M_ReceivePubRec.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_ReceivePubRec
+/// 功能      : 处理订阅者返回的 PUBREC
+/// 说明      : QoS2 出站 PUBLISH 收到 PUBREC 后，事务进入等待 PUBCOMP，并由连接层优先发送 PUBREL。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_ReceivePubRec : BOOL
+VAR_INPUT
+    uiSlot     : UINT; // 返回 PUBREC 的订阅者槽位编号[1..cnMaxClientSlots]
+    uiPacketId : UINT; // PUBREC 携带的 Packet Identifier
+    udiNowMs   : ULINT; // 当前系统时间戳[ms]
+END_VAR
+VAR_OUTPUT
+    xNeedPubRel : BOOL; // TRUE 表示顶层应向该订阅者发送 PUBREL
+END_VAR
+VAR
+    uiIndex     : UINT; // 出站事务表扫描索引
+END_VAR
+
+// === IMPLEMENTATION ===
+xNeedPubRel := FALSE;
+
+FOR uiIndex := 1 TO GVL_MqttBroker.cnMaxTxInflight DO
+    IF aTxInflight[uiIndex].xUsed
+        AND (aTxInflight[uiIndex].uiSlot = uiSlot)
+        AND (aTxInflight[uiIndex].uiPacketId = uiPacketId)
+        AND (aTxInflight[uiIndex].eState = E_MqttInflightState.iWaitPubRec) THEN
+        aTxInflight[uiIndex].eState := E_MqttInflightState.iWaitPubComp;
+        aTxInflight[uiIndex].udiLastActionMs := udiNowMs;
+        aTxInflight[uiIndex].uiRetryCount := 0;
+        xNeedPubRel := TRUE;
+        eLastError := E_MqttBrokerError.uiNoError;
+        M_ReceivePubRec := TRUE;
+        RETURN;
+    END_IF
+END_FOR
+
+eLastError := E_MqttBrokerError.uiProtocolMalformed;
+M_ReceivePubRec := FALSE;</code></pre></div>
+<h2 id="14-fb-mqttbrokertxscheduler-m-registerpublish-st">完整代码 14: FB_MqttBrokerTxScheduler.M_RegisterPublish.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_RegisterPublish
+/// 功能      : 登记 Broker 出站 QoS1/QoS2 PUBLISH 事务
+/// 说明      : QoS0 不进入事务表；QoS1 等待订阅者 PUBACK；QoS2 状态预留。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_RegisterPublish : BOOL
+VAR_INPUT
+    stPublish : ST_MqttBrokerPublishFrame; // 已发送或即将发送给订阅者的发布帧
+    udiNowMs  : ULINT; // 当前系统时间戳[ms]
+END_VAR
+VAR
+    uiIndex   : UINT; // 出站事务表扫描索引
+    uiFree    : UINT; // 首个空闲出站事务槽位索引
+END_VAR
+
+// === IMPLEMENTATION ===
+IF stPublish.eQoS = E_MqttQoS.byQoS0 THEN
+    M_RegisterPublish := TRUE;
+    RETURN;
+END_IF
+
+IF stPublish.uiPacketId = 0 THEN
+    eLastError := E_MqttBrokerError.uiProtocolMalformed;
+    M_RegisterPublish := FALSE;
+    RETURN;
+END_IF
+
+uiFree := 0;
+
+FOR uiIndex := 1 TO GVL_MqttBroker.cnMaxTxInflight DO
+    IF aTxInflight[uiIndex].xUsed THEN
+        IF (aTxInflight[uiIndex].uiSlot = stPublish.uiTargetSlot)
+            AND (aTxInflight[uiIndex].uiPacketId = stPublish.uiPacketId) THEN
+            aTxInflight[uiIndex].udiLastActionMs := udiNowMs;
+            aTxInflight[uiIndex].stPublish := stPublish;
+            eLastError := E_MqttBrokerError.uiNoError;
+            M_RegisterPublish := TRUE;
+            RETURN;
+        END_IF
+    ELSIF uiFree = 0 THEN
+        uiFree := uiIndex;
+    END_IF
+END_FOR
+
+IF uiFree = 0 THEN
+    eLastError := E_MqttBrokerError.uiTxInflightFull;
+    M_RegisterPublish := FALSE;
+    RETURN;
+END_IF
+
+aTxInflight[uiFree].xUsed := TRUE;
+aTxInflight[uiFree].xDupOnRetry := FALSE;
+aTxInflight[uiFree].xRouteDone := TRUE;
+aTxInflight[uiFree].uiSlot := stPublish.uiTargetSlot;
+aTxInflight[uiFree].uiPacketId := stPublish.uiPacketId;
+aTxInflight[uiFree].uiRetryCount := 0;
+aTxInflight[uiFree].eDirection := E_MqttInflightDirection.iTx;
+aTxInflight[uiFree].eQoS := stPublish.eQoS;
+aTxInflight[uiFree].udiCreatedAtMs := udiNowMs;
+aTxInflight[uiFree].udiLastActionMs := udiNowMs;
+aTxInflight[uiFree].stPublish := stPublish;
+
+CASE stPublish.eQoS OF
+    E_MqttQoS.byQoS1:
+        aTxInflight[uiFree].eState := E_MqttInflightState.iWaitPubAck;
+    E_MqttQoS.byQoS2:
+        aTxInflight[uiFree].eState := E_MqttInflightState.iWaitPubRec;
+ELSE
+        aTxInflight[uiFree].eState := E_MqttInflightState.iFault;
+END_CASE
+
+uiInflightCount := uiInflightCount + 1;
+eLastError := E_MqttBrokerError.uiNoError;
+M_RegisterPublish := TRUE;</code></pre></div>
+<h2 id="15-fb-mqttbrokertxscheduler-st">完整代码 15: FB_MqttBrokerTxScheduler.st</h2>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : FB_MqttBrokerTxScheduler
+/// 功能      : Broker 出站 QoS 事务调度器
+/// 说明      : 管理 Broker 到订阅者方向的 QoS1 在途消息、PUBACK 收口和重发选择。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-08
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+FUNCTION_BLOCK FB_MqttBrokerTxScheduler
+VAR_OUTPUT
+    uiInflightCount : UINT; // 当前出站事务表有效数量
+    eLastError      : E_MqttBrokerError; // 发送事务调度器最近一次错误码
+END_VAR
+VAR
+    aTxInflight : ARRAY[1..GVL_MqttBroker.cnMaxTxInflight] OF ST_MqttBrokerInflightMessage; // 出站 QoS&gt;0 事务表
+END_VAR
+// === IMPLEMENTATION ===</code></pre></div>
+<h2 id="section-f1bcd0b6">这一篇你最该记住的几句话</h2>
+<ul><li>Broker 源码不要按“文件夹顺序”读，要按“入口、状态、数据、报文、路由、事务”读。</li><li>CodeSys ST 工程最容易失控的不是语法，而是对象职责边界混乱。</li><li>只要你能把本篇源码对象和在线变量对应起来，后续排查连接、订阅、发布和 QoS 问题就不会乱。</li></ul>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>第 1 篇：源码加更01_Broker 工程入口、容量边界和数据模型</li><li>第 2 篇：源码加更02_FB_MqttBroker 顶层调度、连接池和权限边界</li><li>第 3 篇：源码加更03_单连接槽位、TCP 字节流和发送队列</li><li>第 4 篇：源码加更04_MQTT 编解码器和字节工具函数</li><li>第 5 篇：源码加更05_订阅表、Retain、PUBLISH 路由和业务事件</li><li>第 6 篇：源码加更06_QoS 事务调度、重试和生产级闭环</li></ul>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../mqtt-broker-source-05-05-retainpublish-e9038e/index.html">
+                <small>上一篇 / 第15篇</small>
+                <strong>源码加更05_订阅表、Retain、PUBLISH 路由和业务事件</strong>
+                <span>这一组源码加更只有一个目标：把 MqttBroker 的真实 ST 源码按工程阅读顺序讲完整。不是再补几段“看起来像源码”的片段，而是让读者能沿着源码对象理解这个 Broker 怎么组织、怎么运行、怎么排障。</span>
+              </a>
+              <a class="series-nav-card" href="../../index.html#articles">
+                <small>下一篇 / 系列入口</small>
+                <strong>返回 CODESYS MQTT 文章中心</strong>
+                <span>回到文章中心，继续定位同系列文章和相关 MQTT 资料。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", () => window.setTimeout(updateActiveToc, 90));
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

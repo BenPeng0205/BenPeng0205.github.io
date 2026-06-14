@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PLC 里写 MQTT，最难的不是报文，而是状态机 | ControlRookie</title>
-  <meta name="description" content="这一篇站在架构层看 FBMqttClient，重点讲主状态机为什么才是系统骨架、iConnected 为什么是调度中心、接收链和发送链为什么必须拆开，以及异常为什么统一收口到 iTcpDisconnect。">
+  <title>第6篇_PLC 里写 MQTT，最难的不是报文，而是状态机 | ControlRookie</title>
+  <meta name="description" content="这一篇站在架构层看 FB_MqttClient，重点讲主状态机为什么才是系统骨架、iConnected 为什么是调度中心、接收链和发送链为什么必须拆开，以及异常为什么统一收口到 iTcpDisconnect。">
   <meta name="author" content="ControlRookie">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#050505">
@@ -14,14 +14,14 @@
   <link rel="manifest" href="../../site.webmanifest">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="ControlRookie">
-  <meta property="og:title" content="PLC 里写 MQTT，最难的不是报文，而是状态机">
-  <meta property="og:description" content="这一篇站在架构层看 FBMqttClient，重点讲主状态机为什么才是系统骨架、iConnected 为什么是调度中心、接收链和发送链为什么必须拆开，以及异常为什么统一收口到 iTcpDisconnect。">
+  <meta property="og:title" content="第6篇_PLC 里写 MQTT，最难的不是报文，而是状态机">
+  <meta property="og:description" content="这一篇站在架构层看 FB_MqttClient，重点讲主状态机为什么才是系统骨架、iConnected 为什么是调度中心、接收链和发送链为什么必须拆开，以及异常为什么统一收口到 iTcpDisconnect。">
   <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-client-part-06-6-plc-mqtt-b91df7/">
   <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="PLC 里写 MQTT，最难的不是报文，而是状态机">
-  <meta name="twitter:description" content="这一篇站在架构层看 FBMqttClient，重点讲主状态机为什么才是系统骨架、iConnected 为什么是调度中心、接收链和发送链为什么必须拆开，以及异常为什么统一收口到 iTcpDisconnect。">
+  <meta name="twitter:title" content="第6篇_PLC 里写 MQTT，最难的不是报文，而是状态机">
+  <meta name="twitter:description" content="这一篇站在架构层看 FB_MqttClient，重点讲主状态机为什么才是系统骨架、iConnected 为什么是调度中心、接收链和发送链为什么必须拆开，以及异常为什么统一收口到 iTcpDisconnect。">
   <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <link rel="stylesheet" href="../../styles/site.css">
 </head>
@@ -31,15 +31,15 @@
     <header class="nav article-nav" aria-label="Article navigation">
       <a class="brand" href="../../index.html" aria-label="ControlRookie home">
         <span class="brand-logo" aria-hidden="true">
-          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
         </span>
         <span>ControlRookie</span>
       </a>
       <nav class="nav-links" aria-label="Sections">
         <a href="../../index.html#about">关于我</a>
-        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#articles">文章</a>
         <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#contact">联系</a>
       </nav>
       <div class="nav-actions">
@@ -52,21 +52,21 @@
         <div class="article-layout">
           <aside class="article-toc" aria-label="文章目录">
             <strong>目录</strong>
-            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#fbmqttclient">一、先看 FBMqttClient 的主状态全貌</a></li><li><a href="#iconnected">二、为什么 iConnected 是整个系统的调度中心</a></li><li><a href="#section-c18d7a6c">三、为什么不能把所有收发逻辑都塞进一个状态里</a></li><li><a href="#section-4cf42aa5">四、为什么接收链和发送链必须分开</a></li><li><a href="#mprocesspendingframes">五、MProcessPendingFrames 为什么很关键</a></li><li><a href="#itcpdisconnect">六、为什么 iTcpDisconnect 是统一异常收口</a></li><li><a href="#iconnected-2">七、为什么高频场景主要在压 iConnected</a></li><li><a href="#section-f675ff73">八、为什么说报文只是局部正确，状态机才决定整体正确</a></li><li><a href="#section-31072f99">九、读这套源码，最推荐的顺序是什么</a></li><li><a href="#section-84941b02">十、把主状态机的职责再压成一张表</a></li><li><a href="#5">十一、这一篇你最该记住的 5 句话</a></li><li><a href="#section-62531a71">十二、下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li></ol>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#fb-mqttclient">一、先看 FB_MqttClient 的主状态全貌</a></li><li><a href="#iconnected">二、为什么 iConnected 是整个系统的调度中心</a></li><li><a href="#section-c18d7a6c">三、为什么不能把所有收发逻辑都塞进一个状态里</a></li><li><a href="#section-4cf42aa5">四、为什么接收链和发送链必须分开</a></li><li><a href="#m-processpendingframes">五、M_ProcessPendingFrames 为什么很关键</a></li><li><a href="#itcpdisconnect">六、为什么 iTcpDisconnect 是统一异常收口</a></li><li><a href="#iconnected-2">七、为什么高频场景主要在压 iConnected</a></li><li><a href="#section-f675ff73">八、为什么说报文只是局部正确，状态机才决定整体正确</a></li><li><a href="#section-31072f99">九、读这套源码，最推荐的顺序是什么</a></li><li><a href="#section-84941b02">十、把主状态机的职责再压成一张表</a></li><li><a href="#5">十一、这一篇你最该记住的 5 句话</a></li><li><a href="#section-62531a71">十二、下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
           </aside>
           <div class="article-main" id="article-top">
             <nav class="article-breadcrumb" aria-label="文章路径">
-              <a href="../../index.html#articles">文章</a>
+              <a href="../../index.html#articles">文章中心</a>
               <span>/</span>
-              <a href="../../index.html#articles">MQTT Client 系列教程</a>
+              <a href="../../index.html#articles">工业通信</a>
               <span>/</span>
-              <a href="../../index.html#articles">通信</a>
+              <a href="../../index.html#articles-mqtt">MQTT</a>
               <span>/</span>
-              <a href="../../index.html#articles">CODESYS</a>
+              <a href="../../index.html#articles-mqtt">客户端</a>
             </nav>
             <header class="article-hero">
-              <h1>PLC 里写 MQTT，最难的不是报文，而是状态机</h1>
-              <p class="article-summary">这一篇站在架构层看 FBMqttClient，重点讲主状态机为什么才是系统骨架、iConnected 为什么是调度中心、接收链和发送链为什么必须拆开，以及异常为什么统一收口到 iTcpDisconnect。</p>
+              <h1>第6篇_PLC 里写 MQTT，最难的不是报文，而是状态机</h1>
+              <p class="article-summary">这一篇站在架构层看 FB_MqttClient，重点讲主状态机为什么才是系统骨架、iConnected 为什么是调度中心、接收链和发送链为什么必须拆开，以及异常为什么统一收口到 iTcpDisconnect。</p>
               <div class="article-meta">
                 <span>2026-05-06</span>
                 <span>约 49 分钟阅读</span>
@@ -88,7 +88,7 @@
 <p>先给结论：</p>
 <blockquote>报文是骨头，状态机才是筋。</blockquote>
 <hr>
-<h2 id="fbmqttclient">一、先看 FBMqttClient 的主状态全貌</h2>
+<h2 id="fb-mqttclient">一、先看 FB_MqttClient 的主状态全貌</h2>
 <p>直接上总图。</p>
 <div class="mermaid-card"><small>Mermaid</small><pre><code>flowchart TD
     A[iDisconnected] --&gt; B[iTcpConnect]
@@ -171,7 +171,7 @@
 <tr><td>接收缓冲循环消化</td><td><code>M_ProcessPendingFrames</code></td></tr>
 </tbody></table></div>
 <hr>
-<h2 id="mprocesspendingframes">五、MProcessPendingFrames 为什么很关键</h2>
+<h2 id="m-processpendingframes">五、M_ProcessPendingFrames 为什么很关键</h2>
 <p>这个方法代码不长，但架构价值很高。</p>
 <div class="code-card"><small>iecst</small><pre><code>WHILE uiRxLength &gt; 0 DO
     IF NOT M_ProcessReceive() THEN
@@ -260,7 +260,7 @@ END_WHILE</code></pre></div>
 <ul><li>这部分给出的是与本篇主题直接对应的完整 ST 代码，不是零碎片段。</li><li>如果你只是想先跑通，优先整段复制，不要只摘几行变量或几条赋值语句。</li><li>如果是 <code>METHOD</code>，请确认它仍然属于 <code>FB_MqttClient</code>；如果是 <code>PROGRAM</code>，请确认相关 DUT、GVL、FB 已一并导入。</li></ul>
 <h3 id="section-5c5d2c8c">代码阅读重点</h3>
 <ul><li>先按 <code>报文结构 -&gt; 状态机入口 -&gt; 关键变量 -&gt; 返回结果</code> 的顺序看。</li><li>再把正文里的十六进制拆解和这里的字节写入、字节解析语句一行行对上。</li><li>最后回到在线调试，重点盯 <code>uiTxLength</code>、<code>uiRxLength</code>、<code>eState</code>、<code>xWaitingForAck</code> 这类状态量。</li></ul>
-<h3 id="1-fbmqttclient">完整代码 1：FBMqttClient</h3>
+<h3 id="1-fb-mqttclient">完整代码 1：FB_MqttClient</h3>
 <ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient.st</code></li><li>复制使用说明：这一篇的核心就是整个主功能块本体。只看零碎方法理解不了状态机，必须把整个 <code>FB_MqttClient</code> 连起来看。</li><li>阅读重点：优先看 <code>VAR_INPUT/VAR_OUTPUT</code>、<code>CASE eState OF</code>、超时定时器、TCP 三个子方法调用。你会看到所有报文方法最终都是被主状态机统一调度的。</li></ul>
 <div class="code-card"><small>iecst</small><pre><code>﻿/// =======================================================================
 /// 名称      : FB_MqttClient
@@ -1054,16 +1054,18 @@ M_TcpWrite(
     pDataSend := ADR(aTxBuf),
     udiDataSize := uiTxLength,
     bDone =&gt; bHasWritten);</code></pre></div>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列定位：第 6 篇</li><li>上一篇：第5篇 SUBSCRIBE / UNSUBSCRIBE</li><li>下一篇：第7篇 MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失</li></ul>
             </div>
             <nav class="article-series-nav" aria-label="系列导航">
               <a class="series-nav-card" href="../mqtt-client-part-05-5-subscribe-unsubscribe-869229/index.html">
                 <small>上一篇 / 第5篇</small>
-                <strong>SUBSCRIBE / UNSUBSCRIBE 怎么实现？主题过滤器到底该怎么校验</strong>
+                <strong>第5篇_SUBSCRIBE / UNSUBSCRIBE 怎么实现？主题过滤器到底该怎么校验</strong>
                 <span>这一篇把订阅和退订链完整拆开，重点讲 Topic Filter 和发布 Topic 的区别、 + $ 的校验规则、MQTT 5.0 能力边界，以及为什么退订也不是发个字符串这么简单。</span>
               </a>
               <a class="series-nav-card" href="../mqtt-client-part-07-7-mqtt-77aa5d/index.html">
                 <small>下一篇 / 第7篇</small>
-                <strong>MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失</strong>
+                <strong>第7篇_MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失</strong>
                 <span>这一篇完全从工程排障视角切入，把最常见的 MQTT 现场故障按连接层、ACK 链、状态机和会话恢复几条主线拆开，帮助你快速定位到底是网络、Broker 还是客户端时序出了问题。</span>
               </a>
             </nav>

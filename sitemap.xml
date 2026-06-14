@@ -163,25 +163,37 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://benpeng0205.github.io/articles/mqtt-broker-source-01-01-broker-663036/</loc>
+    <loc>https://benpeng0205.github.io/articles/mqtt-broker-source-01-01-broker-b5ee74/</loc>
     <lastmod>2026-05-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://benpeng0205.github.io/articles/mqtt-broker-source-02-02-connect-51f183/</loc>
+    <loc>https://benpeng0205.github.io/articles/mqtt-broker-source-02-02-fb-mqttbroker-bb2649/</loc>
     <lastmod>2026-05-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://benpeng0205.github.io/articles/mqtt-broker-source-03-03-retain-publish-0192d5/</loc>
+    <loc>https://benpeng0205.github.io/articles/mqtt-broker-source-03-03-tcp-729028/</loc>
     <lastmod>2026-05-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://benpeng0205.github.io/articles/mqtt-broker-source-04-04-qos-2406b8/</loc>
+    <loc>https://benpeng0205.github.io/articles/mqtt-broker-source-04-04-mqtt-21a105/</loc>
+    <lastmod>2026-05-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://benpeng0205.github.io/articles/mqtt-broker-source-05-05-retainpublish-e9038e/</loc>
+    <lastmod>2026-05-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://benpeng0205.github.io/articles/mqtt-broker-source-06-06-qos-fecb8d/</loc>
     <lastmod>2026-05-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

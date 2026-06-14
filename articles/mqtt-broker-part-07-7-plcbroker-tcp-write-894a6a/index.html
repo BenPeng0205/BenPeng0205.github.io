@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出 | ControlRookie</title>
-  <meta name="description" content="这一篇讲真实性能优化。早期 PLC Broker 在高频小消息场景下出现 1~3 秒尾部延迟，根因不是 QoS2、Retain 或订阅匹配，而是一次 TCPWrite 只写一帧。优化方向是批量编码多个 MQTT 帧。">
+  <title>第7篇_为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出 | ControlRookie</title>
+  <meta name="description" content="这一篇讲真实性能优化。早期 PLC Broker 在高频小消息场景下出现 1~3 秒尾部延迟，根因不是 QoS2、Retain 或订阅匹配，而是一次 TCP_Write 只写一帧。优化方向是批量编码多个 MQTT 帧。">
   <meta name="author" content="ControlRookie">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#050505">
@@ -14,14 +14,14 @@
   <link rel="manifest" href="../../site.webmanifest">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="ControlRookie">
-  <meta property="og:title" content="为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出">
-  <meta property="og:description" content="这一篇讲真实性能优化。早期 PLC Broker 在高频小消息场景下出现 1~3 秒尾部延迟，根因不是 QoS2、Retain 或订阅匹配，而是一次 TCPWrite 只写一帧。优化方向是批量编码多个 MQTT 帧。">
+  <meta property="og:title" content="第7篇_为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出">
+  <meta property="og:description" content="这一篇讲真实性能优化。早期 PLC Broker 在高频小消息场景下出现 1~3 秒尾部延迟，根因不是 QoS2、Retain 或订阅匹配，而是一次 TCP_Write 只写一帧。优化方向是批量编码多个 MQTT 帧。">
   <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-broker-part-07-7-plcbroker-tcp-write-894a6a/">
   <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出">
-  <meta name="twitter:description" content="这一篇讲真实性能优化。早期 PLC Broker 在高频小消息场景下出现 1~3 秒尾部延迟，根因不是 QoS2、Retain 或订阅匹配，而是一次 TCPWrite 只写一帧。优化方向是批量编码多个 MQTT 帧。">
+  <meta name="twitter:title" content="第7篇_为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出">
+  <meta name="twitter:description" content="这一篇讲真实性能优化。早期 PLC Broker 在高频小消息场景下出现 1~3 秒尾部延迟，根因不是 QoS2、Retain 或订阅匹配，而是一次 TCP_Write 只写一帧。优化方向是批量编码多个 MQTT 帧。">
   <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <link rel="stylesheet" href="../../styles/site.css">
 </head>
@@ -31,15 +31,15 @@
     <header class="nav article-nav" aria-label="Article navigation">
       <a class="brand" href="../../index.html" aria-label="ControlRookie home">
         <span class="brand-logo" aria-hidden="true">
-          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
         </span>
         <span>ControlRookie</span>
       </a>
       <nav class="nav-links" aria-label="Sections">
         <a href="../../index.html#about">关于我</a>
-        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#articles">文章</a>
         <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#contact">联系</a>
       </nav>
       <div class="nav-actions">
@@ -52,25 +52,25 @@
         <div class="article-layout">
           <aside class="article-toc" aria-label="文章目录">
             <strong>目录</strong>
-            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-6b1c38ee">一、先看测试现象</a></li><li><a href="#section-a828c4d9">二、关键诊断变量</a></li><li><a href="#section-b6817bc6">三、一帧一写为什么慢</a></li><li><a href="#mqtt-over-tcp">四、MQTT over TCP 允许粘包</a></li><li><a href="#section-1a6ddd42">五、批量写出不是无限合并</a></li><li><a href="#section-5bcd8725">六、顺序问题：别让新消息插队</a></li><li><a href="#st">七、ST 代码入口</a></li><li><a href="#section-db489d23">八、现场调参建议</a></li><li><a href="#section-2a0f949f">模型边界与验证路径</a></li><li><a href="#6">九、这一篇你最该记住的 6 句话</a></li><li><a href="#section-db37e882">下篇预告</a></li><li><a href="#st-2">完整 ST 代码</a></li></ol>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-6b1c38ee">一、先看测试现象</a></li><li><a href="#section-a828c4d9">二、关键诊断变量</a></li><li><a href="#section-b6817bc6">三、一帧一写为什么慢</a></li><li><a href="#mqtt-over-tcp">四、MQTT over TCP 允许粘包</a></li><li><a href="#section-1a6ddd42">五、批量写出不是无限合并</a></li><li><a href="#section-5bcd8725">六、顺序问题：别让新消息插队</a></li><li><a href="#st">七、ST 代码入口</a></li><li><a href="#section-db489d23">八、现场调参建议</a></li><li><a href="#section-2a0f949f">模型边界与验证路径</a></li><li><a href="#6">九、这一篇你最该记住的 6 句话</a></li><li><a href="#section-db37e882">下篇预告</a></li><li><a href="#st-2">完整 ST 代码</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
           </aside>
           <div class="article-main" id="article-top">
             <nav class="article-breadcrumb" aria-label="文章路径">
-              <a href="../../index.html#articles">文章</a>
+              <a href="../../index.html#articles">文章中心</a>
               <span>/</span>
-              <a href="../../index.html#articles">MQTT Broker 系列教程</a>
+              <a href="../../index.html#articles">工业通信</a>
               <span>/</span>
-              <a href="../../index.html#articles">通信</a>
+              <a href="../../index.html#articles-mqtt">MQTT</a>
               <span>/</span>
-              <a href="../../index.html#articles">CODESYS</a>
+              <a href="../../index.html#articles-mqtt">Broker</a>
             </nav>
             <header class="article-hero">
-              <h1>为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出</h1>
-              <p class="article-summary">这一篇讲真实性能优化。早期 PLC Broker 在高频小消息场景下出现 1~3 秒尾部延迟，根因不是 QoS2、Retain 或订阅匹配，而是一次 TCPWrite 只写一帧。优化方向是批量编码多个 MQTT 帧。</p>
+              <h1>第7篇_为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出</h1>
+              <p class="article-summary">这一篇讲真实性能优化。早期 PLC Broker 在高频小消息场景下出现 1~3 秒尾部延迟，根因不是 QoS2、Retain 或订阅匹配，而是一次 TCP_Write 只写一帧。优化方向是批量编码多个 MQTT 帧。</p>
               <div class="article-meta">
                 <span>2026-05-08</span>
                 <span>约 12 分钟阅读</span>
-                <span>第7篇/共14篇</span>
+                <span>第7篇/共16篇</span>
                 <span>MQTT / Broker / 性能优化 / TCP / CODESYS / ST / CSDN / PLC</span>
               </div>
             </header>
@@ -329,16 +329,18 @@ END_IF</code></pre></div>
     bWriteBusy := TRUE;
     M_PrepareNextTx := TRUE;
 END_IF</code></pre></div>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列定位：第 7 篇</li><li>上一篇：Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH</li><li>下一篇：PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查</li></ul>
             </div>
             <nav class="article-series-nav" aria-label="系列导航">
               <a class="series-nav-card" href="../mqtt-broker-part-06-6-retain-will-keepalive--publish-95a52b/index.html">
                 <small>上一篇 / 第6篇</small>
-                <strong>Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH</strong>
+                <strong>第6篇_Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH</strong>
                 <span>这一篇讲 Broker 的三个现场能力：Retain 保存主题最后值，Will 处理异常离线通知，KeepAlive 清理死连接。它们不是锦上添花，而是让 MQTT 在工业现场真正可用的基础能力。</span>
               </a>
               <a class="series-nav-card" href="../mqtt-broker-part-08-8-plc-mqttbroker-retain-bd65fd/index.html">
                 <small>下一篇 / 第8篇</small>
-                <strong>PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查</strong>
+                <strong>第8篇_PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查</strong>
                 <span>这一篇是主线收口，专门整理 PLC 侧 MQTT Broker 的现场排障路线。连不上先看监听和槽位，订阅失败先看 SUBACK 和订阅表，发布延迟先看队列和批量写出，Retain 收不到先看 Retain 表和订阅补发。</span>
               </a>
             </nav>

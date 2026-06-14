@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CONNECT、PING、DISCONNECT 会话生命周期 | ControlRookie</title>
-  <meta name="description" content="MQTT 会话不是 TCP 连接。TCP 连上只是门开了，CONNECT / CONNACK 成功才算进屋。">
+  <title>源码加更04_CONNECT、PING、DISCONNECT 会话生命周期 | ControlRookie</title>
+  <meta name="description" content="这一篇完整公开 MQTT 会话建立、CONNACK 处理、心跳和断开的代码。它对应工业现场最常见的连不上、心跳超时和断线重连问题。">
   <meta name="author" content="ControlRookie">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#050505">
@@ -14,14 +14,14 @@
   <link rel="manifest" href="../../site.webmanifest">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="ControlRookie">
-  <meta property="og:title" content="CONNECT、PING、DISCONNECT 会话生命周期">
-  <meta property="og:description" content="MQTT 会话不是 TCP 连接。TCP 连上只是门开了，CONNECT / CONNACK 成功才算进屋。">
+  <meta property="og:title" content="源码加更04_CONNECT、PING、DISCONNECT 会话生命周期">
+  <meta property="og:description" content="这一篇完整公开 MQTT 会话建立、CONNACK 处理、心跳和断开的代码。它对应工业现场最常见的连不上、心跳超时和断线重连问题。">
   <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-client-source-04-04-connect-ping-disconnect-4a50aa/">
   <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="CONNECT、PING、DISCONNECT 会话生命周期">
-  <meta name="twitter:description" content="MQTT 会话不是 TCP 连接。TCP 连上只是门开了，CONNECT / CONNACK 成功才算进屋。">
+  <meta name="twitter:title" content="源码加更04_CONNECT、PING、DISCONNECT 会话生命周期">
+  <meta name="twitter:description" content="这一篇完整公开 MQTT 会话建立、CONNACK 处理、心跳和断开的代码。它对应工业现场最常见的连不上、心跳超时和断线重连问题。">
   <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <link rel="stylesheet" href="../../styles/site.css">
 </head>
@@ -31,15 +31,15 @@
     <header class="nav article-nav" aria-label="Article navigation">
       <a class="brand" href="../../index.html" aria-label="ControlRookie home">
         <span class="brand-logo" aria-hidden="true">
-          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
         </span>
         <span>ControlRookie</span>
       </a>
       <nav class="nav-links" aria-label="Sections">
         <a href="../../index.html#about">关于我</a>
-        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#articles">文章</a>
         <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#contact">联系</a>
       </nav>
       <div class="nav-actions">
@@ -52,50 +52,82 @@
         <div class="article-layout">
           <aside class="article-toc" aria-label="文章目录">
             <strong>目录</strong>
-            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-19141938">本篇核心图</a></li><li><a href="#section-3cc15802">会话握手</a></li><li><a href="#connect">CONNECT 的三层结构</a></li><li><a href="#connack-mqtt">CONNACK 决定 MQTT 是否真正连接</a></li><li><a href="#keepalive">KeepAlive 不是定时发一下这么简单</a></li><li><a href="#section-66b1b106">这一篇最该记住的几句话</a></li><li><a href="#section-297346c3">本篇结论</a></li></ol>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-19141938">本篇核心图</a></li><li><a href="#section-c769c1e4">先给结论</a></li><li><a href="#section-9830aee7">从理论到代码实现链路</a></li><li><a href="#section-bc944905">本篇公开的完整源码范围</a></li><li><a href="#section-049d70e4">怎么读这些源码</a></li><li><a href="#section-70c3cb99">工程验证路径</a></li><li><a href="#section-6d6577bb">本篇完整开源代码</a></li><li><a href="#section-f1bcd0b6">这一篇你最该记住的几句话</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
           </aside>
           <div class="article-main" id="article-top">
             <nav class="article-breadcrumb" aria-label="文章路径">
-              <a href="../../index.html#articles">文章</a>
+              <a href="../../index.html#articles">文章中心</a>
               <span>/</span>
-              <a href="../../index.html#articles">MQTT Client 系列教程</a>
+              <a href="../../index.html#articles">工业通信</a>
               <span>/</span>
-              <a href="../../index.html#articles">通信</a>
+              <a href="../../index.html#articles-mqtt">MQTT</a>
               <span>/</span>
-              <a href="../../index.html#articles">CODESYS</a>
+              <a href="../../index.html#articles-mqtt">客户端</a>
             </nav>
             <header class="article-hero">
-              <h1>CONNECT、PING、DISCONNECT 会话生命周期</h1>
-              <p class="article-summary">MQTT 会话不是 TCP 连接。TCP 连上只是门开了，CONNECT / CONNACK 成功才算进屋。</p>
+              <h1>源码加更04_CONNECT、PING、DISCONNECT 会话生命周期</h1>
+              <p class="article-summary">这一篇完整公开 MQTT 会话建立、CONNACK 处理、心跳和断开的代码。它对应工业现场最常见的连不上、心跳超时和断线重连问题。</p>
               <div class="article-meta">
                 <span>2026-05-06</span>
-                <span>约 4 分钟阅读</span>
+                <span>约 37 分钟阅读</span>
                 <span>第14篇/共16篇</span>
-                <span>[MQTT / CodeSys / PLC通信 / ControlRookie] / MQTT / CODESYS / PLC / ControlRookie</span>
+                <span>MQTT / CodeSys / PLC通信 / ControlRookie / CODESYS / PLC</span>
               </div>
             </header>
             <div class="article-content">
-              <div class="article-source-scope"><strong>源码范围说明</strong><p>本篇属于 MQTT 源码加更，展示的是 V1.0 运行链路中的核心源码片段、对象职责和阅读顺序；它不是完整工程源码包，也不等同于 1.0 全量源码清单。完整源码资源后续应在资源/源码页统一维护。</p></div>
-<blockquote>MQTT 会话不是 TCP 连接。TCP 连上只是门开了，CONNECT / CONNACK 成功才算进屋。</blockquote>
+              <blockquote>这一篇完整公开 MQTT 会话建立、CONNACK 处理、心跳和断开的代码。它对应工业现场最常见的连不上、心跳超时和断线重连问题。</blockquote>
 <h2 id="section-0d70135c">适合谁收藏</h2>
+<ul><li>正在对照 CONNECT/CONNACK 十六进制报文和 ST 代码的读者。</li><li>需要排查 KeepAlive、PINGRESP 和 DISCONNECT 收口的工程师。</li><li>想看 MQTT 3.1.1/5.0 版本边界如何落到变量的人。</li></ul>
+<hr>
 <h2 id="section-19141938">本篇核心图</h2>
-<p>读图重点：先看对象之间的职责边界，再看状态或数据如何流动。</p>
-<figure><img src="../../assets/articles/mqtt-client-source-04-04-connect-ping-disconnect-4a50aa/client-source-04-session.png" alt="本篇核心图"><figcaption>本篇核心图</figcaption></figure>
-<ul><li>适合排查 TCP 已连接但 MQTT 不在线的人。</li><li>适合想看 CONNECT、CONNACK、PINGREQ、PINGRESP 如何组成会话闭环的人。</li></ul>
-<h2 id="section-3cc15802">会话握手</h2>
-<p>PLC Client 先 TCP Connect，成功后发送 CONNECT；Broker 返回 CONNACK 后，客户端进入 MQTT Connected。之后 KeepAlive 周期内用 PINGREQ / PINGRESP 保活，主动断开时发送 DISCONNECT。</p>
-<h2 id="connect">CONNECT 的三层结构</h2>
-<p>CONNECT 构建方法先算长度、再写标志、最后把 ClientID、Will、用户名密码放进载荷。下面这段是真实方法开头，能看到它先做参数和缓冲区边界检查。</p>
-<div class="code-card"><small>iecst</small><pre><code>METHOD M_BuildConnectPacket : BOOL
+<figure><img src="../../assets/articles/mqtt-client-source-04-04-connect-ping-disconnect-4a50aa/client-source-04-session.png" alt="软件交互架构图"><figcaption>软件交互架构图</figcaption></figure>
+<p>读图重点：先看源码对象之间的职责边界，再看数据、状态和错误如何沿着调用链流动。源码加更不是把文件名列出来，而是把完整代码、工程意图和验证口径一起讲清楚。</p>
+<h2 id="section-c769c1e4">先给结论</h2>
+<p>会话生命周期只有三件事：正确建立、持续保活、明确断开。任何一步含糊，现场就会把错误统一叫成“掉线”。</p>
+<h2 id="section-9830aee7">从理论到代码实现链路</h2>
+<p>MQTT 标准给的是报文类型、固定头、可变头、载荷、QoS 交互和会话语义；PLC 工程真正要解决的是周期扫描、缓冲区长度、错误锁存、在线变量、连接重入和现场可诊断性。</p>
+<p>所以这套开源实现不能只按协议章节拆，也不能只按文件名拆。正确读法是把标准约束翻译成程序对象：入口程序负责给命令和观测点，GVL 和 DUT 定义容量与数据模型，主功能块负责调度状态机，构建方法负责出站报文，处理方法负责入站报文，辅助方法负责长度、队列、事务、主题和诊断边界。</p>
+<p>本篇完整公开 CONNECT、PINGREQ、DISCONNECT 构建和 CONNACK/PINGRESP 处理方法。</p>
+<p>再往下一层看，这里其实有两条线同时存在。第一条是协议线：固定头、Remaining Length、PacketId、QoS、Topic、Payload 和 Reason Code 必须能按 MQTT 规则组合起来。第二条是 PLC 工程线：每个周期只能推进有限步骤，所有中间状态都要能被在线变量观察，所有错误都要能被锁存并归类，所有缓冲区长度都要在写入前被检查。</p>
+<p>这就是源码加更必须完整公开的原因。只给几段核心片段，读者最多能看懂某个判断；把完整对象放出来，读者才能看到对象之间如何传递状态、长度、错误和诊断信息。完整源码讲解不是为了堆代码，而是为了让读者能从标准约束一路追到可运行的 ST 对象，再从现场现象反向定位到具体边界。</p>
+<h2 id="section-bc944905">本篇公开的完整源码范围</h2>
+<div class="article-table-wrap"><table>
+<thead><tr><th>序号</th><th>源码对象</th><th>讲解重点</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>M_BuildConnectPacket.st</code></td><td>出站报文构建，把引脚命令翻译成 MQTT 字节流</td></tr>
+<tr><td>2</td><td><code>M_BuildPingReqPacket.st</code></td><td>出站报文构建，把引脚命令翻译成 MQTT 字节流</td></tr>
+<tr><td>3</td><td><code>M_BuildDisconnectPacket.st</code></td><td>出站报文构建，把引脚命令翻译成 MQTT 字节流</td></tr>
+<tr><td>4</td><td><code>M_HandleConnAck.st</code></td><td>入站报文处理，把 MQTT 响应落到状态和诊断</td></tr>
+<tr><td>5</td><td><code>M_HandlePingResp.st</code></td><td>入站报文处理，把 MQTT 响应落到状态和诊断</td></tr>
+</tbody></table></div>
+<h2 id="section-049d70e4">怎么读这些源码</h2>
+<p>第一遍只看对象职责：这个文件解决哪一层问题，是入口、模型、状态、构建、接收、事务，还是诊断。</p>
+<p>第二遍看边界变量：长度、索引、PacketId、QoS、状态枚举、错误码、缓冲区水位和在线观测量。PLC 通信代码最怕的是“能跑但不可诊断”，所以每个关键对象都要问一句：现场出问题时，我能不能从它留下的变量看出原因。</p>
+<p>第三遍再看具体语句。源码全部公开，不等于读者要从第一行顺序读到最后一行。更稳的方式是用图和表先建立地图，再回到完整代码里确认每个边界确实落地。</p>
+<h2 id="section-70c3cb99">工程验证路径</h2>
+<p>验证时依次看 CONNECT 报文长度、CONNACK 返回码、心跳周期和断开状态是否收口。</p>
+<h2 id="section-6d6577bb">本篇完整开源代码</h2>
+<h3 id="1-m-buildconnectpacket-st">完整代码 1：M_BuildConnectPacket.st</h3>
+<p>这一段完整公开 <code>M_BuildConnectPacket.st</code>。读代码时先看对象职责，再看状态、长度、错误和返回值，不要只抄几行赋值。</p>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_BuildConnectPacket
+/// 功能      : 构建 CONNECT 发送报文
+/// 说明      : 按 MQTT 3.1.1/5.0 规则组装 CONNECT 报文并写入发送缓冲区。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_BuildConnectPacket : BOOL
 VAR
-    uiPos               : UINT := 0;                                        //字节索引
-    uiVarHeaderLen      : UINT;                                             //可变报头长度
-    uiPayloadLen        : UINT;                                             //载荷长度
-    uiRemainingLen      : UINT;                                             //剩余长度
-    uiPropsLen          : UINT;                                             //MQTT 5.0属性长度
-    i                   : DINT;
-    byConnectFlags      : BYTE;                                             //连接标志字节
-    uiTopicAliasMax     : UINT;                                             //客户端接收方向主题别名上限
+    uiPos               : UINT := 0;                                        // 当前写入发送缓冲区的位置偏移[byte]
+    uiVarHeaderLen      : UINT;                                             // CONNECT 可变报头总长度[byte]
+    uiPayloadLen        : UINT;                                             // CONNECT 载荷总长度[byte]
+    uiRemainingLen      : UINT;                                             // 写入固定报头中的 Remaining Length 值[byte]
+    uiPropsLen          : UINT;                                             // MQTT 5.0 CONNECT 属性区总长度[byte]
+    i                   : DINT;                                             // 清空发送缓冲区时使用的循环索引
+    byConnectFlags      : BYTE;                                             // 即将写入 CONNECT 报文的连接标志字节
+    uiTopicAliasMax     : UINT;                                             // 客户端告诉 Broker“我最多能接收多少个主题别名编号”
 END_VAR
 
 // === IMPLEMENTATION ===
@@ -112,24 +144,256 @@ IF (sPassword &lt;&gt; &#x27;&#x27;) AND (sUsername = &#x27;&#x27;) THEN
     M_BuildConnectPacket := FALSE;
     RETURN;
 END_IF
-</code></pre></div>
-<div class="article-table-wrap"><table>
-<thead><tr><th>层</th><th>内容</th></tr></thead>
-<tbody>
-<tr><td>固定报头</td><td>报文类型 + Remaining Length</td></tr>
-<tr><td>可变报头</td><td>协议名、协议级别、Flags、KeepAlive、属性</td></tr>
-<tr><td>Payload</td><td>ClientID、Will、Username、Password</td></tr>
-</tbody></table></div>
-<p>这就是从标准到 ST 的抽象方式：每个协议字段最终都落到 aTxBuf 的顺序写入。</p>
-<h2 id="connack-mqtt">CONNACK 决定 MQTT 是否真正连接</h2>
-<p>CONNACK 的核心不是收到了返回，而是返回码是否成功。成功后才能置位 MQTT Connected，失败时要进入错误状态并释放 TCP。</p>
-<h2 id="keepalive">KeepAlive 不是定时发一下这么简单</h2>
-<p>PINGREQ 是最短的 MQTT 控制报文之一，但仍然要经过发送缓冲区清理和长度确认。</p>
-<div class="code-card"><small>iecst</small><pre><code>{attribute &#x27;hide_all_locals&#x27;}
+
+IF (NOT bWillFlag) AND ((sWillTopic &lt;&gt; &#x27;&#x27;) OR (sWillMessage &lt;&gt; &#x27;&#x27;)) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Will fields require Will Flag&#x27;);
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+IF (bWillRetain OR (eWillQoS &lt;&gt; E_MqttQoS.byQoS0)) AND (NOT bWillFlag) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Invalid will flag combination&#x27;);
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+IF bWillFlag AND (sWillTopic = &#x27;&#x27;) THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Will topic is required&#x27;);
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+// 清空发送缓冲区，避免数据干扰
+FOR i := LOWER_BOUND(aTxBuf, 1) TO UPPER_BOUND(aTxBuf, 1) DO
+    aTxBuf[i] := 0;
+END_FOR
+
+/// =======================================================================
+/// 长度计算
+/// =======================================================================
+// 可变报头长度: 协议名(6) + 协议版本(1) + 连接标志(1) + 保持连接(2)
+uiVarHeaderLen := 10;
+
+// MQTT 5.0: 连接属性长度
+uiPropsLen := 0;
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    // Session Expiry Interval (4字节值 + 1字节标识符)
+    IF udiSessionExpiry &gt; 0 THEN
+        uiPropsLen := uiPropsLen + 5;
+    END_IF
+    // Receive Maximum (2字节值 + 1字节标识符)
+    uiPropsLen := uiPropsLen + 3;
+    // Maximum Packet Size (4字节值 + 1字节标识符)
+    uiPropsLen := uiPropsLen + 5;
+    // Topic Alias Maximum (2字节值 + 1字节标识符)
+    uiPropsLen := uiPropsLen + 3;
+    // Request Problem Information (1字节值 + 1字节标识符)
+    uiPropsLen := uiPropsLen + 2;
+    // Request Response Information (1字节值 + 1字节标识符)
+    IF bRequestResponseInfo THEN
+        uiPropsLen := uiPropsLen + 2;
+    END_IF
+    // 属性长度字段的编码长度
+    IF uiPropsLen &lt; 128 THEN
+        uiVarHeaderLen := uiVarHeaderLen + 1 + uiPropsLen;                  //1字节属性长度
+    ELSE
+        uiVarHeaderLen := uiVarHeaderLen + 2 + uiPropsLen;                  //2字节属性长度
+    END_IF
+END_IF
+
+// 计算 CONNECT 载荷总长度
+uiPayloadLen := TO_UINT(2 + LEN(sClientID));                                    //Client ID
+IF sUsername &lt;&gt; &#x27;&#x27; THEN
+    uiPayloadLen := uiPayloadLen + TO_UINT(2 + LEN(sUsername));
+END_IF
+IF sPassword &lt;&gt; &#x27;&#x27; THEN
+    uiPayloadLen := uiPayloadLen + TO_UINT(2 + LEN(sPassword));
+END_IF
+IF bWillFlag THEN
+    IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+        uiPayloadLen := uiPayloadLen + 1;
+    END_IF
+    uiPayloadLen := uiPayloadLen + TO_UINT(2 + LEN(sWillTopic) + 2 + LEN(sWillMessage));
+END_IF
+
+IF uiReceiveMax = 0 THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Receive Maximum must not be zero&#x27;);
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+IF udMaxPacketSize = 0 THEN
+    M_SetError(
+        uiErrorCode := TO_UINT(E_ReasonCode.uiErrInvalidParameter),
+        sMessage := &#x27;Maximum Packet Size must not be zero&#x27;);
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+// 计算 Remaining Length 值
+uiRemainingLen := uiVarHeaderLen + uiPayloadLen;
+
+// 缓冲区长度检查
+IF uiRemainingLen + 5 &gt; SIZEOF(aTxBuf) THEN
+    M_BuildConnectPacket := FALSE;
+    RETURN;
+END_IF
+
+/// =======================================================================
+/// 创建报文
+/// =======================================================================
+uiPos := 0;
+
+// ****************** 固定报文头 = 报文类型 + Remaining Length ******************
+// 报文类型
+aTxBuf[0] := E_MqttPacketType.byConnect;
+uiPos := uiPos + 1;
+
+// Remaining Length 值
+uiPos := uiPos + M_EncodeRemainingLength(uiRemainingLen, ADR(aTxBuf[uiPos]));
+
+// ****************** 可变报文头 = 协议名(6) + 协议版本(1) + 连接标志(1) + 保持连接(2) ******************
+// 协议名：&quot;MQTT&quot;
+aTxBuf[uiPos] := 0;                                                         //长度高字节MSB
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 4;                                                         //长度低字节LSB
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 77;                                                            // &#x27;M&#x27;
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 81;                                                            // &#x27;Q&#x27;
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 84;                                                            // &#x27;T&#x27;
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := 84;                                                            // &#x27;T&#x27;
+uiPos := uiPos + 1;
+
+// 协议版本（根据eVersion选择）
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    aTxBuf[uiPos] := 5;                                                     //MQTT 5.0
+ELSE
+    aTxBuf[uiPos] := 4;                                                     //MQTT 3.1.1
+END_IF
+uiPos := uiPos + 1;
+
+// 连接标志
+byConnectFlags :=
+        (BOOL_TO_BYTE(FALSE) * 1) OR                                            //Bit 0: Reserved。服务端必须验证保留标志位是否为0
+        (BOOL_TO_BYTE(bCleanSession) * 2) OR                                    //Bit 1: Clean Session
+        (BOOL_TO_BYTE(bWillFlag AND sWillTopic &lt;&gt; &#x27;&#x27;) * 4) OR                   //Bit 2: Will Flag
+        (BOOL_TO_BYTE(eWillQoS = 1 OR eWillQoS = 3) * 8) OR                 //Bit 3: Will QoS低位
+        (BOOL_TO_BYTE(eWillQoS = 2 OR eWillQoS = 3) * 16) OR                    //Bit 4: Will QoS高位
+        (BOOL_TO_BYTE(bWillFlag AND bWillRetain) * 32) OR                       //Bit 5: Will Retain
+        (BOOL_TO_BYTE(sPassword &lt;&gt; &#x27;&#x27;) * 64) OR                             //Bit 6: Password Flag
+        (BOOL_TO_BYTE(sUsername &lt;&gt; &#x27;&#x27;) * 128);                                  //Bit 7: Username Flag
+aTxBuf[uiPos] := byConnectFlags;
+uiPos := uiPos + 1;
+
+// 保持连接
+aTxBuf[uiPos] := UINT_TO_BYTE(SHR(uiKeepAlive, 8));                         //KeepAlive高字节
+uiPos := uiPos + 1;
+aTxBuf[uiPos] := UINT_TO_BYTE(uiKeepAlive AND 16#FF);                           //KeepAlive低字节
+uiPos := uiPos + 1;
+
+// ****************** MQTT 5.0: 连接属性 ******************
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    // 属性长度（可变字节编码）
+    IF uiPropsLen &lt; 128 THEN
+        aTxBuf[uiPos] := TO_BYTE(uiPropsLen);
+        uiPos := uiPos + 1;
+    ELSE
+        aTxBuf[uiPos] := TO_BYTE((uiPropsLen / 128) OR 16#80);
+        uiPos := uiPos + 1;
+        aTxBuf[uiPos] := TO_BYTE(uiPropsLen MOD 128);
+        uiPos := uiPos + 1;
+    END_IF
+
+    // Session Expiry Interval
+    IF udiSessionExpiry &gt; 0 THEN
+        aTxBuf[uiPos] := GVL_Mqtt.cnPropSessionExpiry;  uiPos := uiPos + 1;
+        aTxBuf[uiPos] := UDINT_TO_BYTE(SHR(udiSessionExpiry, 24) AND 16#FF);    uiPos := uiPos + 1;
+        aTxBuf[uiPos] := UDINT_TO_BYTE(SHR(udiSessionExpiry, 16) AND 16#FF);    uiPos := uiPos + 1;
+        aTxBuf[uiPos] := UDINT_TO_BYTE(SHR(udiSessionExpiry, 8) AND 16#FF); uiPos := uiPos + 1;
+        aTxBuf[uiPos] := UDINT_TO_BYTE(udiSessionExpiry AND 16#FF);         uiPos := uiPos + 1;
+    END_IF
+
+    // Receive Maximum
+    aTxBuf[uiPos] := GVL_Mqtt.cnPropReceiveMaximum; uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UINT_TO_BYTE(SHR(uiReceiveMax, 8));    uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UINT_TO_BYTE(uiReceiveMax AND 16#FF);  uiPos := uiPos + 1;
+
+    // Maximum Packet Size
+    aTxBuf[uiPos] := GVL_Mqtt.cnPropMaxPacketSize;  uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UDINT_TO_BYTE(SHR(udMaxPacketSize, 24) AND 16#FF); uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UDINT_TO_BYTE(SHR(udMaxPacketSize, 16) AND 16#FF); uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UDINT_TO_BYTE(SHR(udMaxPacketSize, 8) AND 16#FF);  uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UDINT_TO_BYTE(udMaxPacketSize AND 16#FF);          uiPos := uiPos + 1;
+
+    // Topic Alias Maximum
+    uiTopicAliasMax := GVL_Mqtt.cnMaxTopicAlias;
+    aTxBuf[uiPos] := GVL_Mqtt.cnPropTopicAliasMax;  uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UINT_TO_BYTE(SHR(uiTopicAliasMax, 8)); uiPos := uiPos + 1;
+    aTxBuf[uiPos] := UINT_TO_BYTE(uiTopicAliasMax AND 16#FF); uiPos := uiPos + 1;
+
+    // Request Problem Information
+    aTxBuf[uiPos] := GVL_Mqtt.cnPropRequestProblemInfo; uiPos := uiPos + 1;
+    aTxBuf[uiPos] := BOOL_TO_BYTE(bRequestProblemInfo);             uiPos := uiPos + 1;
+
+    // Request Response Information
+    IF bRequestResponseInfo THEN
+        aTxBuf[uiPos] := GVL_Mqtt.cnPropRequestResponseInfo; uiPos := uiPos + 1;
+        aTxBuf[uiPos] := 1; uiPos := uiPos + 1;
+    END_IF
+END_IF
+
+// ****************** 载荷 = 客户端标识符 + 遗嘱主题 + 遗嘱消息 + 用户名 + 密码 ******************
+// 客户端标识符
+uiPos := uiPos + M_AppendString(sClientID, ADR(aTxBuf[uiPos]));
+
+// 遗嘱主题 + 遗嘱消息
+IF bWillFlag THEN
+    IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+        aTxBuf[uiPos] := 0;
+        uiPos := uiPos + 1;
+    END_IF
+    uiPos := uiPos + M_AppendString(sWillTopic, ADR(aTxBuf[uiPos]));
+    uiPos := uiPos + M_AppendString(sWillMessage, ADR(aTxBuf[uiPos]));
+END_IF
+
+// 用户名
+IF sUsername &lt;&gt; &#x27;&#x27; THEN
+    uiPos := uiPos + M_AppendString(sUsername, ADR(aTxBuf[uiPos]));
+END_IF
+
+// 密码
+IF sPassword &lt;&gt; &#x27;&#x27; THEN
+    uiPos := uiPos + M_AppendString(sPassword, ADR(aTxBuf[uiPos]));
+END_IF
+
+uiTxLength := uiPos;                                                            //需要发送的报文总字节数
+M_BuildConnectPacket := TRUE;</code></pre></div>
+<h3 id="2-m-buildpingreqpacket-st">完整代码 2：M_BuildPingReqPacket.st</h3>
+<p>这一段完整公开 <code>M_BuildPingReqPacket.st</code>。读代码时先看对象职责，再看状态、长度、错误和返回值，不要只抄几行赋值。</p>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_BuildPingReqPacket
+/// 功能      : 构建 PINGREQ 发送报文
+/// 说明      : 生成 MQTT 心跳请求固定报文头并更新发送长度。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
 METHOD M_BuildPingReqPacket : BOOL
 VAR
-    uiPos               : UINT := 0;                                        //字节索引
-    i                   : DINT;
+    uiPos               : UINT := 0;                                        // 当前写入发送缓冲区的位置偏移[byte]
+    i                   : DINT;                                             // 清空发送缓冲区时使用的循环索引
 END_VAR
 
 // === IMPLEMENTATION ===
@@ -140,29 +404,434 @@ IF SIZEOF(aTxBuf) &lt; 2 THEN
 END_IF
 
 // 清空发送缓冲区，避免数据干扰
-FOR i := LOWER_BOUND(aTxBuf, 1) TO UPPER_BOUND(aTxBuf, 1) DO</code></pre></div>
-<div class="article-table-wrap"><table>
-<thead><tr><th>动作</th><th>目的</th></tr></thead>
-<tbody>
-<tr><td>定时发送 PINGREQ</td><td>告诉 Broker 客户端还活着</td></tr>
-<tr><td>等待 PINGRESP</td><td>确认 Broker 和 TCP 链路仍可用</td></tr>
-</tbody></table></div>
-<p>如果只发不等，断线检测会变钝；如果等超时不处理，状态机会卡死。</p>
-<h2 id="section-66b1b106">这一篇最该记住的几句话</h2>
-<p>TCP 连接成功只是建链，CONNACK 成功才是 MQTT 会话建立。</p>
-<h2 id="section-297346c3">本篇结论</h2>
-<p>会话生命周期的关键是分层：TCP 建链、MQTT 握手、KeepAlive 保活、DISCONNECT 收尾。调试连接问题时，不要只盯 bConnect，要看 TCP 是否连接、CONNACK 是否成功、PINGRESP 是否回来、错误文本是否说明原因。</p>
+FOR i := LOWER_BOUND(aTxBuf, 1) TO UPPER_BOUND(aTxBuf, 1) DO
+    aTxBuf[i] := 0;
+END_FOR
+
+/// =======================================================================
+/// 创建报文
+/// =======================================================================
+uiPos := 0;
+
+// ****************** 固定报文头 = 报文类型 + Remaining Length ******************
+// 报文类型
+aTxBuf[0] := E_MqttPacketType.byPingReq;
+uiPos := uiPos + 1;
+
+// Remaining Length: 0
+aTxBuf[uiPos] := 0;
+uiPos := uiPos + 1;
+
+uiTxLength := uiPos;                                                            //需要发送的报文总字节数
+M_BuildPingReqPacket := TRUE;
+;</code></pre></div>
+<h3 id="3-m-builddisconnectpacket-st">完整代码 3：M_BuildDisconnectPacket.st</h3>
+<p>这一段完整公开 <code>M_BuildDisconnectPacket.st</code>。读代码时先看对象职责，再看状态、长度、错误和返回值，不要只抄几行赋值。</p>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_BuildDisconnectPacket
+/// 功能      : 构建 DISCONNECT 发送报文
+/// 说明      : 根据 MQTT 版本生成断开连接报文并更新发送长度。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_BuildDisconnectPacket : BOOL
+VAR
+    uiPos               : UINT := 0;                                        // 当前写入发送缓冲区的位置偏移[byte]
+    uiRemainingLen      : UINT;                                             // 写入固定报头中的 Remaining Length 值[byte]
+    i                   : DINT;                                             // 清空发送缓冲区时使用的循环索引
+END_VAR
+
+// === IMPLEMENTATION ===
+// BUG-10: 缓冲区溢出保护
+IF SIZEOF(aTxBuf) &lt; 4 THEN
+    M_BuildDisconnectPacket := FALSE;
+    RETURN;
+END_IF
+
+// 清空发送缓冲区，避免数据干扰
+FOR i := LOWER_BOUND(aTxBuf, 1) TO UPPER_BOUND(aTxBuf, 1) DO
+    aTxBuf[i] := 0;
+END_FOR
+
+/// =======================================================================
+/// 创建报文
+/// =======================================================================
+uiPos := 0;
+
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    // MQTT 5.0: DISCONNECT包含Reason Code和属性
+    uiRemainingLen := 2;                                                        //Reason Code(1) + 属性长度(1)
+
+    // 报文类型
+    aTxBuf[0] := E_MqttPacketType.byDisconnect;
+    uiPos := 1;
+
+    // Remaining Length 值
+    uiPos := uiPos + M_EncodeRemainingLength(uiRemainingLen, ADR(aTxBuf[uiPos]));
+
+    // Reason Code: 0x00 = Normal disconnection
+    aTxBuf[uiPos] := 16#00;
+    uiPos := uiPos + 1;
+
+    // 属性长度: 0（无属性）
+    aTxBuf[uiPos] := 0;
+    uiPos := uiPos + 1;
+ELSE
+    // MQTT 3.1.1: 固定报文头(2字节)
+    aTxBuf[0] := E_MqttPacketType.byDisconnect;
+    // BUG-02修复: 原代码 aTxBuf[0] := 0 覆盖了报文类型，改为 aTxBuf[1] := 0
+    aTxBuf[1] := 0;
+    uiPos := 2;
+END_IF
+
+uiTxLength := uiPos;                                                            //需要发送的报文总字节数
+M_BuildDisconnectPacket := TRUE;
+;</code></pre></div>
+<h3 id="4-m-handleconnack-st">完整代码 4：M_HandleConnAck.st</h3>
+<p>这一段完整公开 <code>M_HandleConnAck.st</code>。读代码时先看对象职责，再看状态、长度、错误和返回值，不要只抄几行赋值。</p>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_HandleConnAck
+/// 功能      : 处理 CONNACK 接收报文
+/// 说明      : 解析连接确认结果与服务器属性，成功后清除等待确认状态。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.1
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_HandleConnAck : BOOL
+VAR
+    byReasonCode            : BYTE;  // CONNACK 原因码
+    byConnAckFlags          : BYTE;  // CONNACK 标志位
+    uiPropsLen              : UINT;  // 属性总长度
+    uiPropertyHeaderBytes   : UINT;  // 解析 CONNACK 属性长度这个 VBI 字段实际消耗的字节数[byte]
+    uiPropsStart            : UINT;  // 属性起始偏移
+    uiPropsEnd              : UINT;  // 属性结束偏移
+    uiPos                   : UINT;  // 当前解析偏移
+    byPropId                : BYTE;  // 当前属性标识符
+    uiLoopGuard             : UINT;  // 解析属性列表时的循环保护计数器，防止异常报文卡死状态机
+END_VAR
+
+// === IMPLEMENTATION ===
+/// 先检查当前缓冲区里是否至少有一帧最小 CONNACK，
+/// 并确认我们现在确实处在“等待 CONNACK”这个会话阶段。
+IF uiRxLength &lt; 4 THEN
+    M_HandleConnAck := FALSE;
+    RETURN;
+END_IF
+
+IF NOT xWaitingForAck OR aRxBuf[0] &lt;&gt; byExpectedMsgType THEN
+    M_HandleConnAck := FALSE;
+    RETURN;
+END_IF
+
+byConnAckFlags := aRxBuf[2];
+
+/// CONNACK 标志位除 Session Present 外其余位都必须为 0。
+IF (byConnAckFlags AND 16#FE) &lt;&gt; 0 THEN
+    sDiagMsg := &#x27;Invalid CONNACK flags&#x27;;
+    M_HandleConnAck := FALSE;
+    RETURN;
+END_IF
+
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    byReasonCode := aRxBuf[3];
+ELSE
+    byReasonCode := aRxBuf[3];
+END_IF
+
+/// 原因码非 0 代表建连被拒绝。
+/// 这里不仅要翻译成可读诊断，还要消费掉当前失败 CONNACK，
+/// 避免下一次重新连接时又把旧失败报文重复判一次。
+IF byReasonCode &lt;&gt; 0 THEN
+    IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+        CASE byReasonCode OF
+            E_MqttReasonCode.byUnsupportedProtocolVersion: sDiagMsg := &#x27;Protocol version not supported&#x27;;
+            E_MqttReasonCode.byClientIdentifierInvalid: sDiagMsg := &#x27;Client identifier invalid&#x27;;
+            E_MqttReasonCode.byBadUserNamePassword: sDiagMsg := &#x27;Bad username or password&#x27;;
+            E_MqttReasonCode.byNotAuthorized: sDiagMsg := &#x27;Not authorized&#x27;;
+            E_MqttReasonCode.byServerUnavailable: sDiagMsg := &#x27;Server unavailable&#x27;;
+            E_MqttReasonCode.byServerBusy: sDiagMsg := &#x27;Server busy&#x27;;
+            E_MqttReasonCode.byBanned: sDiagMsg := &#x27;Banned&#x27;;
+            E_MqttReasonCode.byServerShuttingDown: sDiagMsg := &#x27;Server shutting down&#x27;;
+            E_MqttReasonCode.byBadAuthMethod: sDiagMsg := &#x27;Bad authentication method&#x27;;
+            E_MqttReasonCode.byQuotaExceeded: sDiagMsg := &#x27;Quota exceeded&#x27;;
+            E_MqttReasonCode.byRetainNotSupported: sDiagMsg := &#x27;Retain not supported&#x27;;
+            E_MqttReasonCode.byQosNotSupported: sDiagMsg := &#x27;QoS not supported&#x27;;
+            E_MqttReasonCode.byUseAnotherServer: sDiagMsg := &#x27;Use another server&#x27;;
+            E_MqttReasonCode.byServerMoved: sDiagMsg := &#x27;Server moved&#x27;;
+        ELSE
+            sDiagMsg := CONCAT(&#x27;CONNACK reason code: &#x27;, BYTE_TO_STRING(byReasonCode));
+        END_CASE
+    ELSE
+        CASE byReasonCode OF
+            1: sDiagMsg := &#x27;Unacceptable protocol version&#x27;;
+            2: sDiagMsg := &#x27;Identifier rejected&#x27;;
+            3: sDiagMsg := &#x27;Server unavailable&#x27;;
+            4: sDiagMsg := &#x27;Bad username or password&#x27;;
+            5: sDiagMsg := &#x27;Not authorized&#x27;;
+        ELSE
+            sDiagMsg := CONCAT(&#x27;CONNACK return code: &#x27;, BYTE_TO_STRING(byReasonCode));
+        END_CASE
+    END_IF
+    uiRxLength := 0;
+    xWaitingForAck := FALSE;
+    M_HandleConnAck := FALSE;
+    RETURN;
+END_IF
+
+/// 先把服务端能力恢复到“默认全开”假设，
+/// 再根据 MQTT 5.0 属性逐项覆盖，这样缺省属性也能得到合理值。
+uiServerReceiveMax := GVL_Mqtt.cnDefaultReceiveMax;
+byServerMaxQoS := TO_BYTE(E_MqttQoS.byQoS2);
+bServerRetainAvailable := TRUE;
+udServerMaxPacketSize := GVL_Mqtt.cnMaxPacketSize;
+uiServerTopicAliasMax := 0;
+uiSendQuota := GVL_Mqtt.cnDefaultReceiveMax;
+bServerWildcardSubAvail := TRUE;
+bServerSubIdAvail := TRUE;
+bServerSharedSubAvail := TRUE;
+
+IF eVersion = E_MqttVersion.byMqttVersion50 AND uiRxLength &gt;= 5 THEN
+    uiPos := 4;
+    uiPropertyHeaderBytes := M_DecodeRemainingLength(pBuffer := ADR(aRxBuf[uiPos]), uiLength =&gt; uiPropsLen);
+    IF uiPropertyHeaderBytes = 0 THEN
+        M_HandleConnAck := FALSE;
+        RETURN;
+    END_IF
+    uiPos := uiPos + uiPropertyHeaderBytes;
+    uiPropsStart := uiPos;
+    uiPropsEnd := uiPropsStart + uiPropsLen;
+    IF uiPropsEnd &gt; uiRxLength THEN
+        M_HandleConnAck := FALSE;
+        RETURN;
+    END_IF
+    uiLoopGuard := 0;
+
+    /// 这里只解析当前客户端已经真正使用的 CONNACK 属性，
+    /// 例如 Receive Maximum、Max QoS、Retain Available、Topic Alias 等。
+    WHILE uiPos &lt; uiPropsEnd AND uiPos &lt; uiRxLength AND uiLoopGuard &lt; GVL_Mqtt.cnMaxPropertyLoop DO
+        byPropId := aRxBuf[uiPos];
+        uiPos := uiPos + 1;
+
+        CASE byPropId OF
+            GVL_Mqtt.cnPropReceiveMaximum:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiServerReceiveMax := SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]);
+                IF uiServerReceiveMax = 0 THEN
+                    sDiagMsg := &#x27;Receive Maximum must not be zero&#x27;;
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 2;
+
+            GVL_Mqtt.cnPropMaxQoS:
+                IF uiPos &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                byServerMaxQoS := aRxBuf[uiPos];
+                IF byServerMaxQoS &gt; TO_BYTE(E_MqttQoS.byQoS2) THEN
+                    sDiagMsg := &#x27;Server Max QoS is invalid&#x27;;
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 1;
+
+            GVL_Mqtt.cnPropRetainAvailable:
+                IF uiPos &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                bServerRetainAvailable := BYTE_TO_BOOL(aRxBuf[uiPos]);
+                uiPos := uiPos + 1;
+
+            GVL_Mqtt.cnPropMaxPacketSize:
+                IF uiPos + 3 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                udServerMaxPacketSize := SHL(BYTE_TO_UDINT(aRxBuf[uiPos]), 24) OR SHL(BYTE_TO_UDINT(aRxBuf[uiPos + 1]), 16) OR SHL(BYTE_TO_UDINT(aRxBuf[uiPos + 2]), 8) OR BYTE_TO_UDINT(aRxBuf[uiPos + 3]);
+                IF udServerMaxPacketSize = 0 THEN
+                    sDiagMsg := &#x27;Server Maximum Packet Size must not be zero&#x27;;
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 4;
+
+            GVL_Mqtt.cnPropTopicAliasMax:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiServerTopicAliasMax := SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]);
+                uiPos := uiPos + 2;
+
+            GVL_Mqtt.cnPropReasonString:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 2 + (SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]));
+
+            GVL_Mqtt.cnPropServerKeepAlive:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiKeepAlive := SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]);
+                uiPos := uiPos + 2;
+
+            GVL_Mqtt.cnPropAssignedClientId:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 2 + (SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]));
+
+            GVL_Mqtt.cnPropAuthMethod,
+            GVL_Mqtt.cnPropAuthData,
+            GVL_Mqtt.cnPropServerReference:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 2 + (SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]));
+
+            GVL_Mqtt.cnPropResponseInfo:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 2 + (SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]));
+
+            GVL_Mqtt.cnPropUserProperty:
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 2 + (SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]));
+                IF uiPos + 1 &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 2 + (SHL(BYTE_TO_UINT(aRxBuf[uiPos]), 8) OR BYTE_TO_UINT(aRxBuf[uiPos + 1]));
+
+            GVL_Mqtt.cnPropWildcardSubAvail,
+            GVL_Mqtt.cnPropSubIdAvail,
+            GVL_Mqtt.cnPropSharedSubAvail:
+                IF uiPos &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                CASE byPropId OF
+                    GVL_Mqtt.cnPropWildcardSubAvail:
+                        bServerWildcardSubAvail := BYTE_TO_BOOL(aRxBuf[uiPos]);
+                    GVL_Mqtt.cnPropSubIdAvail:
+                        bServerSubIdAvail := BYTE_TO_BOOL(aRxBuf[uiPos]);
+                    GVL_Mqtt.cnPropSharedSubAvail:
+                        bServerSharedSubAvail := BYTE_TO_BOOL(aRxBuf[uiPos]);
+                END_CASE
+                uiPos := uiPos + 1;
+
+            GVL_Mqtt.cnPropRequestProblemInfo,
+            GVL_Mqtt.cnPropRequestResponseInfo:
+                IF uiPos &gt;= uiPropsEnd THEN
+                    M_HandleConnAck := FALSE;
+                    RETURN;
+                END_IF
+                uiPos := uiPos + 1;
+
+        ELSE
+            M_HandleConnAck := FALSE;
+            RETURN;
+        END_CASE
+
+        uiLoopGuard := uiLoopGuard + 1;
+    END_WHILE
+END_IF
+
+/// 到这里说明本帧 CONNACK 已完整消费，可以清掉等待态和接收缓存。
+uiRxLength := 0;
+xWaitingForAck := FALSE;
+
+/// MQTT 5.0 下，服务端的 Receive Maximum 决定了我们允许并发挂起多少条出站 QoS&gt;0 消息。
+IF eVersion = E_MqttVersion.byMqttVersion50 THEN
+    uiSendQuota := uiServerReceiveMax;
+END_IF
+
+/// Session Present / Clean Session 共同决定“这次连上后是否需要自动补订本地订阅意图”。
+IF NOT bCleanSession THEN
+    IF (byConnAckFlags AND GVL_Mqtt.cnConnAckSessionPresent) = 0 THEN
+        M_InflightClear();
+        IF uiSubscriptionCount &gt; 0 THEN
+            bRestoreSubscriptions := TRUE;
+            uiRestoreSubscriptionIndex := 0;
+        ELSE
+            bRestoreSubscriptions := FALSE;
+        END_IF
+        sActiveSubTopic := &#x27;&#x27;;
+        eActiveSubQoS := E_MqttQoS.byQoS0;
+        udiActiveSubscriptionId := 0;
+        bActiveSubscribeRestore := FALSE;
+    ELSE
+        bRestoreSubscriptions := FALSE;
+        uiRestoreSubscriptionIndex := 0;
+    END_IF
+ELSE
+    M_InflightClear();
+    IF uiSubscriptionCount &gt; 0 THEN
+        bRestoreSubscriptions := TRUE;
+        uiRestoreSubscriptionIndex := 0;
+    ELSE
+        bRestoreSubscriptions := FALSE;
+        uiRestoreSubscriptionIndex := 0;
+    END_IF
+    sActiveSubTopic := &#x27;&#x27;;
+    eActiveSubQoS := E_MqttQoS.byQoS0;
+    udiActiveSubscriptionId := 0;
+    bActiveSubscribeRestore := FALSE;
+END_IF
+
+/// Topic Alias 映射属于会话态缓存，连上新会话后统一从空表重新建立。
+M_TopicAliasClear();
+
+M_HandleConnAck := TRUE;</code></pre></div>
+<h3 id="5-m-handlepingresp-st">完整代码 5：M_HandlePingResp.st</h3>
+<p>这一段完整公开 <code>M_HandlePingResp.st</code>。读代码时先看对象职责，再看状态、长度、错误和返回值，不要只抄几行赋值。</p>
+<div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
+/// 名称      : M_HandlePingResp
+/// 功能      : 兼容桩方法，保留 PINGRESP 旧接口
+/// 说明      : 该方法已废弃，实际处理逻辑已迁移至 M_ProcessReceive，仅为兼容旧调用保留。
+/// 编程人员  : ControlRookie
+/// 时间      : 2026-05-05
+/// 版本      : V1.0
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD M_HandlePingResp : BOOL
+
+// === IMPLEMENTATION ===
+// 逻辑已移至M_ProcessReceive
+M_HandlePingResp := FALSE;</code></pre></div>
+<h2 id="section-f1bcd0b6">这一篇你最该记住的几句话</h2>
+<ol><li>源码加更不是片段展示，而是完整源码对象公开讲解。</li><li>先建立对象地图，再读状态、报文和事务，现场调试才不会迷路。</li><li>判断源码成熟度，不只看功能是否实现，还要看边界、错误和在线观测量是否闭环。</li></ol>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列定位：MqttClient 系列教程，源码加更阶段，第 14 篇 / 共 16 篇</li><li>上一篇：源码加更03</li><li>下一篇：源码加更05</li></ul>
             </div>
             <nav class="article-series-nav" aria-label="系列导航">
               <a class="series-nav-card" href="../mqtt-client-source-03-03-tcp-48475e/index.html">
                 <small>上一篇 / 第13篇</small>
-                <strong>TCP 封装和基础编解码为什么决定稳定性</strong>
-                <span>MQTT 跑在 TCP 上。PLC 里写 MQTT，真正容易出问题的不是协议名，而是缓冲区、长度字段和字符串拷贝。</span>
+                <strong>源码加更03_TCP 封装和基础编解码为什么决定稳定性</strong>
+                <span>这一篇完整公开 TCP 读写封装、Remaining Length 编解码、字符串和载荷拼接。它是 MQTT 报文能否稳定落到 PLC 缓冲区的基础。</span>
               </a>
               <a class="series-nav-card" href="../mqtt-client-source-05-05-publish-subscribe-unsubscribe-b2559f/index.html">
                 <small>下一篇 / 第15篇</small>
-                <strong>PUBLISH、SUBSCRIBE、UNSUBSCRIBE 业务报文实现</strong>
-                <span>业务报文是用户最关心的部分，但它们本质上仍然是状态机下的一次受控动作。</span>
+                <strong>源码加更05_PUBLISH、SUBSCRIBE、UNSUBSCRIBE 业务报文实现</strong>
+                <span>这一篇完整公开发布、订阅、取消订阅的报文构建和业务响应处理。这是 MQTT Client 从“能连上”走到“能干活”的关键层。</span>
               </a>
             </nav>
             <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">

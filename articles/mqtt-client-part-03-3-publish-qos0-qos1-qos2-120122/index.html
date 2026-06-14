@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪 | ControlRookie</title>
+  <title>第3篇_PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪 | ControlRookie</title>
   <meta name="description" content="这一篇把 MQTT 最核心的 PUBLISH 报文拆开讲，重点不是概念，而是首字节怎么编码、Topic 和 Packet ID 怎么排、QoS0 / QoS1 / QoS2 在协议和代码层到底差在哪。">
   <meta name="author" content="ControlRookie">
   <meta name="robots" content="index, follow">
@@ -14,13 +14,13 @@
   <link rel="manifest" href="../../site.webmanifest">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="ControlRookie">
-  <meta property="og:title" content="PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪">
+  <meta property="og:title" content="第3篇_PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪">
   <meta property="og:description" content="这一篇把 MQTT 最核心的 PUBLISH 报文拆开讲，重点不是概念，而是首字节怎么编码、Topic 和 Packet ID 怎么排、QoS0 / QoS1 / QoS2 在协议和代码层到底差在哪。">
   <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-client-part-03-3-publish-qos0-qos1-qos2-120122/">
   <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪">
+  <meta name="twitter:title" content="第3篇_PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪">
   <meta name="twitter:description" content="这一篇把 MQTT 最核心的 PUBLISH 报文拆开讲，重点不是概念，而是首字节怎么编码、Topic 和 Packet ID 怎么排、QoS0 / QoS1 / QoS2 在协议和代码层到底差在哪。">
   <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <link rel="stylesheet" href="../../styles/site.css">
@@ -31,15 +31,15 @@
     <header class="nav article-nav" aria-label="Article navigation">
       <a class="brand" href="../../index.html" aria-label="ControlRookie home">
         <span class="brand-logo" aria-hidden="true">
-          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
         </span>
         <span>ControlRookie</span>
       </a>
       <nav class="nav-links" aria-label="Sections">
         <a href="../../index.html#about">关于我</a>
-        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#articles">文章</a>
         <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#contact">联系</a>
       </nav>
       <div class="nav-actions">
@@ -52,20 +52,20 @@
         <div class="article-layout">
           <aside class="article-toc" aria-label="文章目录">
             <strong>目录</strong>
-            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#publish">一、先看 PUBLISH 在状态机里处于什么位置</a></li><li><a href="#publish-2">二、PUBLISH 报文结构先看表</a></li><li><a href="#publish-3">三、PUBLISH 第一个字节最容易让人混</a></li><li><a href="#publish-4">四、先拆一个最小 PUBLISH 十六进制</a></li><li><a href="#qos1-qos2-packet-identifier">五、QoS1 和 QoS2 为什么会多出 Packet Identifier</a></li><li><a href="#qos1">六、QoS1 的报文链到底是什么</a></li><li><a href="#qos2">七、QoS2 的报文链为什么更重</a></li><li><a href="#mbuildpublishpacket">八、MBuildPublishPacket 的核心工作流</a></li><li><a href="#topic">九、为什么发布 Topic 绝对不能带通配符</a></li><li><a href="#mqtt-5-0-publish">十、MQTT 5.0 下的 PUBLISH 又多了什么</a></li><li><a href="#qos1-qos2-inflight">十一、真正把 QoS1 / QoS2 撑起来的，不是构包，而是 inflight</a></li><li><a href="#qos0-qos1-qos2">十二、为什么 QoS0 很容易通，QoS1 / QoS2 很容易炸</a></li><li><a href="#publish-5">十三、把 PUBLISH 的四层链路再串一遍</a></li><li><a href="#5">十四、这一篇你最该记住的 5 句话</a></li><li><a href="#section-8254a9be">十五、下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li></ol>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#publish">一、先看 PUBLISH 在状态机里处于什么位置</a></li><li><a href="#publish-2">二、PUBLISH 报文结构先看表</a></li><li><a href="#publish-3">三、PUBLISH 第一个字节最容易让人混</a></li><li><a href="#publish-4">四、先拆一个最小 PUBLISH 十六进制</a></li><li><a href="#qos1-qos2-packet-identifier">五、QoS1 和 QoS2 为什么会多出 Packet Identifier</a></li><li><a href="#qos1">六、QoS1 的报文链到底是什么</a></li><li><a href="#qos2">七、QoS2 的报文链为什么更重</a></li><li><a href="#m-buildpublishpacket">八、M_BuildPublishPacket 的核心工作流</a></li><li><a href="#topic">九、为什么发布 Topic 绝对不能带通配符</a></li><li><a href="#mqtt-5-0-publish">十、MQTT 5.0 下的 PUBLISH 又多了什么</a></li><li><a href="#qos1-qos2-inflight">十一、真正把 QoS1 / QoS2 撑起来的，不是构包，而是 inflight</a></li><li><a href="#qos0-qos1-qos2">十二、为什么 QoS0 很容易通，QoS1 / QoS2 很容易炸</a></li><li><a href="#publish-5">十三、把 PUBLISH 的四层链路再串一遍</a></li><li><a href="#5">十四、这一篇你最该记住的 5 句话</a></li><li><a href="#section-8254a9be">十五、下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
           </aside>
           <div class="article-main" id="article-top">
             <nav class="article-breadcrumb" aria-label="文章路径">
-              <a href="../../index.html#articles">文章</a>
+              <a href="../../index.html#articles">文章中心</a>
               <span>/</span>
-              <a href="../../index.html#articles">MQTT Client 系列教程</a>
+              <a href="../../index.html#articles">工业通信</a>
               <span>/</span>
-              <a href="../../index.html#articles">通信</a>
+              <a href="../../index.html#articles-mqtt">MQTT</a>
               <span>/</span>
-              <a href="../../index.html#articles">CODESYS</a>
+              <a href="../../index.html#articles-mqtt">客户端</a>
             </nav>
             <header class="article-hero">
-              <h1>PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪</h1>
+              <h1>第3篇_PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪</h1>
               <p class="article-summary">这一篇把 MQTT 最核心的 PUBLISH 报文拆开讲，重点不是概念，而是首字节怎么编码、Topic 和 Packet ID 怎么排、QoS0 / QoS1 / QoS2 在协议和代码层到底差在哪。</p>
               <div class="article-meta">
                 <span>2026-05-06</span>
@@ -201,7 +201,7 @@ END_IF</code></pre></div>
 <div class="code-card"><small>text</small><pre><code>iConnected -&gt; iPublish -&gt; iPubRec -&gt; iPubRel -&gt; iPubComp -&gt; iConnected</code></pre></div>
 <p>所以 QoS2 的复杂度，不是“多两个报文”这么简单。 它意味着客户端必须真的有状态。</p>
 <hr>
-<h2 id="mbuildpublishpacket">八、MBuildPublishPacket 的核心工作流</h2>
+<h2 id="m-buildpublishpacket">八、M_BuildPublishPacket 的核心工作流</h2>
 <p>这个方法如果压缩一下，其实可以看成下面这张图：</p>
 <div class="mermaid-card"><small>Mermaid</small><pre><code>flowchart TD
     A[基本参数校验] --&gt; B[Topic UTF-8 与通配符校验]
@@ -335,8 +335,8 @@ END_IF</code></pre></div>
 <ul><li>这部分给出的是与本篇主题直接对应的完整 ST 代码，不是零碎片段。</li><li>如果你只是想先跑通，优先整段复制，不要只摘几行变量或几条赋值语句。</li><li>如果是 <code>METHOD</code>，请确认它仍然属于 <code>FB_MqttClient</code>；如果是 <code>PROGRAM</code>，请确认相关 DUT、GVL、FB 已一并导入。</li></ul>
 <h3 id="section-5c5d2c8c">代码阅读重点</h3>
 <ul><li>先按 <code>报文结构 -&gt; 状态机入口 -&gt; 关键变量 -&gt; 返回结果</code> 的顺序看。</li><li>再把正文里的十六进制拆解和这里的字节写入、字节解析语句一行行对上。</li><li>最后回到在线调试，重点盯 <code>uiTxLength</code>、<code>uiRxLength</code>、<code>eState</code>、<code>xWaitingForAck</code> 这类状态量。</li></ul>
-<h3 id="1-mbuildpublishpacket">完整代码 1：MBuildPublishPacket</h3>
-<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/??????/M_BuildPublishPacket.st</code></li><li>复制使用说明：这是 PUBLISH 的主方法，QoS0、QoS1、QoS2 都从这里起步。</li><li>阅读重点：先盯报文头里 DUP/QoS/Retain 的拼接，再看 Packet ID 和 Inflight 入队，最后看 MQTT 5.0 Topic Alias 和服务端限制校验。</li></ul>
+<h3 id="1-m-buildpublishpacket">完整代码 1：M_BuildPublishPacket</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/处理发送报文/M_BuildPublishPacket.st</code></li><li>复制使用说明：这是 PUBLISH 的主方法，QoS0、QoS1、QoS2 都从这里起步。</li><li>阅读重点：先盯报文头里 DUP/QoS/Retain 的拼接，再看 Packet ID 和 Inflight 入队，最后看 MQTT 5.0 Topic Alias 和服务端限制校验。</li></ul>
 <div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
 /// 名称      : M_BuildPublishPacket
 /// 功能      : 构建 PUBLISH 发送报文
@@ -576,8 +576,8 @@ IF ePublishQoS &gt; E_MqttQoS.byQoS0 THEN
 END_IF
 
 M_BuildPublishPacket := TRUE;</code></pre></div>
-<h3 id="2-mappendstring">完整代码 2：MAppendString</h3>
-<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/????/M_AppendString.st</code></li><li>复制使用说明：这个方法专门负责把 MQTT 字符串写进缓冲区，复制时建议和 PUBLISH、SUBSCRIBE、CONNECT 相关方法一起保留。</li><li>阅读重点：重点看前 2 字节长度前缀，这就是 MQTT 报文里字符串字段最容易被忽略的地方。</li></ul>
+<h3 id="2-m-appendstring">完整代码 2：M_AppendString</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/辅助功能/M_AppendString.st</code></li><li>复制使用说明：这个方法专门负责把 MQTT 字符串写进缓冲区，复制时建议和 PUBLISH、SUBSCRIBE、CONNECT 相关方法一起保留。</li><li>阅读重点：重点看前 2 字节长度前缀，这就是 MQTT 报文里字符串字段最容易被忽略的地方。</li></ul>
 <div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
 /// 名称      : M_AppendString
 /// 功能      : 追加 UTF-8 字符串到发送缓冲区
@@ -617,8 +617,8 @@ IF uiLen &gt; 0 THEN
 END_IF
 
 M_AppendString := uiLen + 2;</code></pre></div>
-<h3 id="3-mappendpayload">完整代码 3：MAppendPayload</h3>
-<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/????/M_AppendPayload.st</code></li><li>复制使用说明：这个方法负责把业务载荷逐字节落到发送缓冲区，是 PUBLISH 组包的最后一跳。</li><li>阅读重点：重点看它和 <code>M_AppendString</code> 的差别：Payload 不带长度前缀，而 Topic/ClientID 这类 UTF-8 字符串必须带长度前缀。</li></ul>
+<h3 id="3-m-appendpayload">完整代码 3：M_AppendPayload</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/辅助功能/M_AppendPayload.st</code></li><li>复制使用说明：这个方法负责把业务载荷逐字节落到发送缓冲区，是 PUBLISH 组包的最后一跳。</li><li>阅读重点：重点看它和 <code>M_AppendString</code> 的差别：Payload 不带长度前缀，而 Topic/ClientID 这类 UTF-8 字符串必须带长度前缀。</li></ul>
 <div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
 /// 名称      : M_AppendPayload
 /// 功能      : 追加消息载荷到发送缓冲区
@@ -651,16 +651,18 @@ IF uiLen &gt; 0 THEN
 END_IF
 
 M_AppendPayload := uiLen;</code></pre></div>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列定位：第 3 篇</li><li>上一篇：第2篇 CONNECT / CONNACK</li><li>下一篇：第4篇 为什么 QoS1 / QoS2 最容易掉线超时</li></ul>
             </div>
             <nav class="article-series-nav" aria-label="系列导航">
               <a class="series-nav-card" href="../mqtt-client-part-02-2-connect-connack-st-d994be/index.html">
                 <small>上一篇 / 第2篇</small>
-                <strong>CONNECT 和 CONNACK 怎么读？我带你把十六进制和 ST 代码对上</strong>
-                <span>这一篇正式进入 MQTT 握手核心，重点讲清 CONNECT 和 CONNACK 的报文结构、十六进制拆解、状态机推进关系，以及它们在 MqttClientV10 里的真实 ST 落点。</span>
+                <strong>第2篇_CONNECT 和 CONNACK 怎么读？我带你把十六进制和 ST 代码对上</strong>
+                <span>这一篇正式进入 MQTT 握手核心，重点讲清 CONNECT 和 CONNACK 的报文结构、十六进制拆解、状态机推进关系，以及它们在 MqttClient_V1_0 里的真实 ST 落点。</span>
               </a>
               <a class="series-nav-card" href="../mqtt-client-part-04-4-qos1-qos2-ack-9527b7/index.html">
                 <small>下一篇 / 第4篇</small>
-                <strong>为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透</strong>
+                <strong>第4篇_为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透</strong>
                 <span>这一篇专门讲高可靠链路为什么最容易出问题，核心内容包括 ACK 链、inflight、超时重发、DUP 位以及高频场景下为什么状态机会最先暴露短板。</span>
               </a>
             </nav>

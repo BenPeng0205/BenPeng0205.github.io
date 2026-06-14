@@ -113,7 +113,7 @@ window.CONTROLROOKIE_SITE_DATA = {
     {
       id: "codesys-mqtt-series",
       type: { zh: "文章", en: "Article" },
-      title: { zh: "CODESYS MQTT 系列", en: "CODESYS MQTT Series" },
+      title: { zh: "MQTT 系列专题", en: "MQTT Series Topic" },
       copy: {
         zh: "已发布服务器、客户端、Broker、主题通信和排障教程，先跳转 CSDN 分类页。",
         en: "Published tutorials cover server, client, broker, topic communication, and troubleshooting. Link to the CSDN category first.",
@@ -121,7 +121,7 @@ window.CONTROLROOKIE_SITE_DATA = {
       href: "https://blog.csdn.net/weixin_44442562/category_13163069.html",
       searchHref: "#articles",
       category: { zh: "通信 / CODESYS", en: "Communication / CODESYS" },
-      series: { zh: "CODESYS MQTT", en: "CODESYS MQTT" },
+      series: { zh: "MQTT", en: "MQTT" },
       status: { zh: "外部分发 / CSDN", en: "External / CSDN" },
       keywords: "CODESYS MQTT broker server client topic CSDN tutorial",
     },
@@ -132,8 +132,8 @@ window.CONTROLROOKIE_SITE_DATA = {
       type: { zh: "产品", en: "Product" },
       title: { zh: "codesys-llm-synchronizer", en: "codesys-llm-synchronizer" },
       copy: {
-        zh: "面向 CODESYS / SmartControl 工程的 LLM 同步与协作工具，用于工程镜像、代码上下文、规则和自动化工作流衔接。",
-        en: "An LLM synchronization and collaboration tool for CODESYS / SmartControl projects, connecting project mirrors, code context, rules, and automation workflows.",
+        zh: "解决 CODESYS / SmartControl 工程接入 AI 时上下文分散、手工同步反复、规则难以持续校验的问题；把工程镜像、代码上下文、团队规则和自动化流程连接起来，让 LLM 协作从临时问答变成可复用、可验证的工程工作流。",
+        en: "Solves fragmented AI context, repetitive manual synchronization, and hard-to-sustain rule checks in CODESYS / SmartControl projects by connecting project mirrors, code context, team rules, and automation workflows into a reusable, verifiable LLM engineering workflow.",
       },
       href: "#products",
       keywords: "CODESYS SmartControl LLM synchronizer project mirror workflow",

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失 | ControlRookie</title>
+  <title>第7篇_MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失 | ControlRookie</title>
   <meta name="description" content="这一篇完全从工程排障视角切入，把最常见的 MQTT 现场故障按连接层、ACK 链、状态机和会话恢复几条主线拆开，帮助你快速定位到底是网络、Broker 还是客户端时序出了问题。">
   <meta name="author" content="ControlRookie">
   <meta name="robots" content="index, follow">
@@ -14,13 +14,13 @@
   <link rel="manifest" href="../../site.webmanifest">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="ControlRookie">
-  <meta property="og:title" content="MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失">
+  <meta property="og:title" content="第7篇_MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失">
   <meta property="og:description" content="这一篇完全从工程排障视角切入，把最常见的 MQTT 现场故障按连接层、ACK 链、状态机和会话恢复几条主线拆开，帮助你快速定位到底是网络、Broker 还是客户端时序出了问题。">
   <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-client-part-07-7-mqtt-77aa5d/">
   <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失">
+  <meta name="twitter:title" content="第7篇_MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失">
   <meta name="twitter:description" content="这一篇完全从工程排障视角切入，把最常见的 MQTT 现场故障按连接层、ACK 链、状态机和会话恢复几条主线拆开，帮助你快速定位到底是网络、Broker 还是客户端时序出了问题。">
   <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <link rel="stylesheet" href="../../styles/site.css">
@@ -31,15 +31,15 @@
     <header class="nav article-nav" aria-label="Article navigation">
       <a class="brand" href="../../index.html" aria-label="ControlRookie home">
         <span class="brand-logo" aria-hidden="true">
-          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
         </span>
         <span>ControlRookie</span>
       </a>
       <nav class="nav-links" aria-label="Sections">
         <a href="../../index.html#about">关于我</a>
-        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#articles">文章</a>
         <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#contact">联系</a>
       </nav>
       <div class="nav-actions">
@@ -52,20 +52,20 @@
         <div class="article-layout">
           <aside class="article-toc" aria-label="文章目录">
             <strong>目录</strong>
-            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-fa2c21b5">一、先给一张排障总图</a></li><li><a href="#tcpconnect-timeout">二、TcpConnect timeout 先查什么</a></li><li><a href="#connack">三、CONNACK 失败先查什么</a></li><li><a href="#immediate-response-timeout">四、为什么 Immediate response timeout 很容易让人误判</a></li><li><a href="#qos0-qos1-qos2">五、为什么 QoS0 正常而 QoS1 / QoS2 容易炸</a></li><li><a href="#itcpdisconnect">六、如果状态机掉进 iTcpDisconnect，怎么看</a></li><li><a href="#section-eff8e6a7">七、为什么退订有时会“看起来像卡死”</a></li><li><a href="#section-c6f4be67">八、为什么高频多客户端同主题场景最容易把问题打出来</a></li><li><a href="#section-51eb8033">九、为什么重连后订阅会丢</a></li><li><a href="#6">十、排障时最推荐的 6 个观察点</a></li><li><a href="#3">十一、现场排障最容易犯的 3 个错误</a></li><li><a href="#section-512eabc5">十二、给一张现场快速定位表</a></li><li><a href="#6-2">十三、这一篇你最该记住的 6 句话</a></li><li><a href="#section-865f2185">十四、下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li></ol>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-fa2c21b5">一、先给一张排障总图</a></li><li><a href="#tcpconnect-timeout">二、TcpConnect timeout 先查什么</a></li><li><a href="#connack">三、CONNACK 失败先查什么</a></li><li><a href="#immediate-response-timeout">四、为什么 Immediate response timeout 很容易让人误判</a></li><li><a href="#qos0-qos1-qos2">五、为什么 QoS0 正常而 QoS1 / QoS2 容易炸</a></li><li><a href="#itcpdisconnect">六、如果状态机掉进 iTcpDisconnect，怎么看</a></li><li><a href="#section-eff8e6a7">七、为什么退订有时会“看起来像卡死”</a></li><li><a href="#section-c6f4be67">八、为什么高频多客户端同主题场景最容易把问题打出来</a></li><li><a href="#section-51eb8033">九、为什么重连后订阅会丢</a></li><li><a href="#6">十、排障时最推荐的 6 个观察点</a></li><li><a href="#3">十一、现场排障最容易犯的 3 个错误</a></li><li><a href="#section-512eabc5">十二、给一张现场快速定位表</a></li><li><a href="#6-2">十三、这一篇你最该记住的 6 句话</a></li><li><a href="#section-865f2185">十四、下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
           </aside>
           <div class="article-main" id="article-top">
             <nav class="article-breadcrumb" aria-label="文章路径">
-              <a href="../../index.html#articles">文章</a>
+              <a href="../../index.html#articles">文章中心</a>
               <span>/</span>
-              <a href="../../index.html#articles">MQTT Client 系列教程</a>
+              <a href="../../index.html#articles">工业通信</a>
               <span>/</span>
-              <a href="../../index.html#articles">通信</a>
+              <a href="../../index.html#articles-mqtt">MQTT</a>
               <span>/</span>
-              <a href="../../index.html#articles">CODESYS</a>
+              <a href="../../index.html#articles-mqtt">客户端</a>
             </nav>
             <header class="article-hero">
-              <h1>MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失</h1>
+              <h1>第7篇_MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失</h1>
               <p class="article-summary">这一篇完全从工程排障视角切入，把最常见的 MQTT 现场故障按连接层、ACK 链、状态机和会话恢复几条主线拆开，帮助你快速定位到底是网络、Broker 还是客户端时序出了问题。</p>
               <div class="article-meta">
                 <span>2026-05-06</span>
@@ -255,7 +255,7 @@
 <ul><li>这部分给出的是与本篇主题直接对应的完整 ST 代码，不是零碎片段。</li><li>如果你只是想先跑通，优先整段复制，不要只摘几行变量或几条赋值语句。</li><li>如果是 <code>METHOD</code>，请确认它仍然属于 <code>FB_MqttClient</code>；如果是 <code>PROGRAM</code>，请确认相关 DUT、GVL、FB 已一并导入。</li></ul>
 <h3 id="section-5c5d2c8c">代码阅读重点</h3>
 <ul><li>先按 <code>报文结构 -&gt; 状态机入口 -&gt; 关键变量 -&gt; 返回结果</code> 的顺序看。</li><li>再把正文里的十六进制拆解和这里的字节写入、字节解析语句一行行对上。</li><li>最后回到在线调试，重点盯 <code>uiTxLength</code>、<code>uiRxLength</code>、<code>eState</code>、<code>xWaitingForAck</code> 这类状态量。</li></ul>
-<h3 id="1-mtcpclient">完整代码 1：MTcpClient</h3>
+<h3 id="1-m-tcpclient">完整代码 1：M_TcpClient</h3>
 <ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient.M_TcpClient.st</code></li><li>复制使用说明：这是 TCP 连接层的完整封装，现场一旦报 <code>TcpConnect timeout</code>，首先就该看这里。</li><li>阅读重点：重点看 NBS TCP 客户端的使能、句柄、连接结果回传，先把“底层通不通”和“MQTT 通不通”分开。</li></ul>
 <div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
 /// 名称      : M_TcpClient
@@ -298,7 +298,7 @@ IF fbTcpClient.xActive AND fbTcpClient.hConnection &lt;&gt; 0 THEN
 ELSE
     bIsConnected := FALSE;
 END_IF</code></pre></div>
-<h3 id="2-mtcpread">完整代码 2：MTcpRead</h3>
+<h3 id="2-m-tcpread">完整代码 2：M_TcpRead</h3>
 <ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient.M_TcpRead.st</code></li><li>复制使用说明：这是收包入口，很多“明明网络通但总超时”的问题最后都能追到读取节拍上。</li><li>阅读重点：重点看执行条件、读取完成标志和字节数回传，这里会直接影响接收状态机是否误判超时。</li></ul>
 <div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
 /// 名称      : M_TcpRead
@@ -343,7 +343,7 @@ IF NOT bEnable THEN
     bDone := FALSE;
     udiBytesRead := 0;
 END_IF</code></pre></div>
-<h3 id="3-mtcpwrite">完整代码 3：MTcpWrite</h3>
+<h3 id="3-m-tcpwrite">完整代码 3：M_TcpWrite</h3>
 <ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient.M_TcpWrite.st</code></li><li>复制使用说明：这是发包入口，出现 <code>Immediate response timeout</code>、发送超时、QoS 回包跟不上时要优先看这里。</li><li>阅读重点：重点看执行沿、完成锁存和发送长度，理解为什么“报文已经组好了”不等于“报文已经真正发出去了”。</li></ul>
 <div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
 /// 名称      : M_TcpWrite
@@ -384,8 +384,8 @@ ELSIF fbTcpWrite.xDone THEN
 END_IF
 
 bDone := bWriteDoneLatched;</code></pre></div>
-<h3 id="4-mseterror">完整代码 4：MSetError</h3>
-<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/????/M_SetError.st</code></li><li>复制使用说明：这是统一错误上报入口，现场诊断时最好和状态机、TCP 方法一起看。</li><li>阅读重点：重点看错误码和诊断字符串是怎么被统一落到输出引脚上的，这直接决定了排障效率。</li></ul>
+<h3 id="4-m-seterror">完整代码 4：M_SetError</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/辅助功能/M_SetError.st</code></li><li>复制使用说明：这是统一错误上报入口，现场诊断时最好和状态机、TCP 方法一起看。</li><li>阅读重点：重点看错误码和诊断字符串是怎么被统一落到输出引脚上的，这直接决定了排障效率。</li></ul>
 <div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
 /// 名称      : M_SetError
 /// 功能      : 设置错误状态和诊断信息
@@ -406,8 +406,8 @@ bError := TRUE;
 eErrorID := TO_INT(uiErrorCode);
 sDiagMsg := sMessage;
 M_SetError := TRUE;</code></pre></div>
-<h3 id="5-mreseterror">完整代码 5：MResetError</h3>
-<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/????/M_ResetError.st</code></li><li>复制使用说明：这是错误复位入口，和 <code>M_SetError</code> 配套使用。</li><li>阅读重点：重点看哪些状态量会被清掉，理解为什么有些问题不是简单拉低 <code>bConnect</code> 就一定能恢复。</li></ul>
+<h3 id="5-m-reseterror">完整代码 5：M_ResetError</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/辅助功能/M_ResetError.st</code></li><li>复制使用说明：这是错误复位入口，和 <code>M_SetError</code> 配套使用。</li><li>阅读重点：重点看哪些状态量会被清掉，理解为什么有些问题不是简单拉低 <code>bConnect</code> 就一定能恢复。</li></ul>
 <div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
 /// 名称      : M_ResetError
 /// 功能      : 复位错误状态
@@ -424,16 +424,18 @@ bError := FALSE;
 eErrorID := 0;
 sDiagMsg := &#x27;&#x27;;
 M_ResetError := TRUE;</code></pre></div>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列定位：第 7 篇</li><li>上一篇：第6篇 PLC 里写 MQTT，最难的是状态机</li><li>下一篇：第8篇 怎么把这套开源 MQTT 客户端真正用起来</li></ul>
             </div>
             <nav class="article-series-nav" aria-label="系列导航">
               <a class="series-nav-card" href="../mqtt-client-part-06-6-plc-mqtt-b91df7/index.html">
                 <small>上一篇 / 第6篇</small>
-                <strong>PLC 里写 MQTT，最难的不是报文，而是状态机</strong>
-                <span>这一篇站在架构层看 FBMqttClient，重点讲主状态机为什么才是系统骨架、iConnected 为什么是调度中心、接收链和发送链为什么必须拆开，以及异常为什么统一收口到 iTcpDisconnect。</span>
+                <strong>第6篇_PLC 里写 MQTT，最难的不是报文，而是状态机</strong>
+                <span>这一篇站在架构层看 FB_MqttClient，重点讲主状态机为什么才是系统骨架、iConnected 为什么是调度中心、接收链和发送链为什么必须拆开，以及异常为什么统一收口到 iTcpDisconnect。</span>
               </a>
               <a class="series-nav-card" href="../mqtt-client-part-08-8-mqtt-d475ac/index.html">
                 <small>下一篇 / 第8篇</small>
-                <strong>怎么把这套开源 MQTT 客户端真正用起来</strong>
+                <strong>第8篇_怎么把这套开源 MQTT 客户端真正用起来</strong>
                 <span>这一篇不再偏协议，而是直接回到工程落地，重点讲接入顺序、关键参数、Broker 选择、推荐测试组合、联调观察点，以及什么标准下才算这套客户端真的能用。</span>
               </a>
             </nav>

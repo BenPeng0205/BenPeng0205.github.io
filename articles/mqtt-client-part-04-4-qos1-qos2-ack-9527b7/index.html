@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透 | ControlRookie</title>
+  <title>第4篇_为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透 | ControlRookie</title>
   <meta name="description" content="这一篇专门讲高可靠链路为什么最容易出问题，核心内容包括 ACK 链、inflight、超时重发、DUP 位以及高频场景下为什么状态机会最先暴露短板。">
   <meta name="author" content="ControlRookie">
   <meta name="robots" content="index, follow">
@@ -14,13 +14,13 @@
   <link rel="manifest" href="../../site.webmanifest">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="ControlRookie">
-  <meta property="og:title" content="为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透">
+  <meta property="og:title" content="第4篇_为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透">
   <meta property="og:description" content="这一篇专门讲高可靠链路为什么最容易出问题，核心内容包括 ACK 链、inflight、超时重发、DUP 位以及高频场景下为什么状态机会最先暴露短板。">
   <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-client-part-04-4-qos1-qos2-ack-9527b7/">
   <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透">
+  <meta name="twitter:title" content="第4篇_为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透">
   <meta name="twitter:description" content="这一篇专门讲高可靠链路为什么最容易出问题，核心内容包括 ACK 链、inflight、超时重发、DUP 位以及高频场景下为什么状态机会最先暴露短板。">
   <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <link rel="stylesheet" href="../../styles/site.css">
@@ -31,15 +31,15 @@
     <header class="nav article-nav" aria-label="Article navigation">
       <a class="brand" href="../../index.html" aria-label="ControlRookie home">
         <span class="brand-logo" aria-hidden="true">
-          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
         </span>
         <span>ControlRookie</span>
       </a>
       <nav class="nav-links" aria-label="Sections">
         <a href="../../index.html#about">关于我</a>
-        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#articles">文章</a>
         <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#contact">联系</a>
       </nav>
       <div class="nav-actions">
@@ -52,20 +52,20 @@
         <div class="article-layout">
           <aside class="article-toc" aria-label="文章目录">
             <strong>目录</strong>
-            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-31b40706">一、先给工程结论</a></li><li><a href="#qos1">二、先把 QoS1 链路压成一张图</a></li><li><a href="#qos2">三、QoS2 链路为什么更考验实现水平</a></li><li><a href="#qos1-qos2">四、把 QoS1 / QoS2 放回状态机里看</a></li><li><a href="#qos-inflight">五、真正支撑 QoS 的核心：inflight</a></li><li><a href="#section-6e5e79fe">六、超时重发到底怎么实现</a></li><li><a href="#dup">七、DUP 位到底什么时候才有意义</a></li><li><a href="#section-94ae1f17">八、为什么高频场景更容易暴露问题</a></li><li><a href="#section-f8b93f66">九、为什么接收面即时消化这么关键</a></li><li><a href="#immediate-response-timeout">十、为什么 Immediate response timeout 这么常见</a></li><li><a href="#section-644152ed">十一、怎么判断问题到底卡在哪一层</a></li><li><a href="#section-78241d95">十二、把这条链完整串一遍</a></li><li><a href="#6">十三、这一篇你最该记住的 6 句话</a></li><li><a href="#section-865f2185">十四、下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li></ol>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-31b40706">一、先给工程结论</a></li><li><a href="#qos1">二、先把 QoS1 链路压成一张图</a></li><li><a href="#qos2">三、QoS2 链路为什么更考验实现水平</a></li><li><a href="#qos1-qos2">四、把 QoS1 / QoS2 放回状态机里看</a></li><li><a href="#qos-inflight">五、真正支撑 QoS 的核心：inflight</a></li><li><a href="#section-6e5e79fe">六、超时重发到底怎么实现</a></li><li><a href="#dup">七、DUP 位到底什么时候才有意义</a></li><li><a href="#section-94ae1f17">八、为什么高频场景更容易暴露问题</a></li><li><a href="#section-f8b93f66">九、为什么接收面即时消化这么关键</a></li><li><a href="#immediate-response-timeout">十、为什么 Immediate response timeout 这么常见</a></li><li><a href="#section-644152ed">十一、怎么判断问题到底卡在哪一层</a></li><li><a href="#section-78241d95">十二、把这条链完整串一遍</a></li><li><a href="#6">十三、这一篇你最该记住的 6 句话</a></li><li><a href="#section-865f2185">十四、下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
           </aside>
           <div class="article-main" id="article-top">
             <nav class="article-breadcrumb" aria-label="文章路径">
-              <a href="../../index.html#articles">文章</a>
+              <a href="../../index.html#articles">文章中心</a>
               <span>/</span>
-              <a href="../../index.html#articles">MQTT Client 系列教程</a>
+              <a href="../../index.html#articles">工业通信</a>
               <span>/</span>
-              <a href="../../index.html#articles">通信</a>
+              <a href="../../index.html#articles-mqtt">MQTT</a>
               <span>/</span>
-              <a href="../../index.html#articles">CODESYS</a>
+              <a href="../../index.html#articles-mqtt">客户端</a>
             </nav>
             <header class="article-hero">
-              <h1>为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透</h1>
+              <h1>第4篇_为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透</h1>
               <p class="article-summary">这一篇专门讲高可靠链路为什么最容易出问题，核心内容包括 ACK 链、inflight、超时重发、DUP 位以及高频场景下为什么状态机会最先暴露短板。</p>
               <div class="article-meta">
                 <span>2026-05-06</span>
@@ -274,8 +274,8 @@ END_WHILE</code></pre></div>
 <ul><li>这部分给出的是与本篇主题直接对应的完整 ST 代码，不是零碎片段。</li><li>如果你只是想先跑通，优先整段复制，不要只摘几行变量或几条赋值语句。</li><li>如果是 <code>METHOD</code>，请确认它仍然属于 <code>FB_MqttClient</code>；如果是 <code>PROGRAM</code>，请确认相关 DUT、GVL、FB 已一并导入。</li></ul>
 <h3 id="section-5c5d2c8c">代码阅读重点</h3>
 <ul><li>先按 <code>报文结构 -&gt; 状态机入口 -&gt; 关键变量 -&gt; 返回结果</code> 的顺序看。</li><li>再把正文里的十六进制拆解和这里的字节写入、字节解析语句一行行对上。</li><li>最后回到在线调试，重点盯 <code>uiTxLength</code>、<code>uiRxLength</code>、<code>eState</code>、<code>xWaitingForAck</code> 这类状态量。</li></ul>
-<h3 id="1-mprocessreceive">完整代码 1：MProcessReceive</h3>
-<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/??????/M_ProcessReceive.st</code></li><li>复制使用说明：这是 QoS1/QoS2 最关键的收包分发入口，所有 ACK 类报文几乎都会经过这里。</li><li>阅读重点：先看如何识别报文类型，再看不同 ACK 被分派给哪个 <code>M_Handle...</code> 方法，最后看它对 <code>xWaitingForAck</code>、<code>xPendingImmediateTx</code> 的影响。</li></ul>
+<h3 id="1-m-processreceive">完整代码 1：M_ProcessReceive</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/处理接收报文/M_ProcessReceive.st</code></li><li>复制使用说明：这是 QoS1/QoS2 最关键的收包分发入口，所有 ACK 类报文几乎都会经过这里。</li><li>阅读重点：先看如何识别报文类型，再看不同 ACK 被分派给哪个 <code>M_Handle...</code> 方法，最后看它对 <code>xWaitingForAck</code>、<code>xPendingImmediateTx</code> 的影响。</li></ul>
 <div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
 /// 名称      : M_ProcessReceive
 /// 功能      : 统一处理接收到的 MQTT 报文
@@ -907,8 +907,8 @@ ELSE
 END_IF
 
 M_ProcessReceive := TRUE;</code></pre></div>
-<h3 id="2-minflightchecktimeout">完整代码 2：MInflightCheckTimeout</h3>
-<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/????/M_InflightCheckTimeout.st</code></li><li>复制使用说明：这个方法决定哪一条在途消息超时、是否该触发重发，是高频场景稳定性的关键检查点。</li><li>阅读重点：重点看在途队列扫描、超时判定条件和返回索引，这一层直接决定状态机会不会进入重发分支。</li></ul>
+<h3 id="2-m-inflightchecktimeout">完整代码 2：M_InflightCheckTimeout</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/辅助功能/M_InflightCheckTimeout.st</code></li><li>复制使用说明：这个方法决定哪一条在途消息超时、是否该触发重发，是高频场景稳定性的关键检查点。</li><li>阅读重点：重点看在途队列扫描、超时判定条件和返回索引，这一层直接决定状态机会不会进入重发分支。</li></ul>
 <div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
 /// 名称      : M_InflightCheckTimeout
 /// 功能      : 扫描在途消息超时
@@ -944,8 +944,8 @@ FOR i := 1 TO GVL_Mqtt.cnMaxInflight DO
 END_FOR
 
 M_InflightCheckTimeout := 0;</code></pre></div>
-<h3 id="3-mprocesspendingframes">完整代码 3：MProcessPendingFrames</h3>
-<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/????/M_ProcessPendingFrames.st</code></li><li>复制使用说明：这个方法负责把接收缓冲区里已经到达的完整帧持续吃掉，避免 QoS 高一点就积帧、超时、掉线。</li><li>阅读重点：先看完整帧边界怎么判，再看循环消费逻辑，最后看为什么它能把“偶发来不及响应”变成“连续稳定处理”。</li></ul>
+<h3 id="3-m-processpendingframes">完整代码 3：M_ProcessPendingFrames</h3>
+<ul><li>对应源码路径：<code>10 MQTT/MqttClient_V1_0/Device/Application/MQTT/POUs/MqttClient NBS/FB_MqttClient/辅助功能/M_ProcessPendingFrames.st</code></li><li>复制使用说明：这个方法负责把接收缓冲区里已经到达的完整帧持续吃掉，避免 QoS 高一点就积帧、超时、掉线。</li><li>阅读重点：先看完整帧边界怎么判，再看循环消费逻辑，最后看为什么它能把“偶发来不及响应”变成“连续稳定处理”。</li></ul>
 <div class="code-card"><small>iecst</small><pre><code>/// =======================================================================
 /// 名称      : M_ProcessPendingFrames
 /// 功能      : 连续处理缓冲区中的完整报文
@@ -973,16 +973,18 @@ WHILE uiRxLength &gt; 0 DO
 END_WHILE
 
 M_ProcessPendingFrames := bProcessed;</code></pre></div>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列定位：第 4 篇</li><li>上一篇：第3篇 PUBLISH 报文</li><li>下一篇：第5篇 SUBSCRIBE / UNSUBSCRIBE 和主题过滤器校验</li></ul>
             </div>
             <nav class="article-series-nav" aria-label="系列导航">
               <a class="series-nav-card" href="../mqtt-client-part-03-3-publish-qos0-qos1-qos2-120122/index.html">
                 <small>上一篇 / 第3篇</small>
-                <strong>PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪</strong>
+                <strong>第3篇_PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪</strong>
                 <span>这一篇把 MQTT 最核心的 PUBLISH 报文拆开讲，重点不是概念，而是首字节怎么编码、Topic 和 Packet ID 怎么排、QoS0 / QoS1 / QoS2 在协议和代码层到底差在哪。</span>
               </a>
               <a class="series-nav-card" href="../mqtt-client-part-05-5-subscribe-unsubscribe-869229/index.html">
                 <small>下一篇 / 第5篇</small>
-                <strong>SUBSCRIBE / UNSUBSCRIBE 怎么实现？主题过滤器到底该怎么校验</strong>
+                <strong>第5篇_SUBSCRIBE / UNSUBSCRIBE 怎么实现？主题过滤器到底该怎么校验</strong>
                 <span>这一篇把订阅和退订链完整拆开，重点讲 Topic Filter 和发布 Topic 的区别、 + $ 的校验规则、MQTT 5.0 能力边界，以及为什么退订也不是发个字符串这么简单。</span>
               </a>
             </nav>

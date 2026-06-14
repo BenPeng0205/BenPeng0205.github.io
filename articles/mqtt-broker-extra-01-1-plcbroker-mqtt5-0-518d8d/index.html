@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏 | ControlRookie</title>
+  <title>加更1_PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏 | ControlRookie</title>
   <meta name="description" content="这一篇是 MQTT 5.0 加更。结论很直接：PLC 侧轻量 Broker 应该支持 MQTT 5.0 基础兼容接入，但当前阶段不应该盲目追完整 MQTT 5.0 属性系统。工业现场更需要稳定、可诊断、易维护。">
   <meta name="author" content="ControlRookie">
   <meta name="robots" content="index, follow">
@@ -14,13 +14,13 @@
   <link rel="manifest" href="../../site.webmanifest">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="ControlRookie">
-  <meta property="og:title" content="PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏">
+  <meta property="og:title" content="加更1_PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏">
   <meta property="og:description" content="这一篇是 MQTT 5.0 加更。结论很直接：PLC 侧轻量 Broker 应该支持 MQTT 5.0 基础兼容接入，但当前阶段不应该盲目追完整 MQTT 5.0 属性系统。工业现场更需要稳定、可诊断、易维护。">
   <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-broker-extra-01-1-plcbroker-mqtt5-0-518d8d/">
   <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏">
+  <meta name="twitter:title" content="加更1_PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏">
   <meta name="twitter:description" content="这一篇是 MQTT 5.0 加更。结论很直接：PLC 侧轻量 Broker 应该支持 MQTT 5.0 基础兼容接入，但当前阶段不应该盲目追完整 MQTT 5.0 属性系统。工业现场更需要稳定、可诊断、易维护。">
   <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <link rel="stylesheet" href="../../styles/site.css">
@@ -31,15 +31,15 @@
     <header class="nav article-nav" aria-label="Article navigation">
       <a class="brand" href="../../index.html" aria-label="ControlRookie home">
         <span class="brand-logo" aria-hidden="true">
-          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
         </span>
         <span>ControlRookie</span>
       </a>
       <nav class="nav-links" aria-label="Sections">
         <a href="../../index.html#about">关于我</a>
-        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#articles">文章</a>
         <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#contact">联系</a>
       </nav>
       <div class="nav-actions">
@@ -52,25 +52,25 @@
         <div class="article-layout">
           <aside class="article-toc" aria-label="文章目录">
             <strong>目录</strong>
-            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#mqtt-5-0">一、MQTT 5.0 到底多了什么</a></li><li><a href="#broker-mqtt-5-0">二、当前 Broker 的 MQTT 5.0 策略</a></li><li><a href="#section-5feba446">三、为什么零属性响应很关键</a></li><li><a href="#mqtt-5-0-broker">四、完整 MQTT 5.0 会把轻量 Broker 拉向另一条路</a></li><li><a href="#section-362247d7">五、工业现场推荐怎么选版本</a></li><li><a href="#st">六、ST 代码入口</a></li><li><a href="#section-2a0f949f">模型边界与验证路径</a></li><li><a href="#5">七、这一篇你最该记住的 5 句话</a></li><li><a href="#section-db37e882">下篇预告</a></li><li><a href="#st-2">完整 ST 代码</a></li></ol>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#mqtt-5-0">一、MQTT 5.0 到底多了什么</a></li><li><a href="#broker-mqtt-5-0">二、当前 Broker 的 MQTT 5.0 策略</a></li><li><a href="#section-5feba446">三、为什么零属性响应很关键</a></li><li><a href="#mqtt-5-0-broker">四、完整 MQTT 5.0 会把轻量 Broker 拉向另一条路</a></li><li><a href="#section-362247d7">五、工业现场推荐怎么选版本</a></li><li><a href="#st">六、ST 代码入口</a></li><li><a href="#section-2a0f949f">模型边界与验证路径</a></li><li><a href="#5">七、这一篇你最该记住的 5 句话</a></li><li><a href="#section-db37e882">下篇预告</a></li><li><a href="#st-2">完整 ST 代码</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
           </aside>
           <div class="article-main" id="article-top">
             <nav class="article-breadcrumb" aria-label="文章路径">
-              <a href="../../index.html#articles">文章</a>
+              <a href="../../index.html#articles">文章中心</a>
               <span>/</span>
-              <a href="../../index.html#articles">MQTT Broker 系列教程</a>
+              <a href="../../index.html#articles">工业通信</a>
               <span>/</span>
-              <a href="../../index.html#articles">通信</a>
+              <a href="../../index.html#articles-mqtt">MQTT</a>
               <span>/</span>
-              <a href="../../index.html#articles">CODESYS</a>
+              <a href="../../index.html#articles-mqtt">Broker</a>
             </nav>
             <header class="article-hero">
-              <h1>PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏</h1>
+              <h1>加更1_PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏</h1>
               <p class="article-summary">这一篇是 MQTT 5.0 加更。结论很直接：PLC 侧轻量 Broker 应该支持 MQTT 5.0 基础兼容接入，但当前阶段不应该盲目追完整 MQTT 5.0 属性系统。工业现场更需要稳定、可诊断、易维护。</p>
               <div class="article-meta">
                 <span>2026-05-08</span>
                 <span>约 10 分钟阅读</span>
-                <span>第9篇/共14篇</span>
+                <span>第9篇/共16篇</span>
                 <span>MQTT / MQTT5 / Broker / PLC / CODESYS / CSDN / ControlRookie</span>
               </div>
             </header>
@@ -293,16 +293,18 @@ F_MqttSkipVariableByteInteger := FALSE;</code></pre></div>
             aBuffer[uiWriteOffset + 1] := 2;
             uiFrameLen := 4;
         END_IF</code></pre></div>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列定位：加更 1</li><li>上一篇：PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查</li><li>下一篇：这套 PLC 侧 MQTT Broker，我是怎么从连不上、掉线、延迟一路修到稳定的</li></ul>
             </div>
             <nav class="article-series-nav" aria-label="系列导航">
               <a class="series-nav-card" href="../mqtt-broker-part-08-8-plc-mqttbroker-retain-bd65fd/index.html">
                 <small>上一篇 / 第8篇</small>
-                <strong>PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查</strong>
+                <strong>第8篇_PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查</strong>
                 <span>这一篇是主线收口，专门整理 PLC 侧 MQTT Broker 的现场排障路线。连不上先看监听和槽位，订阅失败先看 SUBACK 和订阅表，发布延迟先看队列和批量写出，Retain 收不到先看 Retain 表和订阅补发。</span>
               </a>
               <a class="series-nav-card" href="../mqtt-broker-extra-02-2-plc-mqttbroker-cc9b12/index.html">
                 <small>下一篇 / 第10篇</small>
-                <strong>这套 PLC 侧 MQTT Broker，我是怎么从连不上、掉线、延迟一路修到稳定的</strong>
+                <strong>加更2_这套 PLC 侧 MQTT Broker，我是怎么从连不上、掉线、延迟一路修到稳定的</strong>
                 <span>这一篇是项目复盘。它不再按标准条文讲，而是把这套 PLC 侧 MQTT Broker 从规划、编译错误、连接闪烁、订阅失败、发布掉线、Retain 漏实现、性能延迟、MQTT 3.1/5.0 兼容一路修到稳定的过程完。</span>
               </a>
             </nav>

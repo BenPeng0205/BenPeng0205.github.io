@@ -52,23 +52,31 @@
       <!-- 导航左侧品牌控件：后续替换正式 Logo 时优先改这里。 -->
       <a class="brand" href="#top" aria-label="ControlRookie home">
         <span class="brand-logo" aria-hidden="true">
-          <img src="assets/images/brand/controlrookie-logo-latest.png" alt="">
+          <img src="assets/images/brand/controlrookie-mark-latest.png" alt="">
         </span>
         <span>ControlRookie</span>
       </a>
-      <!-- 导航中部页面入口：资源、文章、产品、联系四个单页锚点。 -->
+      <!-- 导航中部页面入口：关于我、文章、产品、资源、联系五个主入口。 -->
       <nav class="nav-links" aria-label="Sections">
         <a href="#about" data-nav-primary data-i18n="nav.about">关于我</a>
-        <a href="#works" data-nav-primary data-i18n="nav.resources">资源</a>
         <!-- 顶部文章入口：只做轻量快捷入口，真正的文章主导航在文章中心左侧索引栏。 -->
         <div class="nav-article-menu">
           <a class="nav-article-trigger" href="#articles" data-nav-primary data-i18n="nav.articles">文章</a>
           <div class="nav-article-panel" aria-label="文章快捷导航">
-            <a href="articles/mqtt-client-open-source-codesys-layer/index.html" data-i18n="nav.article.menu.client">MQTT Client 第1篇</a>
-            <a href="https://blog.csdn.net/weixin_44442562/category_13163069.html" target="_blank" rel="noreferrer" data-i18n="nav.article.menu.server">MQTT Server 资料</a>
+            <div class="nav-menu-item nav-menu-branch">
+              <span class="nav-menu-link nav-menu-branch-trigger nav-menu-label" aria-disabled="true" tabindex="0">
+                <span>工业通信</span>
+              </span>
+              <div class="nav-article-subpanel" aria-label="工业通信">
+                <a class="nav-menu-link" href="#articles-mqtt">
+                  <span>MQTT</span>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
         <a href="#products" data-nav-primary data-i18n="nav.products">产品</a>
+        <a href="#works" data-nav-primary data-i18n="nav.resources">资源</a>
         <a href="#contact" data-nav-primary data-i18n="nav.contact">联系</a>
       </nav>
       <!-- 导航右侧操作区：搜索控件在左，语言切换控件在最右。 -->
@@ -101,31 +109,28 @@
           <!-- 首页主文案控件：ControlRookie 品牌名、定位句和愿景句。 -->
           <div class="hero-copy">
             <h1>ControlRookie</h1>
+            <div class="hero-title-rule" aria-hidden="true"></div>
             <p class="hero-statement" data-i18n="hero.statement">跟得上时代的 AI 自动化架构师。</p>
             <p class="hero-description" data-i18n="hero.description">致力于控制、算法、架构、前沿技术和 AI 工具的源码开源分享，帮助自动化工程师大幅提升工程效率。</p>
           </div>
 
-          <!-- 首页四领域控件：PLC、AI、Code、Share 必须在首屏内完整可见。 -->
-          <div class="focus-strip" aria-label="Core domains">
-            <article class="focus-card">
-              <small data-i18n="focus.1.kicker">领域 01</small>
-              <strong>PLC</strong>
-              <span data-i18n="focus.1.copy">控制逻辑、状态机、设备通信与工程现场问题。</span>
+          <!-- 首页四张价值卡片：说明 ControlRookie 能持续分享给读者的核心内容。 -->
+          <div class="focus-strip" aria-label="ControlRookie value cards">
+            <article class="focus-card" data-index="01">
+              <strong data-i18n="focus.1.title">思想和经验</strong>
+              <span data-i18n="focus.1.copy">把现场踩过的坑、架构取舍和调试方法，讲成工程师能直接复用的判断框架。</span>
             </article>
-            <article class="focus-card">
-              <small data-i18n="focus.2.kicker">领域 02</small>
-              <strong>AI</strong>
-              <span data-i18n="focus.2.copy">Agent、自动化编程、知识蒸馏和工程提效。</span>
+            <article class="focus-card" data-index="02">
+              <strong data-i18n="focus.2.title">源码和库</strong>
+              <span data-i18n="focus.2.copy">沉淀可运行、可验证、可迁移的 CODESYS / 工控源码、功能块和协议库。</span>
             </article>
-            <article class="focus-card">
-              <small data-i18n="focus.3.kicker">领域 03</small>
-              <strong>Code</strong>
-              <span data-i18n="focus.3.copy">源码开源、工具封装、脚本化和可复用工作流。</span>
+            <article class="focus-card" data-index="03">
+              <strong data-i18n="focus.3.title">AI 工具链</strong>
+              <span data-i18n="focus.3.copy">用 Agent、脚本和自动化工具改造研发流程，让重复劳动交给机器。</span>
             </article>
-            <article class="focus-card">
-              <small data-i18n="focus.4.kicker">领域 04</small>
-              <strong>Share</strong>
-              <span data-i18n="focus.4.copy">CSDN、公众号、教程、方案和工程复盘。</span>
+            <article class="focus-card" data-index="04">
+              <strong data-i18n="focus.4.title">企业标准化</strong>
+              <span data-i18n="focus.4.copy">把代码规范、测试、文档和交付流程，整理成团队能长期执行的工程标准。</span>
             </article>
           </div>
         </div>
@@ -136,73 +141,113 @@
         <div class="about-shell">
           <!-- 关于我主叙事卡：保持中心轴平衡，只承接时间线和后续能力描述入口。 -->
           <article class="about-intro-card">
-            <small data-i18n="about.intro.label">时间线 / 工业现场</small>
-            <h2 data-i18n="about.intro.title">从学术研究到工业现场。</h2>
-            <p data-i18n="about.intro.copy">这里先保留个人路径的骨架，后续会补充具体年份、项目职责、行业场景和能力描述。当前重点是把经历按时间顺序清晰放出来。</p>
+            <h2 data-i18n="about.intro.title">从现场成长起来的菜鸟</h2>
+            <div class="about-quiet-rule" aria-hidden="true"></div>
+            <p data-i18n="about.intro.copy">没有谁一毕业就站在云端讲架构。我真实的故事是：先被德国工程规范拧过螺丝，再被工业现场按在地上摩擦，最后决定把这些坑写成工程师看得懂、用得上的源码、教程、工具和产品。</p>
+            <div class="about-text-card">
+              <!-- 关于我能力描述：挪到左侧主叙事卡，用更接近个人自媒体的人设语气表达。 -->
+              <div class="about-capability-card">
+                <div class="about-capability-grid">
+                  <section>
+                    <p data-i18n="about.capability.skill.copy">PLC、HMI、运动控制、SCADA、C#、HIL、通信协议栈都摸过。优点是能把锅从现场背回代码里，缺点是看到临时方案会忍不住想重构。</p>
+                  </section>
+                  <section>
+                    <p data-i18n="about.capability.advantage.copy">能写程序，也扛得住调试现场的风扇声；能做方案，也能把复杂东西讲到别人愿意点头，而不是只想点关闭。</p>
+                  </section>
+                  <section>
+                    <p data-i18n="about.capability.self.copy">自称菜鸟不是谦虚，是风险提示：我踩过的坑比较多。好处是我写出来的东西，通常会先替读者把坑边的警示牌插好。</p>
+                  </section>
+                </div>
+              </div>
+            </div>
           </article>
           <!-- 关于我时间线：必须体现清晰轴线和节点顺序，不能退化成普通卡片堆叠。 -->
           <ol class="about-timeline" aria-label="ControlRookie about me timeline">
             <li class="timeline-node">
-              <span>01</span>
+              <span>2012</span>
               <div>
-                <strong data-i18n="about.node.1.name">达姆施达特工业大学</strong>
-                <p data-i18n="about.node.1.copy">控制理论、系统建模和工程方法的学术基础。</p>
+                <strong data-i18n="about.node.1.name">达姆施塔特工业大学</strong>
+                <p data-i18n="about.node.1.copy">控制理论、系统建模和工程方法打底；后来发现，理论真正值钱，是能扛住现场脾气。</p>
               </div>
             </li>
             <li class="timeline-node">
-              <span>02</span>
+              <span>2015</span>
               <div>
-                <strong data-i18n="about.node.2.name">Bosch</strong>
-                <p data-i18n="about.node.2.copy">工业研发体系、工程规范和跨团队协作经验。</p>
+                <strong data-i18n="about.node.2.name">Bosch Rexroth</strong>
+                <p data-i18n="about.node.2.copy">接触德国工业研发体系、工程规范和跨团队协作：好代码只是开始，好工程要能长期维护。</p>
               </div>
             </li>
             <li class="timeline-node">
-              <span>03</span>
+              <span>2016</span>
               <div>
                 <strong data-i18n="about.node.3.name">Fraunhofer IWES</strong>
-                <p data-i18n="about.node.3.copy">新能源测试、仿真验证和研究型工程实践。</p>
+                <p data-i18n="about.node.3.copy">理解新能源测试、仿真验证和模型可信度，把“算得对”转成“测得稳”。</p>
               </div>
             </li>
             <li class="timeline-node">
-              <span>04</span>
+              <span>2016</span>
               <div>
-                <strong data-i18n="about.node.4.name">新能源 HIL</strong>
-                <p data-i18n="about.node.4.copy">控制器闭环测试、模型接入和自动化验证。</p>
+                <strong data-i18n="about.node.4.name">新能源：风电、汽车</strong>
+                <p data-i18n="about.node.4.copy">做风电 HIL 和电气仿真建模，围绕控制器、实时模型和闭环测试打磨验证链路。</p>
               </div>
             </li>
             <li class="timeline-node">
-              <span>05</span>
+              <span>2018</span>
               <div>
-                <strong data-i18n="about.node.5.name">烟草</strong>
-                <p data-i18n="about.node.5.copy">离散制造现场、设备联调和工艺控制落地。</p>
+                <strong data-i18n="about.node.5.name">离散工业：烟草制丝、成型、卷包</strong>
+                <p data-i18n="about.node.5.copy">从方案、选型到 PLC/HMI/SCADA 和现场调试，正式被离散制造现场教育。</p>
               </div>
             </li>
             <li class="timeline-node">
-              <span>06</span>
+              <span>2021</span>
               <div>
-                <strong data-i18n="about.node.6.name">冶金传动</strong>
-                <p data-i18n="about.node.6.copy">大功率传动、现场调试和高可靠控制系统。</p>
+                <strong data-i18n="about.node.6.name">流程工业：冶金、起重、传动</strong>
+                <p data-i18n="about.node.6.copy">负责项目、研发和团队管理，啃过电子防摇、全厂集控系统和大功率传动可靠性。</p>
               </div>
             </li>
             <li class="timeline-node">
-              <span>07</span>
+              <span>2023</span>
               <div>
-                <strong data-i18n="about.node.7.name">控制器厂家</strong>
-                <p data-i18n="about.node.7.copy">控制器产品化、生态工具和工程效率方案。</p>
+                <strong data-i18n="about.node.7.name">工业控制器厂家</strong>
+                <p data-i18n="about.node.7.copy">聚焦 PLC/PAC、功能库、标准化、通信协议栈和 AI 工程效率，把踩坑经验沉淀成源码和教程。</p>
               </div>
             </li>
           </ol>
-          <!-- 关于我能力描述预留区：用户后续提供真实内容后替换。 -->
-          <div class="about-capability-card">
-            <small data-i18n="about.capability.label">能力描述 / 待补充</small>
-            <p data-i18n="about.capability.copy">控制系统、HIL、行业工艺、传动控制、控制器产品化和 AI 工程效率能力将在这里展开。</p>
-          </div>
         </div>
       </section>
 
       <!-- 资源页：承载源代码、库文件、标准、模板、协议资料、脚本、AI 工作流、工程资料。 -->
       <section class="section section-line section-tall fade-in" id="works" aria-label="资源">
-        <div class="work-grid" aria-label="Selected ControlRookie work">
+        <div class="article-grid article-hub resource-hub">
+          <!-- 资源页左侧索引：与文章中心保持同一类知识库导航模型。 -->
+          <aside class="article-index-panel resource-index-panel" aria-label="资源索引">
+            <div class="article-index-head">
+              <strong data-i18n="resources.index.label">资源索引</strong>
+            </div>
+            <nav class="article-index-tree" aria-label="资源目录">
+              <details class="article-tree-group" open>
+                <summary><span data-i18n="resources.index.domain.engineering">工程资源</span><em>8</em></summary>
+                <div class="article-tree-children">
+                  <a class="active" href="#works"><span data-i18n="resource.1.title">CODESYS 示例工程</span><em>源代码</em></a>
+                  <a href="#works"><span data-i18n="resource.2.title">PLC Library</span><em>库文件</em></a>
+                  <a href="#works"><span data-i18n="resource.3.title">工程标准</span><em>标准</em></a>
+                  <a href="#works"><span data-i18n="resource.4.title">项目脚手架</span><em>模板</em></a>
+                  <a href="#works"><span data-i18n="resource.5.title">MQTT 资料</span><em>协议</em></a>
+                  <a href="#works"><span data-i18n="resource.6.title">自动化脚本</span><em>脚本</em></a>
+                  <a href="#works"><span data-i18n="resource.7.title">LLM 工作流</span><em>AI</em></a>
+                  <a href="#works"><span data-i18n="resource.8.title">工程资料库</span><em>资料</em></a>
+                </div>
+              </details>
+            </nav>
+          </aside>
+
+          <div class="article-library-panel resource-library-panel">
+            <section class="article-series-heading resource-series-heading" aria-label="资源库">
+              <small data-i18n="resources.series.label">资源库</small>
+              <h3 data-i18n="resources.series.title">工程资源中心</h3>
+            </section>
+
+            <div class="work-grid resource-card-grid" aria-label="Selected ControlRookie work">
           <!-- 资源页卡片 01：源代码入口。 -->
           <article class="work-card">
             <div class="work-content">
@@ -267,6 +312,8 @@
               <span class="work-meta" data-i18n="resource.8.copy">手册、笔记、复盘和关键技术路线图。</span>
             </div>
           </article>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -280,30 +327,9 @@
             </div>
             <nav class="article-index-tree" aria-label="文章知识库目录">
               <details class="article-tree-group" open>
-                <summary><span data-i18n="articles.index.domain.communication">工业通信</span><em>2</em></summary>
+                <summary><span data-i18n="articles.index.domain.communication">工业通信</span><em>1</em></summary>
                 <div class="article-tree-children">
-                  <details class="article-tree-node" open>
-                    <summary><span>MQTT</span><em>2</em></summary>
-                    <div class="article-tree-children">
-                      <details class="article-tree-node article-tree-selected" open>
-                        <summary><span>CODESYS MQTT</span><em>1 / 12</em></summary>
-                        <div class="article-tree-children">
-                          <details class="article-tree-node">
-                            <summary><span data-i18n="articles.index.mqtt.client">客户端</span><em>1</em></summary>
-                            <div class="article-tree-children">
-                              <a class="active" href="articles/mqtt-client-open-source-codesys-layer/index.html"><span data-i18n="articles.index.article.first">第1篇：开源客户端与协议分层</span><em>官网</em></a>
-                            </div>
-                          </details>
-                          <details class="article-tree-node">
-                            <summary><span data-i18n="articles.index.mqtt.server">服务器 / Broker</span><em>1</em></summary>
-                            <div class="article-tree-children">
-                              <a href="https://blog.csdn.net/weixin_44442562/category_13163069.html" target="_blank" rel="noreferrer"><span data-i18n="articles.index.article.server">CSDN MQTT 资料索引</span><em>CSDN</em></a>
-                            </div>
-                          </details>
-                        </div>
-                      </details>
-                    </div>
-                  </details>
+                  <a href="#articles-mqtt"><span>MQTT</span><em>32</em></a>
                 </div>
               </details>
             </nav>
@@ -311,29 +337,25 @@
 
           <!-- 文章中心右侧内容：专题、最新文章和文章路径分层展示，避免专题与文章混成同级卡片。 -->
           <div class="article-library-panel">
-            <section class="article-series-heading" aria-label="CODESYS MQTT 系列">
-              <small data-i18n="articles.series.label">系列专题</small>
-              <h3 data-i18n="articles.series.title">CODESYS MQTT 系列</h3>
-              <p data-i18n="articles.series.copy">从协议分层、CONNECT / CONNACK、PUBLISH、QoS 到 ST 状态机，按工程路径逐步整理。</p>
+            <span class="article-route-anchor" id="articles-mqtt" aria-hidden="true"></span>
+            <section class="article-series-heading" aria-label="文章中心">
+              <small data-i18n="articles.series.label">文章库</small>
+              <h3 data-i18n="articles.series.title">文章中心</h3>
               <div class="series-progress" aria-label="MQTT series progress">
-                <span data-i18n="articles.series.progress">已导入 1 篇 / 系列持续补全</span>
+                <span data-i18n="articles.series.progress">系列专题 1 个 / 文章 32 篇</span>
                 <b><i></i></b>
               </div>
             </section>
 
-            <!-- 文章页卡片 01：官网文章页样例，验证 Markdown 图文发布包到官网排版的完整链路。 -->
-            <div class="article-list" aria-label="MQTT 文章列表">
-              <a class="article-list-card article-feature-card" href="articles/mqtt-client-open-source-codesys-layer/index.html">
-                <small>01 · 客户端</small>
-                <strong>官方 MQTT 库要花钱？我为什么自己开源了一套 CODESYS MQTT 客户端</strong>
-                <p>MQTT Client 系列第一篇：为什么要做开源客户端、MQTT 在哪一层、以及 NBS TCP 与 MQTT 的工程关系。</p>
-                <em>官网全文 / 第1篇</em>
-              </a>
-              <a class="article-list-card" href="https://blog.csdn.net/weixin_44442562/category_13163069.html" target="_blank" rel="noreferrer">
-                <small>02 · 服务器 / Broker</small>
-                <strong data-i18n="articles.list.server.title">CODESYS MQTT 服务器与 Broker 资料</strong>
-                <p data-i18n="articles.list.server.copy">服务器、Broker、主题通信和排障教程暂先连接到 CSDN MQTT 分类页。</p>
-                <em data-i18n="articles.list.server.meta">外部分发 / CSDN</em>
+            <!-- 文章中心默认展示系列专题卡片；点击 MQTT 后再进入该系列的单篇文章列表。 -->
+            <div class="article-list article-topic-list" aria-label="文章系列专题列表">
+              <a class="article-list-card article-topic-card" href="#articles-mqtt">
+                <small>工业通信</small>
+                <span class="article-card-meta"><em>32 篇文章</em></span>
+                <strong>
+                  <span class="article-card-no">系列 01</span>
+                  <span>CodeSys MQTT 系列</span>
+                </strong>
               </a>
             </div>
           </div>
@@ -342,16 +364,54 @@
 
       <!-- 产品页：当前只展示 codesys-llm-synchronizer，未成熟产品不占位。 -->
       <section class="section section-line fade-in" id="products" aria-label="产品">
-        <div class="product-grid product-grid-single">
-          <!-- 产品页卡片 01：codesys-llm-synchronizer 产品说明入口。 -->
-          <article class="info-card">
-            <div>
-              <small>01 · 产品</small>
-              <h3>codesys-llm-synchronizer</h3>
-              <p data-i18n="product.1.copy">面向 CODESYS / SmartControl 工程的 LLM 同步与协作工具，用于工程镜像、代码上下文、规则和自动化工作流衔接。</p>
+        <div class="article-grid article-hub product-hub">
+          <!-- 产品页左侧索引：为后续产品矩阵保留与文章中心一致的导航结构。 -->
+          <aside class="article-index-panel product-index-panel" aria-label="产品索引">
+            <div class="article-index-head">
+              <strong data-i18n="products.index.label">产品索引</strong>
             </div>
-            <footer>Current / Details later</footer>
-          </article>
+            <nav class="article-index-tree" aria-label="产品目录">
+              <details class="article-tree-group" open>
+                <summary><span data-i18n="products.index.domain.tools">工程效率工具</span><em>1</em></summary>
+                <div class="article-tree-children">
+                  <a class="active" href="#products"><span>codesys-llm-synchronizer</span><em>工具</em></a>
+                </div>
+              </details>
+            </nav>
+          </aside>
+
+          <div class="article-library-panel product-library-panel">
+            <section class="article-series-heading product-series-heading" aria-label="产品中心">
+              <small data-i18n="products.series.label">产品中心</small>
+              <h3 data-i18n="products.series.title">工程效率工具</h3>
+            </section>
+
+            <div class="product-grid product-grid-single product-card-grid">
+              <!-- 产品页卡片 01：codesys-llm-synchronizer 产品说明入口。 -->
+              <article class="info-card product-console-card">
+                <div class="product-console-main">
+                  <div class="product-console-head">
+                    <small>01 · 产品</small>
+                    <div class="product-version-pills" aria-label="产品版本">
+                      <span data-i18n="product.1.version">V1.0</span>
+                      <span data-i18n="product.1.mode">本地优先</span>
+                      <span data-i18n="product.1.scope">工程协作</span>
+                    </div>
+                  </div>
+                  <h3>codesys-llm-synchronizer</h3>
+                  <p data-i18n="product.1.copy">解决 CODESYS / SmartControl 工程接入 AI 时上下文分散、手工同步反复、规则难以持续校验的问题；把工程镜像、代码上下文、团队规则和自动化流程连接起来，让 LLM 协作从临时问答变成可复用、可验证的工程工作流。</p>
+                  <div class="product-console-lines" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+                <figure class="product-cover-orb" aria-label="codesys-llm-synchronizer 产品封面">
+                  <img src="assets/images/products/codesys-llm-synchronizer-cover.png" alt="codesys-llm-synchronizer 产品封面">
+                </figure>
+              </article>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -361,6 +421,7 @@
           <!-- 联系页主文案：无灰色卡片底，避免把标题误做成普通内容卡。 -->
           <div class="contact-statement">
             <h2 data-i18n="contact.heading">工控人太苦了，<span class="no-break">让我们一起告别水深火热</span></h2>
+            <div class="contact-statement-rule" aria-hidden="true"></div>
           </div>
           <!-- 联系页品牌视觉卡：使用无白角伪影的 SVG 素材平衡右侧视觉重量。 -->
           <aside class="contact-visual-card" aria-label="ControlRookie brand mark">

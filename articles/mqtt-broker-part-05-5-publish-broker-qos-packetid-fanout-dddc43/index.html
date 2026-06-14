@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PUBLISH 不是收到就转发：Broker 怎么处理 QoS、PacketId 和多客户端 fanout | ControlRookie</title>
+  <title>第5篇_PUBLISH 不是收到就转发：Broker 怎么处理 QoS、PacketId 和多客户端 fanout | ControlRookie</title>
   <meta name="description" content="这一篇讲 Broker 侧 PUBLISH 主链路。重点是：发布者发来的 PacketId 和 Broker 转发给订阅者的 PacketId 不是同一个作用域；QoS0、QoS1、QoS2 在 Broker 侧要分。">
   <meta name="author" content="ControlRookie">
   <meta name="robots" content="index, follow">
@@ -14,13 +14,13 @@
   <link rel="manifest" href="../../site.webmanifest">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="ControlRookie">
-  <meta property="og:title" content="PUBLISH 不是收到就转发：Broker 怎么处理 QoS、PacketId 和多客户端 fanout">
+  <meta property="og:title" content="第5篇_PUBLISH 不是收到就转发：Broker 怎么处理 QoS、PacketId 和多客户端 fanout">
   <meta property="og:description" content="这一篇讲 Broker 侧 PUBLISH 主链路。重点是：发布者发来的 PacketId 和 Broker 转发给订阅者的 PacketId 不是同一个作用域；QoS0、QoS1、QoS2 在 Broker 侧要分。">
   <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-broker-part-05-5-publish-broker-qos-packetid-fanout-dddc43/">
   <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="PUBLISH 不是收到就转发：Broker 怎么处理 QoS、PacketId 和多客户端 fanout">
+  <meta name="twitter:title" content="第5篇_PUBLISH 不是收到就转发：Broker 怎么处理 QoS、PacketId 和多客户端 fanout">
   <meta name="twitter:description" content="这一篇讲 Broker 侧 PUBLISH 主链路。重点是：发布者发来的 PacketId 和 Broker 转发给订阅者的 PacketId 不是同一个作用域；QoS0、QoS1、QoS2 在 Broker 侧要分。">
   <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <link rel="stylesheet" href="../../styles/site.css">
@@ -31,15 +31,15 @@
     <header class="nav article-nav" aria-label="Article navigation">
       <a class="brand" href="../../index.html" aria-label="ControlRookie home">
         <span class="brand-logo" aria-hidden="true">
-          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
         </span>
         <span>ControlRookie</span>
       </a>
       <nav class="nav-links" aria-label="Sections">
         <a href="../../index.html#about">关于我</a>
-        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#articles">文章</a>
         <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#contact">联系</a>
       </nav>
       <div class="nav-actions">
@@ -52,25 +52,25 @@
         <div class="article-layout">
           <aside class="article-toc" aria-label="文章目录">
             <strong>目录</strong>
-            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#publish-broker">一、一条 PUBLISH 进入 Broker 后发生了什么</a></li><li><a href="#packetid">二、PacketId 的作用域</a></li><li><a href="#qos0-qos1-qos2-broker">三、QoS0 / QoS1 / QoS2 在 Broker 侧的差异</a></li><li><a href="#fanout">四、fanout 不能让慢客户端拖垮其他客户端</a></li><li><a href="#qos2">五、QoS2 不可怕，可怕的是状态没闭环</a></li><li><a href="#st">六、ST 代码入口</a></li><li><a href="#section-68a218e5">七、现场排障表</a></li><li><a href="#section-2a0f949f">模型边界与验证路径</a></li><li><a href="#6">八、这一篇你最该记住的 6 句话</a></li><li><a href="#section-db37e882">下篇预告</a></li><li><a href="#st-2">完整 ST 代码</a></li></ol>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#publish-broker">一、一条 PUBLISH 进入 Broker 后发生了什么</a></li><li><a href="#packetid">二、PacketId 的作用域</a></li><li><a href="#qos0-qos1-qos2-broker">三、QoS0 / QoS1 / QoS2 在 Broker 侧的差异</a></li><li><a href="#fanout">四、fanout 不能让慢客户端拖垮其他客户端</a></li><li><a href="#qos2">五、QoS2 不可怕，可怕的是状态没闭环</a></li><li><a href="#st">六、ST 代码入口</a></li><li><a href="#section-68a218e5">七、现场排障表</a></li><li><a href="#section-2a0f949f">模型边界与验证路径</a></li><li><a href="#6">八、这一篇你最该记住的 6 句话</a></li><li><a href="#section-db37e882">下篇预告</a></li><li><a href="#st-2">完整 ST 代码</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
           </aside>
           <div class="article-main" id="article-top">
             <nav class="article-breadcrumb" aria-label="文章路径">
-              <a href="../../index.html#articles">文章</a>
+              <a href="../../index.html#articles">文章中心</a>
               <span>/</span>
-              <a href="../../index.html#articles">MQTT Broker 系列教程</a>
+              <a href="../../index.html#articles">工业通信</a>
               <span>/</span>
-              <a href="../../index.html#articles">通信</a>
+              <a href="../../index.html#articles-mqtt">MQTT</a>
               <span>/</span>
-              <a href="../../index.html#articles">CODESYS</a>
+              <a href="../../index.html#articles-mqtt">Broker</a>
             </nav>
             <header class="article-hero">
-              <h1>PUBLISH 不是收到就转发：Broker 怎么处理 QoS、PacketId 和多客户端 fanout</h1>
+              <h1>第5篇_PUBLISH 不是收到就转发：Broker 怎么处理 QoS、PacketId 和多客户端 fanout</h1>
               <p class="article-summary">这一篇讲 Broker 侧 PUBLISH 主链路。重点是：发布者发来的 PacketId 和 Broker 转发给订阅者的 PacketId 不是同一个作用域；QoS0、QoS1、QoS2 在 Broker 侧要分。</p>
               <div class="article-meta">
                 <span>2026-05-08</span>
                 <span>约 11 分钟阅读</span>
-                <span>第5篇/共14篇</span>
+                <span>第5篇/共16篇</span>
                 <span>MQTT / PUBLISH / QoS / Broker / PacketId / ST / CSDN / CODESYS</span>
               </div>
             </header>
@@ -276,16 +276,18 @@ ELSE
     // 如果重发时重新分配 PacketId，客户端会 PUBACK 新编号，而事务表仍等待旧编号，
     // 结果就是每 2 秒重复投递一次，达到最大重试次数后 Broker 主动断开客户端。
 END_IF</code></pre></div>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列定位：第 5 篇</li><li>上一篇：SUBSCRIBE 不是存个字符串：Broker 怎么维护订阅表、通配符和多客户端路由</li><li>下一篇：Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH</li></ul>
             </div>
             <nav class="article-series-nav" aria-label="系列导航">
               <a class="series-nav-card" href="../mqtt-broker-part-04-4-subscribe-broker-13f91f/index.html">
                 <small>上一篇 / 第4篇</small>
-                <strong>SUBSCRIBE 不是存个字符串：Broker 怎么维护订阅表、通配符和多客户端路由</strong>
+                <strong>第4篇_SUBSCRIBE 不是存个字符串：Broker 怎么维护订阅表、通配符和多客户端路由</strong>
                 <span>这一篇讲 Broker 侧订阅系统。SUBSCRIBE 不是把主题字符串存起来就完事，Broker 必须区分 Topic Name 和 Topic Filter，校验 +、，维护多客户端订阅表，并在 PUBLISH。</span>
               </a>
               <a class="series-nav-card" href="../mqtt-broker-part-06-6-retain-will-keepalive--publish-95a52b/index.html">
                 <small>下一篇 / 第6篇</small>
-                <strong>Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH</strong>
+                <strong>第6篇_Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH</strong>
                 <span>这一篇讲 Broker 的三个现场能力：Retain 保存主题最后值，Will 处理异常离线通知，KeepAlive 清理死连接。它们不是锦上添花，而是让 MQTT 在工业现场真正可用的基础能力。</span>
               </a>
             </nav>

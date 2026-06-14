@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查 | ControlRookie</title>
+  <title>第8篇_PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查 | ControlRookie</title>
   <meta name="description" content="这一篇是主线收口，专门整理 PLC 侧 MQTT Broker 的现场排障路线。连不上先看监听和槽位，订阅失败先看 SUBACK 和订阅表，发布延迟先看队列和批量写出，Retain 收不到先看 Retain 表和订阅补发。">
   <meta name="author" content="ControlRookie">
   <meta name="robots" content="index, follow">
@@ -14,13 +14,13 @@
   <link rel="manifest" href="../../site.webmanifest">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="ControlRookie">
-  <meta property="og:title" content="PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查">
+  <meta property="og:title" content="第8篇_PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查">
   <meta property="og:description" content="这一篇是主线收口，专门整理 PLC 侧 MQTT Broker 的现场排障路线。连不上先看监听和槽位，订阅失败先看 SUBACK 和订阅表，发布延迟先看队列和批量写出，Retain 收不到先看 Retain 表和订阅补发。">
   <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-broker-part-08-8-plc-mqttbroker-retain-bd65fd/">
   <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查">
+  <meta name="twitter:title" content="第8篇_PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查">
   <meta name="twitter:description" content="这一篇是主线收口，专门整理 PLC 侧 MQTT Broker 的现场排障路线。连不上先看监听和槽位，订阅失败先看 SUBACK 和订阅表，发布延迟先看队列和批量写出，Retain 收不到先看 Retain 表和订阅补发。">
   <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <link rel="stylesheet" href="../../styles/site.css">
@@ -31,15 +31,15 @@
     <header class="nav article-nav" aria-label="Article navigation">
       <a class="brand" href="../../index.html" aria-label="ControlRookie home">
         <span class="brand-logo" aria-hidden="true">
-          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
         </span>
         <span>ControlRookie</span>
       </a>
       <nav class="nav-links" aria-label="Sections">
         <a href="../../index.html#about">关于我</a>
-        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#articles">文章</a>
         <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#contact">联系</a>
       </nav>
       <div class="nav-actions">
@@ -52,25 +52,25 @@
         <div class="article-layout">
           <aside class="article-toc" aria-label="文章目录">
             <strong>目录</strong>
-            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-cb61ac40">一、排障总图</a></li><li><a href="#section-cb761578">二、连不上怎么查</a></li><li><a href="#connect">三、CONNECT 失败怎么查</a></li><li><a href="#section-0dc3e1bc">四、订阅失败怎么查</a></li><li><a href="#section-2e73502e">五、发布收不到怎么查</a></li><li><a href="#section-427503d3">六、发布延迟怎么查</a></li><li><a href="#retain">七、Retain 收不到怎么查</a></li><li><a href="#8">八、最常见的 8 个坑</a></li><li><a href="#section-6b4854e8">排障结论分级</a></li><li><a href="#6">九、这一篇你最该记住的 6 句话</a></li><li><a href="#section-db37e882">下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li></ol>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-cb61ac40">一、排障总图</a></li><li><a href="#section-cb761578">二、连不上怎么查</a></li><li><a href="#connect">三、CONNECT 失败怎么查</a></li><li><a href="#section-0dc3e1bc">四、订阅失败怎么查</a></li><li><a href="#section-2e73502e">五、发布收不到怎么查</a></li><li><a href="#section-427503d3">六、发布延迟怎么查</a></li><li><a href="#retain">七、Retain 收不到怎么查</a></li><li><a href="#8">八、最常见的 8 个坑</a></li><li><a href="#section-6b4854e8">排障结论分级</a></li><li><a href="#6">九、这一篇你最该记住的 6 句话</a></li><li><a href="#section-db37e882">下篇预告</a></li><li><a href="#st">完整 ST 代码</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
           </aside>
           <div class="article-main" id="article-top">
             <nav class="article-breadcrumb" aria-label="文章路径">
-              <a href="../../index.html#articles">文章</a>
+              <a href="../../index.html#articles">文章中心</a>
               <span>/</span>
-              <a href="../../index.html#articles">MQTT Broker 系列教程</a>
+              <a href="../../index.html#articles">工业通信</a>
               <span>/</span>
-              <a href="../../index.html#articles">通信</a>
+              <a href="../../index.html#articles-mqtt">MQTT</a>
               <span>/</span>
-              <a href="../../index.html#articles">CODESYS</a>
+              <a href="../../index.html#articles-mqtt">Broker</a>
             </nav>
             <header class="article-hero">
-              <h1>PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查</h1>
+              <h1>第8篇_PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查</h1>
               <p class="article-summary">这一篇是主线收口，专门整理 PLC 侧 MQTT Broker 的现场排障路线。连不上先看监听和槽位，订阅失败先看 SUBACK 和订阅表，发布延迟先看队列和批量写出，Retain 收不到先看 Retain 表和订阅补发。</p>
               <div class="article-meta">
                 <span>2026-05-08</span>
                 <span>约 14 分钟阅读</span>
-                <span>第8篇/共14篇</span>
+                <span>第8篇/共16篇</span>
                 <span>MQTT / Broker / 现场排障 / PLC / CODESYS / ST / CSDN / ControlRookie</span>
               </div>
             </header>
@@ -338,16 +338,18 @@ IF uiDiagWriteIndex &gt; GVL_MqttBroker.cnDiagHistorySize THEN
 END_IF
 
 M_LogDiag := TRUE;</code></pre></div>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列定位：第 8 篇</li><li>上一篇：为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出</li><li>下一篇：加更 1：PLC Broker 要不要完整支持 MQTT 5.0？</li></ul>
             </div>
             <nav class="article-series-nav" aria-label="系列导航">
               <a class="series-nav-card" href="../mqtt-broker-part-07-7-plcbroker-tcp-write-894a6a/index.html">
                 <small>上一篇 / 第7篇</small>
-                <strong>为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出</strong>
-                <span>这一篇讲真实性能优化。早期 PLC Broker 在高频小消息场景下出现 1~3 秒尾部延迟，根因不是 QoS2、Retain 或订阅匹配，而是一次 TCPWrite 只写一帧。优化方向是批量编码多个 MQTT 帧。</span>
+                <strong>第7篇_为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出</strong>
+                <span>这一篇讲真实性能优化。早期 PLC Broker 在高频小消息场景下出现 1~3 秒尾部延迟，根因不是 QoS2、Retain 或订阅匹配，而是一次 TCP_Write 只写一帧。优化方向是批量编码多个 MQTT 帧。</span>
               </a>
               <a class="series-nav-card" href="../mqtt-broker-extra-01-1-plcbroker-mqtt5-0-518d8d/index.html">
                 <small>下一篇 / 第9篇</small>
-                <strong>PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏</strong>
+                <strong>加更1_PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏</strong>
                 <span>这一篇是 MQTT 5.0 加更。结论很直接：PLC 侧轻量 Broker 应该支持 MQTT 5.0 基础兼容接入，但当前阶段不应该盲目追完整 MQTT 5.0 属性系统。工业现场更需要稳定、可诊断、易维护。</span>
               </a>
             </nav>

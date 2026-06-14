@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH | ControlRookie</title>
+  <title>第6篇_Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH | ControlRookie</title>
   <meta name="description" content="这一篇讲 Broker 的三个现场能力：Retain 保存主题最后值，Will 处理异常离线通知，KeepAlive 清理死连接。它们不是锦上添花，而是让 MQTT 在工业现场真正可用的基础能力。">
   <meta name="author" content="ControlRookie">
   <meta name="robots" content="index, follow">
@@ -14,13 +14,13 @@
   <link rel="manifest" href="../../site.webmanifest">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="ControlRookie">
-  <meta property="og:title" content="Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH">
+  <meta property="og:title" content="第6篇_Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH">
   <meta property="og:description" content="这一篇讲 Broker 的三个现场能力：Retain 保存主题最后值，Will 处理异常离线通知，KeepAlive 清理死连接。它们不是锦上添花，而是让 MQTT 在工业现场真正可用的基础能力。">
   <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-broker-part-06-6-retain-will-keepalive--publish-95a52b/">
   <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH">
+  <meta name="twitter:title" content="第6篇_Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH">
   <meta name="twitter:description" content="这一篇讲 Broker 的三个现场能力：Retain 保存主题最后值，Will 处理异常离线通知，KeepAlive 清理死连接。它们不是锦上添花，而是让 MQTT 在工业现场真正可用的基础能力。">
   <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <link rel="stylesheet" href="../../styles/site.css">
@@ -31,15 +31,15 @@
     <header class="nav article-nav" aria-label="Article navigation">
       <a class="brand" href="../../index.html" aria-label="ControlRookie home">
         <span class="brand-logo" aria-hidden="true">
-          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
         </span>
         <span>ControlRookie</span>
       </a>
       <nav class="nav-links" aria-label="Sections">
         <a href="../../index.html#about">关于我</a>
-        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#articles">文章</a>
         <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#contact">联系</a>
       </nav>
       <div class="nav-actions">
@@ -52,25 +52,25 @@
         <div class="article-layout">
           <aside class="article-toc" aria-label="文章目录">
             <strong>目录</strong>
-            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#retain">一、Retain 解决“最后值”问题</a></li><li><a href="#retain-2">二、Retain 的操作表</a></li><li><a href="#will">三、Will 解决异常离线问题</a></li><li><a href="#keepalive">四、KeepAlive 解决死连接问题</a></li><li><a href="#retain-will-keepalive">五、Retain / Will / KeepAlive 三者会汇合</a></li><li><a href="#st">六、ST 代码入口</a></li><li><a href="#section-68a218e5">七、现场排障表</a></li><li><a href="#section-2a0f949f">模型边界与验证路径</a></li><li><a href="#5">八、这一篇你最该记住的 5 句话</a></li><li><a href="#section-db37e882">下篇预告</a></li><li><a href="#st-2">完整 ST 代码</a></li></ol>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#retain">一、Retain 解决“最后值”问题</a></li><li><a href="#retain-2">二、Retain 的操作表</a></li><li><a href="#will">三、Will 解决异常离线问题</a></li><li><a href="#keepalive">四、KeepAlive 解决死连接问题</a></li><li><a href="#retain-will-keepalive">五、Retain / Will / KeepAlive 三者会汇合</a></li><li><a href="#st">六、ST 代码入口</a></li><li><a href="#section-68a218e5">七、现场排障表</a></li><li><a href="#section-2a0f949f">模型边界与验证路径</a></li><li><a href="#5">八、这一篇你最该记住的 5 句话</a></li><li><a href="#section-db37e882">下篇预告</a></li><li><a href="#st-2">完整 ST 代码</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
           </aside>
           <div class="article-main" id="article-top">
             <nav class="article-breadcrumb" aria-label="文章路径">
-              <a href="../../index.html#articles">文章</a>
+              <a href="../../index.html#articles">文章中心</a>
               <span>/</span>
-              <a href="../../index.html#articles">MQTT Broker 系列教程</a>
+              <a href="../../index.html#articles">工业通信</a>
               <span>/</span>
-              <a href="../../index.html#articles">通信</a>
+              <a href="../../index.html#articles-mqtt">MQTT</a>
               <span>/</span>
-              <a href="../../index.html#articles">CODESYS</a>
+              <a href="../../index.html#articles-mqtt">Broker</a>
             </nav>
             <header class="article-hero">
-              <h1>Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH</h1>
+              <h1>第6篇_Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH</h1>
               <p class="article-summary">这一篇讲 Broker 的三个现场能力：Retain 保存主题最后值，Will 处理异常离线通知，KeepAlive 清理死连接。它们不是锦上添花，而是让 MQTT 在工业现场真正可用的基础能力。</p>
               <div class="article-meta">
                 <span>2026-05-08</span>
                 <span>约 12 分钟阅读</span>
-                <span>第6篇/共14篇</span>
+                <span>第6篇/共16篇</span>
                 <span>MQTT / Retain / Will / KeepAlive / Broker / PLC / CSDN / CODESYS</span>
               </div>
             </header>
@@ -290,17 +290,19 @@ END_IF</code></pre></div>
     M_HandlePublish(uiSourceSlot := uiIndex, stPublish := stWill);
     stMetrics.udiWillPublished := stMetrics.udiWillPublished + 1;
 END_IF</code></pre></div>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列定位：第 6 篇</li><li>上一篇：PUBLISH 不是收到就转发：Broker 怎么处理 QoS、PacketId 和多客户端 fanout</li><li>下一篇：为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出</li></ul>
             </div>
             <nav class="article-series-nav" aria-label="系列导航">
               <a class="series-nav-card" href="../mqtt-broker-part-05-5-publish-broker-qos-packetid-fanout-dddc43/index.html">
                 <small>上一篇 / 第5篇</small>
-                <strong>PUBLISH 不是收到就转发：Broker 怎么处理 QoS、PacketId 和多客户端 fanout</strong>
+                <strong>第5篇_PUBLISH 不是收到就转发：Broker 怎么处理 QoS、PacketId 和多客户端 fanout</strong>
                 <span>这一篇讲 Broker 侧 PUBLISH 主链路。重点是：发布者发来的 PacketId 和 Broker 转发给订阅者的 PacketId 不是同一个作用域；QoS0、QoS1、QoS2 在 Broker 侧要分。</span>
               </a>
               <a class="series-nav-card" href="../mqtt-broker-part-07-7-plcbroker-tcp-write-894a6a/index.html">
                 <small>下一篇 / 第7篇</small>
-                <strong>为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出</strong>
-                <span>这一篇讲真实性能优化。早期 PLC Broker 在高频小消息场景下出现 1~3 秒尾部延迟，根因不是 QoS2、Retain 或订阅匹配，而是一次 TCPWrite 只写一帧。优化方向是批量编码多个 MQTT 帧。</span>
+                <strong>第7篇_为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出</strong>
+                <span>这一篇讲真实性能优化。早期 PLC Broker 在高频小消息场景下出现 1~3 秒尾部延迟，根因不是 QoS2、Retain 或订阅匹配，而是一次 TCP_Write 只写一帧。优化方向是批量编码多个 MQTT 帧。</span>
               </a>
             </nav>
             <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">

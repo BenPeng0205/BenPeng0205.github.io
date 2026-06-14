@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CONNECT 解析别写死：MQTT 3.1、3.1.1、5.0 为什么会让 Broker 反复断开 | ControlRookie</title>
+  <title>第3篇_CONNECT 解析别写死：MQTT 3.1、3.1.1、5.0 为什么会让 Broker 反复断开 | ControlRookie</title>
   <meta name="description" content="这一篇讲 Broker 侧 CONNECT 解析。重点不是重复 MQTT 标准字段，而是解释为什么 MQTT + level 4、MQTT + level 5、MQIsdp + level 3 必须分开处理，以及 M。">
   <meta name="author" content="ControlRookie">
   <meta name="robots" content="index, follow">
@@ -14,13 +14,13 @@
   <link rel="manifest" href="../../site.webmanifest">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="ControlRookie">
-  <meta property="og:title" content="CONNECT 解析别写死：MQTT 3.1、3.1.1、5.0 为什么会让 Broker 反复断开">
+  <meta property="og:title" content="第3篇_CONNECT 解析别写死：MQTT 3.1、3.1.1、5.0 为什么会让 Broker 反复断开">
   <meta property="og:description" content="这一篇讲 Broker 侧 CONNECT 解析。重点不是重复 MQTT 标准字段，而是解释为什么 MQTT + level 4、MQTT + level 5、MQIsdp + level 3 必须分开处理，以及 M。">
   <meta property="og:url" content="https://benpeng0205.github.io/articles/mqtt-broker-part-03-3-connect-mqtt3-1-3-1-1-5-0-broker-b6ffd1/">
   <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="CONNECT 解析别写死：MQTT 3.1、3.1.1、5.0 为什么会让 Broker 反复断开">
+  <meta name="twitter:title" content="第3篇_CONNECT 解析别写死：MQTT 3.1、3.1.1、5.0 为什么会让 Broker 反复断开">
   <meta name="twitter:description" content="这一篇讲 Broker 侧 CONNECT 解析。重点不是重复 MQTT 标准字段，而是解释为什么 MQTT + level 4、MQTT + level 5、MQIsdp + level 3 必须分开处理，以及 M。">
   <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <link rel="stylesheet" href="../../styles/site.css">
@@ -31,15 +31,15 @@
     <header class="nav article-nav" aria-label="Article navigation">
       <a class="brand" href="../../index.html" aria-label="ControlRookie home">
         <span class="brand-logo" aria-hidden="true">
-          <img src="../../assets/images/brand/controlrookie-logo-latest.png" alt="">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
         </span>
         <span>ControlRookie</span>
       </a>
       <nav class="nav-links" aria-label="Sections">
         <a href="../../index.html#about">关于我</a>
-        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#articles">文章</a>
         <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
         <a href="../../index.html#contact">联系</a>
       </nav>
       <div class="nav-actions">
@@ -52,25 +52,25 @@
         <div class="article-layout">
           <aside class="article-toc" aria-label="文章目录">
             <strong>目录</strong>
-            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#connect-broker">一、CONNECT 是 Broker 的第一份申请表</a></li><li><a href="#section-075917d8">二、三个版本的协议名不是一样的</a></li><li><a href="#connect">三、CONNECT 解析流程</a></li><li><a href="#mqtt-5-0">四、MQTT 5.0 基础兼容要做两件事</a></li><li><a href="#broker">五、Broker 侧诊断要把协议解析暴露出来</a></li><li><a href="#st">六、ST 代码入口</a></li><li><a href="#section-2a0f949f">模型边界与验证路径</a></li><li><a href="#6">七、这一篇你最该记住的 6 句话</a></li><li><a href="#section-db37e882">下篇预告</a></li><li><a href="#st-2">完整 ST 代码</a></li></ol>
+            <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#connect-broker">一、CONNECT 是 Broker 的第一份申请表</a></li><li><a href="#section-075917d8">二、三个版本的协议名不是一样的</a></li><li><a href="#connect">三、CONNECT 解析流程</a></li><li><a href="#mqtt-5-0">四、MQTT 5.0 基础兼容要做两件事</a></li><li><a href="#broker">五、Broker 侧诊断要把协议解析暴露出来</a></li><li><a href="#st">六、ST 代码入口</a></li><li><a href="#section-2a0f949f">模型边界与验证路径</a></li><li><a href="#6">七、这一篇你最该记住的 6 句话</a></li><li><a href="#section-db37e882">下篇预告</a></li><li><a href="#st-2">完整 ST 代码</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
           </aside>
           <div class="article-main" id="article-top">
             <nav class="article-breadcrumb" aria-label="文章路径">
-              <a href="../../index.html#articles">文章</a>
+              <a href="../../index.html#articles">文章中心</a>
               <span>/</span>
-              <a href="../../index.html#articles">MQTT Broker 系列教程</a>
+              <a href="../../index.html#articles">工业通信</a>
               <span>/</span>
-              <a href="../../index.html#articles">通信</a>
+              <a href="../../index.html#articles-mqtt">MQTT</a>
               <span>/</span>
-              <a href="../../index.html#articles">CODESYS</a>
+              <a href="../../index.html#articles-mqtt">Broker</a>
             </nav>
             <header class="article-hero">
-              <h1>CONNECT 解析别写死：MQTT 3.1、3.1.1、5.0 为什么会让 Broker 反复断开</h1>
+              <h1>第3篇_CONNECT 解析别写死：MQTT 3.1、3.1.1、5.0 为什么会让 Broker 反复断开</h1>
               <p class="article-summary">这一篇讲 Broker 侧 CONNECT 解析。重点不是重复 MQTT 标准字段，而是解释为什么 MQTT + level 4、MQTT + level 5、MQIsdp + level 3 必须分开处理，以及 M。</p>
               <div class="article-meta">
                 <span>2026-05-08</span>
                 <span>约 11 分钟阅读</span>
-                <span>第3篇/共14篇</span>
+                <span>第3篇/共16篇</span>
                 <span>MQTT / CONNECT / Broker / MQTT5 / CODESYS / ST / CSDN / PLC</span>
               </div>
             </header>
@@ -311,16 +311,18 @@ END_CASE</code></pre></div>
     END_IF
     uiOffset := uiOffset + TO_UINT(udiPropertyLen);
 END_IF</code></pre></div>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列定位：第 3 篇</li><li>上一篇：写 MQTT Broker，第一关不是 PUBLISH，而是怎么让多个客户端稳稳连上同一个端口</li><li>下一篇：SUBSCRIBE 不是存个字符串：Broker 怎么维护订阅表、通配符和多客户端路由</li></ul>
             </div>
             <nav class="article-series-nav" aria-label="系列导航">
               <a class="series-nav-card" href="../mqtt-broker-part-02-2-mqttbroker-publish-f18f7a/index.html">
                 <small>上一篇 / 第2篇</small>
-                <strong>写 MQTT Broker，第一关不是 PUBLISH，而是怎么让多个客户端稳稳连上同一个端口</strong>
+                <strong>第2篇_写 MQTT Broker，第一关不是 PUBLISH，而是怎么让多个客户端稳稳连上同一个端口</strong>
                 <span>这一篇只讲 Broker 的第一道硬门槛：多个客户端为什么都应该连接同一个 1883 端口，以及 PLC 里应该怎样用监听句柄、接入句柄、客户端槽位把这件事做稳定。</span>
               </a>
               <a class="series-nav-card" href="../mqtt-broker-part-04-4-subscribe-broker-13f91f/index.html">
                 <small>下一篇 / 第4篇</small>
-                <strong>SUBSCRIBE 不是存个字符串：Broker 怎么维护订阅表、通配符和多客户端路由</strong>
+                <strong>第4篇_SUBSCRIBE 不是存个字符串：Broker 怎么维护订阅表、通配符和多客户端路由</strong>
                 <span>这一篇讲 Broker 侧订阅系统。SUBSCRIBE 不是把主题字符串存起来就完事，Broker 必须区分 Topic Name 和 Topic Filter，校验 +、，维护多客户端订阅表，并在 PUBLISH。</span>
               </a>
             </nav>
