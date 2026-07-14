@@ -45,7 +45,7 @@
   </script>
 </head>
 <body>
-  <a class="skip-link" href="#top">跳到主要内容</a>
+  <a class="skip-link" href="#top" data-i18n="a11y.skip">跳到主要内容</a>
   <div class="site-shell">
     <!-- 全站固定导航：对应每一页顶部的 ForAI 风格透明导航条。 -->
     <header class="nav" aria-label="Primary navigation">
@@ -92,9 +92,22 @@
         </div>
         <!-- 中英文切换控件：中文界面显示 EN，英文界面显示“中”。 -->
         <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language">EN</button>
+        <!-- 移动端主菜单控件：1040px 及以下替代被隐藏的桌面导航。 -->
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="打开主菜单" aria-expanded="false" aria-controls="mobileMenuPanel">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
       </div>
       <!-- 搜索结果浮层：由 src/lib/site.js 根据 searchIndex 动态渲染。 -->
-      <div class="search-panel" id="searchPanel" aria-label="Search results" role="region"></div>
+      <div class="search-panel" id="searchPanel" aria-label="搜索结果" role="region" hidden inert></div>
+      <!-- 移动端折叠菜单：保持与桌面主导航相同的入口顺序和 hash。 -->
+      <nav class="mobile-menu-panel" id="mobileMenuPanel" aria-label="移动主导航" hidden>
+        <a href="#about" data-mobile-nav data-i18n="nav.about">关于我</a>
+        <a href="#articles" data-mobile-nav data-i18n="nav.articles">文章</a>
+        <a href="#products" data-mobile-nav data-i18n="nav.products">产品</a>
+        <a href="#works" data-mobile-nav data-i18n="nav.resources">资源</a>
+        <a href="#contact" data-mobile-nav data-i18n="nav.contact">联系</a>
+      </nav>
     </header>
 
     <main id="top">
@@ -219,100 +232,106 @@
       <!-- 资源页：承载源代码、库文件、标准、模板、协议资料、脚本、AI 工作流、工程资料。 -->
       <section class="section section-line section-tall fade-in" id="works" aria-label="资源">
         <div class="article-grid article-hub resource-hub">
+          <section class="article-series-heading resource-series-heading" aria-label="资源库">
+            <small data-i18n="resources.series.label">资源库</small>
+            <h3 data-i18n="resources.series.title">工程资源中心</h3>
+          </section>
           <!-- 资源页左侧索引：与文章中心保持同一类知识库导航模型。 -->
           <aside class="article-index-panel resource-index-panel" aria-label="资源索引">
-            <div class="article-index-head">
-              <strong data-i18n="resources.index.label">资源索引</strong>
+            <button class="content-index-toggle" id="resourceIndexToggle" type="button" aria-expanded="false" aria-controls="resourceIndexBody">
+              <span class="content-index-label"><strong data-i18n="resources.index.label">资源索引</strong><small data-index-current>工程资源中心</small></span>
+              <em aria-hidden="true">+</em>
+            </button>
+            <div class="content-index-body" id="resourceIndexBody">
+              <div class="article-index-head">
+                <strong data-i18n="resources.index.label">资源索引</strong>
+              </div>
+              <nav class="article-index-tree" aria-label="资源目录">
+                <details class="article-tree-group" open>
+                  <summary><span data-i18n="resources.index.domain.engineering">工程资源</span><em>8</em></summary>
+                  <div class="article-tree-children">
+                    <a class="active" href="#works"><span data-i18n="resource.1.title">CODESYS 示例工程</span><em>源代码</em></a>
+                    <a href="#works"><span data-i18n="resource.2.title">PLC Library</span><em>库文件</em></a>
+                    <a href="#works"><span data-i18n="resource.3.title">工程标准</span><em>标准</em></a>
+                    <a href="#works"><span data-i18n="resource.4.title">项目脚手架</span><em>模板</em></a>
+                    <a href="#works"><span data-i18n="resource.5.title">MQTT 资料</span><em>协议</em></a>
+                    <a href="#works"><span data-i18n="resource.6.title">自动化脚本</span><em>脚本</em></a>
+                    <a href="#works"><span data-i18n="resource.7.title">LLM 工作流</span><em>AI</em></a>
+                    <a href="#works"><span data-i18n="resource.8.title">工程资料库</span><em>资料</em></a>
+                  </div>
+                </details>
+              </nav>
             </div>
-            <nav class="article-index-tree" aria-label="资源目录">
-              <details class="article-tree-group" open>
-                <summary><span data-i18n="resources.index.domain.engineering">工程资源</span><em>8</em></summary>
-                <div class="article-tree-children">
-                  <a class="active" href="#works"><span data-i18n="resource.1.title">CODESYS 示例工程</span><em>源代码</em></a>
-                  <a href="#works"><span data-i18n="resource.2.title">PLC Library</span><em>库文件</em></a>
-                  <a href="#works"><span data-i18n="resource.3.title">工程标准</span><em>标准</em></a>
-                  <a href="#works"><span data-i18n="resource.4.title">项目脚手架</span><em>模板</em></a>
-                  <a href="#works"><span data-i18n="resource.5.title">MQTT 资料</span><em>协议</em></a>
-                  <a href="#works"><span data-i18n="resource.6.title">自动化脚本</span><em>脚本</em></a>
-                  <a href="#works"><span data-i18n="resource.7.title">LLM 工作流</span><em>AI</em></a>
-                  <a href="#works"><span data-i18n="resource.8.title">工程资料库</span><em>资料</em></a>
-                </div>
-              </details>
-            </nav>
           </aside>
 
           <div class="article-library-panel resource-library-panel">
-            <section class="article-series-heading resource-series-heading" aria-label="资源库">
-              <small data-i18n="resources.series.label">资源库</small>
-              <h3 data-i18n="resources.series.title">工程资源中心</h3>
-            </section>
-
             <div class="work-grid resource-card-grid" aria-label="Selected ControlRookie work">
           <!-- 资源页卡片 01：源代码入口。 -->
-          <article class="work-card">
+          <a class="work-card" href="#works-source-code">
             <div class="work-content">
               <span class="work-index" data-i18n="resource.1.type">01 · 源代码</span>
               <strong class="work-title" data-i18n="resource.1.title">CODESYS 示例工程</strong>
               <span class="work-meta" data-i18n="resource.1.copy">控制逻辑、通信、状态机和工程模板源码。</span>
             </div>
-          </article>
+          </a>
           <!-- 资源页卡片 02：库文件入口。 -->
-          <article class="work-card">
+          <a class="work-card" href="#works-plc-library">
             <div class="work-content">
               <span class="work-index" data-i18n="resource.2.type">02 · 库文件</span>
               <strong class="work-title" data-i18n="resource.2.title">PLC Library</strong>
               <span class="work-meta" data-i18n="resource.2.copy">可复用功能块、通信封装和工程基础库。</span>
             </div>
-          </article>
+          </a>
           <!-- 资源页卡片 03：工程标准入口。 -->
-          <article class="work-card">
+          <a class="work-card" href="#works-engineering-standards">
             <div class="work-content">
               <span class="work-index" data-i18n="resource.3.type">03 · 标准</span>
               <strong class="work-title" data-i18n="resource.3.title">工程标准</strong>
               <span class="work-meta" data-i18n="resource.3.copy">命名、状态机、交付、测试和文档规范。</span>
             </div>
-          </article>
+          </a>
           <!-- 资源页卡片 04：项目模板入口。 -->
-          <article class="work-card">
+          <a class="work-card" href="#works-project-scaffold">
             <div class="work-content">
               <span class="work-index" data-i18n="resource.4.type">04 · 模板</span>
               <strong class="work-title" data-i18n="resource.4.title">项目脚手架</strong>
               <span class="work-meta" data-i18n="resource.4.copy">工程初始化、目录结构、清单和验证流程。</span>
             </div>
-          </article>
+          </a>
           <!-- 资源页卡片 05：MQTT 协议资料入口。 -->
-          <article class="work-card">
+          <a class="work-card" href="#works-mqtt-resources">
             <div class="work-content">
               <span class="work-index" data-i18n="resource.5.type">05 · 协议</span>
               <strong class="work-title" data-i18n="resource.5.title">MQTT 资料</strong>
               <span class="work-meta" data-i18n="resource.5.copy">服务器、客户端、主题设计和排障资料。</span>
             </div>
-          </article>
+          </a>
           <!-- 资源页卡片 06：自动化脚本入口。 -->
-          <article class="work-card">
+          <a class="work-card" href="#works-automation-scripts">
             <div class="work-content">
               <span class="work-index" data-i18n="resource.6.type">06 · 脚本</span>
               <strong class="work-title" data-i18n="resource.6.title">自动化脚本</strong>
               <span class="work-meta" data-i18n="resource.6.copy">面向工程效率的批处理、检查和生成工具。</span>
             </div>
-          </article>
+          </a>
           <!-- 资源页卡片 07：LLM 工作流入口。 -->
-          <article class="work-card">
+          <a class="work-card" href="#works-llm-workflows">
             <div class="work-content">
               <span class="work-index" data-i18n="resource.7.type">07 · AI</span>
               <strong class="work-title" data-i18n="resource.7.title">LLM 工作流</strong>
               <span class="work-meta" data-i18n="resource.7.copy">提示词、技能、Agent 和自动化协作规则。</span>
             </div>
-          </article>
+          </a>
           <!-- 资源页卡片 08：工程资料库入口。 -->
-          <article class="work-card">
+          <a class="work-card" href="#works-engineering-library">
             <div class="work-content">
               <span class="work-index" data-i18n="resource.8.type">08 · 资料</span>
               <strong class="work-title" data-i18n="resource.8.title">工程资料库</strong>
               <span class="work-meta" data-i18n="resource.8.copy">手册、笔记、复盘和关键技术路线图。</span>
             </div>
-          </article>
+          </a>
             </div>
+            <section class="resource-detail-panel" aria-label="资源详情" hidden></section>
           </div>
         </div>
       </section>
@@ -320,33 +339,38 @@
       <!-- 文章页：第一版知识库式文章中心，避免未来文章增长后退化成无限卡片列表。 -->
       <section class="section section-line fade-in" id="articles" aria-label="文章">
         <div class="article-grid article-hub">
+          <section class="article-series-heading" aria-label="文章中心">
+            <small data-i18n="articles.series.label">文章库</small>
+            <h3 data-i18n="articles.series.title">文章中心</h3>
+            <div class="series-progress" aria-label="MQTT series progress">
+              <span data-i18n="articles.series.progress">系列专题 1 个 / 文章 32 篇</span>
+              <b><i></i></b>
+            </div>
+          </section>
           <!-- 文章中心左侧索引：这是长期文章库的主导航，不再使用胶囊按钮堆叠。 -->
           <aside class="article-index-panel" aria-label="文章知识库索引">
-            <div class="article-index-head">
-              <strong data-i18n="articles.index.label">知识库索引</strong>
+            <button class="content-index-toggle" id="articleIndexToggle" type="button" aria-expanded="false" aria-controls="articleIndexBody">
+              <span class="content-index-label"><strong data-i18n="articles.index.label">知识库索引</strong><small data-index-current>文章中心</small></span>
+              <em aria-hidden="true">+</em>
+            </button>
+            <div class="content-index-body" id="articleIndexBody">
+              <div class="article-index-head">
+                <strong data-i18n="articles.index.label">知识库索引</strong>
+              </div>
+              <nav class="article-index-tree" aria-label="文章知识库目录">
+                <details class="article-tree-group" open>
+                  <summary><span data-i18n="articles.index.domain.communication">工业通信</span><em>1</em></summary>
+                  <div class="article-tree-children">
+                    <a href="#articles-mqtt"><span>MQTT</span><em>32</em></a>
+                  </div>
+                </details>
+              </nav>
             </div>
-            <nav class="article-index-tree" aria-label="文章知识库目录">
-              <details class="article-tree-group" open>
-                <summary><span data-i18n="articles.index.domain.communication">工业通信</span><em>1</em></summary>
-                <div class="article-tree-children">
-                  <a href="#articles-mqtt"><span>MQTT</span><em>32</em></a>
-                </div>
-              </details>
-            </nav>
           </aside>
 
           <!-- 文章中心右侧内容：专题、最新文章和文章路径分层展示，避免专题与文章混成同级卡片。 -->
           <div class="article-library-panel">
             <span class="article-route-anchor" id="articles-mqtt" aria-hidden="true"></span>
-            <section class="article-series-heading" aria-label="文章中心">
-              <small data-i18n="articles.series.label">文章库</small>
-              <h3 data-i18n="articles.series.title">文章中心</h3>
-              <div class="series-progress" aria-label="MQTT series progress">
-                <span data-i18n="articles.series.progress">系列专题 1 个 / 文章 32 篇</span>
-                <b><i></i></b>
-              </div>
-            </section>
-
             <!-- 文章中心默认展示系列专题卡片；点击 MQTT 后再进入该系列的单篇文章列表。 -->
             <div class="article-list article-topic-list" aria-label="文章系列专题列表">
               <a class="article-list-card article-topic-card" href="#articles-mqtt">
@@ -365,30 +389,35 @@
       <!-- 产品页：当前只展示 codesys-llm-synchronizer，未成熟产品不占位。 -->
       <section class="section section-line fade-in" id="products" aria-label="产品">
         <div class="article-grid article-hub product-hub">
+          <section class="article-series-heading product-series-heading" aria-label="产品中心">
+            <small data-i18n="products.series.label">产品中心</small>
+            <h3 data-i18n="products.series.title">工程效率工具</h3>
+          </section>
           <!-- 产品页左侧索引：为后续产品矩阵保留与文章中心一致的导航结构。 -->
           <aside class="article-index-panel product-index-panel" aria-label="产品索引">
-            <div class="article-index-head">
-              <strong data-i18n="products.index.label">产品索引</strong>
+            <button class="content-index-toggle" id="productIndexToggle" type="button" aria-expanded="false" aria-controls="productIndexBody">
+              <span class="content-index-label"><strong data-i18n="products.index.label">产品索引</strong><small data-index-current>工程效率工具</small></span>
+              <em aria-hidden="true">+</em>
+            </button>
+            <div class="content-index-body" id="productIndexBody">
+              <div class="article-index-head">
+                <strong data-i18n="products.index.label">产品索引</strong>
+              </div>
+              <nav class="article-index-tree" aria-label="产品目录">
+                <details class="article-tree-group" open>
+                  <summary><span data-i18n="products.index.domain.tools">工程效率工具</span><em>1</em></summary>
+                  <div class="article-tree-children">
+                    <a class="active" href="#products"><span>codesys-llm-synchronizer</span><em>工具</em></a>
+                  </div>
+                </details>
+              </nav>
             </div>
-            <nav class="article-index-tree" aria-label="产品目录">
-              <details class="article-tree-group" open>
-                <summary><span data-i18n="products.index.domain.tools">工程效率工具</span><em>1</em></summary>
-                <div class="article-tree-children">
-                  <a class="active" href="#products"><span>codesys-llm-synchronizer</span><em>工具</em></a>
-                </div>
-              </details>
-            </nav>
           </aside>
 
           <div class="article-library-panel product-library-panel">
-            <section class="article-series-heading product-series-heading" aria-label="产品中心">
-              <small data-i18n="products.series.label">产品中心</small>
-              <h3 data-i18n="products.series.title">工程效率工具</h3>
-            </section>
-
             <div class="product-grid product-grid-single product-card-grid">
               <!-- 产品页卡片 01：codesys-llm-synchronizer 产品说明入口。 -->
-              <article class="info-card product-console-card">
+              <a class="info-card product-console-card" href="#products-codesys-llm-synchronizer">
                 <div class="product-console-main">
                   <div class="product-console-head">
                     <small>01 · 产品</small>
@@ -400,17 +429,21 @@
                   </div>
                   <h3>codesys-llm-synchronizer</h3>
                   <p data-i18n="product.1.copy">解决 CODESYS / SmartControl 工程接入 AI 时上下文分散、手工同步反复、规则难以持续校验的问题；把工程镜像、代码上下文、团队规则和自动化流程连接起来，让 LLM 协作从临时问答变成可复用、可验证的工程工作流。</p>
-                  <div class="product-console-lines" aria-hidden="true">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                  <div class="product-console-footer">
+                    <div class="product-console-capabilities" aria-label="产品核心能力">
+                      <span data-i18n="product.1.capability.1">工程镜像同步</span>
+                      <span data-i18n="product.1.capability.2">规则与上下文整合</span>
+                      <span data-i18n="product.1.capability.3">AI 协作工作流</span>
+                    </div>
+                    <span class="product-console-cta"><span data-i18n="product.1.cta">查看产品详情</span><i aria-hidden="true">→</i></span>
                   </div>
                 </div>
                 <figure class="product-cover-orb" aria-label="codesys-llm-synchronizer 产品封面">
                   <img src="assets/images/products/codesys-llm-synchronizer-cover.png" alt="codesys-llm-synchronizer 产品封面">
                 </figure>
-              </article>
+              </a>
             </div>
+            <section class="product-detail-panel" aria-label="产品详情" hidden></section>
           </div>
         </div>
       </section>
@@ -420,7 +453,7 @@
         <div class="contact-shell">
           <!-- 联系页主文案：无灰色卡片底，避免把标题误做成普通内容卡。 -->
           <div class="contact-statement">
-            <h2 data-i18n="contact.heading">工控人太苦了，<span class="no-break">让我们一起告别水深火热</span></h2>
+            <h2 data-i18n="contact.heading">工控人太苦了，让我们一起告别水深火热</h2>
             <div class="contact-statement-rule" aria-hidden="true"></div>
           </div>
           <!-- 联系页品牌视觉卡：使用无白角伪影的 SVG 素材平衡右侧视觉重量。 -->
@@ -439,13 +472,13 @@
               <strong>ControlRookie 技术博客</strong>
             </a>
           </div>
-          <!-- 联系页二维码卡片 01：个人微信 PeaceAndBless。 -->
+          <!-- 联系页二维码卡片 01：个人微信 PeaceAndBless，仅用二维码承接，避免错误跳转。 -->
           <article class="contact-card qr-card">
             <small data-i18n="contact.wechat.label">微信</small>
             <strong>PeaceAndBless</strong>
             <img class="qr-slot" src="assets/images/contact/wechat-peaceandbless-qr.jpg" alt="PeaceAndBless WeChat QR code">
           </article>
-          <!-- 联系页二维码卡片 02：微信公众号 ControlRookie。 -->
+          <!-- 联系页二维码卡片 02：微信公众号 ControlRookie，仅用二维码承接，避免错误跳转。 -->
           <article class="contact-card qr-card">
             <small data-i18n="contact.official.label">公众号</small>
             <strong>ControlRookie</strong>
