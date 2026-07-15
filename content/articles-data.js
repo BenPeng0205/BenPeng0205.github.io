@@ -2387,12 +2387,12 @@ window.CONTROLROOKIE_ARTICLES = [
       "en": "Article"
     },
     "title": {
-      "zh": "第01篇｜总序｜PLC 里实现 HTTP，先分清 TCP、HTTP 和扫描周期",
-      "en": "第01篇｜总序｜PLC 里实现 HTTP，先分清 TCP、HTTP 和扫描周期"
+      "zh": "HTTP 到底是什么：请求、响应、资源和 URL",
+      "en": "HTTP 到底是什么：请求、响应、资源和 URL"
     },
     "copy": {
-      "zh": "从 TCP 字节流、HTTP 消息边界、PLC 扫描周期和连接生命周期建立可验证的工程坐标。",
-      "en": "从 TCP 字节流、HTTP 消息边界、PLC 扫描周期和连接生命周期建立可验证的工程坐标。"
+      "zh": "从一笔真实的读取与写入事务出发，讲清 Client、Server、资源、URL、请求、响应、方法、状态码、Header 和 Body。",
+      "en": "从一笔真实的读取与写入事务出发，讲清 Client、Server、资源、URL、请求、响应、方法、状态码、Header 和 Body。"
     },
     "href": "articles/codesys-http-foundation-01/index.html",
     "category": {
@@ -2423,8 +2423,8 @@ window.CONTROLROOKIE_ARTICLES = [
       "en": "Foundation"
     },
     "progress": {
-      "zh": "第1篇/共24篇",
-      "en": "Part 1 / 24"
+      "zh": "第1篇/共28篇",
+      "en": "Part 1 / 28"
     },
     "status": {
       "zh": "官网全文 / 第1篇",
@@ -2436,8 +2436,8 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "date": "2026-07-18",
     "readingTime": {
-      "zh": "约 5 分钟阅读",
-      "en": "5 min read"
+      "zh": "约 9 分钟阅读",
+      "en": "9 min read"
     },
     "tags": [
       "HTTP",
@@ -2445,10 +2445,10 @@ window.CONTROLROOKIE_ARTICLES = [
       "PLC通信",
       "ControlRookie"
     ],
-    "keywords": "HTTP CODESYS 基础认知 基础认知 第01篇｜总序｜PLC 里实现 HTTP，先分清 TCP、HTTP 和扫描周期 HTTP CodeSys PLC通信 ControlRookie",
+    "keywords": "HTTP CODESYS 基础认知 基础认知 HTTP 到底是什么：请求、响应、资源和 URL HTTP CodeSys PLC通信 ControlRookie",
     "order": 1,
     "contentId": "codesys-http-01",
     "publishAt": "2026-07-18T19:00:00+08:00",
-    "source": "第01篇｜总序｜PLC 里实现 HTTP，先分清 TCP、HTTP 和扫描周期.md"
+    "source": "第01篇_HTTP 到底是什么：请求、响应、资源和 URL.md"
   }
 ];

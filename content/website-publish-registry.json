@@ -3,15 +3,15 @@
   "items": [
     {
       "schema_version": "1.0",
-      "request_id": "website-ed7be4e6957a",
+      "request_id": "website-f453f485b03f",
       "operation": "upsert",
       "content_type": "article",
       "content_id": "codesys-http-01",
       "slug": "codesys-http-foundation-01",
-      "title": "第01篇｜总序｜PLC 里实现 HTTP，先分清 TCP、HTTP 和扫描周期",
-      "summary": "从 TCP 字节流、HTTP 消息边界、PLC 扫描周期和连接生命周期建立可验证的工程坐标。",
-      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第01篇｜总序｜PLC 里实现 HTTP，先分清 TCP、HTTP 和扫描周期.md",
-      "content_hash": "977b7185407e02f0cc854d8d35f756d098082d9a30ed44b44b0f5c03a4d73a9b",
+      "title": "HTTP 到底是什么：请求、响应、资源和 URL",
+      "summary": "从一笔真实的读取与写入事务出发，讲清 Client、Server、资源、URL、请求、响应、方法、状态码、Header 和 Body。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第01篇_HTTP 到底是什么：请求、响应、资源和 URL.md",
+      "content_hash": "d08179e63a2e1594a8eb1475ab05a38a0a79323a351f0f3e2795ecfacaee28ac",
       "publish_at": "2026-07-18T19:00:00+08:00",
       "category": {
         "key": "industrial-communication",
@@ -28,7 +28,7 @@
         "folder_zh": "基础认知",
         "folder_en": "Foundation",
         "order": 1,
-        "total": 24
+        "total": 28
       },
       "article": {
         "kind_zh": "基础认知",
@@ -47,7 +47,7 @@
           "kind": "inline",
           "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\第01篇_核心架构图.png",
           "filename": "第01篇_核心架构图.png",
-          "sha256": "5cb8bcb6b663f0c7bea3fe40ed56de665bf6a79e9a3e3b1db76d84321cbff01a"
+          "sha256": "4545fe7efe129676dd012b9cb844999e6d759b017decbdb51d0d3bf27af77129"
         }
       ],
       "authorization": {
