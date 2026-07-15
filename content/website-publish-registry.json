@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "items": [
+    {
+      "schema_version": "1.0",
+      "request_id": "website-ed7be4e6957a",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-01",
+      "slug": "codesys-http-foundation-01",
+      "title": "第01篇｜总序｜PLC 里实现 HTTP，先分清 TCP、HTTP 和扫描周期",
+      "summary": "从 TCP 字节流、HTTP 消息边界、PLC 扫描周期和连接生命周期建立可验证的工程坐标。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第01篇｜总序｜PLC 里实现 HTTP，先分清 TCP、HTTP 和扫描周期.md",
+      "content_hash": "977b7185407e02f0cc854d8d35f756d098082d9a30ed44b44b0f5c03a4d73a9b",
+      "publish_at": "2026-07-18T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "基础认知",
+        "folder_en": "Foundation",
+        "order": 1,
+        "total": 24
+      },
+      "article": {
+        "kind_zh": "基础认知",
+        "kind_en": "Foundation",
+        "date": "2026-07-18",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ]
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\第01篇_核心架构图.png",
+          "filename": "第01篇_核心架构图.png",
+          "sha256": "5cb8bcb6b663f0c7bea3fe40ed56de665bf6a79e9a3e3b1db76d84321cbff01a"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
+    }
+  ]
+}

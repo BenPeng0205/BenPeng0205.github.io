@@ -1,4 +1,4 @@
-// MQTT 文章目录由 scripts/import_article_package.py 从 Obsidian 发布稿批量生成。
+// 文章目录由官网受控导入器从已校验内容源生成。
 window.CONTROLROOKIE_ARTICLES = [
   {
     "id": "mqtt-client-open-source-codesys-layer",
@@ -16,8 +16,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-open-source-codesys-layer/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -64,7 +70,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 主线 第1篇_官方 MQTT 库要花钱？我为什么自己开源了一套 CODESYS MQTT 客户端 MQTT CODESYS PLC 开源 CSDN 系列教程 ControlRookie",
     "order": 1,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\第1篇_官方MQTT库要花钱_那我就自己开源一套CODESYS MQTT客户端_以及MQTT到底跑在哪一层.md"
+    "contentId": "mqtt-client-open-source-codesys-layer",
+    "publishAt": "",
+    "source": "第1篇_官方MQTT库要花钱_那我就自己开源一套CODESYS MQTT客户端_以及MQTT到底跑在哪一层.md"
   },
   {
     "id": "mqtt-client-part-02-2-connect-connack-st-d994be",
@@ -82,8 +90,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-part-02-2-connect-connack-st-d994be/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -131,7 +145,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 主线 第2篇_CONNECT 和 CONNACK 怎么读？我带你把十六进制和 ST 代码对上 MQTT CODESYS PLC CONNECT CONNACK ST CSDN ControlRookie",
     "order": 2,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\第2篇_CONNECT和CONNACK怎么读_我带你把十六进制和ST代码对上.md"
+    "contentId": "mqtt-client-part-02-2-connect-connack-st-d994be",
+    "publishAt": "",
+    "source": "第2篇_CONNECT和CONNACK怎么读_我带你把十六进制和ST代码对上.md"
   },
   {
     "id": "mqtt-client-part-03-3-publish-qos0-qos1-qos2-120122",
@@ -149,8 +165,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-part-03-3-publish-qos0-qos1-qos2-120122/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -198,7 +220,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 主线 第3篇_PUBLISH 报文怎么写？QoS0、QoS1、QoS2 到底差在哪 MQTT PUBLISH QoS ST PLC CSDN CODESYS ControlRookie",
     "order": 3,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\第3篇_PUBLISH报文怎么写_QoS0_QoS1_QoS2到底差在哪.md"
+    "contentId": "mqtt-client-part-03-3-publish-qos0-qos1-qos2-120122",
+    "publishAt": "",
+    "source": "第3篇_PUBLISH报文怎么写_QoS0_QoS1_QoS2到底差在哪.md"
   },
   {
     "id": "mqtt-client-part-04-4-qos1-qos2-ack-9527b7",
@@ -216,8 +240,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-part-04-4-qos1-qos2-ack-9527b7/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -265,7 +295,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 主线 第4篇_为什么 QoS1 / QoS2 最容易掉线超时？把 ACK、重发和状态机讲透 MQTT QoS1 QoS2 ACK 状态机 ST CSDN CODESYS",
     "order": 4,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\第4篇_为什么QoS1和QoS2最容易掉线超时_把ACK重发和状态机讲透.md"
+    "contentId": "mqtt-client-part-04-4-qos1-qos2-ack-9527b7",
+    "publishAt": "",
+    "source": "第4篇_为什么QoS1和QoS2最容易掉线超时_把ACK重发和状态机讲透.md"
   },
   {
     "id": "mqtt-client-part-05-5-subscribe-unsubscribe-869229",
@@ -283,8 +315,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-part-05-5-subscribe-unsubscribe-869229/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -332,7 +370,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 主线 第5篇_SUBSCRIBE / UNSUBSCRIBE 怎么实现？主题过滤器到底该怎么校验 MQTT SUBSCRIBE UNSUBSCRIBE Topic Filter ST PLC CSDN CODESYS",
     "order": 5,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\第5篇_SUBSCRIBE和UNSUBSCRIBE怎么实现_主题过滤器到底该怎么校验.md"
+    "contentId": "mqtt-client-part-05-5-subscribe-unsubscribe-869229",
+    "publishAt": "",
+    "source": "第5篇_SUBSCRIBE和UNSUBSCRIBE怎么实现_主题过滤器到底该怎么校验.md"
   },
   {
     "id": "mqtt-client-part-06-6-plc-mqtt-b91df7",
@@ -350,8 +390,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-part-06-6-plc-mqtt-b91df7/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -398,7 +444,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 主线 第6篇_PLC 里写 MQTT，最难的不是报文，而是状态机 MQTT 状态机 PLC CODESYS ST CSDN ControlRookie",
     "order": 6,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\第6篇_PLC里写MQTT最难的不是报文_而是状态机.md"
+    "contentId": "mqtt-client-part-06-6-plc-mqtt-b91df7",
+    "publishAt": "",
+    "source": "第6篇_PLC里写MQTT最难的不是报文_而是状态机.md"
   },
   {
     "id": "mqtt-client-part-07-7-mqtt-77aa5d",
@@ -416,8 +464,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-part-07-7-mqtt-77aa5d/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -464,7 +518,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 主线 第7篇_MQTT 现场排障：为什么会超时、掉线、重连、订阅丢失 MQTT 排障 PLC CODESYS 超时 CSDN ControlRookie",
     "order": 7,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\第7篇_MQTT现场排障_为什么会超时掉线重连订阅丢失.md"
+    "contentId": "mqtt-client-part-07-7-mqtt-77aa5d",
+    "publishAt": "",
+    "source": "第7篇_MQTT现场排障_为什么会超时掉线重连订阅丢失.md"
   },
   {
     "id": "mqtt-client-part-08-8-mqtt-d475ac",
@@ -482,8 +538,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-part-08-8-mqtt-d475ac/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -531,7 +593,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 主线 第8篇_怎么把这套开源 MQTT 客户端真正用起来 MQTT CODESYS PLC EMQX Mosquitto 实战 CSDN ControlRookie",
     "order": 8,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\第8篇_怎么把这套开源MQTT客户端真正用起来.md"
+    "contentId": "mqtt-client-part-08-8-mqtt-d475ac",
+    "publishAt": "",
+    "source": "第8篇_怎么把这套开源MQTT客户端真正用起来.md"
   },
   {
     "id": "mqtt-client-extra-01-1-mqtt5-0-f8b677",
@@ -549,8 +613,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-extra-01-1-mqtt5-0-f8b677/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -597,7 +667,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 加更 加更1_MQTT 5.0 到底值不值得上？工业现场别急着无脑升级 MQTT MQTT5.0 工业通信 PLC CSDN CODESYS ControlRookie",
     "order": 9,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\加更1_MQTT5_0到底值不值得上_工业现场别急着无脑升级.md"
+    "contentId": "mqtt-client-extra-01-1-mqtt5-0-f8b677",
+    "publishAt": "",
+    "source": "加更1_MQTT5_0到底值不值得上_工业现场别急着无脑升级.md"
   },
   {
     "id": "mqtt-client-extra-02-2-mqtt-4a0f19",
@@ -615,8 +687,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-extra-02-2-mqtt-4a0f19/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -663,7 +741,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 加更 加更2_这套开源 MQTT 客户端，我是怎么一步一步做出来的 MQTT 开源 CODESYS PLC 项目复盘 CSDN ControlRookie",
     "order": 10,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\加更2_这套开源MQTT客户端_我是怎么一步一步做出来的.md"
+    "contentId": "mqtt-client-extra-02-2-mqtt-4a0f19",
+    "publishAt": "",
+    "source": "加更2_这套开源MQTT客户端_我是怎么一步一步做出来的.md"
   },
   {
     "id": "mqtt-client-source-01-01-mqttclient-8a4a28",
@@ -681,8 +761,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-source-01-01-mqttclient-8a4a28/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -728,7 +814,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 源码加更 源码加更01_拿到 MqttClient 源码后，先看工程入口和数据模型 MQTT CodeSys PLC通信 ControlRookie CODESYS PLC",
     "order": 11,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\源码加更01_拿到MqttClient源码后先看工程入口和数据模型.md"
+    "contentId": "mqtt-client-source-01-01-mqttclient-8a4a28",
+    "publishAt": "",
+    "source": "源码加更01_拿到MqttClient源码后先看工程入口和数据模型.md"
   },
   {
     "id": "mqtt-client-source-02-02-fb-mqttclient-1c1523",
@@ -746,8 +834,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-source-02-02-fb-mqttclient-1c1523/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -793,7 +887,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 源码加更 源码加更02_FB_MqttClient 主功能块和状态机怎么跑 MQTT CodeSys PLC通信 ControlRookie CODESYS PLC",
     "order": 12,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\源码加更02_FB_MqttClient主功能块和状态机怎么跑.md"
+    "contentId": "mqtt-client-source-02-02-fb-mqttclient-1c1523",
+    "publishAt": "",
+    "source": "源码加更02_FB_MqttClient主功能块和状态机怎么跑.md"
   },
   {
     "id": "mqtt-client-source-03-03-tcp-48475e",
@@ -811,8 +907,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-source-03-03-tcp-48475e/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -858,7 +960,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 源码加更 源码加更03_TCP 封装和基础编解码为什么决定稳定性 MQTT CodeSys PLC通信 ControlRookie CODESYS PLC",
     "order": 13,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\源码加更03_TCP封装和基础编解码为什么决定稳定性.md"
+    "contentId": "mqtt-client-source-03-03-tcp-48475e",
+    "publishAt": "",
+    "source": "源码加更03_TCP封装和基础编解码为什么决定稳定性.md"
   },
   {
     "id": "mqtt-client-source-04-04-connect-ping-disconnect-4a50aa",
@@ -876,8 +980,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-source-04-04-connect-ping-disconnect-4a50aa/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -923,7 +1033,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 源码加更 源码加更04_CONNECT、PING、DISCONNECT 会话生命周期 MQTT CodeSys PLC通信 ControlRookie CODESYS PLC",
     "order": 14,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\源码加更04_CONNECT_PING_DISCONNECT会话生命周期.md"
+    "contentId": "mqtt-client-source-04-04-connect-ping-disconnect-4a50aa",
+    "publishAt": "",
+    "source": "源码加更04_CONNECT_PING_DISCONNECT会话生命周期.md"
   },
   {
     "id": "mqtt-client-source-05-05-publish-subscribe-unsubscribe-b2559f",
@@ -941,8 +1053,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-source-05-05-publish-subscribe-unsubscribe-b2559f/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -988,7 +1106,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 源码加更 源码加更05_PUBLISH、SUBSCRIBE、UNSUBSCRIBE 业务报文实现 MQTT CodeSys PLC通信 ControlRookie CODESYS PLC",
     "order": 15,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\源码加更05_PUBLISH_SUBSCRIBE_UNSUBSCRIBE业务报文实现.md"
+    "contentId": "mqtt-client-source-05-05-publish-subscribe-unsubscribe-b2559f",
+    "publishAt": "",
+    "source": "源码加更05_PUBLISH_SUBSCRIBE_UNSUBSCRIBE业务报文实现.md"
   },
   {
     "id": "mqtt-client-source-06-06-qos-2b6c15",
@@ -1006,8 +1126,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-client-source-06-06-qos-2b6c15/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttClient 系列教程",
@@ -1053,7 +1179,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS 客户端 源码加更 源码加更06_接收分发、QoS 事务和诊断闭环 MQTT CodeSys PLC通信 ControlRookie CODESYS PLC",
     "order": 16,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttClient系列教程\\源码加更06_接收分发_QoS事务和诊断闭环.md"
+    "contentId": "mqtt-client-source-06-06-qos-2b6c15",
+    "publishAt": "",
+    "source": "源码加更06_接收分发_QoS事务和诊断闭环.md"
   },
   {
     "id": "mqtt-broker-part-01-1-plc-mqttbroker-e74237",
@@ -1071,8 +1199,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-part-01-1-plc-mqttbroker-e74237/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -1119,7 +1253,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 主线 第1篇_客户端写完了，为什么我还要在 PLC 里写一个 MQTT Broker？ MQTT Broker CODESYS PLC ST CSDN ControlRookie",
     "order": 1,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\第1篇_客户端写完了_为什么我还要在PLC里写一个MQTTBroker.md"
+    "contentId": "mqtt-broker-part-01-1-plc-mqttbroker-e74237",
+    "publishAt": "",
+    "source": "第1篇_客户端写完了_为什么我还要在PLC里写一个MQTTBroker.md"
   },
   {
     "id": "mqtt-broker-part-02-2-mqttbroker-publish-f18f7a",
@@ -1137,8 +1273,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-part-02-2-mqttbroker-publish-f18f7a/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -1186,7 +1328,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 主线 第2篇_写 MQTT Broker，第一关不是 PUBLISH，而是怎么让多个客户端稳稳连上同一个端口 MQTT Broker TCP CODESYS PLC ST CSDN ControlRookie",
     "order": 2,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\第2篇_写MQTTBroker第一关不是PUBLISH_而是怎么让多个客户端稳稳连上同一个端口.md"
+    "contentId": "mqtt-broker-part-02-2-mqttbroker-publish-f18f7a",
+    "publishAt": "",
+    "source": "第2篇_写MQTTBroker第一关不是PUBLISH_而是怎么让多个客户端稳稳连上同一个端口.md"
   },
   {
     "id": "mqtt-broker-part-03-3-connect-mqtt3-1-3-1-1-5-0-broker-b6ffd1",
@@ -1204,8 +1348,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-part-03-3-connect-mqtt3-1-3-1-1-5-0-broker-b6ffd1/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -1253,7 +1403,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 主线 第3篇_CONNECT 解析别写死：MQTT 3.1、3.1.1、5.0 为什么会让 Broker 反复断开 MQTT CONNECT Broker MQTT5 CODESYS ST CSDN PLC",
     "order": 3,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\第3篇_CONNECT解析别写死_MQTT3_1_3_1_1_5_0为什么会让Broker反复断开.md"
+    "contentId": "mqtt-broker-part-03-3-connect-mqtt3-1-3-1-1-5-0-broker-b6ffd1",
+    "publishAt": "",
+    "source": "第3篇_CONNECT解析别写死_MQTT3_1_3_1_1_5_0为什么会让Broker反复断开.md"
   },
   {
     "id": "mqtt-broker-part-04-4-subscribe-broker-13f91f",
@@ -1271,8 +1423,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-part-04-4-subscribe-broker-13f91f/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -1320,7 +1478,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 主线 第4篇_SUBSCRIBE 不是存个字符串：Broker 怎么维护订阅表、通配符和多客户端路由 MQTT SUBSCRIBE Broker Topic CODESYS ST CSDN PLC",
     "order": 4,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\第4篇_SUBSCRIBE不是存个字符串_Broker怎么维护订阅表通配符和多客户端路由.md"
+    "contentId": "mqtt-broker-part-04-4-subscribe-broker-13f91f",
+    "publishAt": "",
+    "source": "第4篇_SUBSCRIBE不是存个字符串_Broker怎么维护订阅表通配符和多客户端路由.md"
   },
   {
     "id": "mqtt-broker-part-05-5-publish-broker-qos-packetid-fanout-dddc43",
@@ -1338,8 +1498,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-part-05-5-publish-broker-qos-packetid-fanout-dddc43/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -1387,7 +1553,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 主线 第5篇_PUBLISH 不是收到就转发：Broker 怎么处理 QoS、PacketId 和多客户端 fanout MQTT PUBLISH QoS Broker PacketId ST CSDN CODESYS",
     "order": 5,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\第5篇_PUBLISH不是收到就转发_Broker怎么处理QoS_PacketId和多客户端fanout.md"
+    "contentId": "mqtt-broker-part-05-5-publish-broker-qos-packetid-fanout-dddc43",
+    "publishAt": "",
+    "source": "第5篇_PUBLISH不是收到就转发_Broker怎么处理QoS_PacketId和多客户端fanout.md"
   },
   {
     "id": "mqtt-broker-part-06-6-retain-will-keepalive--publish-95a52b",
@@ -1405,8 +1573,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-part-06-6-retain-will-keepalive--publish-95a52b/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -1454,7 +1628,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 主线 第6篇_Retain、Will、KeepAlive：工业现场为什么不能只会转发 PUBLISH MQTT Retain Will KeepAlive Broker PLC CSDN CODESYS",
     "order": 6,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\第6篇_Retain_Will_KeepAlive_工业现场为什么不能只会转发PUBLISH.md"
+    "contentId": "mqtt-broker-part-06-6-retain-will-keepalive--publish-95a52b",
+    "publishAt": "",
+    "source": "第6篇_Retain_Will_KeepAlive_工业现场为什么不能只会转发PUBLISH.md"
   },
   {
     "id": "mqtt-broker-part-07-7-plcbroker-tcp-write-894a6a",
@@ -1472,8 +1648,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-part-07-7-plcbroker-tcp-write-894a6a/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -1521,7 +1703,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 主线 第7篇_为什么 PLC Broker 会有延迟？从 TCP_Write 一帧一写到批量粘包写出 MQTT Broker 性能优化 TCP CODESYS ST CSDN PLC",
     "order": 7,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\第7篇_为什么PLCBroker会有延迟_从TCP_Write一帧一写到批量粘包写出.md"
+    "contentId": "mqtt-broker-part-07-7-plcbroker-tcp-write-894a6a",
+    "publishAt": "",
+    "source": "第7篇_为什么PLCBroker会有延迟_从TCP_Write一帧一写到批量粘包写出.md"
   },
   {
     "id": "mqtt-broker-part-08-8-plc-mqttbroker-retain-bd65fd",
@@ -1539,8 +1723,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-part-08-8-plc-mqttbroker-retain-bd65fd/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -1588,7 +1778,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 主线 第8篇_PLC 侧 MQTT Broker 现场排障：连不上、订阅失败、发布延迟、Retain 收不到该怎么查 MQTT Broker 现场排障 PLC CODESYS ST CSDN ControlRookie",
     "order": 8,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\第8篇_PLC侧MQTTBroker现场排障_连不上订阅失败发布延迟Retain收不到该怎么查.md"
+    "contentId": "mqtt-broker-part-08-8-plc-mqttbroker-retain-bd65fd",
+    "publishAt": "",
+    "source": "第8篇_PLC侧MQTTBroker现场排障_连不上订阅失败发布延迟Retain收不到该怎么查.md"
   },
   {
     "id": "mqtt-broker-extra-01-1-plcbroker-mqtt5-0-518d8d",
@@ -1606,8 +1798,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-extra-01-1-plcbroker-mqtt5-0-518d8d/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -1654,7 +1852,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 加更 加更1_PLC Broker 要不要完整支持 MQTT 5.0？工业现场别被“新版本”带偏 MQTT MQTT5 Broker PLC CODESYS CSDN ControlRookie",
     "order": 9,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\加更1_PLCBroker要不要完整支持MQTT5_0_工业现场别被新版本带偏.md"
+    "contentId": "mqtt-broker-extra-01-1-plcbroker-mqtt5-0-518d8d",
+    "publishAt": "",
+    "source": "加更1_PLCBroker要不要完整支持MQTT5_0_工业现场别被新版本带偏.md"
   },
   {
     "id": "mqtt-broker-extra-02-2-plc-mqttbroker-cc9b12",
@@ -1672,8 +1872,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-extra-02-2-plc-mqttbroker-cc9b12/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -1720,7 +1926,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 加更 加更2_这套 PLC 侧 MQTT Broker，我是怎么从连不上、掉线、延迟一路修到稳定的 MQTT Broker PLC 项目复盘 CODESYS CSDN ControlRookie",
     "order": 10,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\加更2_这套PLC侧MQTTBroker_我是怎么从连不上掉线延迟一路修到稳定的.md"
+    "contentId": "mqtt-broker-extra-02-2-plc-mqttbroker-cc9b12",
+    "publishAt": "",
+    "source": "加更2_这套PLC侧MQTTBroker_我是怎么从连不上掉线延迟一路修到稳定的.md"
   },
   {
     "id": "mqtt-broker-source-01-01-broker-b5ee74",
@@ -1738,8 +1946,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-source-01-01-broker-b5ee74/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -1787,7 +2001,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 源码加更 源码加更01_Broker 工程入口、容量边界和数据模型 MQTT Broker CodeSys PLC通信 ST源码 ControlRookie CODESYS PLC",
     "order": 11,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\源码加更01_Broker工程入口容量边界和数据模型.md"
+    "contentId": "mqtt-broker-source-01-01-broker-b5ee74",
+    "publishAt": "",
+    "source": "源码加更01_Broker工程入口容量边界和数据模型.md"
   },
   {
     "id": "mqtt-broker-source-02-02-fb-mqttbroker-bb2649",
@@ -1805,8 +2021,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-source-02-02-fb-mqttbroker-bb2649/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -1854,7 +2076,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 源码加更 源码加更02_FB_MqttBroker 顶层调度、连接池和权限边界 MQTT Broker CodeSys PLC通信 ST源码 ControlRookie CODESYS PLC",
     "order": 12,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\源码加更02_FB_MqttBroker顶层调度连接池和权限边界.md"
+    "contentId": "mqtt-broker-source-02-02-fb-mqttbroker-bb2649",
+    "publishAt": "",
+    "source": "源码加更02_FB_MqttBroker顶层调度连接池和权限边界.md"
   },
   {
     "id": "mqtt-broker-source-03-03-tcp-729028",
@@ -1872,8 +2096,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-source-03-03-tcp-729028/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -1921,7 +2151,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 源码加更 源码加更03_单连接槽位、TCP 字节流和发送队列 MQTT Broker CodeSys PLC通信 ST源码 ControlRookie CODESYS PLC",
     "order": 13,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\源码加更03_单连接槽位TCP字节流和发送队列.md"
+    "contentId": "mqtt-broker-source-03-03-tcp-729028",
+    "publishAt": "",
+    "source": "源码加更03_单连接槽位TCP字节流和发送队列.md"
   },
   {
     "id": "mqtt-broker-source-04-04-mqtt-21a105",
@@ -1939,8 +2171,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-source-04-04-mqtt-21a105/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -1988,7 +2226,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 源码加更 源码加更04_MQTT 编解码器和字节工具函数 MQTT Broker CodeSys PLC通信 ST源码 ControlRookie CODESYS PLC",
     "order": 14,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\源码加更04_MQTT编解码器和字节工具函数.md"
+    "contentId": "mqtt-broker-source-04-04-mqtt-21a105",
+    "publishAt": "",
+    "source": "源码加更04_MQTT编解码器和字节工具函数.md"
   },
   {
     "id": "mqtt-broker-source-05-05-retainpublish-e9038e",
@@ -2006,8 +2246,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-source-05-05-retainpublish-e9038e/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -2055,7 +2301,9 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 源码加更 源码加更05_订阅表、Retain、PUBLISH 路由和业务事件 MQTT Broker CodeSys PLC通信 ST源码 ControlRookie CODESYS PLC",
     "order": 15,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\源码加更05_订阅表RetainPublish路由和业务事件.md"
+    "contentId": "mqtt-broker-source-05-05-retainpublish-e9038e",
+    "publishAt": "",
+    "source": "源码加更05_订阅表RetainPublish路由和业务事件.md"
   },
   {
     "id": "mqtt-broker-source-06-06-qos-fecb8d",
@@ -2073,8 +2321,14 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "href": "articles/mqtt-broker-source-06-06-qos-fecb8d/index.html",
     "category": {
-      "zh": "通信 / CODESYS",
-      "en": "Communication / CODESYS"
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "mqtt",
+    "topicTitle": {
+      "zh": "CodeSys MQTT 系列",
+      "en": "CodeSys MQTT Series"
     },
     "series": {
       "zh": "MqttBroker 系列教程",
@@ -2122,6 +2376,79 @@ window.CONTROLROOKIE_ARTICLES = [
     ],
     "keywords": "MQTT CODESYS Broker 源码加更 源码加更06_QoS 事务调度、重试和生产级闭环 MQTT Broker CodeSys PLC通信 ST源码 ControlRookie CODESYS PLC",
     "order": 16,
-    "source": "E:\\Obsidian\\Work\\03_资源\\通信\\MQTT\\MqttBroker系列教程\\源码加更06_QoS事务调度重试和生产级闭环.md"
+    "contentId": "mqtt-broker-source-06-06-qos-fecb8d",
+    "publishAt": "",
+    "source": "源码加更06_QoS事务调度重试和生产级闭环.md"
+  },
+  {
+    "id": "codesys-http-foundation-01",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第01篇｜总序｜PLC 里实现 HTTP，先分清 TCP、HTTP 和扫描周期",
+      "en": "第01篇｜总序｜PLC 里实现 HTTP，先分清 TCP、HTTP 和扫描周期"
+    },
+    "copy": {
+      "zh": "从 TCP 字节流、HTTP 消息边界、PLC 扫描周期和连接生命周期建立可验证的工程坐标。",
+      "en": "从 TCP 字节流、HTTP 消息边界、PLC 扫描周期和连接生命周期建立可验证的工程坐标。"
+    },
+    "href": "articles/codesys-http-foundation-01/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "基础认知",
+      "en": "Foundation"
+    },
+    "kind": {
+      "zh": "基础认知",
+      "en": "Foundation"
+    },
+    "progress": {
+      "zh": "第1篇/共24篇",
+      "en": "Part 1 / 24"
+    },
+    "status": {
+      "zh": "官网全文 / 第1篇",
+      "en": "This Site / Part 1"
+    },
+    "cardMeta": {
+      "zh": "01 · 基础认知",
+      "en": "01 · Foundation"
+    },
+    "date": "2026-07-18",
+    "readingTime": {
+      "zh": "约 5 分钟阅读",
+      "en": "5 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 基础认知 基础认知 第01篇｜总序｜PLC 里实现 HTTP，先分清 TCP、HTTP 和扫描周期 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 1,
+    "contentId": "codesys-http-01",
+    "publishAt": "2026-07-18T19:00:00+08:00",
+    "source": "第01篇｜总序｜PLC 里实现 HTTP，先分清 TCP、HTTP 和扫描周期.md"
   }
 ];

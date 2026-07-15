@@ -1538,8 +1538,9 @@
     }
 
     .resource-detail-panel[hidden],
-    .product-detail-panel[hidden] {
-      display: none;
+    .product-detail-panel[hidden],
+    .product-card-grid[hidden] {
+      display: none !important;
     }
 
     .detail-breadcrumb {

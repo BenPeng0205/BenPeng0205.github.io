@@ -240,7 +240,9 @@ window.CONTROLROOKIE_SITE_DATA = {
         en: "Solves fragmented AI context, repetitive manual synchronization, and hard-to-sustain rule checks in CODESYS / SmartControl projects by connecting project mirrors, code context, team rules, and automation workflows into a reusable, verifiable LLM engineering workflow.",
       },
       href: "#products-codesys-llm-synchronizer",
+      cover: "assets/images/products/codesys-llm-synchronizer-cover.png",
       version: "V1.0",
+      cardPills: { zh: ["V1.0", "本地优先", "工程协作"], en: ["V1.0", "Local first", "Engineering"] },
       status: { zh: "内部打磨", en: "Internal hardening" },
       access: { zh: "暂不接入支付", en: "Payment not connected yet" },
       pain: {
@@ -250,6 +252,10 @@ window.CONTROLROOKIE_SITE_DATA = {
       capabilities: {
         zh: ["工程镜像与上下文同步", "规则、文档和代码上下文统一维护", "面向 LLM 协作的可验证工作流"],
         en: ["Project mirror and context synchronization", "Unified rules, docs, and code context", "Verifiable workflow for LLM collaboration"],
+      },
+      cardCapabilities: {
+        zh: ["工程镜像同步", "规则与上下文整合", "AI 协作工作流"],
+        en: ["Project mirror sync", "Rules and context", "AI workflow"],
       },
       workflow: {
         zh: ["扫描工程结构", "生成可读上下文", "同步给 AI 工具链", "按规则校验输出"],
