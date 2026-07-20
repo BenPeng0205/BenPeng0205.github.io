@@ -7,7 +7,7 @@
   <meta name="description" content="这一篇讲真实性能优化。早期 PLC Broker 在高频小消息场景下出现 1~3 秒尾部延迟，根因不是 QoS2、Retain 或订阅匹配，而是一次 TCP_Write 只写一帧。优化方向是批量编码多个 MQTT 帧。">
   <meta name="author" content="ControlRookie">
   <meta name="robots" content="index, follow">
-  <meta name="theme-color" content="#050505">
+  <meta name="theme-color" content="#1d1d1f">
   <link rel="canonical" href="https://benpeng0205.github.io/articles/mqtt-broker-part-07-7-plcbroker-tcp-write-894a6a/">
   <link rel="icon" href="../../favicon.ico" sizes="32x32">
   <link rel="apple-touch-icon" href="../../apple-touch-icon.png">

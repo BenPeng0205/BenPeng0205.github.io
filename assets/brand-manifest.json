@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "brandSystem": "ControlRookie Brand OS",
+  "logoTreatment": "latest L-01 geometry on metallic gray; no blue logo",
+  "sources": {
+    "token": {
+      "path": "02_产品设计系统/设计令牌/源/controlrookie-tokens.json",
+      "sha256": "2cd0f6065c92f42ba5173e100940708642dbdbcfbd8d9932ac982f179b8c86b8",
+      "primary": "#0F58AA"
+    },
+    "logoMaster": {
+      "path": "04_正式资产/Logo/母版/Control Rookie Logo.svg",
+      "sha256": "116f1691ea434edf8bb32f3f37f7af28d67f490a670d9d1adf8f59720e28224a"
+    },
+    "logoSymbol": {
+      "path": "04_正式资产/Logo/versions/solid-black/symbol-mark.svg",
+      "sha256": "1919bde471d381ca59f967204523e71475b5fa5df2f7214cad66e6c0255dd9da"
+    },
+    "fontLicense": {
+      "path": "04_正式资产/字体/IBM Plex/OFL-1.1.txt",
+      "sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da"
+    }
+  },
+  "outputs": {
+    "public/apple-touch-icon.png": "d5c6cfa1b212c03beded0bd1af94c27ce39c4a70f9c95919d6620fda3dd4f7bb",
+    "public/assets/fonts/ibm-plex/IBMPlexMono-Regular.woff2": "ba204497f16b6d334cee9d1e963a831b73e3a56e1d6300a8489d18df7214b350",
+    "public/assets/fonts/ibm-plex/IBMPlexMono-SemiBold.woff2": "6a825b4824c01cbb401e829e5a066a1818411bcb3538b5a5792c5ca9b82343c3",
+    "public/assets/fonts/ibm-plex/IBMPlexSans-Regular.woff2": "ba711a3085ff9f27440b6b9c4550cfc47c97bf36591d5da958b975bb3add8c1a",
+    "public/assets/fonts/ibm-plex/IBMPlexSans-SemiBold.woff2": "f78048030eab62e860efa39a0df79e2e5581bf122eb95b9bc42c0b8a4988d205",
+    "public/assets/fonts/ibm-plex/IBMPlexSansSC-Regular.woff2": "a848f6f6df5c85eb1eae83709027169db85a89bcffd09f75e3728c451af5d8b3",
+    "public/assets/fonts/ibm-plex/IBMPlexSansSC-SemiBold.woff2": "fd19e754646277f2b283a0d2051a1fc9a50f77f51cd1ed9721344620eff2bbf7",
+    "public/assets/fonts/ibm-plex/OFL-1.1.txt": "3ff4395aeb203050b3d4e775861cf0b93b598e0a6d2b16f0eb41df3350b15695",
+    "public/assets/images/brand/controlrookie-logo-latest.png": "2c4e30a3894dfe9957c13a94d967e0da43778178af28a465eb3dcceee9f03013",
+    "public/assets/images/brand/controlrookie-logo.png": "2c4e30a3894dfe9957c13a94d967e0da43778178af28a465eb3dcceee9f03013",
+    "public/assets/images/brand/controlrookie-mark-latest.png": "dabd959ab4eaebf3a00fba9761259dc5204ef2f2a046706e0842a519ea6d3287",
+    "public/assets/images/brand/controlrookie-mark.svg": "1919bde471d381ca59f967204523e71475b5fa5df2f7214cad66e6c0255dd9da",
+    "public/assets/images/brand/controlrookie-og.png": "dc0acd084499a97ed488f436043f70d98830bb7a7d2acfe28b0dfb2ccc74d2ac",
+    "public/favicon.ico": "ba05991b707276b37889f1937273ad8ee938e0b0460066e5156644970839e45a",
+    "public/icon-192.png": "535cd37263df22dc73fd4fa49c24a335ac08503b239b68036067aa00f8eeea42",
+    "public/icon-512.png": "dabd959ab4eaebf3a00fba9761259dc5204ef2f2a046706e0842a519ea6d3287"
+  }
+}
