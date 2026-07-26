@@ -2620,9 +2620,9 @@
     }
 
     .contact-shell {
-      min-height: min(650px, calc(100vh - var(--nav-height) - (var(--content-frame-gap) * 2)));
+      min-height: min(752px, calc(100vh - var(--nav-height) - (var(--content-frame-gap) * 2)));
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(320px, 0.92fr);
-      grid-template-rows: 310px 326px;
+      grid-template-rows: 310px 88px 326px;
       align-content: start;
     }
 
@@ -2707,9 +2707,71 @@
       box-shadow: none;
     }
 
+    /* 合作信息带：以排版和细线承接合作入口，不增加灰色营销卡片。 */
+    .contact-cooperation {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      min-width: 0;
+      display: grid;
+      grid-template-columns: minmax(174px, 0.74fr) minmax(0, 2.2fr) auto;
+      align-items: center;
+      gap: 24px;
+      padding: 0 2px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .contact-cooperation-copy {
+      display: contents;
+    }
+
+    .contact-cooperation small {
+      color: var(--fg);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .contact-cooperation p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .contact-cooperation-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--link);
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.2;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .contact-cooperation-link::after {
+      content: "→";
+      font-size: 16px;
+      transition: transform 180ms ease;
+    }
+
+    .contact-cooperation-link:hover,
+    .contact-cooperation-link:focus-visible {
+      color: var(--link-strong);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .contact-cooperation-link:hover::after,
+    .contact-cooperation-link:focus-visible::after {
+      transform: translateX(3px);
+    }
+
     .contact-link-stack {
       grid-column: 3;
-      grid-row: 2;
+      grid-row: 3;
       height: 326px;
       display: grid;
       grid-template-rows: repeat(2, minmax(0, 1fr));
@@ -2798,6 +2860,16 @@
 
     .qr-card {
       gap: 18px;
+    }
+
+    .contact-wechat-card {
+      grid-column: 1;
+      grid-row: 3;
+    }
+
+    .contact-shell > .qr-card:not(.contact-wechat-card) {
+      grid-column: 2;
+      grid-row: 3;
     }
 
     .qr-slot {
@@ -3684,6 +3756,11 @@
         grid-column: 1 / -1;
       }
 
+      .contact-cooperation {
+        grid-column: 1 / -1;
+        grid-row: auto;
+      }
+
       .contact-visual-card {
         grid-column: 1 / -1;
         grid-row: auto;
@@ -3701,6 +3778,12 @@
 
       .contact-link-stack .contact-card {
         min-height: 132px;
+      }
+
+      .contact-wechat-card,
+      .contact-shell > .qr-card:not(.contact-wechat-card) {
+        grid-column: auto;
+        grid-row: auto;
       }
 
       .detail-meta-grid {
@@ -4081,6 +4164,16 @@
       .contact-statement {
         min-height: 220px;
         padding: 12px 0 28px;
+      }
+
+      .contact-cooperation {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 18px 0;
+      }
+
+      .contact-cooperation-link {
+        justify-self: start;
       }
 
       .contact-visual-card {

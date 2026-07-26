@@ -299,15 +299,15 @@ window.CONTROLROOKIE_SITE_DATA = {
       facts: {
         zh: [
           { label: "授权", value: "单台设备" },
-          { label: "价格", value: "149 元/台" },
-          { label: "升级", value: "V1.x 免费" },
-          { label: "重大版本", value: "V2.0 付费" },
+          { label: "价格", value: "联系报价" },
+          { label: "咨询", value: "加微信联系我" },
+          { label: "升级", value: "按版本策略沟通" },
         ],
         en: [
           { label: "License", value: "Single device" },
-          { label: "Price", value: "CNY 149 / device" },
-          { label: "Updates", value: "V1.x included" },
-          { label: "Major version", value: "V2.0 paid" },
+          { label: "Pricing", value: "Contact for a quote" },
+          { label: "Consultation", value: "Contact via WeChat" },
+          { label: "Updates", value: "Discuss with the release plan" },
         ],
       },
       compatibility: {
@@ -337,8 +337,8 @@ window.CONTROLROOKIE_SITE_DATA = {
         ],
       },
       purchase: {
-        zh: { label: "商业授权 · V1.4", price: "149 元/台", policy: "V1.x 免费升级，V2.0 付费升级。", cta: "通过官网联系购买", channel: "唯一购买、激活申请和支持渠道" },
-        en: { label: "Commercial license · V1.4", price: "CNY 149 / device", policy: "V1.x updates included; V2.0 is a paid upgrade.", cta: "Contact through the website", channel: "The only channel for purchase, activation requests, and support" },
+        zh: { label: "商业授权 · V1.4", price: "联系报价", policy: "需要请加微信联系我，根据实际使用场景报价。", cta: "加微信联系我", channel: "微信咨询、报价和支持渠道" },
+        en: { label: "Commercial license · V1.4", price: "Contact for a quote", policy: "Add WeChat to discuss the use case and receive a quote.", cta: "Contact via WeChat", channel: "WeChat consultation, quotation, and support" },
       },
       faq: {
         zh: [
@@ -353,8 +353,8 @@ window.CONTROLROOKIE_SITE_DATA = {
         ],
       },
       delivery: {
-        zh: "149 元/台，V1.x 免费升级，V2.0 付费升级。购买、激活申请和支持只通过 ControlRookie 官网。SyncBridge 不自动创建工程或替代 Build、仿真和真机验证。",
-        en: "CNY 149 per device. V1.x updates are included; V2.0 is a paid upgrade. Purchase, activation requests, and support are handled only through the ControlRookie website. SyncBridge does not create projects automatically or replace Build, simulation, and on-machine validation.",
+        zh: "当前不公开固定价格。需要使用，请通过 ControlRookie 官网联系区添加微信，并根据实际使用场景获取报价。SyncBridge 不自动创建工程或替代 Build、仿真和真机验证。",
+        en: "No fixed public price is shown at this stage. Contact through the ControlRookie website to add WeChat and receive a quote for the intended use case. SyncBridge does not create projects automatically or replace Build, simulation, and on-machine validation.",
       },
       aliases: "SyncBridge 同步桥 工程同步器 AI ST 差异审查 写回",
       keywords: "SyncBridge CodeSys SmartControl AI ST XML Export Compare Import project sync 同步器",
