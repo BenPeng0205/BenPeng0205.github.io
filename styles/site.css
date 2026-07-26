@@ -2622,6 +2622,7 @@
     .contact-shell {
       min-height: min(752px, calc(100vh - var(--nav-height) - (var(--content-frame-gap) * 2)));
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(320px, 0.92fr);
+      /* 保留原有二维码纵向坐标；第二行仅保留不可见的版式留白。 */
       grid-template-rows: 310px 88px 326px;
       align-content: start;
     }
@@ -2707,66 +2708,37 @@
       box-shadow: none;
     }
 
-    /* 合作信息带：以排版和细线承接合作入口，不增加灰色营销卡片。 */
+    /* 合作邀请：收进主标题与横线之间，不增加独立卡片、分隔线或 CTA。 */
     .contact-cooperation {
-      grid-column: 1 / -1;
-      grid-row: 2;
-      min-width: 0;
-      display: grid;
-      grid-template-columns: minmax(174px, 0.74fr) minmax(0, 2.2fr) auto;
-      align-items: center;
-      gap: 24px;
-      padding: 0 2px;
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-    }
-
-    .contact-cooperation-copy {
-      display: contents;
+      width: min(100%, 760px);
+      margin-top: 30px;
     }
 
     .contact-cooperation small {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
       color: var(--fg);
       font-size: 12px;
       font-weight: 600;
       line-height: 1.35;
     }
 
+    .contact-cooperation-mark {
+      width: 8px;
+      height: 8px;
+      box-sizing: border-box;
+      border: 2px solid var(--brand-blue);
+      background: transparent;
+    }
+
     .contact-cooperation p {
       margin: 0;
+      max-width: 760px;
+      padding-top: 10px;
       color: var(--muted);
-      font-size: 13px;
-      line-height: 1.55;
-    }
-
-    .contact-cooperation-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--link);
       font-size: 14px;
-      font-weight: 600;
-      line-height: 1.2;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    .contact-cooperation-link::after {
-      content: "→";
-      font-size: 16px;
-      transition: transform 180ms ease;
-    }
-
-    .contact-cooperation-link:hover,
-    .contact-cooperation-link:focus-visible {
-      color: var(--link-strong);
-      text-decoration: underline;
-      text-underline-offset: 4px;
-    }
-
-    .contact-cooperation-link:hover::after,
-    .contact-cooperation-link:focus-visible::after {
-      transform: translateX(3px);
+      line-height: 1.65;
     }
 
     .contact-link-stack {
@@ -3757,8 +3729,7 @@
       }
 
       .contact-cooperation {
-        grid-column: 1 / -1;
-        grid-row: auto;
+        margin-top: 26px;
       }
 
       .contact-visual-card {
@@ -4167,13 +4138,7 @@
       }
 
       .contact-cooperation {
-        grid-template-columns: 1fr;
-        gap: 10px;
-        padding: 18px 0;
-      }
-
-      .contact-cooperation-link {
-        justify-self: start;
+        margin-top: 22px;
       }
 
       .contact-visual-card {
