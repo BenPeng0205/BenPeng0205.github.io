@@ -874,8 +874,8 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "date": "2026-05-06",
     "readingTime": {
-      "zh": "约 61 分钟阅读",
-      "en": "61 min read"
+      "zh": "约 62 分钟阅读",
+      "en": "62 min read"
     },
     "tags": [
       "MQTT",
@@ -1388,8 +1388,8 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "date": "2026-05-08",
     "readingTime": {
-      "zh": "约 11 分钟阅读",
-      "en": "11 min read"
+      "zh": "约 12 分钟阅读",
+      "en": "12 min read"
     },
     "tags": [
       "MQTT",
@@ -1538,8 +1538,8 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "date": "2026-05-08",
     "readingTime": {
-      "zh": "约 11 分钟阅读",
-      "en": "11 min read"
+      "zh": "约 12 分钟阅读",
+      "en": "12 min read"
     },
     "tags": [
       "MQTT",
@@ -1613,8 +1613,8 @@ window.CONTROLROOKIE_ARTICLES = [
     },
     "date": "2026-05-08",
     "readingTime": {
-      "zh": "约 12 分钟阅读",
-      "en": "12 min read"
+      "zh": "约 13 分钟阅读",
+      "en": "13 min read"
     },
     "tags": [
       "MQTT",
@@ -2387,12 +2387,12 @@ window.CONTROLROOKIE_ARTICLES = [
       "en": "Article"
     },
     "title": {
-      "zh": "HTTP 到底是什么：请求、响应、资源和 URL",
-      "en": "HTTP 到底是什么：请求、响应、资源和 URL"
+      "zh": "第01篇_HTTP 到底是什么：请求、响应、资源和 URL",
+      "en": "第01篇_HTTP 到底是什么：请求、响应、资源和 URL"
     },
     "copy": {
-      "zh": "从一笔真实的读取与写入事务出发，讲清 Client、Server、资源、URL、请求、响应、方法、状态码、Header 和 Body。",
-      "en": "从一笔真实的读取与写入事务出发，讲清 Client、Server、资源、URL、请求、响应、方法、状态码、Header 和 Body。"
+      "zh": "先不写 PLC 状态机，也不背术语。从上位机读取设备状态这个需求出发，把 Client、Server、资源、URL、请求、响应、方法、状态码、Header 和 Body 放进同一笔真实对话。",
+      "en": "先不写 PLC 状态机，也不背术语。从上位机读取设备状态这个需求出发，把 Client、Server、资源、URL、请求、响应、方法、状态码、Header 和 Body 放进同一笔真实对话。"
     },
     "href": "articles/codesys-http-foundation-01/index.html",
     "category": {
@@ -2434,7 +2434,7 @@ window.CONTROLROOKIE_ARTICLES = [
       "zh": "01 · 基础认知",
       "en": "01 · Foundation"
     },
-    "date": "2026-07-18",
+    "date": "2026-07-16",
     "readingTime": {
       "zh": "约 9 分钟阅读",
       "en": "9 min read"
@@ -2445,10 +2445,365 @@ window.CONTROLROOKIE_ARTICLES = [
       "PLC通信",
       "ControlRookie"
     ],
-    "keywords": "HTTP CODESYS 基础认知 基础认知 HTTP 到底是什么：请求、响应、资源和 URL HTTP CodeSys PLC通信 ControlRookie",
+    "keywords": "HTTP CODESYS 基础认知 基础认知 第01篇_HTTP 到底是什么：请求、响应、资源和 URL HTTP CodeSys PLC通信 ControlRookie",
     "order": 1,
     "contentId": "codesys-http-01",
-    "publishAt": "2026-07-18T19:00:00+08:00",
+    "publishAt": "2026-07-16T19:00:00+08:00",
     "source": "第01篇_HTTP 到底是什么：请求、响应、资源和 URL.md"
+  },
+  {
+    "id": "codesys-http-foundation-02",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第02篇_输入一个 URL 以后，一次 HTTP 事务经历了什么",
+      "en": "第02篇_输入一个 URL 以后，一次 HTTP 事务经历了什么"
+    },
+    "copy": {
+      "zh": "用 `http://192.168.1.20:8088/api/status` 跟踪同一笔事务：URL 怎样拆成连接参数与消息参数，请求怎样到达 PLC，响应又怎样回到 Client。",
+      "en": "用 `http://192.168.1.20:8088/api/status` 跟踪同一笔事务：URL 怎样拆成连接参数与消息参数，请求怎样到达 PLC，响应又怎样回到 Client。"
+    },
+    "href": "articles/codesys-http-foundation-02/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "基础认知",
+      "en": "Foundation"
+    },
+    "kind": {
+      "zh": "基础认知",
+      "en": "Foundation"
+    },
+    "progress": {
+      "zh": "第2篇/共28篇",
+      "en": "Part 2 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第2篇",
+      "en": "This Site / Part 2"
+    },
+    "cardMeta": {
+      "zh": "02 · 基础认知",
+      "en": "02 · Foundation"
+    },
+    "date": "2026-07-18",
+    "readingTime": {
+      "zh": "约 15 分钟阅读",
+      "en": "15 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 基础认知 基础认知 第02篇_输入一个 URL 以后，一次 HTTP 事务经历了什么 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 2,
+    "contentId": "codesys-http-02",
+    "publishAt": "2026-07-18T19:00:00+08:00",
+    "source": "第02篇_输入一个 URL 以后，一次 HTTP 事务经历了什么.md"
+  },
+  {
+    "id": "codesys-http-foundation-03",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第03篇_TCP 已经连接，为什么 HTTP 消息还没有收完整",
+      "en": "第03篇_TCP 已经连接，为什么 HTTP 消息还没有收完整"
+    },
+    "copy": {
+      "zh": "TCP 交付连续有序的字节，不交付 HTTP 消息。本文把半包、粘连、Header 结束、Content-Length、chunked 和连接关闭放进 PLC 扫描周期解释。",
+      "en": "TCP 交付连续有序的字节，不交付 HTTP 消息。本文把半包、粘连、Header 结束、Content-Length、chunked 和连接关闭放进 PLC 扫描周期解释。"
+    },
+    "href": "articles/codesys-http-foundation-03/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "基础认知",
+      "en": "Foundation"
+    },
+    "kind": {
+      "zh": "基础认知",
+      "en": "Foundation"
+    },
+    "progress": {
+      "zh": "第3篇/共28篇",
+      "en": "Part 3 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第3篇",
+      "en": "This Site / Part 3"
+    },
+    "cardMeta": {
+      "zh": "03 · 基础认知",
+      "en": "03 · Foundation"
+    },
+    "date": "2026-07-20",
+    "readingTime": {
+      "zh": "约 12 分钟阅读",
+      "en": "12 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 基础认知 基础认知 第03篇_TCP 已经连接，为什么 HTTP 消息还没有收完整 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 3,
+    "contentId": "codesys-http-03",
+    "publishAt": "2026-07-20T19:00:00+08:00",
+    "source": "第03篇_TCP 已经连接，为什么 HTTP 消息还没有收完整.md"
+  },
+  {
+    "id": "codesys-http-foundation-04",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第04篇_把 HTTP 放进 PLC：扫描周期、缓冲区、状态机和能力边界",
+      "en": "第04篇_把 HTTP 放进 PLC：扫描周期、缓冲区、状态机和能力边界"
+    },
+    "copy": {
+      "zh": "HTTP 语法只是入口。真正的 PLC 实现还要解决周期调用、固定内存、连接生命周期、角色分层、错误诊断和可验证边界。",
+      "en": "HTTP 语法只是入口。真正的 PLC 实现还要解决周期调用、固定内存、连接生命周期、角色分层、错误诊断和可验证边界。"
+    },
+    "href": "articles/codesys-http-foundation-04/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "基础认知",
+      "en": "Foundation"
+    },
+    "kind": {
+      "zh": "基础认知",
+      "en": "Foundation"
+    },
+    "progress": {
+      "zh": "第4篇/共28篇",
+      "en": "Part 4 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第4篇",
+      "en": "This Site / Part 4"
+    },
+    "cardMeta": {
+      "zh": "04 · 基础认知",
+      "en": "04 · Foundation"
+    },
+    "date": "2026-07-22",
+    "readingTime": {
+      "zh": "约 15 分钟阅读",
+      "en": "15 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 基础认知 基础认知 第04篇_把 HTTP 放进 PLC：扫描周期、缓冲区、状态机和能力边界 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 4,
+    "contentId": "codesys-http-04",
+    "publishAt": "2026-07-22T19:00:00+08:00",
+    "source": "第04篇_把 HTTP 放进 PLC：扫描周期、缓冲区、状态机和能力边界.md"
+  },
+  {
+    "id": "codesys-http-server-01",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第05篇_Server 01｜先跑通最小请求：200 OK 和 pong",
+      "en": "第05篇_Server 01｜先跑通最小请求：200 OK 和 pong"
+    },
+    "copy": {
+      "zh": "先建立一条最小可运行 Server 闭环：PLC 监听 8088，外部请求 `/api/ping`，返回带正确状态行、长度和关闭策略的 `pong`。",
+      "en": "先建立一条最小可运行 Server 闭环：PLC 监听 8088，外部请求 `/api/ping`，返回带正确状态行、长度和关闭策略的 `pong`。"
+    },
+    "href": "articles/codesys-http-server-01/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "服务器篇",
+      "en": "HTTP Server"
+    },
+    "kind": {
+      "zh": "服务器篇",
+      "en": "HTTP Server"
+    },
+    "progress": {
+      "zh": "第5篇/共28篇",
+      "en": "Part 5 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第5篇",
+      "en": "This Site / Part 5"
+    },
+    "cardMeta": {
+      "zh": "05 · 服务器篇",
+      "en": "05 · HTTP Server"
+    },
+    "date": "2026-07-24",
+    "readingTime": {
+      "zh": "约 10 分钟阅读",
+      "en": "10 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 服务器篇 服务器篇 第05篇_Server 01｜先跑通最小请求：200 OK 和 pong HTTP CodeSys PLC通信 ControlRookie",
+    "order": 5,
+    "contentId": "codesys-http-05",
+    "publishAt": "2026-07-24T19:00:00+08:00",
+    "source": "第05篇_Server 01｜先跑通最小请求：200 OK 和 pong.md"
+  },
+  {
+    "id": "codesys-http-server-02",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第06篇_Server 02｜监听端口以后，PLC 为什么还没有收到请求",
+      "en": "第06篇_Server 02｜监听端口以后，PLC 为什么还没有收到请求"
+    },
+    "copy": {
+      "zh": "监听句柄只说明 Server 可以接入 TCP 连接。真正的 HTTP 请求还要经过 Accept、单连接读取、消息完整性判断和协议解析。",
+      "en": "监听句柄只说明 Server 可以接入 TCP 连接。真正的 HTTP 请求还要经过 Accept、单连接读取、消息完整性判断和协议解析。"
+    },
+    "href": "articles/codesys-http-server-02/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "服务器篇",
+      "en": "HTTP Server"
+    },
+    "kind": {
+      "zh": "服务器篇",
+      "en": "HTTP Server"
+    },
+    "progress": {
+      "zh": "第6篇/共28篇",
+      "en": "Part 6 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第6篇",
+      "en": "This Site / Part 6"
+    },
+    "cardMeta": {
+      "zh": "06 · 服务器篇",
+      "en": "06 · HTTP Server"
+    },
+    "date": "2026-07-26",
+    "readingTime": {
+      "zh": "约 9 分钟阅读",
+      "en": "9 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 服务器篇 服务器篇 第06篇_Server 02｜监听端口以后，PLC 为什么还没有收到请求 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 6,
+    "contentId": "codesys-http-06",
+    "publishAt": "2026-07-26T19:00:00+08:00",
+    "source": "第06篇_Server 02｜监听端口以后，PLC 为什么还没有收到请求.md"
   }
 ];

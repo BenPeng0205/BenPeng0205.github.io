@@ -814,7 +814,7 @@
     },
     {
       "id": "codesys-http-foundation-01",
-      "title": "HTTP 到底是什么：请求、响应、资源和 URL",
+      "title": "第01篇_HTTP 到底是什么：请求、响应、资源和 URL",
       "series": "CodeSys HTTP 系列教程",
       "category": "工业通信",
       "categoryKey": "industrial-communication",
@@ -822,8 +822,8 @@
       "topic": "HTTP",
       "folder": "基础认知",
       "kind": "基础认知",
-      "summary": "从一笔真实的读取与写入事务出发，讲清 Client、Server、资源、URL、请求、响应、方法、状态码、Header 和 Body。",
-      "date": "2026-07-18",
+      "summary": "先不写 PLC 状态机，也不背术语。从上位机读取设备状态这个需求出发，把 Client、Server、资源、URL、请求、响应、方法、状态码、Header 和 Body 放进同一笔真实对话。",
+      "date": "2026-07-16",
       "tags": [
         "HTTP",
         "CodeSys",
@@ -833,6 +833,116 @@
       "path": "articles/codesys-http-foundation-01/index.html",
       "contentId": "codesys-http-01",
       "source": "第01篇_HTTP 到底是什么：请求、响应、资源和 URL.md"
+    },
+    {
+      "id": "codesys-http-foundation-02",
+      "title": "第02篇_输入一个 URL 以后，一次 HTTP 事务经历了什么",
+      "series": "CodeSys HTTP 系列教程",
+      "category": "工业通信",
+      "categoryKey": "industrial-communication",
+      "topicKey": "http",
+      "topic": "HTTP",
+      "folder": "基础认知",
+      "kind": "基础认知",
+      "summary": "用 `http://192.168.1.20:8088/api/status` 跟踪同一笔事务：URL 怎样拆成连接参数与消息参数，请求怎样到达 PLC，响应又怎样回到 Client。",
+      "date": "2026-07-18",
+      "tags": [
+        "HTTP",
+        "CodeSys",
+        "PLC通信",
+        "ControlRookie"
+      ],
+      "path": "articles/codesys-http-foundation-02/index.html",
+      "contentId": "codesys-http-02",
+      "source": "第02篇_输入一个 URL 以后，一次 HTTP 事务经历了什么.md"
+    },
+    {
+      "id": "codesys-http-foundation-03",
+      "title": "第03篇_TCP 已经连接，为什么 HTTP 消息还没有收完整",
+      "series": "CodeSys HTTP 系列教程",
+      "category": "工业通信",
+      "categoryKey": "industrial-communication",
+      "topicKey": "http",
+      "topic": "HTTP",
+      "folder": "基础认知",
+      "kind": "基础认知",
+      "summary": "TCP 交付连续有序的字节，不交付 HTTP 消息。本文把半包、粘连、Header 结束、Content-Length、chunked 和连接关闭放进 PLC 扫描周期解释。",
+      "date": "2026-07-20",
+      "tags": [
+        "HTTP",
+        "CodeSys",
+        "PLC通信",
+        "ControlRookie"
+      ],
+      "path": "articles/codesys-http-foundation-03/index.html",
+      "contentId": "codesys-http-03",
+      "source": "第03篇_TCP 已经连接，为什么 HTTP 消息还没有收完整.md"
+    },
+    {
+      "id": "codesys-http-foundation-04",
+      "title": "第04篇_把 HTTP 放进 PLC：扫描周期、缓冲区、状态机和能力边界",
+      "series": "CodeSys HTTP 系列教程",
+      "category": "工业通信",
+      "categoryKey": "industrial-communication",
+      "topicKey": "http",
+      "topic": "HTTP",
+      "folder": "基础认知",
+      "kind": "基础认知",
+      "summary": "HTTP 语法只是入口。真正的 PLC 实现还要解决周期调用、固定内存、连接生命周期、角色分层、错误诊断和可验证边界。",
+      "date": "2026-07-22",
+      "tags": [
+        "HTTP",
+        "CodeSys",
+        "PLC通信",
+        "ControlRookie"
+      ],
+      "path": "articles/codesys-http-foundation-04/index.html",
+      "contentId": "codesys-http-04",
+      "source": "第04篇_把 HTTP 放进 PLC：扫描周期、缓冲区、状态机和能力边界.md"
+    },
+    {
+      "id": "codesys-http-server-01",
+      "title": "第05篇_Server 01｜先跑通最小请求：200 OK 和 pong",
+      "series": "CodeSys HTTP 系列教程",
+      "category": "工业通信",
+      "categoryKey": "industrial-communication",
+      "topicKey": "http",
+      "topic": "HTTP",
+      "folder": "服务器篇",
+      "kind": "服务器篇",
+      "summary": "先建立一条最小可运行 Server 闭环：PLC 监听 8088，外部请求 `/api/ping`，返回带正确状态行、长度和关闭策略的 `pong`。",
+      "date": "2026-07-24",
+      "tags": [
+        "HTTP",
+        "CodeSys",
+        "PLC通信",
+        "ControlRookie"
+      ],
+      "path": "articles/codesys-http-server-01/index.html",
+      "contentId": "codesys-http-05",
+      "source": "第05篇_Server 01｜先跑通最小请求：200 OK 和 pong.md"
+    },
+    {
+      "id": "codesys-http-server-02",
+      "title": "第06篇_Server 02｜监听端口以后，PLC 为什么还没有收到请求",
+      "series": "CodeSys HTTP 系列教程",
+      "category": "工业通信",
+      "categoryKey": "industrial-communication",
+      "topicKey": "http",
+      "topic": "HTTP",
+      "folder": "服务器篇",
+      "kind": "服务器篇",
+      "summary": "监听句柄只说明 Server 可以接入 TCP 连接。真正的 HTTP 请求还要经过 Accept、单连接读取、消息完整性判断和协议解析。",
+      "date": "2026-07-26",
+      "tags": [
+        "HTTP",
+        "CodeSys",
+        "PLC通信",
+        "ControlRookie"
+      ],
+      "path": "articles/codesys-http-server-02/index.html",
+      "contentId": "codesys-http-06",
+      "source": "第06篇_Server 02｜监听端口以后，PLC 为什么还没有收到请求.md"
     }
   ]
 }
