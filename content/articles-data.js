@@ -3018,5 +3018,76 @@ window.CONTROLROOKIE_ARTICLES = [
     "contentId": "codesys-http-09",
     "publishAt": "2026-08-06T19:00:00+08:00",
     "source": "第09篇_Server 05｜固定长度与 chunked 的消息边界.md"
+  },
+  {
+    "id": "codesys-http-server-06",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第10篇_Server 06｜路由、状态码和响应关闭不能靠拼字符串",
+      "en": "第10篇_Server 06｜路由、状态码和响应关闭不能靠拼字符串"
+    },
+    "copy": {
+      "zh": "Server 响应需要状态行、Content-Type、Content-Length、附加 Header、Body 和连接策略保持一致。业务结果必须先进入结构体，再由 Builder 统一生成报文。",
+      "en": "Server 响应需要状态行、Content-Type、Content-Length、附加 Header、Body 和连接策略保持一致。业务结果必须先进入结构体，再由 Builder 统一生成报文。"
+    },
+    "href": "articles/codesys-http-server-06/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "服务器篇",
+      "en": "HTTP Server"
+    },
+    "kind": {
+      "zh": "服务器篇",
+      "en": "HTTP Server"
+    },
+    "progress": {
+      "zh": "第10篇/共28篇",
+      "en": "Part 10 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第10篇",
+      "en": "This Site / Part 10"
+    },
+    "cardMeta": {
+      "zh": "10 · 服务器篇",
+      "en": "10 · HTTP Server"
+    },
+    "date": "2026-08-09",
+    "readingTime": {
+      "zh": "约 11 分钟阅读",
+      "en": "11 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 服务器篇 服务器篇 第10篇_Server 06｜路由、状态码和响应关闭不能靠拼字符串 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 10,
+    "contentId": "codesys-http-10",
+    "publishAt": "2026-08-08T19:00:00+08:00",
+    "source": "第10篇_Server 06｜路由、状态码和响应关闭不能靠拼字符串.md"
   }
 ];

@@ -1009,6 +1009,28 @@
       "path": "articles/codesys-http-server-05/index.html",
       "contentId": "codesys-http-09",
       "source": "第09篇_Server 05｜固定长度与 chunked 的消息边界.md"
+    },
+    {
+      "id": "codesys-http-server-06",
+      "title": "第10篇_Server 06｜路由、状态码和响应关闭不能靠拼字符串",
+      "series": "CodeSys HTTP 系列教程",
+      "category": "工业通信",
+      "categoryKey": "industrial-communication",
+      "topicKey": "http",
+      "topic": "HTTP",
+      "folder": "服务器篇",
+      "kind": "服务器篇",
+      "summary": "Server 响应需要状态行、Content-Type、Content-Length、附加 Header、Body 和连接策略保持一致。业务结果必须先进入结构体，再由 Builder 统一生成报文。",
+      "date": "2026-08-09",
+      "tags": [
+        "HTTP",
+        "CodeSys",
+        "PLC通信",
+        "ControlRookie"
+      ],
+      "path": "articles/codesys-http-server-06/index.html",
+      "contentId": "codesys-http-10",
+      "source": "第10篇_Server 06｜路由、状态码和响应关闭不能靠拼字符串.md"
     }
   ]
 }
