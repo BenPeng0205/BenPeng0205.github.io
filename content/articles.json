@@ -943,6 +943,72 @@
       "path": "articles/codesys-http-server-02/index.html",
       "contentId": "codesys-http-06",
       "source": "第06篇_Server 02｜监听端口以后，PLC 为什么还没有收到请求.md"
+    },
+    {
+      "id": "codesys-http-server-03",
+      "title": "第07篇_Server 03｜多客户端接入，连接槽位和生命周期怎么设计",
+      "series": "CodeSys HTTP 系列教程",
+      "category": "工业通信",
+      "categoryKey": "industrial-communication",
+      "topicKey": "http",
+      "topic": "HTTP",
+      "folder": "服务器篇",
+      "kind": "服务器篇",
+      "summary": "一个监听端口背后可能同时存在多个 TCP 连接。PLC 需要固定槽位、独立状态和可回收句柄，不能用一个全局接收缓冲区处理所有客户端。",
+      "date": "2026-08-03",
+      "tags": [
+        "HTTP",
+        "CodeSys",
+        "PLC通信",
+        "ControlRookie"
+      ],
+      "path": "articles/codesys-http-server-03/index.html",
+      "contentId": "codesys-http-07",
+      "source": "第07篇_Server 03｜多客户端接入，连接槽位和生命周期怎么设计.md"
+    },
+    {
+      "id": "codesys-http-server-04",
+      "title": "第08篇_Server 04｜Header 收完了，为什么请求仍然不完整",
+      "series": "CodeSys HTTP 系列教程",
+      "category": "工业通信",
+      "categoryKey": "industrial-communication",
+      "topicKey": "http",
+      "topic": "HTTP",
+      "folder": "服务器篇",
+      "kind": "服务器篇",
+      "summary": "`$R$N$R$N` 只标志 Header 结束。Server 还要根据 Content-Length、Transfer-Encoding 或连接策略判断 Body 是否完整。",
+      "date": "2026-08-05",
+      "tags": [
+        "HTTP",
+        "CodeSys",
+        "PLC通信",
+        "ControlRookie"
+      ],
+      "path": "articles/codesys-http-server-04/index.html",
+      "contentId": "codesys-http-08",
+      "source": "第08篇_Server 04｜Header 收完了，为什么请求仍然不完整.md"
+    },
+    {
+      "id": "codesys-http-server-05",
+      "title": "第09篇_Server 05｜固定长度与 chunked 的消息边界",
+      "series": "CodeSys HTTP 系列教程",
+      "category": "工业通信",
+      "categoryKey": "industrial-communication",
+      "topicKey": "http",
+      "topic": "HTTP",
+      "folder": "服务器篇",
+      "kind": "服务器篇",
+      "summary": "普通 Body 按 Content-Length 收齐，chunked Body 按块长度和终止块解码。两套边界不能混用，也不能依赖字符串结束符猜测。",
+      "date": "2026-08-07",
+      "tags": [
+        "HTTP",
+        "CodeSys",
+        "PLC通信",
+        "ControlRookie"
+      ],
+      "path": "articles/codesys-http-server-05/index.html",
+      "contentId": "codesys-http-09",
+      "source": "第09篇_Server 05｜固定长度与 chunked 的消息边界.md"
     }
   ]
 }

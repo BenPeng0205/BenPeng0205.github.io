@@ -324,6 +324,261 @@
         "production_publish": false
       },
       "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-a4760baaed5c",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-07",
+      "slug": "codesys-http-server-03",
+      "title": "第07篇_Server 03｜多客户端接入，连接槽位和生命周期怎么设计",
+      "summary": "一个监听端口背后可能同时存在多个 TCP 连接。PLC 需要固定槽位、独立状态和可回收句柄，不能用一个全局接收缓冲区处理所有客户端。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第07篇_Server 03｜多客户端接入，连接槽位和生命周期怎么设计.md",
+      "content_hash": "714066fea2e5eaefc8ceef0457056ec05dbadca5dcc59f1c68f93b4fdd855d95",
+      "publish_at": "2026-08-02T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "服务器篇",
+        "folder_en": "HTTP Server",
+        "order": 7,
+        "total": 28,
+        "kind_zh": "HTTP Server",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ]
+      },
+      "article": {
+        "kind_zh": "服务器篇",
+        "kind_en": "HTTP Server",
+        "date": "2026-08-03",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ],
+        "platform_metadata": {
+          "csdn": {
+            "tags": [
+              "HTTP",
+              "CodeSys",
+              "PLC通信",
+              "ControlRookie"
+            ],
+            "category": "",
+            "column": "CodeSys HTTP",
+            "creation_statement": "个人观点，仅供参考",
+            "visibility": "全部可见",
+            "original_statement": true,
+            "gitcode_backup": true
+          },
+          "wechat": {
+            "author": "ControlRookie",
+            "original_statement": true,
+            "original_type": "文字原创",
+            "original_author": "ControlRookie",
+            "creation_source": "个人观点，仅供参考",
+            "collection": "CodeSys HTTP"
+          }
+        }
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-07\\第07篇_核心架构图.png",
+          "filename": "第07篇_核心架构图.png",
+          "sha256": "aab0692cda31067effd231e7822b1cf73981bcd161dfddc84058803507371408"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-5562a62f11f8",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-08",
+      "slug": "codesys-http-server-04",
+      "title": "第08篇_Server 04｜Header 收完了，为什么请求仍然不完整",
+      "summary": "`$R$N$R$N` 只标志 Header 结束。Server 还要根据 Content-Length、Transfer-Encoding 或连接策略判断 Body 是否完整。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第08篇_Server 04｜Header 收完了，为什么请求仍然不完整.md",
+      "content_hash": "965e73c5b1bff8b59cdae9003baf6eb018128b09fb7d5e47ce2e813e80f75214",
+      "publish_at": "2026-08-04T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "服务器篇",
+        "folder_en": "HTTP Server",
+        "order": 8,
+        "total": 28,
+        "kind_zh": "HTTP Server",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ]
+      },
+      "article": {
+        "kind_zh": "服务器篇",
+        "kind_en": "HTTP Server",
+        "date": "2026-08-05",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ],
+        "platform_metadata": {
+          "csdn": {
+            "tags": [
+              "HTTP",
+              "CodeSys",
+              "PLC通信",
+              "ControlRookie"
+            ],
+            "category": "",
+            "column": "CodeSys HTTP",
+            "creation_statement": "个人观点，仅供参考",
+            "visibility": "全部可见",
+            "original_statement": true,
+            "gitcode_backup": true
+          },
+          "wechat": {
+            "author": "ControlRookie",
+            "original_statement": true,
+            "original_type": "文字原创",
+            "original_author": "ControlRookie",
+            "creation_source": "个人观点，仅供参考",
+            "collection": "CodeSys HTTP"
+          }
+        }
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-08\\第08篇_核心架构图.png",
+          "filename": "第08篇_核心架构图.png",
+          "sha256": "8601c5448fcdb0d440559ca5e003b2a0d42fce4d68fb813b84df451335f70b26"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-a759d5abb52d",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-09",
+      "slug": "codesys-http-server-05",
+      "title": "第09篇_Server 05｜固定长度与 chunked 的消息边界",
+      "summary": "普通 Body 按 Content-Length 收齐，chunked Body 按块长度和终止块解码。两套边界不能混用，也不能依赖字符串结束符猜测。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第09篇_Server 05｜固定长度与 chunked 的消息边界.md",
+      "content_hash": "299330b1fefcc5cd2a4b22fd163ff13b2e990cb50d34edfaffaceb25d1f59f32",
+      "publish_at": "2026-08-06T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "服务器篇",
+        "folder_en": "HTTP Server",
+        "order": 9,
+        "total": 28,
+        "kind_zh": "HTTP Server",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ]
+      },
+      "article": {
+        "kind_zh": "服务器篇",
+        "kind_en": "HTTP Server",
+        "date": "2026-08-07",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ],
+        "platform_metadata": {
+          "csdn": {
+            "tags": [
+              "HTTP",
+              "CodeSys",
+              "PLC通信",
+              "ControlRookie"
+            ],
+            "category": "",
+            "column": "CodeSys HTTP",
+            "creation_statement": "个人观点，仅供参考",
+            "visibility": "全部可见",
+            "original_statement": true,
+            "gitcode_backup": true
+          },
+          "wechat": {
+            "author": "ControlRookie",
+            "original_statement": true,
+            "original_type": "文字原创",
+            "original_author": "ControlRookie",
+            "creation_source": "个人观点，仅供参考",
+            "collection": "CodeSys HTTP"
+          }
+        }
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-09\\第09篇_核心架构图.png",
+          "filename": "第09篇_核心架构图.png",
+          "sha256": "4436c038b5012c829aeb7394eac35bff480ca72d3f9e798bc94711b147a76c6c"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
     }
   ]
 }

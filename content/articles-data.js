@@ -2805,5 +2805,218 @@ window.CONTROLROOKIE_ARTICLES = [
     "contentId": "codesys-http-06",
     "publishAt": "2026-07-26T19:00:00+08:00",
     "source": "第06篇_Server 02｜监听端口以后，PLC 为什么还没有收到请求.md"
+  },
+  {
+    "id": "codesys-http-server-03",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第07篇_Server 03｜多客户端接入，连接槽位和生命周期怎么设计",
+      "en": "第07篇_Server 03｜多客户端接入，连接槽位和生命周期怎么设计"
+    },
+    "copy": {
+      "zh": "一个监听端口背后可能同时存在多个 TCP 连接。PLC 需要固定槽位、独立状态和可回收句柄，不能用一个全局接收缓冲区处理所有客户端。",
+      "en": "一个监听端口背后可能同时存在多个 TCP 连接。PLC 需要固定槽位、独立状态和可回收句柄，不能用一个全局接收缓冲区处理所有客户端。"
+    },
+    "href": "articles/codesys-http-server-03/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "服务器篇",
+      "en": "HTTP Server"
+    },
+    "kind": {
+      "zh": "服务器篇",
+      "en": "HTTP Server"
+    },
+    "progress": {
+      "zh": "第7篇/共28篇",
+      "en": "Part 7 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第7篇",
+      "en": "This Site / Part 7"
+    },
+    "cardMeta": {
+      "zh": "07 · 服务器篇",
+      "en": "07 · HTTP Server"
+    },
+    "date": "2026-08-03",
+    "readingTime": {
+      "zh": "约 10 分钟阅读",
+      "en": "10 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 服务器篇 服务器篇 第07篇_Server 03｜多客户端接入，连接槽位和生命周期怎么设计 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 7,
+    "contentId": "codesys-http-07",
+    "publishAt": "2026-08-02T19:00:00+08:00",
+    "source": "第07篇_Server 03｜多客户端接入，连接槽位和生命周期怎么设计.md"
+  },
+  {
+    "id": "codesys-http-server-04",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第08篇_Server 04｜Header 收完了，为什么请求仍然不完整",
+      "en": "第08篇_Server 04｜Header 收完了，为什么请求仍然不完整"
+    },
+    "copy": {
+      "zh": "`$R$N$R$N` 只标志 Header 结束。Server 还要根据 Content-Length、Transfer-Encoding 或连接策略判断 Body 是否完整。",
+      "en": "`$R$N$R$N` 只标志 Header 结束。Server 还要根据 Content-Length、Transfer-Encoding 或连接策略判断 Body 是否完整。"
+    },
+    "href": "articles/codesys-http-server-04/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "服务器篇",
+      "en": "HTTP Server"
+    },
+    "kind": {
+      "zh": "服务器篇",
+      "en": "HTTP Server"
+    },
+    "progress": {
+      "zh": "第8篇/共28篇",
+      "en": "Part 8 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第8篇",
+      "en": "This Site / Part 8"
+    },
+    "cardMeta": {
+      "zh": "08 · 服务器篇",
+      "en": "08 · HTTP Server"
+    },
+    "date": "2026-08-05",
+    "readingTime": {
+      "zh": "约 11 分钟阅读",
+      "en": "11 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 服务器篇 服务器篇 第08篇_Server 04｜Header 收完了，为什么请求仍然不完整 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 8,
+    "contentId": "codesys-http-08",
+    "publishAt": "2026-08-04T19:00:00+08:00",
+    "source": "第08篇_Server 04｜Header 收完了，为什么请求仍然不完整.md"
+  },
+  {
+    "id": "codesys-http-server-05",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第09篇_Server 05｜固定长度与 chunked 的消息边界",
+      "en": "第09篇_Server 05｜固定长度与 chunked 的消息边界"
+    },
+    "copy": {
+      "zh": "普通 Body 按 Content-Length 收齐，chunked Body 按块长度和终止块解码。两套边界不能混用，也不能依赖字符串结束符猜测。",
+      "en": "普通 Body 按 Content-Length 收齐，chunked Body 按块长度和终止块解码。两套边界不能混用，也不能依赖字符串结束符猜测。"
+    },
+    "href": "articles/codesys-http-server-05/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "服务器篇",
+      "en": "HTTP Server"
+    },
+    "kind": {
+      "zh": "服务器篇",
+      "en": "HTTP Server"
+    },
+    "progress": {
+      "zh": "第9篇/共28篇",
+      "en": "Part 9 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第9篇",
+      "en": "This Site / Part 9"
+    },
+    "cardMeta": {
+      "zh": "09 · 服务器篇",
+      "en": "09 · HTTP Server"
+    },
+    "date": "2026-08-07",
+    "readingTime": {
+      "zh": "约 9 分钟阅读",
+      "en": "9 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 服务器篇 服务器篇 第09篇_Server 05｜固定长度与 chunked 的消息边界 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 9,
+    "contentId": "codesys-http-09",
+    "publishAt": "2026-08-06T19:00:00+08:00",
+    "source": "第09篇_Server 05｜固定长度与 chunked 的消息边界.md"
   }
 ];

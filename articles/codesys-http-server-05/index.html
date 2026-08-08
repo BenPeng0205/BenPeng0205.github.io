@@ -3,25 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>第06篇_Server 02｜监听端口以后，PLC 为什么还没有收到请求 | ControlRookie</title>
-  <meta name="description" content="监听句柄只说明 Server 可以接入 TCP 连接。真正的 HTTP 请求还要经过 Accept、单连接读取、消息完整性判断和协议解析。">
+  <title>第09篇_Server 05｜固定长度与 chunked 的消息边界 | ControlRookie</title>
+  <meta name="description" content="普通 Body 按 Content-Length 收齐，chunked Body 按块长度和终止块解码。两套边界不能混用，也不能依赖字符串结束符猜测。">
   <meta name="author" content="ControlRookie">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#1d1d1f">
-  <link rel="canonical" href="https://benpeng0205.github.io/articles/codesys-http-server-02/">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/codesys-http-server-05/">
   <link rel="icon" href="../../favicon.ico" sizes="32x32">
   <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
   <link rel="manifest" href="../../site.webmanifest">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="ControlRookie">
-  <meta property="og:title" content="第06篇_Server 02｜监听端口以后，PLC 为什么还没有收到请求">
-  <meta property="og:description" content="监听句柄只说明 Server 可以接入 TCP 连接。真正的 HTTP 请求还要经过 Accept、单连接读取、消息完整性判断和协议解析。">
-  <meta property="og:url" content="https://benpeng0205.github.io/articles/codesys-http-server-02/">
+  <meta property="og:title" content="第09篇_Server 05｜固定长度与 chunked 的消息边界">
+  <meta property="og:description" content="普通 Body 按 Content-Length 收齐，chunked Body 按块长度和终止块解码。两套边界不能混用，也不能依赖字符串结束符猜测。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/codesys-http-server-05/">
   <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="第06篇_Server 02｜监听端口以后，PLC 为什么还没有收到请求">
-  <meta name="twitter:description" content="监听句柄只说明 Server 可以接入 TCP 连接。真正的 HTTP 请求还要经过 Accept、单连接读取、消息完整性判断和协议解析。">
+  <meta name="twitter:title" content="第09篇_Server 05｜固定长度与 chunked 的消息边界">
+  <meta name="twitter:description" content="普通 Body 按 Content-Length 收齐，chunked Body 按块长度和终止块解码。两套边界不能混用，也不能依赖字符串结束符猜测。">
   <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
   <link rel="stylesheet" href="../../styles/site.css">
 </head>
@@ -82,13 +82,13 @@
             <a href="../../index.html#articles-http">服务器篇</a>
           </nav>
           <header class="article-hero">
-            <h1>第06篇_Server 02｜监听端口以后，PLC 为什么还没有收到请求</h1>
+            <h1>第09篇_Server 05｜固定长度与 chunked 的消息边界</h1>
             <div class="article-meta">
-              <span>2026-07-26</span>
+              <span>2026-08-07</span>
               <span>约 9 分钟阅读</span>
-              <span>第6篇/共28篇</span>
+              <span>第9篇/共28篇</span>
             </div>
-            <p class="article-summary">监听句柄只说明 Server 可以接入 TCP 连接。真正的 HTTP 请求还要经过 Accept、单连接读取、消息完整性判断和协议解析。</p>
+            <p class="article-summary">普通 Body 按 Content-Length 收齐，chunked Body 按块长度和终止块解码。两套边界不能混用，也不能依赖字符串结束符猜测。</p>
           </header>
           <aside class="article-toc" aria-label="文章目录">
             <button class="article-toc-toggle" type="button" aria-expanded="false" aria-controls="articleTocBody">
@@ -102,156 +102,170 @@
           </aside>
           <div class="article-main">
             <div class="article-content">
-              <blockquote>监听句柄只说明 Server 可以接入 TCP 连接。真正的 HTTP 请求还要经过 Accept、单连接读取、消息完整性判断和协议解析。</blockquote>
+              <blockquote>普通 Body 按 Content-Length 收齐，chunked Body 按块长度和终止块解码。两套边界不能混用，也不能依赖字符串结束符猜测。</blockquote>
 <h2 id="section-0d70135c">适合谁收藏</h2>
 <ul><li>正在实现 PLC 端 HTTP Server 的工程师。</li><li>正在排查监听、多连接、请求边界或响应发送问题的人。</li><li>需要建立 Server 真机验收清单的读者。</li></ul>
 <hr>
-<blockquote>服务器篇，第 2/7 篇；主系列第 06/28 篇。</blockquote>
+<blockquote>服务器篇，第 5/7 篇；主系列第 09/28 篇。</blockquote>
 <h2 id="section-9f303d09">现场问题</h2>
-<p>调试 PLC Server 时，经常先看到端口 8088 已经可以连接，于是开始在业务代码里查为什么没有路径和 Body。问题通常不在业务层，而在监听句柄之后还有一条没有走完的链。</p>
-<p><code>NBS.TCP_Server</code> 负责监听，<code>NBS.TCP_Connection</code> 负责接入。只有接入句柄绑定到一个 HTTP 连接槽位，并且该槽位持续执行 Read，协议层才可能获得完整请求。</p>
+<p>当 Content-Length 比实际 Body 大，Server 会继续等；比实际 Body 小，后续字节可能污染下一次事务。chunked 更容易误判，因为长度不是写在 Header 里，而是分散在每个块前面。</p>
+<p>PLC 侧没有无限缓冲区。边界判断除了符合协议，还必须在最大 Header、最大 Body 和最大消息容量内失败得足够明确。</p>
 <h2 id="section-c769c1e4">先给结论</h2>
-<p>Server 的第一条验收线不是“端口能连”，而是“监听句柄有效、连接槽位激活、请求进入解析器、响应可以返回”。四个状态缺一个都不能宣布跑通。</p>
-<figure><img src="../../assets/articles/codesys-http-server-02/第06篇_核心架构图.png" alt="Server 02｜监听端口以后，PLC 为什么还没有收到请求"><figcaption>Server 02｜监听端口以后，PLC 为什么还没有收到请求</figcaption></figure>
+<p>普通消息用声明长度收口，chunked 消息用十六进制块长度、CRLF 和 0 终止块收口。任何非法长度、缺失 CRLF、超限或 TE/CL 冲突都必须停止解析。</p>
+<figure><img src="../../assets/articles/codesys-http-server-05/第09篇_核心架构图.png" alt="Server 05｜固定长度与 chunked 的消息边界"><figcaption>Server 05｜固定长度与 chunked 的消息边界</figcaption></figure>
 <h3 id="section-a3177d68">读图重点</h3>
-<p>这张图只压缩本篇的判断路径。读图时先找“Disabled”对应的输入边界，再沿着“接入并服务所有槽位”检查状态怎样推进，最后用“聚合请求和错误”确认输出是否已经形成验收证据。</p>
+<p>这张图只压缩本篇的判断路径。读图时先找“Content-Length”对应的输入边界，再沿着“解码后不超过 1023 字节”检查状态怎样推进，最后用“超限返回 BodyTooLarge”确认输出是否已经形成验收证据。</p>
 <h2 id="section-5c8efeeb">把对象和边界分开</h2>
 <div class="article-table-wrap"><table>
 <thead><tr><th>对象或阶段</th><th>工程职责</th><th>现场观察点</th></tr></thead>
 <tbody>
-<tr><td>Disabled</td><td>未使能或已复位</td><td>监听句柄必须为 0</td></tr>
-<tr><td>Init</td><td>清理历史错误与句柄</td><td>准备进入 Listen</td></tr>
-<tr><td>Listen</td><td>周期调用 TCP_Server</td><td>等待有效 hServer</td></tr>
-<tr><td>Running</td><td>接入并服务所有槽位</td><td>聚合请求和错误</td></tr>
+<tr><td>Content-Length</td><td>十进制 Body 字节数</td><td>收齐前返回 NeedMoreData</td></tr>
+<tr><td>chunk-size</td><td>十六进制块长度</td><td>允许分号扩展但不解释语义</td></tr>
+<tr><td>0 块</td><td>chunked 正文结束</td><td>后续只验证 trailer 结束</td></tr>
+<tr><td>容量</td><td>解码后不超过 1023 字节</td><td>超限返回 BodyTooLarge</td></tr>
 </tbody></table></div>
 <h2 id="section-4af56480">从协议约束到代码职责</h2>
 <h3 id="section-6ca2a2b2">协议约束</h3>
-<p>Server 的第一条验收线不是“端口能连”，而是“监听句柄有效、连接槽位激活、请求进入解析器、响应可以返回”。四个状态缺一个都不能宣布跑通。 这条结论先限定消息什么时候成立，再限定哪个角色可以消费结果。若绕过协议边界直接驱动业务，半包、超时、重复执行和连接残留就会进入应用层。</p>
+<p>普通消息用声明长度收口，chunked 消息用十六进制块长度、CRLF 和 0 终止块收口。任何非法长度、缺失 CRLF、超限或 TE/CL 冲突都必须停止解析。 这条结论先限定消息什么时候成立，再限定哪个角色可以消费结果。若绕过协议边界直接驱动业务，半包、超时、重复执行和连接残留就会进入应用层。</p>
 <h3 id="section-7c6b9db9">工程抽象</h3>
-<p>Server 外层状态机只管理监听和槽位调度。单连接收发交给 <code>FB_HttpServerConnection</code>，这避免一个连接的半包或错误阻塞其他连接。</p>
-<p>监听状态必须对外暴露 <code>xListening</code>、<code>bListening</code> 和 <code>hListenHandle</code>。现场如果只给一个 <code>bError</code>，就无法判断故障发生在监听、接入还是 HTTP 解析阶段。</p>
-<ul><li><strong>Disabled</strong>：工程职责是“未使能或已复位”。它不能只停留在命名层面，运行时必须能通过“监听句柄必须为 0”观察到输入、状态或结果；否则这一层即使有代码，也没有形成可验证边界。</li><li><strong>Init</strong>：工程职责是“清理历史错误与句柄”。它不能只停留在命名层面，运行时必须能通过“准备进入 Listen”观察到输入、状态或结果；否则这一层即使有代码，也没有形成可验证边界。</li><li><strong>Listen</strong>：工程职责是“周期调用 TCP_Server”。它不能只停留在命名层面，运行时必须能通过“等待有效 hServer”观察到输入、状态或结果；否则这一层即使有代码，也没有形成可验证边界。</li><li><strong>Running</strong>：工程职责是“接入并服务所有槽位”。它不能只停留在命名层面，运行时必须能通过“聚合请求和错误”观察到输入、状态或结果；否则这一层即使有代码，也没有形成可验证边界。</li></ul>
+<p>当前解码器先扫描 chunk-size 行，再调用 <code>F_HttpParseHexSize</code>。只有长度、数据和尾部 CRLF 都验证通过后才复制 Body，避免输出保留半截非法数据。</p>
+<p>首版不生成 chunked 出站报文，统一用 Content-Length 构造请求和响应。这是工程取舍：接收端必须兼容真实 HTTP 对端，发送端则选择更容易诊断的确定长度。</p>
+<ul><li><strong>Content-Length</strong>：工程职责是“十进制 Body 字节数”。它不能只停留在命名层面，运行时必须能通过“收齐前返回 NeedMoreData”观察到输入、状态或结果；否则这一层即使有代码，也没有形成可验证边界。</li><li><strong>chunk-size</strong>：工程职责是“十六进制块长度”。它不能只停留在命名层面，运行时必须能通过“允许分号扩展但不解释语义”观察到输入、状态或结果；否则这一层即使有代码，也没有形成可验证边界。</li><li><strong>0 块</strong>：工程职责是“chunked 正文结束”。它不能只停留在命名层面，运行时必须能通过“后续只验证 trailer 结束”观察到输入、状态或结果；否则这一层即使有代码，也没有形成可验证边界。</li><li><strong>容量</strong>：工程职责是“解码后不超过 1023 字节”。它不能只停留在命名层面，运行时必须能通过“超限返回 BodyTooLarge”观察到输入、状态或结果；否则这一层即使有代码，也没有形成可验证边界。</li></ul>
 <h3 id="section-3c2115b3">程序单元</h3>
-<p>本篇主证据来自 <code>FB_HttpServer.st</code> 中以 <code>CASE eState OF</code> 为定位点的连续源码。这里不是为了展示语法，而是把协议约束落到确定程序单元：输入先进入结构体或缓冲区，状态机只在本周期处理可确认的部分，长度和结束条件决定能否前进，错误码与指标负责把失败原因带出对象边界。这样一来，“监听、接入和 HTTP 请求是三个不同事件。”可以在代码、在线变量和外部报文之间逐项对照，而不是依赖经验猜测。</p>
+<p>本篇主证据来自 <code>FB_HttpChunkedDecoder.st</code> 中以 <code>IF udiChunkSize = 0 THEN</code> 为定位点的连续源码。这里不是为了展示语法，而是把协议约束落到确定程序单元：输入先进入结构体或缓冲区，状态机只在本周期处理可确认的部分，长度和结束条件决定能否前进，错误码与指标负责把失败原因带出对象边界。这样一来，“消息边界必须由协议字段决定。”可以在代码、在线变量和外部报文之间逐项对照，而不是依赖经验猜测。</p>
 <h2 id="section-29eb6b41">本篇核心源码片段</h2>
-<p>下面两段代码来自同一个真实文件 <code>FB_HttpServer.st</code>，以 <code>CASE eState OF</code> 为中心连续截取，没有改写变量、删除分支或用伪代码替代。第一段用于确认入口与前置条件，第二段用于确认状态、边界和输出。核对时重点看“未使能或已复位”怎样进入对象，以及“聚合请求和错误”怎样证明本次处理已经结束。若两段之间的连续关系无法解释“端口检查必须继续追到请求和响应证据。”，就不能把局部代码截图当成实现证据。</p>
+<p>下面两段代码来自同一个真实文件 <code>FB_HttpChunkedDecoder.st</code>，以 <code>IF udiChunkSize = 0 THEN</code> 为中心连续截取，没有改写变量、删除分支或用伪代码替代。第一段用于确认入口与前置条件，第二段用于确认状态、边界和输出。核对时重点看“十进制 Body 字节数”怎样进入对象，以及“超限返回 BodyTooLarge”怎样证明本次处理已经结束。若两段之间的连续关系无法解释“校验通过之前不要修改最终 Body。”，就不能把局部代码截图当成实现证据。</p>
 <h3 id="section-602aff4b">片段一：入口、声明与前置条件</h3>
-<div class="code-card"><small>iecst</small><pre><code>            udiNowMs            := udiNowMs
-            );
-        aConnectionSnapshots[uiSlotIndex] := aConnections[uiSlotIndex].stConnection;
-    END_FOR
-    M_Reset();
-    RETURN;
-END_IF
+<div class="code-card"><small>iecst</small><pre><code>        FOR uiLineIndex := 0 TO uiLineLen - 1 DO
+            pLine^ := pInput[uiIndex + uiLineIndex];
+            pLine := pLine + 1;
+        END_FOR
+    END_IF
+    pLine^ := 0;
 
-CASE eState OF
-    E_HttpServerState.iDisabled:
-        eState := E_HttpServerState.iInit;
+    IF NOT F_HttpParseHexSize(
+        sValue   := sLine,
+        udiValue =&gt; udiChunkSize
+        ) THEN
+        bError := TRUE;
+        eError := E_HttpError.iChunkedDecodeFailed;
+        sDiagMsg := &#x27;chunk size parse failed&#x27;;
+        RETURN;
+    END_IF
 
-    E_HttpServerState.iInit:
-        hServer := 0;
-        hListenHandle := 0;
-        bError := FALSE;
-        eLastError := E_HttpError.iNoError;
-        sDiagMsg := &#x27;&#x27;;
-        eState := E_HttpServerState.iListen;
-
-    E_HttpServerState.iListen,
-    E_HttpServerState.iRunning:
-        fbServer(
-            xEnable := TRUE,
-            ipAddr  := ipBindAddr,
-            uiPort  := uiPort,
-            eError  =&gt; eTcpError
-            );
-        hServer := fbServer.hServer;
-        hListenHandle := hServer;
-        IF fbServer.xError THEN
-            eLastNbsError := eTcpError;
-            M_SetServerError(
-                eError   := E_HttpError.iTcpServerFailed,
-                sMessage := &#x27;TCP server listen failed&#x27;
-                );
-            eState := E_HttpServerState.iFault;
-        ELSIF hServer &lt;&gt; 0 THEN
-            eState := E_HttpServerState.iRunning;</code></pre></div>
-<p>这一段先回答对象在什么输入和状态下开始工作。阅读时要核对变量的初值、长度上限和启动条件，不能只看某个布尔量是否变成 TRUE。</p>
-<h3 id="section-b9383c27">片段二：状态推进、边界与输出</h3>
-<div class="code-card"><small>iecst</small><pre><code>            M_AcceptNewConnection();
-            M_ServiceConnections();
+    uiIndex := uiScan + 2;
+    IF udiChunkSize = 0 THEN
+        // 零长度块后若直接出现 CRLF，则判定为空 trailer 并立即完成。
+        IF ((uiIndex + 1) &lt; uiInputLen)
+            AND (pInput[uiIndex] = 16#0D)
+            AND (pInput[uiIndex + 1] = 16#0A) THEN
+            bDone := TRUE;
+            M_Decode := TRUE;
+            RETURN;
         END_IF
 
-    E_HttpServerState.iFault:
-        fbServer(
-            xEnable := FALSE,
-            ipAddr  := ipBindAddr,
-            uiPort  := uiPort
-            );
-ELSE
-    eState := E_HttpServerState.iFault;
-END_CASE
+        // 真实 HTTP/1.1 对端可能发送 trailer 字段；首版不消费字段语义，只验证终止空行并忽略其内容。
+        uiScan := uiIndex;
+        WHILE ((uiScan + 3) &lt; uiInputLen)
+            AND NOT ((pInput[uiScan] = 16#0D)
+                AND (pInput[uiScan + 1] = 16#0A)
+                AND (pInput[uiScan + 2] = 16#0D)
+                AND (pInput[uiScan + 3] = 16#0A)) DO
+            uiScan := uiScan + 1;
+        END_WHILE
 
-M_UpdateServerOutputs();
+        IF ((uiScan + 3) &lt; uiInputLen)
+            AND (pInput[uiScan] = 16#0D)
+            AND (pInput[uiScan + 1] = 16#0A)
+            AND (pInput[uiScan + 2] = 16#0D)
+            AND (pInput[uiScan + 3] = 16#0A) THEN
+            bDone := TRUE;
+            M_Decode := TRUE;
+            RETURN;</code></pre></div>
+<p>这一段先回答对象在什么输入和状态下开始工作。阅读时要核对变量的初值、长度上限和启动条件，不能只看某个布尔量是否变成 TRUE。</p>
+<h3 id="section-b9383c27">片段二：状态推进、边界与输出</h3>
+<div class="code-card"><small>iecst</small><pre><code>        END_IF
+        bError := TRUE;
+        eError := E_HttpError.iNeedMoreData;
+        sDiagMsg := &#x27;chunk trailer is incomplete&#x27;;
+        RETURN;
+    END_IF
 
-// === METHOD M_AcceptNewConnection ===
-/// =======================================================================
-/// 名称      : M_AcceptNewConnection
-/// 功能      : 周期调用所有 NBS.TCP_Connection 接入槽位。
-/// 说明      : 所有槽位每周期都调用，符合 NBS 电平触发语义。
-/// =======================================================================
-{attribute &#x27;hide_all_locals&#x27;}
-METHOD PRIVATE M_AcceptNewConnection
-// === IMPLEMENTATION ===
-// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
-// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
-bAcceptError := FALSE;
-FOR uiSlotIndex := 1 TO GVL_Http.cnMaxClientSlots DO
-    aTcpAccept[uiSlotIndex](
-        xEnable := hServer &lt;&gt; 0,
-        hServer := hServer
-        );
-    IF aTcpAccept[uiSlotIndex].xActive THEN
-        IF (NOT aConnections[uiSlotIndex].bActive)
-            OR (aConnections[uiSlotIndex].stConnection.hConnection &lt;&gt; aTcpAccept[uiSlotIndex].hConnection) THEN
-            // 原因：接入阶段只绑定 NBS 句柄，读写统一留给 M_ServiceConnections；
-            // 避免新连接在同一扫描周期被 TCP_Read 调用两次，导致大 body 半包场景被误判为接收错误。
-            aConnections[uiSlotIndex].M_Attach(</code></pre></div>
+    IF (udiDecodedLength + udiChunkSize) &gt; TO_UDINT(GVL_Http.cnMaxBodySize) THEN
+        bError := TRUE;
+        eError := E_HttpError.iBodyTooLarge;
+        sDiagMsg := &#x27;decoded body exceeds limit&#x27;;
+        RETURN;
+    END_IF
+
+    uiChunkSize := TO_UINT(udiChunkSize);
+    IF ((TO_UDINT(uiIndex) + udiChunkSize + 1) &gt; TO_UDINT(uiInputLen)) THEN
+        bError := TRUE;
+        eError := E_HttpError.iNeedMoreData;
+        sDiagMsg := &#x27;chunk data is incomplete&#x27;;
+        RETURN;
+    END_IF
+
+    IF NOT ((pInput[uiIndex + uiChunkSize] = 16#0D)
+        AND (pInput[uiIndex + uiChunkSize + 1] = 16#0A)) THEN
+        bError := TRUE;
+        eError := E_HttpError.iChunkedDecodeFailed;
+        sDiagMsg := &#x27;chunk data CRLF is invalid&#x27;;
+        RETURN;
+    END_IF
+
+    // 只有通过长度和 CRLF 校验后才复制数据，保证输出不会保留半截非法 body。
+    IF uiChunkSize &gt; 0 THEN
+        FOR uiCopyIndex := 0 TO uiChunkSize - 1 DO
+            pWrite^ := pInput[uiIndex + uiCopyIndex];
+            pWrite := pWrite + 1;
+            udiDecodedLength := udiDecodedLength + 1;
+        END_FOR
+        pWrite^ := 0;
+    END_IF
+
+    uiIndex := uiIndex + uiChunkSize + 2;
+END_WHILE
+
+bError := TRUE;
+eError := E_HttpError.iNeedMoreData;
+sDiagMsg := &#x27;terminal chunk is missing&#x27;;</code></pre></div>
 <p>第二段继续展示同一连续源码范围。把它与第一段合起来，才能判断输入怎样被锁存、状态何时推进、边界何时满足，以及错误出口是否保留了足够诊断信息。</p>
 <h2 id="section-8437c6eb">验证路径</h2>
 <div class="article-table-wrap"><table>
 <thead><tr><th>场景</th><th>操作</th><th>通过口径</th></tr></thead>
 <tbody>
-<tr><td>监听</td><td>hListenHandle 非 0，状态为 Running</td><td>证明端口由 PLC 持有</td></tr>
-<tr><td>接入</td><td>AcceptedConnections 递增</td><td>证明外部连接进入槽位</td></tr>
-<tr><td>请求</td><td>uiLastRequestSlot 和目标路径更新</td><td>证明 HTTP 请求完成</td></tr>
-<tr><td>响应</td><td>外部工具获得合法响应</td><td>证明事务闭环</td></tr>
+<tr><td>合法分块</td><td>多个块加 0 终止块</td><td>解码 Body 顺序正确</td></tr>
+<tr><td>分号扩展</td><td>块长度后带扩展</td><td>长度计算不受扩展影响</td></tr>
+<tr><td>坏十六进制</td><td>chunk-size 含非法字符</td><td>ChunkedDecodeFailed</td></tr>
+<tr><td>缺少 CRLF</td><td>块数据边界错误</td><td>拒绝复制不完整 Body</td></tr>
 </tbody></table></div>
-<h3 id="1">场景 1：监听</h3>
-<p>启动 Server 后检查 <code>hListenHandle</code> 非 0、状态为 Running，并用外部工具确认目标端口可以建立 TCP 连接。这一步只证明端口由 PLC 持有，不代表连接已经进入 HTTP 连接槽，更不代表请求已经解析完成。</p>
-<h3 id="2">场景 2：接入</h3>
-<p>保持连接但暂不发送完整请求，观察 <code>AcceptedConnections</code>、活动连接数和槽位快照。计数递增且某个槽位进入接收态，才说明 Accept 结果已经交给连接实例。如果端口能连但这些量不变化，应查接入调度，不要先改 Parser。</p>
-<h3 id="3">场景 3：请求</h3>
-<p>发送一条完整请求后，<code>uiLastRequestSlot</code> 应指向实际处理槽位，最近目标路径应与请求行一致，接收缓冲的完成边界应由 Parser 给出。只有这三项同时成立，才可以把请求交给路由；仅看到 Read 返回字节数还不算收到 HTTP 请求。</p>
-<h3 id="4">场景 4：响应</h3>
-<p>最后核对外部工具收到的状态行、Header 和 Body，并观察发送状态退出、连接按策略关闭或回到可复用态。外部响应正确但槽位一直占用，说明事务只完成了报文发送，没有完成资源回收；这种状态不能算 Server 跑通。</p>
+<h3 id="1">场景 1：合法分块</h3>
+<p>发送 <code>4\r\nWiki\r\n5\r\npedia\r\n0\r\n\r\n</code> 这一类标准分块输入。解码结果必须按块顺序拼成连续 Body，完成标志只能在 0 块和 trailer 结束以后出现。这里要同时核对写指针、累计长度和输出字符串，防止只在外部看起来返回了正确文本。</p>
+<h3 id="2">场景 2：分号扩展</h3>
+<p>把 chunk-size 写成 <code>5;name=value</code>，确认分号后的扩展不会进入长度换算。PLC 端只按前面的十六进制数取数据，扩展字段不应改变 Body，也不应被误认为非法字符。这个场景用于证明解析器没有把整行当成纯数字硬转。</p>
+<h3 id="3">场景 3：坏十六进制</h3>
+<p>发送 <code>G\r\n...</code> 或带非十六进制字符的块长度。期望错误应落在 chunk-size 解析阶段，而不是等到 Body 拷贝阶段才失败。错误发生后，输出 Body 必须保持原状态或清空，不能留下已经复制的半截数据。</p>
+<h3 id="4-crlf">场景 4：缺少 CRLF</h3>
+<p>构造块数据后缺少 <code>CRLF</code> 的输入。解码器必须先验证长度和边界，再复制数据；边界不完整时应返回需要更多数据或解码失败，而不是先把看见的字节写入输出。这个顺序决定了异常报文会不会污染下一次请求。</p>
 <h2 id="section-c1768cb2">常见误判</h2>
-<ul><li>看到 hListenHandle 非零就宣布 Server 已经收到 HTTP 请求。</li><li>监听失败、接入失败和协议解析失败只共用一个模糊错误码。</li><li>新连接接入后没有持续服务连接槽，句柄存在但请求永远不推进。</li></ul>
+<ul><li>用字符串结束符判断 Body，而不是按 Content-Length 或 chunk-size 计算字节边界。</li><li>chunk-size 解析失败后仍复制已经收到的部分数据，留下半截业务 Body。</li><li>把 chunked 入站支持误写成当前实现也会生成 chunked 出站报文。</li></ul>
 <p>这些误判的共同点，是拿一个局部现象替代完整事务。定位时必须回到本篇的输入、状态、边界和输出四个坐标，并用相同输入完成回归。</p>
 <h2 id="section-6f65a855">这一篇你最该记住</h2>
-<ul><li>监听、接入和 HTTP 请求是三个不同事件。</li><li>Server 外层只做生命周期和调度。</li><li>端口检查必须继续追到请求和响应证据。</li></ul>
+<ul><li>消息边界必须由协议字段决定。</li><li>chunked 的结束标志是 0 块，不是连接关闭。</li><li>校验通过之前不要修改最终 Body。</li></ul>
 <h2 id="section-0fd034f8">系列导航</h2>
-<ul><li>系列：CodeSys HTTP 系列教程，第 06/28 篇。</li><li>阶段：服务器篇，职责线位置 2/7。</li><li>上一篇：第05篇</li><li>下一篇：第07篇</li><li>发布顺序：基础认知 -&gt; Server -&gt; Client -&gt; 完整源码加更 -&gt; 综合收束。</li></ul>
+<ul><li>系列：CodeSys HTTP 系列教程，第 09/28 篇。</li><li>阶段：服务器篇，职责线位置 5/7。</li><li>上一篇：第08篇</li><li>下一篇：第10篇</li><li>发布顺序：基础认知 -&gt; Server -&gt; Client -&gt; 完整源码加更 -&gt; 综合收束。</li></ul>
             </div>
             <nav class="article-series-nav" aria-label="系列导航">
-              <a class="series-nav-card" href="../codesys-http-server-01/index.html">
-                <small>上一篇 / 第5篇</small>
-                <strong>第05篇_Server 01｜先跑通最小请求：200 OK 和 pong</strong>
-                <span>先建立一条最小可运行 Server 闭环：PLC 监听 8088，外部请求 `/api/ping`，返回带正确状态行、长度和关闭策略的 `pong`。</span>
+              <a class="series-nav-card" href="../codesys-http-server-04/index.html">
+                <small>上一篇 / 第8篇</small>
+                <strong>第08篇_Server 04｜Header 收完了，为什么请求仍然不完整</strong>
+                <span>`$R$N$R$N` 只标志 Header 结束。Server 还要根据 Content-Length、Transfer-Encoding 或连接策略判断 Body 是否完整。</span>
               </a>
-              <a class="series-nav-card" href="../codesys-http-server-03/index.html">
-                <small>下一篇 / 第7篇</small>
-                <strong>第07篇_Server 03｜多客户端接入，连接槽位和生命周期怎么设计</strong>
-                <span>一个监听端口背后可能同时存在多个 TCP 连接。PLC 需要固定槽位、独立状态和可回收句柄，不能用一个全局接收缓冲区处理所有客户端。</span>
+              <a class="series-nav-card" href="../../index.html#articles-http">
+                <small>下一篇 / 系列入口</small>
+                <strong>返回 HTTP 文章中心</strong>
+                <span>回到文章中心，继续定位同系列文章和相关 HTTP 资料。</span>
               </a>
             </nav>
             <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
