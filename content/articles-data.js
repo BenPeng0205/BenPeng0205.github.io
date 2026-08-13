@@ -3089,5 +3089,218 @@ window.CONTROLROOKIE_ARTICLES = [
     "contentId": "codesys-http-10",
     "publishAt": "2026-08-08T19:00:00+08:00",
     "source": "第10篇_Server 06｜路由、状态码和响应关闭不能靠拼字符串.md"
+  },
+  {
+    "id": "codesys-http-server-07",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第11篇_Server 07｜用通信猫、curl 和在线变量完成真机验收",
+      "en": "第11篇_Server 07｜用通信猫、curl 和在线变量完成真机验收"
+    },
+    "copy": {
+      "zh": "Server 真机通过不能只看一张外部工具截图。至少要把监听、请求、响应、协议错误和连接清理五类证据与 PLC 在线变量对应起来。",
+      "en": "Server 真机通过不能只看一张外部工具截图。至少要把监听、请求、响应、协议错误和连接清理五类证据与 PLC 在线变量对应起来。"
+    },
+    "href": "articles/codesys-http-server-07/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "服务器篇",
+      "en": "HTTP Server"
+    },
+    "kind": {
+      "zh": "服务器篇",
+      "en": "HTTP Server"
+    },
+    "progress": {
+      "zh": "第11篇/共28篇",
+      "en": "Part 11 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第11篇",
+      "en": "This Site / Part 11"
+    },
+    "cardMeta": {
+      "zh": "11 · 服务器篇",
+      "en": "11 · HTTP Server"
+    },
+    "date": "2026-08-09",
+    "readingTime": {
+      "zh": "约 12 分钟阅读",
+      "en": "12 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 服务器篇 服务器篇 第11篇_Server 07｜用通信猫、curl 和在线变量完成真机验收 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 11,
+    "contentId": "codesys-http-11",
+    "publishAt": "2026-08-09T19:00:00+08:00",
+    "source": "第11篇_Server 07｜用通信猫、curl 和在线变量完成真机验收.md"
+  },
+  {
+    "id": "codesys-http-client-01",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第12篇_Client 01｜先让 PLC 完成第一次 HTTP GET",
+      "en": "第12篇_Client 01｜先让 PLC 完成第一次 HTTP GET"
+    },
+    "copy": {
+      "zh": "先用固定地址、固定路径、无 Body GET 和短连接跑通 Client 最小闭环，明确 Execute、Connect、Send、Receive、Done 各自代表什么。",
+      "en": "先用固定地址、固定路径、无 Body GET 和短连接跑通 Client 最小闭环，明确 Execute、Connect、Send、Receive、Done 各自代表什么。"
+    },
+    "href": "articles/codesys-http-client-01/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "客户端篇",
+      "en": "HTTP Client"
+    },
+    "kind": {
+      "zh": "客户端篇",
+      "en": "HTTP Client"
+    },
+    "progress": {
+      "zh": "第12篇/共28篇",
+      "en": "Part 12 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第12篇",
+      "en": "This Site / Part 12"
+    },
+    "cardMeta": {
+      "zh": "12 · 客户端篇",
+      "en": "12 · HTTP Client"
+    },
+    "date": "2026-08-10",
+    "readingTime": {
+      "zh": "约 11 分钟阅读",
+      "en": "11 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 客户端篇 客户端篇 第12篇_Client 01｜先让 PLC 完成第一次 HTTP GET HTTP CodeSys PLC通信 ControlRookie",
+    "order": 12,
+    "contentId": "codesys-http-12",
+    "publishAt": "2026-08-10T19:00:00+08:00",
+    "source": "第12篇_Client 01｜先让 PLC 完成第一次 HTTP GET.md"
+  },
+  {
+    "id": "codesys-http-client-02",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第13篇_Client 02｜TCP 连接成功，为什么 HTTP 请求还没有成功",
+      "en": "第13篇_Client 02｜TCP 连接成功，为什么 HTTP 请求还没有成功"
+    },
+    "copy": {
+      "zh": "PLC Client 的完成条件不是 connect 成功，也不是 Write 返回完成，而是请求发送完毕并收到一条边界完整、解析成功的 HTTP 响应。",
+      "en": "PLC Client 的完成条件不是 connect 成功，也不是 Write 返回完成，而是请求发送完毕并收到一条边界完整、解析成功的 HTTP 响应。"
+    },
+    "href": "articles/codesys-http-client-02/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "客户端篇",
+      "en": "HTTP Client"
+    },
+    "kind": {
+      "zh": "客户端篇",
+      "en": "HTTP Client"
+    },
+    "progress": {
+      "zh": "第13篇/共28篇",
+      "en": "Part 13 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第13篇",
+      "en": "This Site / Part 13"
+    },
+    "cardMeta": {
+      "zh": "13 · 客户端篇",
+      "en": "13 · HTTP Client"
+    },
+    "date": "2026-08-12",
+    "readingTime": {
+      "zh": "约 10 分钟阅读",
+      "en": "10 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 客户端篇 客户端篇 第13篇_Client 02｜TCP 连接成功，为什么 HTTP 请求还没有成功 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 13,
+    "contentId": "codesys-http-13",
+    "publishAt": "2026-08-12T19:00:00+08:00",
+    "source": "第13篇_Client 02｜TCP 连接成功，为什么 HTTP 请求还没有成功.md"
   }
 ];

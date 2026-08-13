@@ -664,6 +664,168 @@
         "production_publish": false
       },
       "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-44943c140ae8",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-11",
+      "slug": "codesys-http-server-07",
+      "title": "第11篇_Server 07｜用通信猫、curl 和在线变量完成真机验收",
+      "summary": "Server 真机通过不能只看一张外部工具截图。至少要把监听、请求、响应、协议错误和连接清理五类证据与 PLC 在线变量对应起来。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第11篇_Server 07｜用通信猫、curl 和在线变量完成真机验收.md",
+      "content_hash": "f33f5135316c3f5a1b9c388384c071e90769bdb1930f2832f3f4c5836fed3690",
+      "publish_at": "2026-08-09T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "服务器篇",
+        "folder_en": "HTTP Server",
+        "order": 11,
+        "total": 28
+      },
+      "article": {
+        "kind_zh": "服务器篇",
+        "kind_en": "HTTP Server",
+        "date": "2026-08-09",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ]
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-11\\第11篇_核心架构图.png",
+          "filename": "第11篇_核心架构图.png",
+          "sha256": "7ee776a39c5209ab8f6873b4a368973bfeb746161c1451bcc1f05a0ac13a8053"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-47ff2837a584",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-12",
+      "slug": "codesys-http-client-01",
+      "title": "第12篇_Client 01｜先让 PLC 完成第一次 HTTP GET",
+      "summary": "先用固定地址、固定路径、无 Body GET 和短连接跑通 Client 最小闭环，明确 Execute、Connect、Send、Receive、Done 各自代表什么。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第12篇_Client 01｜先让 PLC 完成第一次 HTTP GET.md",
+      "content_hash": "29f26e5e7c26d1824f49182cb2c443251a1fb5670aefeb17b0f4b42edff1b12d",
+      "publish_at": "2026-08-10T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "客户端篇",
+        "folder_en": "HTTP Client",
+        "order": 12,
+        "total": 28
+      },
+      "article": {
+        "kind_zh": "客户端篇",
+        "kind_en": "HTTP Client",
+        "date": "2026-08-10",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ]
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-12\\第12篇_核心架构图.png",
+          "filename": "第12篇_核心架构图.png",
+          "sha256": "cbadb15aa6ccbad6d982b2ed03ca5fd815b0c84e076df22cc07b7b36488f7232"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-aa73c1d65623",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-13",
+      "slug": "codesys-http-client-02",
+      "title": "第13篇_Client 02｜TCP 连接成功，为什么 HTTP 请求还没有成功",
+      "summary": "PLC Client 的完成条件不是 connect 成功，也不是 Write 返回完成，而是请求发送完毕并收到一条边界完整、解析成功的 HTTP 响应。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第13篇_Client 02｜TCP 连接成功，为什么 HTTP 请求还没有成功.md",
+      "content_hash": "28ca09515814736650238258e0592fa4ccb09b15e7576ad853d75b113decbf61",
+      "publish_at": "2026-08-12T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "客户端篇",
+        "folder_en": "HTTP Client",
+        "order": 13,
+        "total": 28
+      },
+      "article": {
+        "kind_zh": "客户端篇",
+        "kind_en": "HTTP Client",
+        "date": "2026-08-12",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ]
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-13\\第13篇_核心架构图.png",
+          "filename": "第13篇_核心架构图.png",
+          "sha256": "3033a1373cc94b4d73f70f1dec0c952e94751c95f850f118c5052d53e119f6e0"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
     }
   ]
 }

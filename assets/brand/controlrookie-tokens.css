@@ -1,0 +1,194 @@
+/* Generated from Brand OS V2.0 controlrookie-tokens.json. Do not edit directly. */
+:root,
+[data-cr-mode="product"][data-cr-theme="light"] {
+  color-scheme: light;
+  --cr-brand-primary: #0F58AA;
+  --cr-brand-primary-content: #0B4A90;
+  --cr-brand-primary-strong: #083B73;
+  --cr-brand-on-primary: #FFFFFF;
+  --cr-neutral-0: #FFFFFF;
+  --cr-neutral-50: #F7F8FA;
+  --cr-neutral-100: #F1F3F5;
+  --cr-neutral-200: #E2E6EA;
+  --cr-neutral-300: #CBD1D8;
+  --cr-neutral-400: #9CA5AF;
+  --cr-neutral-500: #707A84;
+  --cr-neutral-600: #515B65;
+  --cr-neutral-700: #38414A;
+  --cr-neutral-800: #252C33;
+  --cr-neutral-900: #171C21;
+  --cr-neutral-950: #0F1317;
+  --cr-neutral-1000: #080A0C;
+  --cr-info: #0F58AA;
+  --cr-success: #198754;
+  --cr-warning: #B65C00;
+  --cr-critical: #C7352C;
+  --cr-offline: #707A84;
+  --cr-canvas: #F7F8FA;
+  --cr-surface: #FFFFFF;
+  --cr-surface-elevated: #FFFFFF;
+  --cr-surface-subtle: #F1F3F5;
+  --cr-surface-sunken: #E2E6EA;
+  --cr-text: #171C21;
+  --cr-text-secondary: #515B65;
+  --cr-text-tertiary: #707A84;
+  --cr-border: #CBD1D8;
+  --cr-border-strong: #9CA5AF;
+  --cr-disabled: #9CA5AF;
+  --cr-interactive: #0F58AA;
+  --cr-interactive-text: #0B4A90;
+  --cr-on-interactive: #FFFFFF;
+  --cr-focus-ring: #0F58AA;
+  --cr-control-height: 40px;
+  --cr-table-row-height: 40px;
+  --cr-font-ui: 'IBM Plex Sans SC', 'IBM Plex Sans', sans-serif;
+  --cr-font-latin: 'IBM Plex Sans', 'IBM Plex Sans SC', sans-serif;
+  --cr-font-mono: 'IBM Plex Mono', monospace;
+  --cr-font-weight-regular: 400;
+  --cr-font-weight-semibold: 600;
+  --cr-space-1: 4px;
+  --cr-space-2: 8px;
+  --cr-space-3: 12px;
+  --cr-space-4: 16px;
+  --cr-space-5: 20px;
+  --cr-space-6: 24px;
+  --cr-space-8: 32px;
+  --cr-radius-small: 4px;
+  --cr-radius-medium: 6px;
+  --cr-radius-panel: 8px;
+  --cr-radius-control: 8px;
+  --cr-radius-pill: 999px;
+  --cr-touch-target: 44px;
+  --cr-shadow-overlay: 0 12px 32px rgba(8, 10, 12, 0.16);
+  --cr-shadow-focus: 0 0 0 3px rgba(15, 88, 170, 0.28);
+  --cr-motion-fast: 100ms;
+  --cr-motion-standard: 180ms;
+  --cr-motion-slow: 280ms;
+  --cr-motion-easing: cubic-bezier(0.2, 0, 0, 1);
+  --cr-pressed-scale: 0.98;
+  --cr-disabled-opacity: 0.45;
+}
+
+[data-cr-mode="office-brand"] {
+  color-scheme: light;
+  --cr-canvas: #FFFFFF;
+  --cr-surface: #FFFFFF;
+  --cr-surface-elevated: #FFFFFF;
+  --cr-surface-subtle: #F7F8FA;
+  --cr-surface-sunken: #F1F3F5;
+  --cr-text: #171C21;
+  --cr-text-secondary: #515B65;
+  --cr-text-tertiary: #707A84;
+  --cr-border: #CBD1D8;
+  --cr-border-strong: #9CA5AF;
+  --cr-disabled: #9CA5AF;
+  --cr-interactive: #0F58AA;
+  --cr-interactive-text: #0B4A90;
+  --cr-on-interactive: #FFFFFF;
+  --cr-focus-ring: #0F58AA;
+  --cr-control-height: 44px;
+  --cr-table-row-height: 44px;
+}
+
+[data-cr-mode="product"][data-cr-theme="dark"] {
+  color-scheme: dark;
+  --cr-canvas: #0F1317;
+  --cr-surface: #171C21;
+  --cr-surface-elevated: #252C33;
+  --cr-surface-subtle: #252C33;
+  --cr-surface-sunken: #080A0C;
+  --cr-text: #F7F8FA;
+  --cr-text-secondary: #CBD1D8;
+  --cr-text-tertiary: #9CA5AF;
+  --cr-border: #38414A;
+  --cr-border-strong: #515B65;
+  --cr-disabled: #707A84;
+  --cr-interactive: #0F58AA;
+  --cr-interactive-text: #8AB8EA;
+  --cr-on-interactive: #FFFFFF;
+  --cr-focus-ring: #8AB8EA;
+  --cr-shadow-overlay: 0 16px 40px rgba(0, 0, 0, 0.44);
+}
+
+[data-cr-mode="industrial"] {
+  --cr-control-height: 32px;
+  --cr-table-row-height: 32px;
+}
+
+[data-cr-mode="industrial"][data-cr-theme="light"] {
+  color-scheme: light;
+  --cr-canvas: #E2E6EA;
+  --cr-surface: #F7F8FA;
+  --cr-surface-elevated: #FFFFFF;
+  --cr-surface-subtle: #F1F3F5;
+  --cr-surface-sunken: #CBD1D8;
+  --cr-text: #080A0C;
+  --cr-text-secondary: #38414A;
+  --cr-text-tertiary: #515B65;
+  --cr-border: #9CA5AF;
+  --cr-border-strong: #707A84;
+  --cr-disabled: #707A84;
+  --cr-interactive: #0F58AA;
+  --cr-interactive-text: #083B73;
+  --cr-on-interactive: #FFFFFF;
+  --cr-focus-ring: #0F58AA;
+}
+
+[data-cr-mode="industrial"][data-cr-theme="dark"] {
+  color-scheme: dark;
+  --cr-canvas: #080A0C;
+  --cr-surface: #0F1317;
+  --cr-surface-elevated: #171C21;
+  --cr-surface-subtle: #252C33;
+  --cr-surface-sunken: #080A0C;
+  --cr-text: #FFFFFF;
+  --cr-text-secondary: #E2E6EA;
+  --cr-text-tertiary: #CBD1D8;
+  --cr-border: #515B65;
+  --cr-border-strong: #707A84;
+  --cr-disabled: #707A84;
+  --cr-interactive: #0F58AA;
+  --cr-interactive-text: #A7CBF1;
+  --cr-on-interactive: #FFFFFF;
+  --cr-focus-ring: #A7CBF1;
+  --cr-shadow-overlay: 0 16px 40px rgba(0, 0, 0, 0.44);
+}
+
+[data-cr-mode="industrial"][data-cr-theme="high-contrast"] {
+  color-scheme: dark;
+  --cr-canvas: #000000;
+  --cr-surface: #000000;
+  --cr-surface-elevated: #171C21;
+  --cr-surface-subtle: #0F1317;
+  --cr-surface-sunken: #000000;
+  --cr-text: #FFFFFF;
+  --cr-text-secondary: #FFFFFF;
+  --cr-text-tertiary: #E2E6EA;
+  --cr-border: #FFFFFF;
+  --cr-border-strong: #FFFFFF;
+  --cr-disabled: #9CA5AF;
+  --cr-interactive: #0F58AA;
+  --cr-interactive-text: #FFFFFF;
+  --cr-on-interactive: #FFFFFF;
+  --cr-focus-ring: #FFFFFF;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .cr-material {
+    backdrop-filter: none !important;
+    background: var(--cr-surface) !important;
+  }
+}
+
+@media (forced-colors: active) {
+  :focus-visible { outline: 3px solid CanvasText; outline-offset: 2px; }
+}

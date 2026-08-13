@@ -5,7 +5,7 @@
   "sources": {
     "token": {
       "path": "02_产品设计系统/设计令牌/源/controlrookie-tokens.json",
-      "sha256": "2cd0f6065c92f42ba5173e100940708642dbdbcfbd8d9932ac982f179b8c86b8",
+      "sha256": "06719c22dee6cb68358fd378fd49f2f3601cf948fa1cc3a4b738131508b1f7cb",
       "primary": "#0F58AA"
     },
     "logoMaster": {
@@ -17,12 +17,13 @@
       "sha256": "1919bde471d381ca59f967204523e71475b5fa5df2f7214cad66e6c0255dd9da"
     },
     "fontLicense": {
-      "path": "04_正式资产/字体/IBM Plex/OFL-1.1.txt",
-      "sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da"
+      "path": "public/assets/fonts/ibm-plex/OFL-1.1.txt",
+      "sha256": "3ff4395aeb203050b3d4e775861cf0b93b598e0a6d2b16f0eb41df3350b15695"
     }
   },
   "outputs": {
     "public/apple-touch-icon.png": "d5c6cfa1b212c03beded0bd1af94c27ce39c4a70f9c95919d6620fda3dd4f7bb",
+    "public/assets/brand/controlrookie-tokens.css": "ff362227ea1a23ac4d7d80f8f3104acdd6a7655cfb5ee7837940ab247592fc8b",
     "public/assets/fonts/ibm-plex/IBMPlexMono-Regular.woff2": "ba204497f16b6d334cee9d1e963a831b73e3a56e1d6300a8489d18df7214b350",
     "public/assets/fonts/ibm-plex/IBMPlexMono-SemiBold.woff2": "6a825b4824c01cbb401e829e5a066a1818411bcb3538b5a5792c5ca9b82343c3",
     "public/assets/fonts/ibm-plex/IBMPlexSans-Regular.woff2": "ba711a3085ff9f27440b6b9c4550cfc47c97bf36591d5da958b975bb3add8c1a",
@@ -34,7 +35,7 @@
     "public/assets/images/brand/controlrookie-logo.png": "2c4e30a3894dfe9957c13a94d967e0da43778178af28a465eb3dcceee9f03013",
     "public/assets/images/brand/controlrookie-mark-latest.png": "dabd959ab4eaebf3a00fba9761259dc5204ef2f2a046706e0842a519ea6d3287",
     "public/assets/images/brand/controlrookie-mark.svg": "1919bde471d381ca59f967204523e71475b5fa5df2f7214cad66e6c0255dd9da",
-    "public/assets/images/brand/controlrookie-og.png": "dc0acd084499a97ed488f436043f70d98830bb7a7d2acfe28b0dfb2ccc74d2ac",
+    "public/assets/images/brand/controlrookie-og.png": "f61ec07982df0d361c8d560e58e2e1da02ab1fe1efad8f511d741e9878d10ab5",
     "public/favicon.ico": "ba05991b707276b37889f1937273ad8ee938e0b0460066e5156644970839e45a",
     "public/icon-192.png": "535cd37263df22dc73fd4fa49c24a335ac08503b239b68036067aa00f8eeea42",
     "public/icon-512.png": "dabd959ab4eaebf3a00fba9761259dc5204ef2f2a046706e0842a519ea6d3287"
