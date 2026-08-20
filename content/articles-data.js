@@ -3302,5 +3302,502 @@ window.CONTROLROOKIE_ARTICLES = [
     "contentId": "codesys-http-13",
     "publishAt": "2026-08-12T19:00:00+08:00",
     "source": "第13篇_Client 02｜TCP 连接成功，为什么 HTTP 请求还没有成功.md"
+  },
+  {
+    "id": "codesys-http-client-03",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第14篇_Client 03｜URI、Host 和请求头怎样构造",
+      "en": "第14篇_Client 03｜URI、Host 和请求头怎样构造"
+    },
+    "copy": {
+      "zh": "远端 IP、URI、请求目标和 Host 是不同概念。Client 必须把连接地址和 HTTP 语义分开处理，才能访问反向代理或同 IP 多站点服务。",
+      "en": "远端 IP、URI、请求目标和 Host 是不同概念。Client 必须把连接地址和 HTTP 语义分开处理，才能访问反向代理或同 IP 多站点服务。"
+    },
+    "href": "articles/codesys-http-client-03/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "客户端篇",
+      "en": "HTTP Client"
+    },
+    "kind": {
+      "zh": "客户端篇",
+      "en": "HTTP Client"
+    },
+    "progress": {
+      "zh": "第14篇/共28篇",
+      "en": "Part 14 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第14篇",
+      "en": "This Site / Part 14"
+    },
+    "cardMeta": {
+      "zh": "14 · 客户端篇",
+      "en": "14 · HTTP Client"
+    },
+    "date": "2026-08-14",
+    "readingTime": {
+      "zh": "约 11 分钟阅读",
+      "en": "11 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 客户端篇 客户端篇 第14篇_Client 03｜URI、Host 和请求头怎样构造 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 14,
+    "contentId": "codesys-http-14",
+    "publishAt": "2026-08-14T19:00:00+08:00",
+    "source": "第14篇_Client 03｜URI、Host 和请求头怎样构造.md"
+  },
+  {
+    "id": "codesys-http-client-04",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第15篇_Client 04｜GET、POST 和 Body 怎样保持一致",
+      "en": "第15篇_Client 04｜GET、POST 和 Body 怎样保持一致"
+    },
+    "copy": {
+      "zh": "方法、Content-Type、Content-Length 和 Body 必须作为一个请求模型处理。GET 与 POST 的差别不能只落在 start-line 的一个单词。",
+      "en": "方法、Content-Type、Content-Length 和 Body 必须作为一个请求模型处理。GET 与 POST 的差别不能只落在 start-line 的一个单词。"
+    },
+    "href": "articles/codesys-http-client-04/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "客户端篇",
+      "en": "HTTP Client"
+    },
+    "kind": {
+      "zh": "客户端篇",
+      "en": "HTTP Client"
+    },
+    "progress": {
+      "zh": "第15篇/共28篇",
+      "en": "Part 15 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第15篇",
+      "en": "This Site / Part 15"
+    },
+    "cardMeta": {
+      "zh": "15 · 客户端篇",
+      "en": "15 · HTTP Client"
+    },
+    "date": "2026-08-16",
+    "readingTime": {
+      "zh": "约 13 分钟阅读",
+      "en": "13 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 客户端篇 客户端篇 第15篇_Client 04｜GET、POST 和 Body 怎样保持一致 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 15,
+    "contentId": "codesys-http-15",
+    "publishAt": "2026-08-16T19:00:00+08:00",
+    "source": "第15篇_Client 04｜GET、POST 和 Body 怎样保持一致.md"
+  },
+  {
+    "id": "codesys-http-client-05",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第16篇_Client 05｜状态行、Header 和响应 Body 怎样完整接收",
+      "en": "第16篇_Client 05｜状态行、Header 和响应 Body 怎样完整接收"
+    },
+    "copy": {
+      "zh": "Client 收到第一段响应后，应先解析状态行和 Header，再根据边界字段判断 Body。状态码 200 也不能替代完整性检查。",
+      "en": "Client 收到第一段响应后，应先解析状态行和 Header，再根据边界字段判断 Body。状态码 200 也不能替代完整性检查。"
+    },
+    "href": "articles/codesys-http-client-05/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "客户端篇",
+      "en": "HTTP Client"
+    },
+    "kind": {
+      "zh": "客户端篇",
+      "en": "HTTP Client"
+    },
+    "progress": {
+      "zh": "第16篇/共28篇",
+      "en": "Part 16 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第16篇",
+      "en": "This Site / Part 16"
+    },
+    "cardMeta": {
+      "zh": "16 · 客户端篇",
+      "en": "16 · HTTP Client"
+    },
+    "date": "2026-08-18",
+    "readingTime": {
+      "zh": "约 12 分钟阅读",
+      "en": "12 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 客户端篇 客户端篇 第16篇_Client 05｜状态行、Header 和响应 Body 怎样完整接收 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 16,
+    "contentId": "codesys-http-16",
+    "publishAt": "2026-08-18T19:00:00+08:00",
+    "source": "第16篇_Client 05｜状态行、Header 和响应 Body 怎样完整接收.md"
+  },
+  {
+    "id": "codesys-http-client-06",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第17篇_Client 06｜chunked、关闭和 keep-alive 边界",
+      "en": "第17篇_Client 06｜chunked、关闭和 keep-alive 边界"
+    },
+    "copy": {
+      "zh": "Client 可能遇到固定长度、chunked 或连接关闭三种响应收口方式。连接复用只能在上一条响应边界清楚后继续。",
+      "en": "Client 可能遇到固定长度、chunked 或连接关闭三种响应收口方式。连接复用只能在上一条响应边界清楚后继续。"
+    },
+    "href": "articles/codesys-http-client-06/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "客户端篇",
+      "en": "HTTP Client"
+    },
+    "kind": {
+      "zh": "客户端篇",
+      "en": "HTTP Client"
+    },
+    "progress": {
+      "zh": "第17篇/共28篇",
+      "en": "Part 17 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第17篇",
+      "en": "This Site / Part 17"
+    },
+    "cardMeta": {
+      "zh": "17 · 客户端篇",
+      "en": "17 · HTTP Client"
+    },
+    "date": "2026-08-20",
+    "readingTime": {
+      "zh": "约 10 分钟阅读",
+      "en": "10 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 客户端篇 客户端篇 第17篇_Client 06｜chunked、关闭和 keep-alive 边界 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 17,
+    "contentId": "codesys-http-17",
+    "publishAt": "2026-08-20T19:00:00+08:00",
+    "source": "第17篇_Client 06｜chunked、关闭和 keep-alive 边界.md"
+  },
+  {
+    "id": "codesys-http-client-07",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第18篇_Client 07｜超时、断线、重试和真机验证怎样收口",
+      "en": "第18篇_Client 07｜超时、断线、重试和真机验证怎样收口"
+    },
+    "copy": {
+      "zh": "超时不是一个统一故障。连接超时、发送失败、响应超时和协议错误需要不同恢复策略，自动重试也必须满足幂等和次数边界。",
+      "en": "超时不是一个统一故障。连接超时、发送失败、响应超时和协议错误需要不同恢复策略，自动重试也必须满足幂等和次数边界。"
+    },
+    "href": "articles/codesys-http-client-07/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "客户端篇",
+      "en": "HTTP Client"
+    },
+    "kind": {
+      "zh": "客户端篇",
+      "en": "HTTP Client"
+    },
+    "progress": {
+      "zh": "第18篇/共28篇",
+      "en": "Part 18 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第18篇",
+      "en": "This Site / Part 18"
+    },
+    "cardMeta": {
+      "zh": "18 · 客户端篇",
+      "en": "18 · HTTP Client"
+    },
+    "date": "2026-08-22",
+    "readingTime": {
+      "zh": "约 9 分钟阅读",
+      "en": "9 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 客户端篇 客户端篇 第18篇_Client 07｜超时、断线、重试和真机验证怎样收口 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 18,
+    "contentId": "codesys-http-18",
+    "publishAt": "2026-08-22T19:00:00+08:00",
+    "source": "第18篇_Client 07｜超时、断线、重试和真机验证怎样收口.md"
+  },
+  {
+    "id": "codesys-http-source-update-01",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第19篇_源码加更 01｜公共类型、配置和请求响应数据模型",
+      "en": "第19篇_源码加更 01｜公共类型、配置和请求响应数据模型"
+    },
+    "copy": {
+      "zh": "公共类型决定整个协议栈能表达什么，GVL 常量决定它能承受多大的报文和多少连接。先公开这些文件，后续阅读 Parser、Server 和 Client 才有统一坐标。",
+      "en": "公共类型决定整个协议栈能表达什么，GVL 常量决定它能承受多大的报文和多少连接。先公开这些文件，后续阅读 Parser、Server 和 Client 才有统一坐标。"
+    },
+    "href": "articles/codesys-http-source-update-01/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "kind": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "progress": {
+      "zh": "第19篇/共28篇",
+      "en": "Part 19 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第19篇",
+      "en": "This Site / Part 19"
+    },
+    "cardMeta": {
+      "zh": "19 · 源码加更",
+      "en": "19 · Open Source"
+    },
+    "date": "2026-08-24",
+    "readingTime": {
+      "zh": "约 9 分钟阅读",
+      "en": "9 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 源码加更 源码加更 第19篇_源码加更 01｜公共类型、配置和请求响应数据模型 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 19,
+    "contentId": "codesys-http-19",
+    "publishAt": "2026-08-24T19:00:00+08:00",
+    "source": "第19篇_源码加更 01｜公共类型、配置和请求响应数据模型.md"
+  },
+  {
+    "id": "codesys-http-source-update-02",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第20篇_源码加更 02｜Parser、Header 与长度解析",
+      "en": "第20篇_源码加更 02｜Parser、Header 与长度解析"
+    },
+    "copy": {
+      "zh": "这一组代码负责把原始 HTTP 文本变成结构化请求或响应，并拒绝 Host、Header、Content-Length 与 Transfer-Encoding 的歧义。",
+      "en": "这一组代码负责把原始 HTTP 文本变成结构化请求或响应，并拒绝 Host、Header、Content-Length 与 Transfer-Encoding 的歧义。"
+    },
+    "href": "articles/codesys-http-source-update-02/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "kind": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "progress": {
+      "zh": "第20篇/共28篇",
+      "en": "Part 20 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第20篇",
+      "en": "This Site / Part 20"
+    },
+    "cardMeta": {
+      "zh": "20 · 源码加更",
+      "en": "20 · Open Source"
+    },
+    "date": "2026-08-26",
+    "readingTime": {
+      "zh": "约 57 分钟阅读",
+      "en": "57 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 源码加更 源码加更 第20篇_源码加更 02｜Parser、Header 与长度解析 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 20,
+    "contentId": "codesys-http-20",
+    "publishAt": "2026-08-26T19:00:00+08:00",
+    "source": "第20篇_源码加更 02｜Parser、Header 与长度解析.md"
   }
 ];

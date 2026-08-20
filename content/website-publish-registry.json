@@ -826,6 +826,570 @@
         "production_publish": false
       },
       "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-4ef41b5f9786",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-14",
+      "slug": "codesys-http-client-03",
+      "title": "第14篇_Client 03｜URI、Host 和请求头怎样构造",
+      "summary": "远端 IP、URI、请求目标和 Host 是不同概念。Client 必须把连接地址和 HTTP 语义分开处理，才能访问反向代理或同 IP 多站点服务。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第14篇_Client 03｜URI、Host 和请求头怎样构造.md",
+      "content_hash": "561990d318e667d7b39c45a23aac73d5137bf7edb6e6046ebba0ac442509f624",
+      "publish_at": "2026-08-14T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "客户端篇",
+        "folder_en": "HTTP Client",
+        "order": 14,
+        "total": 28
+      },
+      "article": {
+        "kind_zh": "客户端篇",
+        "kind_en": "HTTP Client",
+        "date": "2026-08-14",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ]
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-14\\第14篇_核心架构图.png",
+          "filename": "第14篇_核心架构图.png",
+          "sha256": "4f137a860c198ca51b0cc4c4ce84ace6ff6b66ddf304db0b045e3bca21613bff"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-b4f54f32adad",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-15",
+      "slug": "codesys-http-client-04",
+      "title": "第15篇_Client 04｜GET、POST 和 Body 怎样保持一致",
+      "summary": "方法、Content-Type、Content-Length 和 Body 必须作为一个请求模型处理。GET 与 POST 的差别不能只落在 start-line 的一个单词。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第15篇_Client 04｜GET、POST 和 Body 怎样保持一致.md",
+      "content_hash": "79a67baf6b434616069401a0132806ef30f007c159ce71dc15db8a337c075473",
+      "publish_at": "2026-08-16T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "客户端篇",
+        "folder_en": "HTTP Client",
+        "order": 15,
+        "total": 28
+      },
+      "article": {
+        "kind_zh": "客户端篇",
+        "kind_en": "HTTP Client",
+        "date": "2026-08-16",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ]
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-15\\第15篇_核心架构图.png",
+          "filename": "第15篇_核心架构图.png",
+          "sha256": "dfab5c23c3f2f05352bdbffd91d1b918051e83ae61d97251fb1b46be6bee082e"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-3b2e135715bd",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-16",
+      "slug": "codesys-http-client-05",
+      "title": "第16篇_Client 05｜状态行、Header 和响应 Body 怎样完整接收",
+      "summary": "Client 收到第一段响应后，应先解析状态行和 Header，再根据边界字段判断 Body。状态码 200 也不能替代完整性检查。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第16篇_Client 05｜状态行、Header 和响应 Body 怎样完整接收.md",
+      "content_hash": "3abd81c83f49cab7f266774359fe3816d98e7caff559e156328b128d74774693",
+      "publish_at": "2026-08-18T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "客户端篇",
+        "folder_en": "HTTP Client",
+        "order": 16,
+        "total": 28
+      },
+      "article": {
+        "kind_zh": "客户端篇",
+        "kind_en": "HTTP Client",
+        "date": "2026-08-18",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ],
+        "platform_metadata": {
+          "csdn": {
+            "title": "第16篇_Client 05｜状态行、Header 和响应 Body 怎样完整接收",
+            "tags": [
+              "HTTP",
+              "CodeSys",
+              "PLC通信",
+              "ControlRookie"
+            ],
+            "category": "",
+            "column": "CodeSys HTTP",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "original_statement": true,
+            "creation_statement": "个人观点，仅供参考",
+            "gitcode_backup": true,
+            "visibility": "全部可见"
+          },
+          "wechat": {
+            "title": "第16篇_Client 05｜状态行、Header 和响应 Body 怎样完整接收",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "author": "ControlRookie",
+            "original_statement": true,
+            "original_type": "文字原创",
+            "original_author": "ControlRookie",
+            "allow_quick_reprint": true,
+            "reward_enabled": true,
+            "reward_account": "BenPeng",
+            "collection": "CodeSys HTTP",
+            "creation_source": "个人观点，仅供参考",
+            "platform_recommend_enabled": true,
+            "open_comment": true,
+            "only_fans_can_comment": false,
+            "original_article_link": ""
+          },
+          "cover_variants": {
+            "master": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_master.png",
+            "csdn": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "wechat": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_wechat.png",
+            "square_safe": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_square_safe.png"
+          }
+        }
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-16\\第16篇_核心架构图.png",
+          "filename": "第16篇_核心架构图.png",
+          "sha256": "85fce87f7e6fadc8bb3e7325aa31f79fd283a791e62184c059063a11a919dcbc"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-8fcc7ebf201c",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-17",
+      "slug": "codesys-http-client-06",
+      "title": "第17篇_Client 06｜chunked、关闭和 keep-alive 边界",
+      "summary": "Client 可能遇到固定长度、chunked 或连接关闭三种响应收口方式。连接复用只能在上一条响应边界清楚后继续。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第17篇_Client 06｜chunked、关闭和 keep-alive 边界.md",
+      "content_hash": "32e981badbfbbfac03c8fd3f1c0f58a84bdc58549d4372033f9f9b938c378a4a",
+      "publish_at": "2026-08-20T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "客户端篇",
+        "folder_en": "HTTP Client",
+        "order": 17,
+        "total": 28
+      },
+      "article": {
+        "kind_zh": "客户端篇",
+        "kind_en": "HTTP Client",
+        "date": "2026-08-20",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ],
+        "platform_metadata": {
+          "csdn": {
+            "title": "第17篇_Client 06｜chunked、关闭和 keep-alive 边界",
+            "tags": [
+              "HTTP",
+              "CodeSys",
+              "PLC通信",
+              "ControlRookie"
+            ],
+            "category": "",
+            "column": "CodeSys HTTP",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "original_statement": true,
+            "creation_statement": "个人观点，仅供参考",
+            "gitcode_backup": true,
+            "visibility": "全部可见"
+          },
+          "wechat": {
+            "title": "第17篇_Client 06｜chunked、关闭和 keep-alive 边界",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "author": "ControlRookie",
+            "original_statement": true,
+            "original_type": "文字原创",
+            "original_author": "ControlRookie",
+            "allow_quick_reprint": true,
+            "reward_enabled": true,
+            "reward_account": "BenPeng",
+            "collection": "CodeSys HTTP",
+            "creation_source": "个人观点，仅供参考",
+            "platform_recommend_enabled": true,
+            "open_comment": true,
+            "only_fans_can_comment": false,
+            "original_article_link": ""
+          },
+          "cover_variants": {
+            "master": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_master.png",
+            "csdn": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "wechat": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_wechat.png",
+            "square_safe": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_square_safe.png"
+          }
+        }
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-17\\第17篇_核心架构图.png",
+          "filename": "第17篇_核心架构图.png",
+          "sha256": "20a4750676a30b99043ddbe791f35ccade295c5a220d160aeae3cadc6655b7c2"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-73e0cbbbe12f",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-18",
+      "slug": "codesys-http-client-07",
+      "title": "第18篇_Client 07｜超时、断线、重试和真机验证怎样收口",
+      "summary": "超时不是一个统一故障。连接超时、发送失败、响应超时和协议错误需要不同恢复策略，自动重试也必须满足幂等和次数边界。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第18篇_Client 07｜超时、断线、重试和真机验证怎样收口.md",
+      "content_hash": "61e45b884497eff6a61c359c6ba0957cbd2b1b0e0baab89a3684b055e9577b9f",
+      "publish_at": "2026-08-22T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "客户端篇",
+        "folder_en": "HTTP Client",
+        "order": 18,
+        "total": 28
+      },
+      "article": {
+        "kind_zh": "客户端篇",
+        "kind_en": "HTTP Client",
+        "date": "2026-08-22",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ],
+        "platform_metadata": {
+          "csdn": {
+            "title": "第18篇_Client 07｜超时、断线、重试和真机验证怎样收口",
+            "tags": [
+              "CodeSys",
+              "PLC通信",
+              "http"
+            ],
+            "category": "工业通信",
+            "column": "CodeSys HTTP",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "original_statement": true,
+            "creation_statement": "个人观点，仅供参考",
+            "gitcode_backup": true,
+            "visibility": "全部可见"
+          },
+          "wechat": {
+            "title": "第18篇_Client 07｜超时、断线、重试和真机验证怎样收口",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "author": "ControlRookie",
+            "original_statement": true,
+            "original_type": "文字原创",
+            "original_author": "ControlRookie",
+            "allow_quick_reprint": true,
+            "reward_enabled": true,
+            "reward_account": "BenPeng",
+            "collection": "CodeSys HTTP",
+            "creation_source": "个人观点，仅供参考",
+            "platform_recommend_enabled": true,
+            "open_comment": true,
+            "only_fans_can_comment": false,
+            "original_article_link": ""
+          }
+        }
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-18\\第18篇_核心架构图.png",
+          "filename": "第18篇_核心架构图.png",
+          "sha256": "cbfede84d526eee5dbefae6f152f6efd207cff755f7b8b970483401fd50f2e3d"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-e227d3b9c7ac",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-19",
+      "slug": "codesys-http-source-update-01",
+      "title": "第19篇_源码加更 01｜公共类型、配置和请求响应数据模型",
+      "summary": "公共类型决定整个协议栈能表达什么，GVL 常量决定它能承受多大的报文和多少连接。先公开这些文件，后续阅读 Parser、Server 和 Client 才有统一坐标。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第19篇_源码加更 01｜公共类型、配置和请求响应数据模型.md",
+      "content_hash": "32378c91273b67218f14d1526115190523cd24aa81136d497769a1cabdad6d5c",
+      "publish_at": "2026-08-24T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "源码加更",
+        "folder_en": "Open Source",
+        "order": 19,
+        "total": 28
+      },
+      "article": {
+        "kind_zh": "源码加更",
+        "kind_en": "Open Source",
+        "date": "2026-08-24",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ],
+        "platform_metadata": {
+          "csdn": {
+            "title": "第19篇_源码加更 01｜公共类型、配置和请求响应数据模型",
+            "tags": [
+              "CodeSys",
+              "PLC通信",
+              "http",
+              "开源源码"
+            ],
+            "category": "工业通信",
+            "column": "CodeSys HTTP",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "original_statement": true,
+            "creation_statement": "个人观点，仅供参考",
+            "gitcode_backup": true,
+            "visibility": "粉丝可见"
+          },
+          "wechat": {
+            "title": "第19篇_源码加更 01｜公共类型、配置和请求响应数据模型",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "author": "ControlRookie",
+            "original_statement": true,
+            "original_type": "文字原创",
+            "original_author": "ControlRookie",
+            "allow_quick_reprint": true,
+            "reward_enabled": true,
+            "reward_account": "BenPeng",
+            "collection": "CodeSys HTTP",
+            "creation_source": "个人观点，仅供参考",
+            "platform_recommend_enabled": true,
+            "open_comment": true,
+            "only_fans_can_comment": false,
+            "original_article_link": ""
+          }
+        }
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-19\\第19篇_核心架构图.png",
+          "filename": "第19篇_核心架构图.png",
+          "sha256": "c8356422f926c276398709acc9ea5402cd0667b0b3ebdd587ecc553e9180da21"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-28a27b597f46",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-20",
+      "slug": "codesys-http-source-update-02",
+      "title": "第20篇_源码加更 02｜Parser、Header 与长度解析",
+      "summary": "这一组代码负责把原始 HTTP 文本变成结构化请求或响应，并拒绝 Host、Header、Content-Length 与 Transfer-Encoding 的歧义。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第20篇_源码加更 02｜Parser、Header 与长度解析.md",
+      "content_hash": "b1d630a8581e1b46a93589e8f1239a4b6dd3d6c208a55211c83d1f5a87e7440c",
+      "publish_at": "2026-08-26T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "源码加更",
+        "folder_en": "Open Source",
+        "order": 20,
+        "total": 28
+      },
+      "article": {
+        "kind_zh": "源码加更",
+        "kind_en": "Open Source",
+        "date": "2026-08-26",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ],
+        "platform_metadata": {
+          "csdn": {
+            "title": "第20篇_源码加更 02｜Parser、Header 与长度解析",
+            "tags": [
+              "CodeSys",
+              "PLC通信",
+              "http",
+              "开源源码"
+            ],
+            "category": "工业通信",
+            "column": "CodeSys HTTP",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "original_statement": true,
+            "creation_statement": "个人观点，仅供参考",
+            "gitcode_backup": true,
+            "visibility": "粉丝可见"
+          },
+          "wechat": {
+            "title": "第20篇_源码加更 02｜Parser、Header 与长度解析",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "author": "ControlRookie",
+            "original_statement": true,
+            "original_type": "文字原创",
+            "original_author": "ControlRookie",
+            "allow_quick_reprint": true,
+            "reward_enabled": true,
+            "reward_account": "BenPeng",
+            "collection": "CodeSys HTTP",
+            "creation_source": "个人观点，仅供参考",
+            "platform_recommend_enabled": true,
+            "open_comment": true,
+            "only_fans_can_comment": false,
+            "original_article_link": ""
+          }
+        }
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-20\\第20篇_核心架构图.png",
+          "filename": "第20篇_核心架构图.png",
+          "sha256": "627fa408c41696621a3ebda7c788d6faeaf182e08114b3dc844b5fa11e4045dd"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
     }
   ]
 }
