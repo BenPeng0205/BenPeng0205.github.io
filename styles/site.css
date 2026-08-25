@@ -2005,11 +2005,96 @@
     }
 
     .syncbridge-capability-grid p,
+    .syncbridge-feature-grid p,
     .syncbridge-workflow-list p {
       margin: 0;
       color: var(--muted);
       font-size: 13px;
       line-height: 1.68;
+    }
+
+    .syncbridge-feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 36px;
+    }
+
+    .syncbridge-feature-grid article {
+      min-height: 158px;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 46px minmax(0, 1fr);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-panel);
+      background: var(--surface);
+    }
+
+    .syncbridge-feature-grid article > span {
+      color: var(--link);
+      font-family: "IBM Plex Mono", "Cascadia Mono", monospace;
+      font-size: 11px;
+    }
+
+    .syncbridge-feature-grid h6 {
+      margin: 0 0 12px;
+      color: var(--fg);
+      font-size: 19px;
+      font-weight: 600;
+    }
+
+    .syncbridge-evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 36px;
+    }
+
+    .syncbridge-evidence-grid figure {
+      margin: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-panel);
+      background: var(--surface);
+    }
+
+    .syncbridge-evidence-grid figure.is-wide {
+      grid-column: 1 / -1;
+    }
+
+    .syncbridge-evidence-grid img {
+      width: 100%;
+      max-height: 560px;
+      display: block;
+      object-fit: contain;
+      object-position: center top;
+      background: var(--surface-subtle);
+    }
+
+    .syncbridge-evidence-grid figure:not(.is-wide) img {
+      aspect-ratio: 4 / 3;
+    }
+
+    .syncbridge-evidence-grid figcaption {
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .syncbridge-evidence-grid figcaption span {
+      color: var(--link);
+      font-family: "IBM Plex Mono", "Cascadia Mono", monospace;
+      font-size: 10px;
+    }
+
+    .syncbridge-evidence-grid figcaption strong {
+      color: var(--fg);
+      font-size: 13px;
+      font-weight: 600;
+      text-align: right;
     }
 
     .syncbridge-workflow-list {
@@ -2199,6 +2284,456 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.7;
+    }
+
+    /* SyncBridge 宣传页：官网编辑式视觉，主图聚焦真实 IDE 场景与 Compare。 */
+    .syncbridge-detail-hero {
+      min-height: 0;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 28px;
+      padding: 34px 0 30px;
+      border: 0;
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line-strong);
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .syncbridge-hero-index {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: var(--muted);
+      font-family: "IBM Plex Mono", "Cascadia Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+    }
+
+    .syncbridge-hero-index::before {
+      content: "";
+      width: 44px;
+      height: 3px;
+      margin-bottom: 28px;
+      background: var(--brand-blue);
+    }
+
+    .syncbridge-hero-index strong {
+      color: var(--fg);
+      font-weight: 500;
+    }
+
+    .syncbridge-hero-copy {
+      max-width: 820px;
+    }
+
+    .syncbridge-hero-copy .syncbridge-nameplate {
+      margin-bottom: 38px;
+    }
+
+    .syncbridge-hero-copy .syncbridge-eyebrow {
+      margin: 0 0 18px;
+      color: var(--link);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .syncbridge-hero-copy h4 {
+      max-width: 790px;
+      margin: 0;
+      color: var(--fg);
+      font-size: clamp(38px, 5vw, 68px);
+      font-weight: 600;
+      line-height: 1.04;
+      letter-spacing: -0.045em;
+      text-wrap: balance;
+    }
+
+    .syncbridge-hero-copy .syncbridge-lead {
+      max-width: 690px;
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    .syncbridge-positioning {
+      margin: 22px 0 0;
+      color: var(--fg);
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
+    .syncbridge-pain-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      margin-top: 36px;
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line-strong);
+    }
+
+    .syncbridge-pain-grid article {
+      min-height: 184px;
+      padding: 20px;
+    }
+
+    .syncbridge-pain-grid article:not(:last-child) {
+      border-right: 1px solid var(--line);
+    }
+
+    .syncbridge-pain-grid span,
+    .syncbridge-advantage-grid article > span,
+    .syncbridge-value-grid article > span {
+      color: var(--link);
+      font-family: "IBM Plex Mono", "Cascadia Mono", monospace;
+      font-size: 10px;
+    }
+
+    .syncbridge-pain-grid h6,
+    .syncbridge-value-grid h6 {
+      margin: 40px 0 10px;
+      color: var(--fg);
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .syncbridge-pain-grid p,
+    .syncbridge-advantage-grid p,
+    .syncbridge-value-grid p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .syncbridge-advantage-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 36px;
+    }
+
+    .syncbridge-advantage-grid article {
+      min-height: 132px;
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-panel);
+      background: var(--surface);
+    }
+
+    .syncbridge-advantage-grid h6 {
+      margin: 0 0 9px;
+      color: var(--fg);
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .syncbridge-comparison-table {
+      margin-top: 36px;
+      border-top: 1px solid var(--line-strong);
+    }
+
+    .syncbridge-comparison-head,
+    .syncbridge-comparison-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border-bottom: 1px solid var(--line);
+    }
+
+    .syncbridge-comparison-head {
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .syncbridge-comparison-head > *,
+    .syncbridge-comparison-row > * {
+      padding: 17px 20px;
+    }
+
+    .syncbridge-comparison-head strong,
+    .syncbridge-comparison-row strong {
+      border-left: 1px solid var(--line);
+    }
+
+    .syncbridge-comparison-row span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .syncbridge-comparison-row strong {
+      color: var(--fg);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .syncbridge-comparison-row strong::before {
+      content: "→";
+      margin-right: 12px;
+      color: var(--link);
+    }
+
+    .syncbridge-value-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 36px;
+    }
+
+    .syncbridge-value-grid article {
+      min-height: 194px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-panel);
+      background: var(--surface);
+    }
+
+    .syncbridge-value-grid h6 {
+      margin-top: 46px;
+      font-size: 19px;
+    }
+
+    .syncbridge-primary-visual {
+      margin: 28px 0 0;
+      overflow: hidden;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-panel);
+      background: var(--surface);
+    }
+
+    .syncbridge-visual-label {
+      min-height: 46px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-family: "IBM Plex Mono", "Cascadia Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+    }
+
+    .syncbridge-visual-label strong {
+      color: var(--link);
+      font-weight: 600;
+    }
+
+    .syncbridge-primary-visual img {
+      width: 100%;
+      display: block;
+      aspect-ratio: 1672 / 941;
+      object-fit: cover;
+    }
+
+    .syncbridge-primary-visual figcaption {
+      padding: 15px 18px;
+      border-top: 1px solid var(--line);
+      color: var(--fg);
+      font-size: 13px;
+      font-weight: 560;
+      line-height: 1.5;
+    }
+
+    .syncbridge-fact-strip {
+      margin-top: 10px;
+    }
+
+    .syncbridge-core-flow {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 36px;
+    }
+
+    .syncbridge-core-flow article {
+      min-height: 252px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-panel);
+      background: var(--surface);
+    }
+
+    .syncbridge-core-flow article.is-primary {
+      border-top: 3px solid var(--brand-blue);
+      padding-top: 22px;
+    }
+
+    .syncbridge-core-flow article > span,
+    .syncbridge-core-flow article > small {
+      font-family: "IBM Plex Mono", "Cascadia Mono", monospace;
+      font-size: 10px;
+    }
+
+    .syncbridge-core-flow article > span {
+      color: var(--link);
+    }
+
+    .syncbridge-core-flow article > small {
+      margin-top: 42px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+
+    .syncbridge-core-flow h6 {
+      margin: 8px 0 12px;
+      color: var(--fg);
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .syncbridge-core-flow p {
+      margin: auto 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.68;
+    }
+
+    .syncbridge-command-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 36px;
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line-strong);
+    }
+
+    .syncbridge-command-strip article {
+      min-height: 108px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .syncbridge-command-strip article:not(:last-child) {
+      border-right: 1px solid var(--line);
+    }
+
+    .syncbridge-command-strip strong {
+      color: var(--fg);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .syncbridge-command-strip span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* 最终售前版节奏：以留白和少量横线组织信息，避免连续卡片墙。 */
+    .syncbridge-detail-hero {
+      padding: 54px 0 64px;
+    }
+
+    .syncbridge-hero-copy .syncbridge-nameplate {
+      margin-bottom: 54px;
+    }
+
+    .syncbridge-content-section {
+      padding-top: 116px;
+    }
+
+    .syncbridge-section-head {
+      padding-top: 30px;
+    }
+
+    .syncbridge-pain-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 64px;
+      margin-top: 58px;
+      border-top: 1px solid var(--line);
+      border-bottom: 0;
+    }
+
+    .syncbridge-pain-grid article {
+      min-height: 158px;
+      padding: 28px 0 32px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .syncbridge-pain-grid article:not(:last-child) {
+      border-right: 0;
+    }
+
+    .syncbridge-pain-grid h6 {
+      margin-top: 28px;
+    }
+
+    .syncbridge-advantage-grid,
+    .syncbridge-value-grid {
+      gap: 0 64px;
+      margin-top: 58px;
+      border-top: 1px solid var(--line);
+    }
+
+    .syncbridge-advantage-grid article {
+      min-height: 146px;
+      padding: 30px 0;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .syncbridge-primary-visual {
+      margin-top: 116px;
+    }
+
+    .syncbridge-fact-strip {
+      margin-top: 18px;
+    }
+
+    .syncbridge-comparison-table {
+      margin-top: 58px;
+    }
+
+    .syncbridge-comparison-head > *,
+    .syncbridge-comparison-row > * {
+      padding: 22px 24px;
+    }
+
+    .syncbridge-value-grid article {
+      min-height: 210px;
+      padding: 34px 0 38px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .syncbridge-value-grid h6 {
+      margin-top: 54px;
+    }
+
+    .syncbridge-core-flow {
+      gap: 18px;
+      margin-top: 58px;
+    }
+
+    .syncbridge-core-flow article {
+      min-height: 286px;
+      padding: 30px;
+    }
+
+    .syncbridge-command-strip {
+      margin-top: 58px;
+    }
+
+    .syncbridge-command-strip article {
+      min-height: 132px;
+      padding: 28px;
+    }
+
+    .syncbridge-purchase-panel {
+      margin-top: 124px;
+      padding: 48px;
     }
 
     .detail-links {
@@ -3996,6 +4531,15 @@
         grid-template-columns: 1fr;
       }
 
+      .syncbridge-feature-grid,
+      .syncbridge-evidence-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .syncbridge-evidence-grid figure.is-wide {
+        grid-column: 1;
+      }
+
       .syncbridge-capability-grid article {
         min-height: 205px;
       }
@@ -4025,6 +4569,91 @@
       .syncbridge-purchase-action {
         justify-items: start;
         text-align: left;
+      }
+
+      .syncbridge-detail-hero {
+        gap: 20px;
+        padding: 26px 0;
+      }
+
+      .syncbridge-hero-index {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 14px;
+      }
+
+      .syncbridge-hero-index::before {
+        width: 28px;
+        margin: 0;
+      }
+
+      .syncbridge-hero-copy .syncbridge-nameplate {
+        margin-bottom: 28px;
+      }
+
+      .syncbridge-hero-copy .syncbridge-eyebrow {
+        margin: 0 0 14px;
+      }
+
+      .syncbridge-core-flow,
+      .syncbridge-command-strip,
+      .syncbridge-pain-grid,
+      .syncbridge-advantage-grid,
+      .syncbridge-value-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .syncbridge-pain-grid article:not(:last-child) {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .syncbridge-pain-grid article {
+        min-height: 145px;
+      }
+
+      .syncbridge-pain-grid h6 {
+        margin-top: 24px;
+      }
+
+      .syncbridge-core-flow article {
+        min-height: 190px;
+      }
+
+      .syncbridge-core-flow article > small {
+        margin-top: 26px;
+      }
+
+      .syncbridge-command-strip article:not(:last-child) {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .syncbridge-content-section {
+        padding-top: 82px;
+      }
+
+      .syncbridge-section-head {
+        padding-top: 24px;
+      }
+
+      .syncbridge-pain-grid,
+      .syncbridge-advantage-grid,
+      .syncbridge-value-grid,
+      .syncbridge-core-flow,
+      .syncbridge-command-strip,
+      .syncbridge-comparison-table {
+        margin-top: 38px;
+      }
+
+      .syncbridge-primary-visual {
+        margin-top: 82px;
+      }
+
+      .syncbridge-purchase-panel {
+        margin-top: 86px;
+        padding: 28px 22px;
       }
 
       .article-hub {
