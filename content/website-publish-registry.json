@@ -775,7 +775,7 @@
     },
     {
       "schema_version": "1.0",
-      "request_id": "website-aa73c1d65623",
+      "request_id": "website-de4bc65bfce0",
       "operation": "upsert",
       "content_type": "article",
       "content_id": "codesys-http-13",
@@ -783,7 +783,7 @@
       "title": "第13篇_Client 02｜TCP 连接成功，为什么 HTTP 请求还没有成功",
       "summary": "PLC Client 的完成条件不是 connect 成功，也不是 Write 返回完成，而是请求发送完毕并收到一条边界完整、解析成功的 HTTP 响应。",
       "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第13篇_Client 02｜TCP 连接成功，为什么 HTTP 请求还没有成功.md",
-      "content_hash": "28ca09515814736650238258e0592fa4ccb09b15e7576ad853d75b113decbf61",
+      "content_hash": "0d2533e48218b0b61f4c0f39483e83a77f96922204f7d4b3c3cdd621ded2641a",
       "publish_at": "2026-08-12T19:00:00+08:00",
       "category": {
         "key": "industrial-communication",
@@ -811,7 +811,41 @@
           "CodeSys",
           "PLC通信",
           "ControlRookie"
-        ]
+        ],
+        "platform_metadata": {
+          "csdn": {
+            "title": "第13篇_Client 02｜TCP 连接成功，为什么 HTTP 请求还没有成功",
+            "tags": [
+              "CodeSys",
+              "PLC通信",
+              "http"
+            ],
+            "category": "工业通信",
+            "column": "CodeSys HTTP",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "original_statement": true,
+            "creation_statement": "个人观点，仅供参考",
+            "gitcode_backup": true,
+            "visibility": "全部可见"
+          },
+          "wechat": {
+            "title": "第13篇_Client 02｜TCP 连接成功，为什么 HTTP 请求还没有成功",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "author": "ControlRookie",
+            "original_statement": true,
+            "original_type": "文字原创",
+            "original_author": "ControlRookie",
+            "allow_quick_reprint": true,
+            "reward_enabled": true,
+            "reward_account": "BenPeng",
+            "collection": "CodeSys HTTP",
+            "creation_source": "个人观点，仅供参考",
+            "platform_recommend_enabled": true,
+            "open_comment": true,
+            "only_fans_can_comment": false,
+            "original_article_link": ""
+          }
+        }
       },
       "product": null,
       "assets": [
