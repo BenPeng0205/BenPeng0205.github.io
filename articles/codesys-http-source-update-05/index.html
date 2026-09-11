@@ -1,0 +1,1904 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第23篇_源码加更 05｜HTTP Server、连接实例和诊断数据 | ControlRookie</title>
+  <meta name="description" content="Server 外层负责监听和多槽位调度，单连接 FB 负责 Read、解析、路由、构造、Write 与清理。两个层级必须一起公开才能看清生命周期。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#1d1d1f">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/codesys-http-source-update-05/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="第23篇_源码加更 05｜HTTP Server、连接实例和诊断数据">
+  <meta property="og:description" content="Server 外层负责监听和多槽位调度，单连接 FB 负责 Read、解析、路由、构造、Write 与清理。两个层级必须一起公开才能看清生命周期。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/codesys-http-source-update-05/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="第23篇_源码加更 05｜HTTP Server、连接实例和诊断数据">
+  <meta name="twitter:description" content="Server 外层负责监听和多槽位调度，单连接 FB 负责 Read、解析、路由、构造、Write 与清理。两个层级必须一起公开才能看清生命周期。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions article-nav-actions">
+        <div class="search-shell article-search-shell article-mobile-control" id="articleSearchShell">
+          <button class="search-icon" id="articleSearchButton" type="button" aria-label="搜索" aria-expanded="false" aria-controls="articleSearchPanel">
+            <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M10.8 18.1a7.3 7.3 0 1 1 0-14.6 7.3 7.3 0 0 1 0 14.6Zm5.2-2.1 4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <input class="search-input" id="articleSiteSearch" type="search" placeholder="搜索文章、资源、产品" autocomplete="off" aria-label="搜索文章、资源、产品">
+        </div>
+        <button class="lang-toggle article-lang-toggle article-mobile-control" id="articleLangToggle" type="button" aria-label="Switch navigation to English">EN</button>
+        <button class="mobile-menu-toggle article-mobile-menu-toggle article-mobile-control" id="articleMobileMenuToggle" type="button" aria-label="打开主菜单" aria-expanded="false" aria-controls="articleMobileMenuPanel">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+      <div class="search-panel article-search-panel" id="articleSearchPanel" aria-label="文章页搜索结果" role="region" hidden inert></div>
+      <nav class="mobile-menu-panel article-mobile-menu-panel" id="articleMobileMenuPanel" aria-label="文章移动主导航" hidden>
+        <a class="article-menu-back" href="../../index.html#articles">返回文章</a>
+        <a href="../../index.html#about" data-article-nav>关于我</a>
+        <a href="../../index.html#articles" data-article-nav>文章</a>
+        <a href="../../index.html#products" data-article-nav>产品</a>
+        <a href="../../index.html#works" data-article-nav>资源</a>
+        <a href="../../index.html#contact" data-article-nav>联系</a>
+      </nav>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <nav class="article-breadcrumb" id="article-top" aria-label="文章路径">
+            <a href="../../index.html#articles">文章中心</a>
+            <span>/</span>
+            <a href="../../index.html#articles">工业通信</a>
+            <span>/</span>
+            <a href="../../index.html#articles-http">HTTP</a>
+            <span>/</span>
+            <a href="../../index.html#articles-http">源码加更</a>
+          </nav>
+          <header class="article-hero">
+            <h1>第23篇_源码加更 05｜HTTP Server、连接实例和诊断数据</h1>
+            <div class="article-meta">
+              <span>2026-09-12</span>
+              <span>约 65 分钟阅读</span>
+              <span>第23篇/共28篇</span>
+            </div>
+            <p class="article-summary">Server 外层负责监听和多槽位调度，单连接 FB 负责 Read、解析、路由、构造、Write 与清理。两个层级必须一起公开才能看清生命周期。</p>
+          </header>
+          <aside class="article-toc" aria-label="文章目录">
+            <button class="article-toc-toggle" type="button" aria-expanded="false" aria-controls="articleTocBody">
+              <span>文章目录</span>
+              <em aria-hidden="true">+</em>
+            </button>
+            <div class="article-toc-body" id="articleTocBody">
+              <strong>目录</strong>
+              <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-c769c1e4">先给结论</a></li><li><a href="#section-cfd6ac99">先看文件职责</a></li><li><a href="#section-4af56480">从协议约束到代码职责</a></li><li><a href="#section-6d6577bb">本篇完整开源代码</a></li><li><a href="#section-c25cdcf3">本篇阅读抓手</a></li><li><a href="#section-6bb3199c">如何验证这组源码</a></li><li><a href="#section-6f65a855">这一篇你最该记住</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
+            </div>
+          </aside>
+          <div class="article-main">
+            <div class="article-content">
+              <blockquote>Server 外层负责监听和多槽位调度，单连接 FB 负责 Read、解析、路由、构造、Write 与清理。两个层级必须一起公开才能看清生命周期。</blockquote>
+<h2 id="section-0d70135c">适合谁收藏</h2>
+<ul><li>准备复用本组源码并审查对象边界的工程师。</li><li>需要把公开代码装配进目标 CodeSys 工程的人。</li><li>准备重新完成编译、离线测试和真机验证的读者。</li></ul>
+<hr>
+<blockquote>本篇完整公开 6 个 ST 文件。代码直接读取已验证工程，保留声明、实现、注释和缩进；没有伪代码，没有跨文件拼接，也没有省略号。</blockquote>
+<h2 id="section-c769c1e4">先给结论</h2>
+<p>Server 外层负责监听和多槽位调度，单连接 FB 负责 Read、解析、路由、构造、Write 与清理。两个层级必须一起公开才能看清生命周期。 本篇的通过标准不是“代码已经贴出”，而是每个文件的职责、调用位置、状态边界和验证入口都能对应起来，并且完整代码可逐字回查源文件。</p>
+<figure><img src="../../assets/articles/codesys-http-source-update-05/第23篇_核心架构图.png" alt="源码加更 05｜HTTP Server、连接实例和诊断数据"><figcaption>源码加更 05｜HTTP Server、连接实例和诊断数据</figcaption></figure>
+<h3 id="section-a3177d68">读图重点</h3>
+<p>先找到 <code>E_HttpServerState</code> 在本组中的位置，再沿图确认其余对象分别承担数据、状态、执行或诊断职责。图只给阅读顺序，最终判断必须回到下面的完整 ST 代码。</p>
+<h2 id="section-cfd6ac99">先看文件职责</h2>
+<div class="article-table-wrap"><table>
+<thead><tr><th>序号</th><th>文件</th><th>职责</th><th>行数</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>E_HttpServerState.st</code></td><td>Server 外层状态</td><td>13</td></tr>
+<tr><td>2</td><td><code>E_HttpConnectionState.st</code></td><td>Server 单连接状态</td><td>13</td></tr>
+<tr><td>3</td><td><code>FB_HttpServer.st</code></td><td>监听和多槽位调度</td><td>364</td></tr>
+<tr><td>4</td><td><code>FB_HttpServerConnection.st</code></td><td>单连接请求响应闭环</td><td>851</td></tr>
+<tr><td>5</td><td><code>ST_HttpServerMetrics.st</code></td><td>Server 运行指标</td><td>11</td></tr>
+<tr><td>6</td><td><code>ST_HttpConnectionSnapshot.st</code></td><td>连接槽位快照</td><td>13</td></tr>
+</tbody></table></div>
+<p>阅读顺序不是按文件名机械展开。先看数据和状态，再看公开方法，最后顺着错误出口和调用对象检查边界。源码篇的目标是让读者能对照工程复现，不是用大段代码制造篇幅。</p>
+<h2 id="section-4af56480">从协议约束到代码职责</h2>
+<h3 id="section-6ca2a2b2">协议约束</h3>
+<p>Server 外层负责监听和多槽位调度，单连接 FB 负责 Read、解析、路由、构造、Write 与清理。两个层级必须一起公开才能看清生命周期。 协议层只定义消息与状态成立的条件，工程层还必须把条件分配给确定对象，避免 Parser、Builder、Server、Client 和测试入口互相越权。</p>
+<h3 id="section-ba1ed796">对象分工</h3>
+<ul><li><strong>第 1 个对象 <code>E_HttpServerState.st</code></strong>：承担“Server 外层状态”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li><li><strong>第 2 个对象 <code>E_HttpConnectionState.st</code></strong>：承担“Server 单连接状态”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li><li><strong>第 3 个对象 <code>FB_HttpServer.st</code></strong>：承担“监听和多槽位调度”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li><li><strong>第 4 个对象 <code>FB_HttpServerConnection.st</code></strong>：承担“单连接请求响应闭环”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li><li><strong>第 5 个对象 <code>ST_HttpServerMetrics.st</code></strong>：承担“Server 运行指标”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li><li><strong>第 6 个对象 <code>ST_HttpConnectionSnapshot.st</code></strong>：承担“连接槽位快照”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li></ul>
+<h3 id="section-ef4a70ae">装配与验证</h3>
+<p>这组文件必须作为一个职责单元阅读和编译。先用确定输入验证“监听器与连接槽分层”，再制造非法或容量边界验证“每个槽位独立缓冲和错误”，最后在真实通信或上层调用中确认“Metrics 与 Snapshot 为真机排障保留证据”。如果单文件测试通过但装配后失败，应优先检查结构体、常量、状态枚举和周期调用关系，而不是立即重写核心算法。源码完整公开只证明读者拿到了同一事实源，目标运行时是否通过仍需重新编译和真机取证。</p>
+<p>本篇从 <code>E_HttpServerState.st</code> 开始审查：先确认“监听器与连接槽分层”对应的类型、常量或公开输入，再沿 CASE 或方法调用追踪成功路径，随后逐个检查容量、超时和协议错误出口，最后在 <code>ST_HttpConnectionSnapshot.st</code> 对应的结果或装配位置确认错误能被观测、清理并再次执行。这个顺序专门用来区分“算法正确但没有周期调用”“状态能完成但错误被覆盖”和“Metrics 与 Snapshot 为真机排障保留证据尚未形成验证证据”三类问题。只有本篇源码、装配和验证使用同一组对象与同一组边界，完整开源才具有可复现意义。</p>
+<h2 id="section-6d6577bb">本篇完整开源代码</h2>
+<p>下面按职责顺序给出本篇全部 ST 文件。每个代码块保留完整声明与实现；阅读时把状态、长度、错误出口和调用对象与上面的职责表逐项对照。</p>
+<h3 id="1-e-httpserverstate-st">完整源码 1：E_HttpServerState.st</h3>
+<p>职责：Server 外层状态</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : HTTP Server 状态枚举。
+/// 库依赖 : 暂无
+{attribute &#x27;qualified_only&#x27;}
+{attribute &#x27;strict&#x27;}
+TYPE E_HttpServerState :
+(
+    iDisabled := 0,
+    iInit     := 1,
+    iListen   := 2,
+    iRunning  := 3,
+    iFault    := 4
+) INT;
+END_TYPE</code></pre></div>
+<h3 id="2-e-httpconnectionstate-st">完整源码 2：E_HttpConnectionState.st</h3>
+<p>职责：Server 单连接状态</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : HTTP Server 单连接状态枚举。
+/// 库依赖 : 暂无
+{attribute &#x27;qualified_only&#x27;}
+{attribute &#x27;strict&#x27;}
+TYPE E_HttpConnectionState :
+(
+    iEmpty    := 0,
+    iReceive  := 1,
+    iRespond  := 2,
+    iClosing  := 3,
+    iFault    := 4
+) INT;
+END_TYPE</code></pre></div>
+<h3 id="3-fb-httpserver-st">完整源码 3：FB_HttpServer.st</h3>
+<p>职责：监听和多槽位调度</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : 基于 NBS 的 HTTP Server。
+/// 库依赖 : CAA Net Base Services
+{attribute &#x27;hide_all_locals&#x27;}
+FUNCTION_BLOCK FB_HttpServer
+VAR_INPUT
+    xEnable             : BOOL := FALSE;                                  // CODESYS 风格 Server 使能。
+    xReset              : BOOL := FALSE;                                  // 复位命令，TRUE 时清空状态和诊断。
+    xCloseConnection    : BOOL := FALSE;                                  // 响应后主动关闭连接，TRUE 为短连接。
+    bEnable             : BOOL := FALSE;                                  // 兼容旧接口的 Server 使能。
+    sBindIP             : STRING := &#x27;0.0.0.0&#x27;;                            // 监听网口 IP，0.0.0.0 表示任意网卡。
+    uiPort              : UINT := GVL_Http.cnDefaultServerPort;           // 监听端口。
+    uiResponseStatusCode: UINT := 200;                                    // 自定义响应状态码，0 时使用内置路由默认值。
+    sResponseBody       : STRING(GVL_Http.cnMaxBodySize) := &#x27;&#x27;;           // 自定义响应 body，空时使用内置路由默认值。
+    sResponseContentType: STRING(96) := GVL_Http.cnDefaultContentType;    // 自定义响应 Content-Type。
+    sAdditionalHeader   : STRING(GVL_Http.cnMaxHeaderSize) := &#x27;&#x27;;         // 自定义响应 Header 行，不包含结尾空行。
+    udiNowMs            : UDINT := 0;                                     // 外部毫秒时钟。
+END_VAR
+VAR_OUTPUT
+    xListening           : BOOL;                                                                // CODESYS 风格监听状态。
+    xRunning             : BOOL;                                                                // CODESYS 风格运行状态。
+    xBusy                : BOOL;                                                                // CODESYS 风格忙状态。
+    xError               : BOOL;                                                                // CODESYS 风格错误状态。
+    bListening           : BOOL;                                                                // 已获得监听句柄。
+    bRunning             : BOOL;                                                                // Server 正在运行。
+    bBusy                : BOOL;                                                                // 正在初始化或等待监听。
+    bError               : BOOL;                                                                // 错误锁存。
+    diErrorID            : DINT;                                                                // 错误诊断码。
+    sDiagMsg             : STRING(255);                                                         // 诊断文本。
+    eLastNbsError        : NBS.ERROR;                                                           // 最近一次 NBS 错误。
+    eState               : E_HttpServerState;                                                   // Server 状态机。
+    eLastError           : E_HttpError;                                                         // 最近一次 HTTP 错误。
+    stMetrics            : ST_HttpServerMetrics;                                                // 运行统计。
+    uiActiveConnections  : UINT;                                                                // 活跃连接数。
+    uiLastErrorSlot      : UINT;                                                                // 最近错误槽位。
+    uiLastRequestSlot    : UINT;                                                                // 最近请求槽位。
+    sRequestTarget       : STRING(GVL_Http.cnMaxTargetLen);                                     // 最近请求路径。
+    sRequestBody         : STRING(GVL_Http.cnMaxBodySize);                                      // 最近请求 body。
+    sRxMessage           : STRING(GVL_Http.cnMaxMessageSize);                                   // 最近一次接收报文文本。
+    sTxMessage           : STRING(GVL_Http.cnMaxMessageSize);                                   // 最近一次发送报文文本。
+    sLastTarget          : STRING(GVL_Http.cnMaxTargetLen);                                     // 最近请求路径。
+    sLastBody            : STRING(GVL_Http.cnMaxBodySize);                                      // 最近请求 body。
+    hListenHandle        : NBS.CAA.HANDLE;                                                      // 监听句柄快照。
+    aConnectionSnapshots : ARRAY[1..GVL_Http.cnMaxClientSlots] OF ST_HttpConnectionSnapshot;    // 连接快照。
+END_VAR
+VAR
+    fbServer      : NBS.TCP_Server;                                                    // NBS TCP_Server 实例。
+    aTcpAccept    : ARRAY[1..GVL_Http.cnMaxClientSlots] OF NBS.TCP_Connection;         // 接入槽位。
+    aConnections  : ARRAY[1..GVL_Http.cnMaxClientSlots] OF FB_HttpServerConnection;    // HTTP 连接槽位。
+    ipBindAddr    : NBS.IP_ADDR;                                                       // 监听 IP。
+    hServer       : NBS.CAA.HANDLE;                                                    // 监听句柄。
+    hCleanup      : NBS.CAA.HANDLE;                                                    // 清理连接句柄。
+    uiSlotIndex   : UINT;                                                              // 槽位索引。
+    uiActiveCount : UINT;                                                              // 活跃连接计数。
+    eTcpError     : NBS.ERROR;                                                         // NBS 错误。
+    bAcceptError  : BOOL;                                                              // 接入错误汇总。
+    bRunEnable    : BOOL;                                                              // 兼容旧接口和新接口后的实际使能。
+END_VAR
+
+// === IMPLEMENTATION ===
+/// =======================================================================
+/// 名称      : FB_HttpServer
+/// 功能      : 基于 CAA Net Base Services 实现 HTTP Server 监听、多槽位调度和连接策略。
+/// 库依赖    : CAA Net Base Services
+/// =======================================================================
+/// 使用说明  : 1. 每扫描周期调用一次，内部周期调用 TCP_Server/TCP_Connection/Read/Write。
+///           : 2. xCloseConnection 控制短连接或顺序长连接，内置路由为 `/api/ping`、`/api/echo`、`/api/status`。
+/// =======================================================================
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+// 原因：监听句柄只在 Running 状态对外暴露，避免外部脚本把初始化中的端口误判为可服务。
+// 风险：NBS Server 和连接槽错误必须汇总到统一 Server 诊断，否则真实 client 只能看到连接关闭。
+ipBindAddr.sAddr := sBindIP;
+bRunEnable := xEnable OR bEnable;
+
+IF xReset THEN
+    M_Reset();
+END_IF
+
+IF NOT bRunEnable THEN
+    fbServer(
+        xEnable := FALSE,
+        ipAddr  := ipBindAddr,
+        uiPort  := uiPort
+        );
+    FOR uiSlotIndex := 1 TO GVL_Http.cnMaxClientSlots DO
+        aTcpAccept[uiSlotIndex](
+            xEnable := FALSE,
+            hServer := hServer
+        );
+        aConnections[uiSlotIndex](
+            bEnable             := FALSE,
+            xCloseConnection    := xCloseConnection,
+            uiSlot              := uiSlotIndex,
+            hConnectionIn       := 0,
+            bConnectionActiveIn := FALSE,
+            uiResponseStatusCode:= uiResponseStatusCode,
+            sResponseBody       := sResponseBody,
+            sResponseContentType:= sResponseContentType,
+            sAdditionalHeader   := sAdditionalHeader,
+            udiNowMs            := udiNowMs
+            );
+        aConnectionSnapshots[uiSlotIndex] := aConnections[uiSlotIndex].stConnection;
+    END_FOR
+    M_Reset();
+    RETURN;
+END_IF
+
+CASE eState OF
+    E_HttpServerState.iDisabled:
+        eState := E_HttpServerState.iInit;
+
+    E_HttpServerState.iInit:
+        hServer := 0;
+        hListenHandle := 0;
+        bError := FALSE;
+        eLastError := E_HttpError.iNoError;
+        sDiagMsg := &#x27;&#x27;;
+        eState := E_HttpServerState.iListen;
+
+    E_HttpServerState.iListen,
+    E_HttpServerState.iRunning:
+        fbServer(
+            xEnable := TRUE,
+            ipAddr  := ipBindAddr,
+            uiPort  := uiPort,
+            eError  =&gt; eTcpError
+            );
+        hServer := fbServer.hServer;
+        hListenHandle := hServer;
+        IF fbServer.xError THEN
+            eLastNbsError := eTcpError;
+            M_SetServerError(
+                eError   := E_HttpError.iTcpServerFailed,
+                sMessage := &#x27;TCP server listen failed&#x27;
+                );
+            eState := E_HttpServerState.iFault;
+        ELSIF hServer &lt;&gt; 0 THEN
+            eState := E_HttpServerState.iRunning;
+            M_AcceptNewConnection();
+            M_ServiceConnections();
+        END_IF
+
+    E_HttpServerState.iFault:
+        fbServer(
+            xEnable := FALSE,
+            ipAddr  := ipBindAddr,
+            uiPort  := uiPort
+            );
+ELSE
+    eState := E_HttpServerState.iFault;
+END_CASE
+
+M_UpdateServerOutputs();
+
+// === METHOD M_AcceptNewConnection ===
+/// =======================================================================
+/// 名称      : M_AcceptNewConnection
+/// 功能      : 周期调用所有 NBS.TCP_Connection 接入槽位。
+/// 说明      : 所有槽位每周期都调用，符合 NBS 电平触发语义。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_AcceptNewConnection
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+bAcceptError := FALSE;
+FOR uiSlotIndex := 1 TO GVL_Http.cnMaxClientSlots DO
+    aTcpAccept[uiSlotIndex](
+        xEnable := hServer &lt;&gt; 0,
+        hServer := hServer
+        );
+    IF aTcpAccept[uiSlotIndex].xActive THEN
+        IF (NOT aConnections[uiSlotIndex].bActive)
+            OR (aConnections[uiSlotIndex].stConnection.hConnection &lt;&gt; aTcpAccept[uiSlotIndex].hConnection) THEN
+            // 原因：接入阶段只绑定 NBS 句柄，读写统一留给 M_ServiceConnections；
+            // 避免新连接在同一扫描周期被 TCP_Read 调用两次，导致大 body 半包场景被误判为接收错误。
+            aConnections[uiSlotIndex].M_Attach(
+                hConnection := aTcpAccept[uiSlotIndex].hConnection
+                );
+            stMetrics.udiAcceptedConnections := stMetrics.udiAcceptedConnections + 1;
+        END_IF
+    END_IF
+    IF aTcpAccept[uiSlotIndex].xError THEN
+        bAcceptError := TRUE;
+        eTcpError := aTcpAccept[uiSlotIndex].eError;
+        uiLastErrorSlot := uiSlotIndex;
+    END_IF
+END_FOR
+
+IF bAcceptError THEN
+    eLastNbsError := eTcpError;
+    M_SetServerError(
+        eError   := E_HttpError.iTcpServerFailed,
+        sMessage := &#x27;TCP accept failed&#x27;
+        );
+END_IF
+
+// === METHOD M_ServiceConnections ===
+/// =======================================================================
+/// 名称      : M_ServiceConnections
+/// 功能      : 周期服务所有 HTTP 连接槽位。
+/// 说明      : 请求、响应、错误和清理均由连接 FB 输出聚合。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_ServiceConnections
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+// 原因：每个连接槽都必须每周期服务，NBS 句柄状态变化可能发生在任意扫描周期。
+// 诊断：最近请求槽、最近错误槽和连接快照用于外部探针复盘多连接真实通信路径。
+uiActiveCount := 0;
+FOR uiSlotIndex := 1 TO GVL_Http.cnMaxClientSlots DO
+    aConnections[uiSlotIndex](
+        bEnable             := aConnections[uiSlotIndex].bActive,
+        xCloseConnection    := xCloseConnection,
+        uiSlot              := uiSlotIndex,
+        hConnectionIn       := aConnections[uiSlotIndex].stConnection.hConnection,
+        bConnectionActiveIn := aConnections[uiSlotIndex].bActive,
+        uiResponseStatusCode:= uiResponseStatusCode,
+        sResponseBody       := sResponseBody,
+        sResponseContentType:= sResponseContentType,
+        sAdditionalHeader   := sAdditionalHeader,
+        udiNowMs            := udiNowMs
+        );
+
+    IF aConnections[uiSlotIndex].bActive THEN
+        uiActiveCount := uiActiveCount + 1;
+    END_IF
+
+    IF aConnections[uiSlotIndex].bRequestReady THEN
+        uiLastRequestSlot := uiSlotIndex;
+        sLastTarget := aConnections[uiSlotIndex].stRequest.sTarget;
+        sLastBody := aConnections[uiSlotIndex].stRequest.sBody;
+        sRequestTarget := aConnections[uiSlotIndex].stRequest.sTarget;
+        sRequestBody := aConnections[uiSlotIndex].stRequest.sBody;
+        sRxMessage := aConnections[uiSlotIndex].sRxMessage;
+        stMetrics.udiRequestCount := stMetrics.udiRequestCount + 1;
+    END_IF
+
+    IF aConnections[uiSlotIndex].bResponseSent THEN
+        sTxMessage := aConnections[uiSlotIndex].sTxMessage;
+        stMetrics.udiResponseCount := stMetrics.udiResponseCount + 1;
+    END_IF
+
+    IF aConnections[uiSlotIndex].bProtocolError THEN
+        stMetrics.udiProtocolErrorCount := stMetrics.udiProtocolErrorCount + 1;
+        stMetrics.eLastError := aConnections[uiSlotIndex].eProtocolError;
+        uiLastErrorSlot := uiSlotIndex;
+        eLastError := aConnections[uiSlotIndex].eProtocolError;
+        sDiagMsg := aConnections[uiSlotIndex].sDiagMsg;
+    END_IF
+
+    IF aConnections[uiSlotIndex].bError THEN
+        stMetrics.udiProtocolErrorCount := stMetrics.udiProtocolErrorCount + 1;
+        stMetrics.eLastError := aConnections[uiSlotIndex].eLastError;
+        uiLastErrorSlot := uiSlotIndex;
+        eLastNbsError := aConnections[uiSlotIndex].eLastNbsError;
+        M_SetServerError(
+            eError   := aConnections[uiSlotIndex].eLastError,
+            sMessage := aConnections[uiSlotIndex].sDiagMsg
+            );
+    END_IF
+
+    IF aConnections[uiSlotIndex].bNeedCleanup THEN
+        hCleanup := aConnections[uiSlotIndex].stConnection.hConnection;
+        aConnections[uiSlotIndex](
+            bEnable             := FALSE,
+            xCloseConnection    := xCloseConnection,
+            uiSlot              := uiSlotIndex,
+            hConnectionIn       := 0,
+            bConnectionActiveIn := FALSE,
+            uiResponseStatusCode:= uiResponseStatusCode,
+            sResponseBody       := sResponseBody,
+            sResponseContentType:= sResponseContentType,
+            sAdditionalHeader   := sAdditionalHeader,
+            udiNowMs            := udiNowMs
+            );
+        aTcpAccept[uiSlotIndex](
+            xEnable := FALSE,
+            hServer := hServer
+            );
+        IF hCleanup = 0 THEN
+            ;
+        END_IF
+    END_IF
+
+    aConnectionSnapshots[uiSlotIndex] := aConnections[uiSlotIndex].stConnection;
+END_FOR
+uiActiveConnections := uiActiveCount;
+
+// === METHOD M_Reset ===
+/// =======================================================================
+/// 名称      : M_Reset
+/// 功能      : 完整复位 Server 输出和状态。
+/// 说明      : 禁用路径调用，不清除工程文件或库配置。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PUBLIC M_Reset
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+hServer := 0;
+hListenHandle := 0;
+xListening := FALSE;
+xRunning := FALSE;
+xBusy := FALSE;
+xError := FALSE;
+bListening := FALSE;
+bRunning := FALSE;
+bBusy := FALSE;
+bError := FALSE;
+diErrorID := 0;
+sDiagMsg := &#x27;&#x27;;
+eState := E_HttpServerState.iDisabled;
+eLastError := E_HttpError.iNoError;
+uiActiveConnections := 0;
+uiLastErrorSlot := 0;
+uiLastRequestSlot := 0;
+sRequestTarget := &#x27;&#x27;;
+sRequestBody := &#x27;&#x27;;
+sRxMessage := &#x27;&#x27;;
+sTxMessage := &#x27;&#x27;;
+sLastTarget := &#x27;&#x27;;
+sLastBody := &#x27;&#x27;;
+
+// === METHOD M_SetServerError ===
+/// =======================================================================
+/// 名称      : M_SetServerError
+/// 功能      : 锁存 Server 错误。
+/// 说明      : Server 级错误和连接槽位错误统一进入本出口。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_SetServerError : BOOL
+VAR_INPUT
+    eError   : E_HttpError := E_HttpError.iNoError;    // 枚举状态或错误码。
+    sMessage : STRING(255) := &#x27;&#x27;;                      // 诊断或协议文本字段。
+END_VAR
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+eLastError := eError;
+stMetrics.eLastError := eError;
+bError := TRUE;
+diErrorID := TO_DINT(eError);
+sDiagMsg := sMessage;
+M_SetServerError := TRUE;
+
+// === METHOD M_UpdateServerOutputs ===
+/// =======================================================================
+/// 名称      : M_UpdateServerOutputs
+/// 功能      : 同步 Server 在线输出。
+/// 说明      : hServer 非 0 代表监听句柄有效。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_UpdateServerOutputs
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+bListening := hListenHandle &lt;&gt; 0;
+bRunning := eState = E_HttpServerState.iRunning;
+bBusy := (eState = E_HttpServerState.iInit) OR (eState = E_HttpServerState.iListen);
+xListening := bListening;
+xRunning := bRunning;
+xBusy := bBusy;
+xError := bError;
+diErrorID := TO_DINT(eLastError);</code></pre></div>
+<h3 id="4-fb-httpserverconnection-st">完整源码 4：FB_HttpServerConnection.st</h3>
+<p>职责：单连接请求响应闭环</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : 基于 NBS 的 HTTP Server 单连接处理。
+/// 库依赖 : CAA Net Base Services
+{attribute &#x27;hide_all_locals&#x27;}
+FUNCTION_BLOCK FB_HttpServerConnection
+VAR_INPUT
+    bEnable             : BOOL := FALSE;                                  // 槽位使能。
+    xCloseConnection    : BOOL := FALSE;                                  // 响应后主动关闭连接，TRUE 时按短连接运行。
+    uiSlot              : UINT := 0;                                      // 槽位编号。
+    hConnectionIn       : NBS.CAA.HANDLE := 0;                            // NBS TCP 连接句柄。
+    bConnectionActiveIn : BOOL := FALSE;                                  // NBS TCP_Connection 活跃状态。
+    uiResponseStatusCode: UINT := 200;                                    // 用户自定义响应状态码，0 时使用内置路由默认值。
+    sResponseBody       : STRING(GVL_Http.cnMaxBodySize) := &#x27;&#x27;;           // 用户自定义响应 body，空时使用内置路由默认值。
+    sResponseContentType: STRING(96) := GVL_Http.cnDefaultContentType;    // 用户自定义响应 Content-Type。
+    sAdditionalHeader   : STRING(GVL_Http.cnMaxHeaderSize) := &#x27;&#x27;;         // 用户自定义响应 Header 行，不包含结尾空行。
+    udiNowMs            : UDINT := 0;                                     // 外部毫秒时钟。
+END_VAR
+VAR_OUTPUT
+    bActive        : BOOL;                                 // 槽位正在使用。
+    bBusy          : BOOL;                                 // 正在收请求或发响应。
+    bRequestReady  : BOOL;                                 // 单周期请求解析完成事件。
+    bResponseSent  : BOOL;                                 // 响应已发送。
+    bProtocolError : BOOL;                                 // 单周期协议错误响应事件。
+    bNeedCleanup   : BOOL;                                 // Server 应清理槽位。
+    bError         : BOOL;                                 // 错误锁存。
+    diErrorID      : DINT;                                 // 错误诊断码。
+    sDiagMsg       : STRING(255);                          // 诊断文本。
+    eLastNbsError  : NBS.ERROR;                            // 最近一次 NBS 错误。
+    eLastError     : E_HttpError;                          // 最近一次 HTTP 错误。
+    eProtocolError : E_HttpError;                          // 最近一次协议错误响应码。
+    sRxMessage     : STRING(GVL_Http.cnMaxMessageSize);    // 最近一次接收报文文本。
+    sTxMessage     : STRING(GVL_Http.cnMaxMessageSize);    // 最近一次发送报文文本。
+    stConnection   : ST_HttpConnectionSnapshot;            // 槽位快照。
+    stRequest      : ST_HttpRequest;                       // 最近一次请求。
+    stResponse     : ST_HttpResponse;                      // 最近一次响应。
+END_VAR
+VAR
+    fbTcpRead         : NBS.TCP_Read;                                     // NBS TCP_Read 实例，必须周期调用。
+    fbTcpWrite        : NBS.TCP_Write;                                    // NBS TCP_Write 实例，必须周期调用。
+    fbParser          : FB_HttpMessageParser;                             // HTTP 请求解析器。
+    fbBuilder         : FB_HttpMessageBuilder;                            // HTTP 响应构造器。
+    fbChunked         : FB_HttpChunkedDecoder;                            // HTTP chunked body 解码器。
+    tonWrite          : TON;                                              // 写超时定时器。
+    aRxBuf            : ARRAY[0..GVL_Http.cnRxBufferSize - 1] OF BYTE;    // 接收缓冲。
+    aTxBuf            : ARRAY[0..GVL_Http.cnTxBufferSize - 1] OF BYTE;    // 发送缓冲。
+    sRequestText      : STRING(GVL_Http.cnMaxMessageSize);                // 请求文本。
+    sResponseText     : STRING(GVL_Http.cnMaxMessageSize);                // 响应文本。
+    uiWriteLen        : UINT;                                             // 待发送字节数。
+    uiWriteOffset     : UINT;                                             // 当前发送偏移。
+    uiWriteChunkLen   : UINT;                                             // 当前发送分块长度。
+    uiIndex           : UINT;                                             // 循环索引。
+    bWriteExecute     : BOOL;                                             // TCP_Write 执行位。
+    bWriteBusy        : BOOL;                                             // TCP_Write 忙状态。
+    bWriteDoneLatched : BOOL;                                             // TCP_Write 完成锁存。
+    bWriteGapCycle    : BOOL;                                             // TCP_Write 分块间隔扫描。
+    eTcpError         : NBS.ERROR;                                        // 当前 NBS 错误。
+    uiTcpReadErrors   : UINT;                                             // TCP_Read 连续错误计数。
+END_VAR
+
+// === IMPLEMENTATION ===
+/// =======================================================================
+/// 名称      : FB_HttpServerConnection
+/// 功能      : 服务端单连接收 HTTP 请求、生成响应并按连接策略关闭或复用。
+/// 库依赖    : CAA Net Base Services
+/// =======================================================================
+/// 使用说明  : 1. 每个 TCP_Connection 槽位必须独立持有一个本 FB 实例。
+///           : 2. xCloseConnection 为 FALSE 时允许同一连接顺序处理下一条请求，不支持 pipeline。
+/// =======================================================================
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+// 原因：单连接 FB 独占接收和发送缓冲，避免多个 TCP 连接共享 STRING 缓冲导致报文串扰。
+// 风险：连接失活必须转为清理请求，否则 NBS 句柄残留会让后续真机连接占满槽位。
+bRequestReady := FALSE;
+bResponseSent := FALSE;
+bProtocolError := FALSE;
+eProtocolError := E_HttpError.iNoError;
+
+IF NOT bEnable THEN
+    IF stConnection.hConnection &lt;&gt; 0 THEN
+        fbTcpRead(
+            xEnable     := FALSE,
+            hConnection := stConnection.hConnection,
+            szSize      := 0,
+            pData       := ADR(aRxBuf)
+            );
+        fbTcpWrite(
+            xExecute    := FALSE,
+            hConnection := stConnection.hConnection,
+            szSize      := 0,
+            pData       := ADR(aTxBuf)
+            );
+    END_IF
+    tonWrite(
+        IN := FALSE,
+        PT := GVL_Http.cnWriteTimeout
+        );
+    M_Reset();
+    RETURN;
+END_IF
+
+IF (NOT stConnection.bUsed) OR (stConnection.hConnection &lt;&gt; hConnectionIn) THEN
+    M_Attach(
+        hConnection := hConnectionIn
+        );
+END_IF
+
+IF NOT bConnectionActiveIn THEN
+    bNeedCleanup := TRUE;
+END_IF
+
+CASE stConnection.eState OF
+    E_HttpConnectionState.iReceive:
+        M_ServiceRead();
+        M_ProcessRequest();
+
+    E_HttpConnectionState.iRespond:
+        M_ServiceWrite();
+
+    E_HttpConnectionState.iClosing:
+        bNeedCleanup := (NOT bWriteBusy) AND (NOT bWriteExecute);
+
+    E_HttpConnectionState.iFault:
+        bNeedCleanup := TRUE;
+ELSE
+    bNeedCleanup := TRUE;
+END_CASE
+
+M_UpdateConnectionOutputs();
+
+// === METHOD M_Attach ===
+/// =======================================================================
+/// 名称      : M_Attach
+/// 功能      : 绑定新 TCP 连接句柄。
+/// 说明      : 槽位复用前必须清空缓冲和诊断，避免上一连接数据串扰。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PUBLIC M_Attach
+VAR_INPUT
+    hConnection : NBS.CAA.HANDLE := 0;    // 工程变量或诊断字段。
+END_VAR
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+M_Reset();
+stConnection.bUsed := TRUE;
+stConnection.hConnection := hConnection;
+stConnection.eState := E_HttpConnectionState.iReceive;
+bActive := TRUE;
+bNeedCleanup := FALSE;
+
+// === METHOD M_ServiceRead ===
+/// =======================================================================
+/// 名称      : M_ServiceRead
+/// 功能      : 从 TCP 连接读取请求字节。
+/// 说明      : 只追加到剩余缓冲空间，解析器负责判断完整报文。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_ServiceRead
+VAR
+    udiFreeBytes : UDINT;    // 计数、长度或状态数值。
+    udiReadBytes : UDINT;    // 本次 TCP_Read 允许读取的字节数。
+END_VAR
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+// 原因：长连接回到接收态后必须给 TCP_Write 一个禁用扫描，释放上一响应的写状态；
+// 否则第二个顺序请求到达时，NBS 读写 FB 可能仍围绕同一句柄保留冲突状态。
+fbTcpWrite(
+    xExecute    := FALSE,
+    hConnection := stConnection.hConnection,
+    szSize      := 0,
+    pData       := ADR(aTxBuf)
+    );
+
+udiFreeBytes := TO_UDINT(GVL_Http.cnRxBufferSize - stConnection.uiRxLength);
+IF (stConnection.hConnection &lt;&gt; 0) AND (udiFreeBytes &gt; 0) THEN
+    IF udiFreeBytes &gt; TO_UDINT(GVL_Http.cnTcpReadChunkSize) THEN
+        udiReadBytes := TO_UDINT(GVL_Http.cnTcpReadChunkSize);
+    ELSE
+        udiReadBytes := udiFreeBytes;
+    END_IF
+    fbTcpRead(
+        xEnable     := TRUE,
+        hConnection := stConnection.hConnection,
+        eError      =&gt; eTcpError,
+        szSize      := udiReadBytes,
+        pData       := ADR(aRxBuf[stConnection.uiRxLength])
+        );
+    IF fbTcpRead.xReady AND NOT fbTcpRead.xError THEN
+        IF fbTcpRead.szCount &gt; 0 THEN
+            uiTcpReadErrors := 0;
+            stConnection.uiRxLength := stConnection.uiRxLength + TO_UINT(fbTcpRead.szCount);
+        END_IF
+    ELSIF fbTcpRead.xError THEN
+        // 原因：NBS 在大 body 半包接收中可能短暂返回 TCP_RECEIVE_ERROR；
+        // 先做连续错误滤波，避免合法请求在后续字节到达前被误关闭。
+        IF uiTcpReadErrors &lt; GVL_Http.cnTcpReadMaxErrorCount THEN
+            uiTcpReadErrors := uiTcpReadErrors + 1;
+        END_IF
+        IF uiTcpReadErrors &gt;= GVL_Http.cnTcpReadMaxErrorCount THEN
+            eLastNbsError := eTcpError;
+            M_SetConnectionError(
+                eError   := E_HttpError.iTcpReadFailed,
+                sMessage := &#x27;TCP read failed&#x27;
+                );
+            stConnection.eState := E_HttpConnectionState.iFault;
+        END_IF
+    END_IF
+ELSE
+    fbTcpRead(
+        xEnable     := FALSE,
+        hConnection := stConnection.hConnection,
+        szSize      := 0,
+        pData       := ADR(aRxBuf)
+        );
+END_IF
+
+// === METHOD M_ProcessRequest ===
+/// =======================================================================
+/// 名称      : M_ProcessRequest
+/// 功能      : 解析请求并生成固定路由响应。
+/// 说明      : `/api/ping` 返回 pong，`/api/echo` 返回请求 body，其余返回 404。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_ProcessRequest
+VAR
+    pRxBuf            : POINTER TO BYTE;                      // 当前扫描周期使用的字节指针。
+    pBodyBuf          : POINTER TO BYTE;                      // 当前请求 body 首字节指针。
+    uiHeaderBytes     : UINT;                                 // HTTP Header 总字节数。
+    uiBodyBytes       : UINT;                                 // 已接收 body 字节数。
+    uiExpectedBodyLen : UINT;                                 // Content-Length 声明的 body 字节数。
+    sChunkedBody      : STRING(GVL_Http.cnMaxMessageSize);    // chunked body 临时文本。
+    bResponseQueued   : BOOL;                                 // 是否已经直接写入发送队列。
+END_VAR
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+// 原因：PLC STRING 标准函数在部分运行时存在约 255 字节处理边界，Server 入站 body 必须按 BYTE 缓冲判断完整性。
+// 约束：Header 仍走 Parser 做协议校验，body 只在长度满足后复制或直接回显，避免半包被误判为完整请求。
+uiHeaderBytes := M_FindHttpEnd();
+IF uiHeaderBytes = 0 THEN
+    RETURN;
+END_IF
+
+pRxBuf := ADR(aRxBuf);
+M_CopyBytesToString(
+    pSource     := pRxBuf,
+    uiByteCount := uiHeaderBytes,
+    sTarget     := sRequestText
+    );
+sRxMessage := sRequestText;
+fbParser.M_ParseRequestHead(
+    sMessage  := sRequestText,
+    stRequest =&gt; stRequest
+    );
+
+IF fbParser.bError AND (fbParser.eError = E_HttpError.iNeedMoreData) THEN
+    RETURN;
+ELSIF fbParser.bError THEN
+    M_PrepareErrorResponse(
+        uiStatusCode := 400,
+        sBody        := &#x27;bad request&#x27;
+        );
+ELSIF fbParser.bDone THEN
+    IF stConnection.uiRxLength &gt;= uiHeaderBytes THEN
+        uiBodyBytes := stConnection.uiRxLength - uiHeaderBytes;
+    ELSE
+        uiBodyBytes := 0;
+    END_IF
+
+    IF stRequest.bTransferChunked THEN
+        IF uiBodyBytes &gt; GVL_Http.cnMaxBodySize THEN
+            M_PrepareErrorResponse(
+                uiStatusCode := 413,
+                sBody        := &#x27;payload too large&#x27;
+                );
+        ELSE
+            IF uiBodyBytes &gt; 0 THEN
+                pBodyBuf := ADR(aRxBuf[uiHeaderBytes]);
+                M_CopyBytesToString(
+                    pSource     := pBodyBuf,
+                    uiByteCount := uiBodyBytes,
+                    sTarget     := sChunkedBody
+                    );
+            ELSE
+                sChunkedBody := &#x27;&#x27;;
+            END_IF
+            fbChunked.M_Decode(
+                sChunked := sChunkedBody,
+                sBody    =&gt; stRequest.sBody
+                );
+            IF fbChunked.bError AND (fbChunked.eError = E_HttpError.iNeedMoreData) THEN
+                RETURN;
+            ELSIF fbChunked.bError THEN
+                M_PrepareErrorResponse(
+                    uiStatusCode := 400,
+                    sBody        := &#x27;bad chunked body&#x27;
+                    );
+            ELSE
+                stRequest.udiContentLength := fbChunked.udiDecodedLength;
+            END_IF
+        END_IF
+    ELSIF stRequest.bHasContentLength THEN
+        uiExpectedBodyLen := TO_UINT(stRequest.udiContentLength);
+        IF uiBodyBytes &lt; uiExpectedBodyLen THEN
+            RETURN;
+        END_IF
+        stRequest.sBody := &#x27;&#x27;;
+    ELSE
+        stRequest.sBody := &#x27;&#x27;;
+        stRequest.udiContentLength := 0;
+    END_IF
+
+    bRequestReady := TRUE;
+    stConnection.sLastTarget := stRequest.sTarget;
+    stResponse.bConnectionClose := xCloseConnection OR stRequest.bConnectionClose;
+    stResponse.sAdditionalHeader := sAdditionalHeader;
+    IF stRequest.sTarget = &#x27;/api/ping&#x27; THEN
+        M_PrepareOkResponse(
+            sBody := &#x27;pong&#x27;
+            );
+    ELSIF stRequest.sTarget = &#x27;/api/echo&#x27; THEN
+        stResponse.sContentType := sResponseContentType;
+        stResponse.bConnectionClose := xCloseConnection OR stRequest.bConnectionClose;
+        stResponse.sAdditionalHeader := sAdditionalHeader;
+        IF stRequest.bHasContentLength THEN
+            pBodyBuf := ADR(aRxBuf[uiHeaderBytes]);
+            bResponseQueued := M_QueueBytesResponse(
+                pBody     := pBodyBuf,
+                uiBodyLen := uiExpectedBodyLen
+                );
+        ELSE
+            pBodyBuf := ADR(stRequest.sBody);
+            bResponseQueued := M_QueueBytesResponse(
+                pBody     := pBodyBuf,
+                uiBodyLen := TO_UINT(stRequest.udiContentLength)
+                );
+        END_IF
+    ELSIF stRequest.sTarget = &#x27;/api/status&#x27; THEN
+        M_PrepareOkResponse(
+            sBody := &#x27;ok&#x27;
+            );
+    ELSIF LEN(sResponseBody) &gt; 0 THEN
+        M_PrepareOkResponse(
+            sBody := sResponseBody
+            );
+    ELSE
+        M_PrepareErrorResponse(
+            uiStatusCode := 404,
+            sBody        := &#x27;not found&#x27;
+            );
+    END_IF
+ELSE
+    RETURN;
+END_IF
+
+IF bResponseQueued THEN
+    stConnection.eState := E_HttpConnectionState.iRespond;
+    RETURN;
+ELSIF bError THEN
+    stConnection.eState := E_HttpConnectionState.iFault;
+    RETURN;
+END_IF
+
+IF fbBuilder.M_BuildResponse(
+    stResponse := stResponse,
+    sMessage   =&gt; sResponseText
+    ) THEN
+    IF M_QueueRawString(
+        sText := sResponseText
+        ) THEN
+        stConnection.eState := E_HttpConnectionState.iRespond;
+    END_IF
+ELSE
+    M_SetConnectionError(
+        eError   := fbBuilder.eError,
+        sMessage := fbBuilder.sDiagMsg
+        );
+    stConnection.eState := E_HttpConnectionState.iFault;
+END_IF
+
+// === METHOD M_PrepareOkResponse ===
+/// =======================================================================
+/// 名称      : M_PrepareOkResponse
+/// 功能      : 准备 200 响应结构。
+/// 说明      : body 文本由路由层给出，统一使用 text/plain 和短连接。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_PrepareOkResponse
+VAR_INPUT
+    sBody : STRING(GVL_Http.cnMaxBodySize) := &#x27;&#x27;;    // 诊断或协议文本字段。
+END_VAR
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+stResponse.sVersion := &#x27;HTTP/1.1&#x27;;
+stResponse.uiStatusCode := 200;
+stResponse.sReason := &#x27;OK&#x27;;
+IF LEN(sResponseContentType) &gt; 0 THEN
+    stResponse.sContentType := sResponseContentType;
+ELSE
+    stResponse.sContentType := GVL_Http.cnDefaultContentType;
+END_IF
+stResponse.sBody := sBody;
+stResponse.sAdditionalHeader := sAdditionalHeader;
+stResponse.bConnectionClose := xCloseConnection OR stRequest.bConnectionClose;
+stResponse.bHasContentLength := TRUE;
+stResponse.udiContentLength := TO_UDINT(LEN(sBody));
+
+// === METHOD M_PrepareErrorResponse ===
+/// =======================================================================
+/// 名称      : M_PrepareErrorResponse
+/// 功能      : 准备错误响应结构。
+/// 说明      : 协议错误同样返回短连接，响应后由 Server 清理槽位。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_PrepareErrorResponse
+VAR_INPUT
+    uiStatusCode : UINT := 400;                             // 计数、长度或状态数值。
+    sBody        : STRING(GVL_Http.cnMaxBodySize) := &#x27;&#x27;;    // 诊断或协议文本字段。
+END_VAR
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+stResponse.sVersion := &#x27;HTTP/1.1&#x27;;
+stResponse.uiStatusCode := uiStatusCode;
+stResponse.sReason := F_HttpStatusReason(
+    uiStatusCode := uiStatusCode
+    );
+stResponse.sContentType := GVL_Http.cnDefaultContentType;
+stResponse.sBody := sBody;
+stResponse.sAdditionalHeader := sAdditionalHeader;
+stResponse.bConnectionClose := TRUE;
+stResponse.bHasContentLength := TRUE;
+stResponse.udiContentLength := TO_UDINT(LEN(sBody));
+IF uiStatusCode &gt;= 400 THEN
+    bProtocolError := TRUE;
+    eProtocolError := fbParser.eError;
+    eLastError := fbParser.eError;
+    stConnection.eLastError := fbParser.eError;
+    sDiagMsg := &#x27;HTTP request parse failed&#x27;;
+END_IF
+
+// === METHOD M_ServiceWrite ===
+/// =======================================================================
+/// 名称      : M_ServiceWrite
+/// 功能      : 发送响应。
+/// 说明      : 发送完成后按连接策略进入 Closing 或回到 Receive。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_ServiceWrite
+VAR
+    uiRemaining : UINT;               // 当前发送剩余字节数。
+    pTxData     : POINTER TO BYTE;    // 当前 TCP_Write 分块首地址。
+END_VAR
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+// 原因：TCP_Write 的 xDone 是短脉冲，必须锁存后再切换 Closing，避免扫描周期错过发送完成。
+// 诊断：写超时和写失败都映射到同一连接错误出口，外部 Server 矩阵可以读取槽位错误码定位。
+// 原因：长连接复用时读写 FB 不能同时保持激活；响应发送阶段先给 TCP_Read 一个禁用扫描，
+// 避免上一轮接收状态残留到下一轮请求，导致第二个顺序请求被 NBS 误报为 TCP read failed。
+fbTcpRead(
+    xEnable     := FALSE,
+    hConnection := stConnection.hConnection,
+    szSize      := 0,
+    pData       := ADR(aRxBuf)
+    );
+
+IF bWriteBusy AND (NOT bWriteExecute) AND (NOT bWriteGapCycle) THEN
+    IF uiWriteOffset &lt; uiWriteLen THEN
+        uiRemaining := uiWriteLen - uiWriteOffset;
+        IF uiRemaining &gt; GVL_Http.cnTcpWriteChunkSize THEN
+            uiWriteChunkLen := GVL_Http.cnTcpWriteChunkSize;
+        ELSE
+            uiWriteChunkLen := uiRemaining;
+        END_IF
+        bWriteExecute := uiWriteChunkLen &gt; 0;
+    END_IF
+END_IF
+
+pTxData := ADR(aTxBuf);
+IF bWriteExecute THEN
+    pTxData := ADR(aTxBuf[uiWriteOffset]);
+END_IF
+
+fbTcpWrite(
+    xExecute    := bWriteExecute,
+    hConnection := stConnection.hConnection,
+    eError      =&gt; eTcpError,
+    szSize      := TO_UDINT(uiWriteChunkLen),
+    pData       := pTxData
+    );
+
+IF bWriteGapCycle AND (NOT bWriteExecute) THEN
+    bWriteGapCycle := FALSE;
+ELSIF NOT bWriteExecute THEN
+    bWriteDoneLatched := FALSE;
+ELSIF fbTcpWrite.xError THEN
+    eLastNbsError := eTcpError;
+    bWriteExecute := FALSE;
+    bWriteBusy := FALSE;
+    bWriteGapCycle := FALSE;
+    M_SetConnectionError(
+        eError   := E_HttpError.iTcpWriteFailed,
+        sMessage := &#x27;TCP write failed&#x27;
+        );
+    stConnection.eState := E_HttpConnectionState.iFault;
+ELSIF fbTcpWrite.xDone THEN
+    bWriteExecute := FALSE;
+    bWriteDoneLatched := FALSE;
+    uiWriteOffset := uiWriteOffset + uiWriteChunkLen;
+    uiWriteChunkLen := 0;
+    IF uiWriteOffset &gt;= uiWriteLen THEN
+        bWriteDoneLatched := TRUE;
+    ELSE
+        bWriteGapCycle := TRUE;
+    END_IF
+END_IF
+
+tonWrite(
+    IN := bWriteBusy,
+    PT := GVL_Http.cnWriteTimeout
+    );
+
+IF bWriteBusy AND bWriteDoneLatched THEN
+    bWriteExecute := FALSE;
+    bWriteBusy := FALSE;
+    bWriteDoneLatched := FALSE;
+    bWriteGapCycle := FALSE;
+    uiWriteOffset := 0;
+    uiWriteChunkLen := 0;
+    stConnection.uiTxLength := 0;
+    bResponseSent := TRUE;
+    IF stResponse.bConnectionClose THEN
+        stConnection.eState := E_HttpConnectionState.iClosing;
+    ELSE
+        stConnection.uiRxLength := 0;
+        stConnection.uiTxLength := 0;
+        uiWriteLen := 0;
+        uiWriteOffset := 0;
+        uiWriteChunkLen := 0;
+        uiTcpReadErrors := 0;
+        bWriteExecute := FALSE;
+        bWriteBusy := FALSE;
+        bWriteDoneLatched := FALSE;
+        bWriteGapCycle := FALSE;
+        sRequestText := &#x27;&#x27;;
+        sResponseText := &#x27;&#x27;;
+        stConnection.eState := E_HttpConnectionState.iReceive;
+    END_IF
+ELSIF bWriteBusy AND tonWrite.Q THEN
+    bWriteExecute := FALSE;
+    bWriteBusy := FALSE;
+    bWriteGapCycle := FALSE;
+    M_SetConnectionError(
+        eError   := E_HttpError.iTcpWriteFailed,
+        sMessage := &#x27;TCP write timeout&#x27;
+        );
+    stConnection.eState := E_HttpConnectionState.iFault;
+END_IF
+
+// === METHOD M_QueueRawString ===
+/// =======================================================================
+/// 名称      : M_QueueRawString
+/// 功能      : 将响应文本放入发送缓冲。
+/// 说明      : 单连接单响应，不允许覆盖正在发送的响应。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_QueueRawString : BOOL
+VAR_INPUT
+    sText : STRING(GVL_Http.cnMaxMessageSize) := &#x27;&#x27;;    // 诊断或协议文本字段。
+END_VAR
+VAR
+    uiLen : UINT;               // 计数、长度或状态数值。
+    pRead : POINTER TO BYTE;    // 当前扫描周期使用的字节指针。
+END_VAR
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+M_QueueRawString := FALSE;
+IF bWriteBusy OR bWriteExecute THEN
+    M_SetConnectionError(
+        eError   := E_HttpError.iQueueFull,
+        sMessage := &#x27;Server transmit queue is busy&#x27;
+        );
+    RETURN;
+END_IF
+uiLen := TO_UINT(LEN(sText));
+IF uiLen &gt; GVL_Http.cnTxBufferSize THEN
+    M_SetConnectionError(
+        eError   := E_HttpError.iBufferTooSmall,
+        sMessage := &#x27;Server transmit buffer too small&#x27;
+        );
+    RETURN;
+END_IF
+pRead := ADR(sText);
+IF uiLen &gt; 0 THEN
+    FOR uiIndex := 0 TO uiLen - 1 DO
+        aTxBuf[uiIndex] := pRead^;
+        pRead := pRead + 1;
+    END_FOR
+END_IF
+uiWriteLen := uiLen;
+uiWriteOffset := 0;
+uiWriteChunkLen := 0;
+stConnection.uiTxLength := uiLen;
+sTxMessage := sText;
+bWriteExecute := FALSE;
+bWriteBusy := TRUE;
+bWriteGapCycle := FALSE;
+M_QueueRawString := TRUE;
+
+// === METHOD M_FindHttpEnd ===
+/// =======================================================================
+/// 名称      : M_FindHttpEnd
+/// 功能      : 查找 HTTP Header 结束序列。
+/// 说明      : 返回 Header 总字节数，0 表示未收完整。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_FindHttpEnd : UINT
+VAR
+    uiScan : UINT;    // 计数、长度或状态数值。
+END_VAR
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+M_FindHttpEnd := 0;
+IF stConnection.uiRxLength &lt; 4 THEN
+    RETURN;
+END_IF
+FOR uiScan := 0 TO stConnection.uiRxLength - 4 DO
+    IF (aRxBuf[uiScan] = 16#0D)
+        AND (aRxBuf[uiScan + 1] = 16#0A)
+        AND (aRxBuf[uiScan + 2] = 16#0D)
+        AND (aRxBuf[uiScan + 3] = 16#0A) THEN
+        M_FindHttpEnd := uiScan + 4;
+        RETURN;
+    END_IF
+END_FOR
+
+// === METHOD M_CopyBytesToString ===
+/// =======================================================================
+/// 名称      : M_CopyBytesToString
+/// 功能      : 将接收字节复制为 STRING。
+/// 说明      : 用于 HTTP Parser，复制过程保留 ASCII 字节原样。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_CopyBytesToString : BOOL
+VAR_INPUT
+    uiByteCount : UINT := 0;    // 计数、长度或状态数值。
+END_VAR
+VAR_IN_OUT
+    pSource : POINTER TO BYTE;                      // 当前扫描周期使用的字节指针。
+    sTarget : STRING(GVL_Http.cnMaxMessageSize);    // 诊断或协议文本字段。
+END_VAR
+VAR
+    pRead     : POINTER TO BYTE;    // 当前扫描周期使用的字节指针。
+    pWrite    : POINTER TO BYTE;    // 当前扫描周期使用的字节指针。
+    uiCopyLen : UINT;               // 计数、长度或状态数值。
+END_VAR
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+pWrite := ADR(sTarget);
+pWrite^ := 0;
+M_CopyBytesToString := FALSE;
+IF pSource = 0 THEN
+    RETURN;
+END_IF
+IF uiByteCount &gt; TO_UINT(SIZEOF(sTarget) - 1) THEN
+    uiCopyLen := TO_UINT(SIZEOF(sTarget) - 1);
+ELSE
+    uiCopyLen := uiByteCount;
+END_IF
+pRead := pSource;
+IF uiCopyLen &gt; 0 THEN
+    FOR uiIndex := 0 TO uiCopyLen - 1 DO
+        pWrite^ := pRead^;
+        pWrite := pWrite + 1;
+        pRead := pRead + 1;
+    END_FOR
+END_IF
+pWrite^ := 0;
+M_CopyBytesToString := TRUE;
+
+// === METHOD M_Reset ===
+/// =======================================================================
+/// 名称      : M_Reset
+/// 功能      : 清空连接槽位。
+/// 说明      : 由 Server 清理槽位或禁用路径调用。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PUBLIC M_Reset
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+stConnection.bUsed := FALSE;
+stConnection.hConnection := 0;
+stConnection.eState := E_HttpConnectionState.iEmpty;
+stConnection.eLastError := E_HttpError.iNoError;
+stConnection.sLastTarget := &#x27;&#x27;;
+stConnection.uiRxLength := 0;
+stConnection.uiTxLength := 0;
+bActive := FALSE;
+bBusy := FALSE;
+bRequestReady := FALSE;
+bResponseSent := FALSE;
+bProtocolError := FALSE;
+bNeedCleanup := FALSE;
+bError := FALSE;
+diErrorID := 0;
+sDiagMsg := &#x27;&#x27;;
+eLastError := E_HttpError.iNoError;
+eProtocolError := E_HttpError.iNoError;
+sRxMessage := &#x27;&#x27;;
+sTxMessage := &#x27;&#x27;;
+uiWriteLen := 0;
+uiWriteOffset := 0;
+uiWriteChunkLen := 0;
+uiTcpReadErrors := 0;
+bWriteExecute := FALSE;
+bWriteBusy := FALSE;
+bWriteDoneLatched := FALSE;
+bWriteGapCycle := FALSE;
+sRequestText := &#x27;&#x27;;
+sResponseText := &#x27;&#x27;;
+
+// === METHOD M_SetConnectionError ===
+/// =======================================================================
+/// 名称      : M_SetConnectionError
+/// 功能      : 锁存连接槽位错误。
+/// 说明      : 错误同时写入快照和标准输出，便于 Server 聚合。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_SetConnectionError : BOOL
+VAR_INPUT
+    eError   : E_HttpError := E_HttpError.iNoError;    // 枚举状态或错误码。
+    sMessage : STRING(255) := &#x27;&#x27;;                      // 诊断或协议文本字段。
+END_VAR
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+stConnection.eLastError := eError;
+eLastError := eError;
+bError := TRUE;
+diErrorID := TO_DINT(eError);
+sDiagMsg := sMessage;
+M_SetConnectionError := TRUE;
+
+// === METHOD M_UpdateConnectionOutputs ===
+/// =======================================================================
+/// 名称      : M_UpdateConnectionOutputs
+/// 功能      : 同步连接在线输出。
+/// 说明      : 保证每扫描周期外部可见状态和快照一致。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_UpdateConnectionOutputs
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+bActive := stConnection.bUsed;
+bBusy := (stConnection.eState = E_HttpConnectionState.iReceive)
+    OR (stConnection.eState = E_HttpConnectionState.iRespond);
+diErrorID := TO_DINT(eLastError);
+
+// === METHOD M_QueueBytesResponse ===
+/// =======================================================================
+/// 名称      : M_QueueBytesResponse
+/// 功能      : 将响应 Header 和原始 body 字节放入发送缓冲。
+/// 说明      : 用于大 body 回显，绕开 STRING CONCAT/LEN 在长文本上的运行时边界。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_QueueBytesResponse : BOOL
+VAR_INPUT
+    uiBodyLen : UINT := 0;    // 响应 body 字节数。
+END_VAR
+VAR_IN_OUT
+    pBody : POINTER TO BYTE;    // 响应 body 首字节指针。
+END_VAR
+VAR
+    sHeader      : STRING(255);        // 响应 Header 文本，长度保持在短 STRING 范围内。
+    sContentLen  : STRING(16);         // Content-Length 文本。
+    uiHeaderLen  : UINT;               // 响应 Header 字节数。
+    uiBodyIndex  : UINT;               // body 复制索引。
+    pRead        : POINTER TO BYTE;    // 当前复制源指针。
+END_VAR
+// === IMPLEMENTATION ===
+// 原因：HTTP echo 需要按真实字节回显 1023 字节 body，不能依赖长 STRING 拼接后再发送。
+// 诊断：Header 长度和 body 长度分别计算，发送缓冲不足时保留 BufferTooSmall 错误出口。
+M_QueueBytesResponse := FALSE;
+IF bWriteBusy OR bWriteExecute THEN
+    M_SetConnectionError(
+        eError   := E_HttpError.iQueueFull,
+        sMessage := &#x27;Server transmit queue is busy&#x27;
+        );
+    RETURN;
+END_IF
+
+sContentLen := UINT_TO_STRING(uiBodyLen);
+sHeader := &#x27;HTTP/1.1 200 OK$R$NConnection: &#x27;;
+IF stResponse.bConnectionClose THEN
+    sHeader := CONCAT(sHeader, &#x27;close$R$NContent-Type: &#x27;);
+ELSE
+    sHeader := CONCAT(sHeader, &#x27;keep-alive$R$NContent-Type: &#x27;);
+END_IF
+sHeader := CONCAT(sHeader, GVL_Http.cnDefaultContentType);
+sHeader := CONCAT(sHeader, &#x27;$R$NContent-Length: &#x27;);
+sHeader := CONCAT(sHeader, sContentLen);
+IF LEN(stResponse.sAdditionalHeader) &gt; 0 THEN
+    sHeader := CONCAT(sHeader, &#x27;$R$N&#x27;);
+    sHeader := CONCAT(sHeader, stResponse.sAdditionalHeader);
+END_IF
+sHeader := CONCAT(sHeader, &#x27;$R$N$R$N&#x27;);
+uiHeaderLen := TO_UINT(LEN(sHeader));
+sTxMessage := sHeader;
+
+IF (TO_UDINT(uiHeaderLen) + TO_UDINT(uiBodyLen)) &gt; TO_UDINT(GVL_Http.cnTxBufferSize) THEN
+    M_SetConnectionError(
+        eError   := E_HttpError.iBufferTooSmall,
+        sMessage := &#x27;Server transmit buffer too small&#x27;
+        );
+    RETURN;
+END_IF
+
+pRead := ADR(sHeader);
+IF uiHeaderLen &gt; 0 THEN
+    FOR uiIndex := 0 TO uiHeaderLen - 1 DO
+        aTxBuf[uiIndex] := pRead^;
+        pRead := pRead + 1;
+    END_FOR
+END_IF
+
+IF uiBodyLen &gt; 0 THEN
+    IF pBody = 0 THEN
+        M_SetConnectionError(
+            eError   := E_HttpError.iInvalidArgument,
+            sMessage := &#x27;Server response body pointer is null&#x27;
+            );
+        RETURN;
+    END_IF
+    pRead := pBody;
+    FOR uiBodyIndex := 0 TO uiBodyLen - 1 DO
+        aTxBuf[uiHeaderLen + uiBodyIndex] := pRead^;
+        pRead := pRead + 1;
+    END_FOR
+END_IF
+
+uiWriteLen := uiHeaderLen + uiBodyLen;
+uiWriteOffset := 0;
+uiWriteChunkLen := 0;
+stConnection.uiTxLength := uiWriteLen;
+bWriteExecute := FALSE;
+bWriteBusy := TRUE;
+bWriteGapCycle := FALSE;
+M_QueueBytesResponse := TRUE;</code></pre></div>
+<h3 id="5-st-httpservermetrics-st">完整源码 5：ST_HttpServerMetrics.st</h3>
+<p>职责：Server 运行指标</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : HTTP Server 运行统计。
+/// 库依赖 : 暂无
+TYPE ST_HttpServerMetrics :
+STRUCT
+    udiAcceptedConnections : UDINT := 0;
+    udiRequestCount        : UDINT := 0;
+    udiResponseCount       : UDINT := 0;
+    udiProtocolErrorCount  : UDINT := 0;
+    eLastError             : E_HttpError := E_HttpError.iNoError;
+END_STRUCT
+END_TYPE</code></pre></div>
+<h3 id="6-st-httpconnectionsnapshot-st">完整源码 6：ST_HttpConnectionSnapshot.st</h3>
+<p>职责：连接槽位快照</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : HTTP Server 单连接诊断快照。
+/// 库依赖 : 暂无
+TYPE ST_HttpConnectionSnapshot :
+STRUCT
+    bUsed        : BOOL := FALSE;
+    hConnection  : NBS.CAA.HANDLE := 0;
+    eState       : E_HttpConnectionState := E_HttpConnectionState.iEmpty;
+    eLastError   : E_HttpError := E_HttpError.iNoError;
+    sLastTarget  : STRING(GVL_Http.cnMaxTargetLen) := &#x27;&#x27;;
+    uiRxLength   : UINT := 0;
+    uiTxLength   : UINT := 0;
+END_STRUCT
+END_TYPE</code></pre></div>
+<h2 id="section-c25cdcf3">本篇阅读抓手</h2>
+<ul><li>监听器与连接槽分层。</li><li>每个槽位独立缓冲和错误。</li><li>Metrics 与 Snapshot 为真机排障保留证据。</li></ul>
+<h2 id="section-6bb3199c">如何验证这组源码</h2>
+<ol><li>先针对 <code>E_HttpServerState.st</code> 的公开输入和错误出口建立确定性用例。</li><li>再把“监听器与连接槽分层”转成至少一个正常场景和一个失败场景。</li><li>本篇 6 个文件必须一起编译，避免只验证单个函数而漏掉数据结构或调用边界。</li><li>真机复核时重点观察“Metrics 与 Snapshot 为真机排障保留证据”，并保留对应状态、计数和原始报文。</li></ol>
+<h2 id="section-6f65a855">这一篇你最该记住</h2>
+<ul><li>监听器与连接槽分层。</li><li>每个槽位独立缓冲和错误。</li><li>Metrics 与 Snapshot 为真机排障保留证据。</li></ul>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列：CodeSys HTTP 系列教程，第 23/28 篇。</li><li>当前源码加更：第 5/8 篇。</li><li>本篇完整源码文件数：6。</li><li>上一篇：第22篇</li><li>下一篇：第24篇</li></ul>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../codesys-http-source-update-04/index.html">
+                <small>上一篇 / 第22篇</small>
+                <strong>第22篇_源码加更 04｜chunked 解码器和十六进制块长度解析</strong>
+                <span>这一组代码覆盖 chunk-size、分号扩展、CRLF、0 终止块、trailer 边界和 Body 容量检查。</span>
+              </a>
+              <a class="series-nav-card" href="../codesys-http-source-update-06/index.html">
+                <small>下一篇 / 第24篇</small>
+                <strong>第24篇_源码加更 06｜HTTP Client 状态机和运行指标</strong>
+                <span>Client 源码展示一次主动请求怎样跨越连接、构造、发送、接收、解析和恢复阶段。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script src="../../content/site-data.js"></script>
+  <script>
+    (() => {
+      const articleNav = document.querySelector(".article-nav");
+      const articleSearchShell = document.getElementById("articleSearchShell");
+      const articleSearchButton = document.getElementById("articleSearchButton");
+      const articleSearchInput = document.getElementById("articleSiteSearch");
+      const articleSearchPanel = document.getElementById("articleSearchPanel");
+      const articleLangToggle = document.getElementById("articleLangToggle");
+      const articleMenuToggle = document.getElementById("articleMobileMenuToggle");
+      const articleMenuPanel = document.getElementById("articleMobileMenuPanel");
+      const articleTocToggle = document.querySelector(".article-toc-toggle");
+      const articleTocBody = document.getElementById("articleTocBody");
+      const homeHref = document.querySelector(".brand").getAttribute("href");
+      const siteData = window.CONTROLROOKIE_SITE_DATA || { articles: [], resources: [], products: [], contacts: [] };
+      let articleUiLang = "zh";
+      let articleSearchFilter = "all";
+
+      const uiText = {
+        zh: {
+          nav: ["关于我", "文章", "产品", "资源", "联系"],
+          back: "返回文章",
+          search: "搜索文章、资源、产品",
+          filters: { all: "全部", article: "文章", resource: "资源", product: "产品", contact: "联系" },
+          empty: "没有匹配结果。",
+          toc: "文章目录",
+          skip: "跳到文章正文",
+          searchButton: "搜索",
+          searchResults: "文章页搜索结果",
+          searchFilters: "搜索筛选",
+          menu: "文章移动主导航",
+          menuOpen: "打开主菜单",
+          menuClose: "关闭主菜单",
+          navLabel: "文章导航",
+          home: "ControlRookie 首页",
+          sections: "页面栏目",
+          breadcrumb: "文章路径",
+          tocLabel: "文章目录",
+          seriesNav: "系列导航",
+          scrollActions: "文章滚动快捷操作",
+          top: "回到文章顶端",
+          bottom: "跳到文章底端",
+        },
+        en: {
+          nav: ["About Me", "Articles", "Products", "Resources", "Contact"],
+          back: "Back to Articles",
+          search: "Search articles, resources, products",
+          filters: { all: "All", article: "Articles", resource: "Resources", product: "Products", contact: "Contact" },
+          empty: "No matching results.",
+          toc: "Article Contents",
+          skip: "Skip to article content",
+          searchButton: "Search",
+          searchResults: "Article search results",
+          searchFilters: "Search filters",
+          menu: "Article mobile navigation",
+          menuOpen: "Open primary menu",
+          menuClose: "Close primary menu",
+          navLabel: "Article navigation",
+          home: "ControlRookie home",
+          sections: "Sections",
+          breadcrumb: "Article path",
+          tocLabel: "Article contents",
+          seriesNav: "Series navigation",
+          scrollActions: "Article scroll shortcuts",
+          top: "Back to article top",
+          bottom: "Jump to article end",
+        },
+      };
+
+      const escapeSearchHtml = (value) => String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+      const localized = (value) => typeof value === "string" ? value : (value?.[articleUiLang] || value?.zh || "");
+      const resolveSearchHref = (href) => {
+        if (!href) return homeHref;
+        if (/^https?:\/\//.test(href) || href.startsWith("mailto:")) return href;
+        const homeUrl = new URL(homeHref, window.location.href);
+        if (href.startsWith("#")) return `${homeUrl.href.split("#")[0]}${href}`;
+        return new URL(href, homeUrl).href;
+      };
+      const articleSearchItems = [
+        ...siteData.articles.map((item) => ({ ...item, group: "article" })),
+        ...siteData.resources.map((item) => ({ ...item, group: "resource" })),
+        ...siteData.products.map((item) => ({ ...item, group: "product" })),
+        ...siteData.contacts.map((item) => ({ ...item, group: "contact" })),
+      ];
+
+      const closeArticleSearch = (restoreFocus = false) => {
+        articleSearchShell.classList.remove("open");
+        articleSearchPanel.classList.remove("visible");
+        articleSearchPanel.hidden = true;
+        articleSearchPanel.inert = true;
+        articleNav.classList.remove("search-active");
+        articleSearchButton.setAttribute("aria-expanded", "false");
+        if (restoreFocus) articleSearchButton.focus();
+      };
+      const closeArticleMenu = (restoreFocus = false) => {
+        articleMenuPanel.hidden = true;
+        articleMenuToggle.setAttribute("aria-expanded", "false");
+        articleMenuToggle.setAttribute("aria-label", uiText[articleUiLang].menuOpen);
+        if (restoreFocus) articleMenuToggle.focus();
+      };
+      const closeArticleToc = (restoreFocus = false) => {
+        articleTocToggle.setAttribute("aria-expanded", "false");
+        if (restoreFocus) articleTocToggle.focus();
+      };
+
+      const renderArticleSearch = () => {
+        const query = articleSearchInput.value.trim().toLowerCase();
+        const filters = uiText[articleUiLang].filters;
+        const matches = articleSearchItems.filter((item) => {
+          if (articleSearchFilter !== "all" && item.group !== articleSearchFilter) return false;
+          if (!query) return true;
+          return JSON.stringify(item).toLowerCase().includes(query);
+        }).slice(0, 18);
+        const filterBar = `<div class="search-filter-bar" role="tablist" aria-label="${escapeSearchHtml(uiText[articleUiLang].searchFilters)}">${Object.entries(filters).map(([key, label]) => `<button type="button" role="tab" aria-selected="${articleSearchFilter === key}" class="${articleSearchFilter === key ? "active" : ""}" data-article-search-filter="${key}">${escapeSearchHtml(label)}</button>`).join("")}</div>`;
+        const results = matches.length
+          ? matches.map((item) => `<a class="search-result" href="${escapeSearchHtml(resolveSearchHref(item.searchHref || item.href))}"><span class="search-result-type">${escapeSearchHtml(filters[item.group] || item.group)}</span><strong>${escapeSearchHtml(localized(item.title))}</strong></a>`).join("")
+          : `<div class="search-empty">${escapeSearchHtml(uiText[articleUiLang].empty)}</div>`;
+        articleSearchPanel.innerHTML = `${filterBar}<div class="search-results">${results}</div>`;
+        articleSearchPanel.hidden = false;
+        articleSearchPanel.inert = false;
+        articleSearchShell.classList.add("open");
+        articleSearchPanel.classList.add("visible");
+        articleNav.classList.add("search-active");
+        articleSearchButton.setAttribute("aria-expanded", "true");
+      };
+
+      const applyArticleUiLanguage = (lang) => {
+        articleUiLang = lang;
+        document.querySelectorAll(".article-nav .nav-links a").forEach((node, index) => {
+          node.textContent = uiText[lang].nav[index];
+        });
+        document.querySelectorAll("[data-article-nav]").forEach((node, index) => {
+          node.textContent = uiText[lang].nav[index];
+        });
+        document.querySelectorAll(".article-back, .article-menu-back").forEach((node) => {
+          node.textContent = uiText[lang].back;
+        });
+        articleSearchInput.placeholder = uiText[lang].search;
+        articleSearchInput.setAttribute("aria-label", uiText[lang].search);
+        document.querySelector(".skip-link").textContent = uiText[lang].skip;
+        articleNav.setAttribute("aria-label", uiText[lang].navLabel);
+        document.querySelector(".brand").setAttribute("aria-label", uiText[lang].home);
+        document.querySelector(".article-nav .nav-links").setAttribute("aria-label", uiText[lang].sections);
+        articleSearchButton.setAttribute("aria-label", uiText[lang].searchButton);
+        articleSearchPanel.setAttribute("aria-label", uiText[lang].searchResults);
+        articleMenuPanel.setAttribute("aria-label", uiText[lang].menu);
+        articleMenuToggle.setAttribute("aria-label", articleMenuToggle.getAttribute("aria-expanded") === "true" ? uiText[lang].menuClose : uiText[lang].menuOpen);
+        document.querySelector(".article-breadcrumb").setAttribute("aria-label", uiText[lang].breadcrumb);
+        document.querySelector(".article-toc").setAttribute("aria-label", uiText[lang].tocLabel);
+        document.querySelector(".article-series-nav").setAttribute("aria-label", uiText[lang].seriesNav);
+        document.querySelector(".article-scroll-actions").setAttribute("aria-label", uiText[lang].scrollActions);
+        document.querySelector('.article-scroll-actions a[href="#article-top"]').setAttribute("aria-label", uiText[lang].top);
+        document.querySelector('.article-scroll-actions a[href="#article-end"]').setAttribute("aria-label", uiText[lang].bottom);
+        articleTocToggle.querySelector("span").textContent = uiText[lang].toc;
+        articleLangToggle.textContent = lang === "zh" ? "EN" : "中";
+        articleLangToggle.setAttribute("aria-label", lang === "zh" ? "Switch navigation to English" : "切换导航为中文");
+        if (articleSearchPanel.classList.contains("visible")) renderArticleSearch();
+      };
+
+      articleSearchButton.addEventListener("click", () => {
+        closeArticleMenu();
+        articleSearchInput.focus();
+        renderArticleSearch();
+      });
+      articleSearchInput.addEventListener("input", renderArticleSearch);
+      articleSearchPanel.addEventListener("click", (event) => {
+        const filter = event.target.closest("[data-article-search-filter]");
+        if (!filter) return;
+        event.preventDefault();
+        articleSearchFilter = filter.dataset.articleSearchFilter || "all";
+        renderArticleSearch();
+      });
+      articleLangToggle.addEventListener("click", () => applyArticleUiLanguage(articleUiLang === "zh" ? "en" : "zh"));
+      articleMenuToggle.addEventListener("click", () => {
+        if (articleMenuToggle.getAttribute("aria-expanded") === "true") {
+          closeArticleMenu(true);
+          return;
+        }
+        closeArticleSearch();
+        articleMenuPanel.hidden = false;
+        articleMenuToggle.setAttribute("aria-expanded", "true");
+        articleMenuToggle.setAttribute("aria-label", uiText[articleUiLang].menuClose);
+      });
+      articleMenuPanel.addEventListener("click", (event) => {
+        if (event.target.closest("a")) closeArticleMenu();
+      });
+      articleTocToggle.addEventListener("click", () => {
+        const expanded = articleTocToggle.getAttribute("aria-expanded") === "true";
+        articleTocToggle.setAttribute("aria-expanded", expanded ? "false" : "true");
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        if (articleSearchPanel.classList.contains("visible")) {
+          closeArticleSearch(true);
+          return;
+        }
+        if (articleMenuToggle.getAttribute("aria-expanded") === "true") {
+          closeArticleMenu(true);
+          return;
+        }
+        if (articleTocToggle.getAttribute("aria-expanded") === "true" && window.innerWidth <= 1040) {
+          closeArticleToc(true);
+        }
+      });
+      document.addEventListener("click", (event) => {
+        if (!articleSearchShell.contains(event.target) && !articleSearchPanel.contains(event.target)) closeArticleSearch();
+        if (!articleMenuToggle.contains(event.target) && !articleMenuPanel.contains(event.target)) closeArticleMenu();
+      });
+      window.addEventListener("resize", () => {
+        if (window.innerWidth >= 1041) {
+          closeArticleMenu();
+          closeArticleToc();
+        }
+      });
+      applyArticleUiLanguage("zh");
+
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", (event) => {
+          const id = decodeURIComponent(link.hash.slice(1));
+          const target = document.getElementById(id);
+          if (!target) return;
+          event.preventDefault();
+          window.history.pushState(null, "", link.hash);
+          const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+          const targetTop = target.getBoundingClientRect().top + window.scrollY - navHeight - 28;
+          window.scrollTo({ top: Math.max(0, targetTop), behavior: "instant" });
+          if (window.innerWidth <= 1040) closeArticleToc();
+          if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+          target.focus({ preventScroll: true });
+          updateActiveToc();
+        });
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

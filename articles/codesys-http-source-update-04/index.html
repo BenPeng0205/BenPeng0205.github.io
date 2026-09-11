@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第22篇_源码加更 04｜chunked 解码器和十六进制块长度解析 | ControlRookie</title>
+  <meta name="description" content="这一组代码覆盖 chunk-size、分号扩展、CRLF、0 终止块、trailer 边界和 Body 容量检查。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#1d1d1f">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/codesys-http-source-update-04/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="第22篇_源码加更 04｜chunked 解码器和十六进制块长度解析">
+  <meta property="og:description" content="这一组代码覆盖 chunk-size、分号扩展、CRLF、0 终止块、trailer 边界和 Body 容量检查。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/codesys-http-source-update-04/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="第22篇_源码加更 04｜chunked 解码器和十六进制块长度解析">
+  <meta name="twitter:description" content="这一组代码覆盖 chunk-size、分号扩展、CRLF、0 终止块、trailer 边界和 Body 容量检查。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions article-nav-actions">
+        <div class="search-shell article-search-shell article-mobile-control" id="articleSearchShell">
+          <button class="search-icon" id="articleSearchButton" type="button" aria-label="搜索" aria-expanded="false" aria-controls="articleSearchPanel">
+            <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M10.8 18.1a7.3 7.3 0 1 1 0-14.6 7.3 7.3 0 0 1 0 14.6Zm5.2-2.1 4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <input class="search-input" id="articleSiteSearch" type="search" placeholder="搜索文章、资源、产品" autocomplete="off" aria-label="搜索文章、资源、产品">
+        </div>
+        <button class="lang-toggle article-lang-toggle article-mobile-control" id="articleLangToggle" type="button" aria-label="Switch navigation to English">EN</button>
+        <button class="mobile-menu-toggle article-mobile-menu-toggle article-mobile-control" id="articleMobileMenuToggle" type="button" aria-label="打开主菜单" aria-expanded="false" aria-controls="articleMobileMenuPanel">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+      <div class="search-panel article-search-panel" id="articleSearchPanel" aria-label="文章页搜索结果" role="region" hidden inert></div>
+      <nav class="mobile-menu-panel article-mobile-menu-panel" id="articleMobileMenuPanel" aria-label="文章移动主导航" hidden>
+        <a class="article-menu-back" href="../../index.html#articles">返回文章</a>
+        <a href="../../index.html#about" data-article-nav>关于我</a>
+        <a href="../../index.html#articles" data-article-nav>文章</a>
+        <a href="../../index.html#products" data-article-nav>产品</a>
+        <a href="../../index.html#works" data-article-nav>资源</a>
+        <a href="../../index.html#contact" data-article-nav>联系</a>
+      </nav>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <nav class="article-breadcrumb" id="article-top" aria-label="文章路径">
+            <a href="../../index.html#articles">文章中心</a>
+            <span>/</span>
+            <a href="../../index.html#articles">工业通信</a>
+            <span>/</span>
+            <a href="../../index.html#articles-http">HTTP</a>
+            <span>/</span>
+            <a href="../../index.html#articles-http">源码加更</a>
+          </nav>
+          <header class="article-hero">
+            <h1>第22篇_源码加更 04｜chunked 解码器和十六进制块长度解析</h1>
+            <div class="article-meta">
+              <span>2026-09-04</span>
+              <span>约 14 分钟阅读</span>
+              <span>第22篇/共28篇</span>
+            </div>
+            <p class="article-summary">这一组代码覆盖 chunk-size、分号扩展、CRLF、0 终止块、trailer 边界和 Body 容量检查。</p>
+          </header>
+          <aside class="article-toc" aria-label="文章目录">
+            <button class="article-toc-toggle" type="button" aria-expanded="false" aria-controls="articleTocBody">
+              <span>文章目录</span>
+              <em aria-hidden="true">+</em>
+            </button>
+            <div class="article-toc-body" id="articleTocBody">
+              <strong>目录</strong>
+              <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-c769c1e4">先给结论</a></li><li><a href="#section-cfd6ac99">先看文件职责</a></li><li><a href="#section-4af56480">从协议约束到代码职责</a></li><li><a href="#section-6d6577bb">本篇完整开源代码</a></li><li><a href="#section-c25cdcf3">本篇阅读抓手</a></li><li><a href="#section-6bb3199c">如何验证这组源码</a></li><li><a href="#section-6f65a855">这一篇你最该记住</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
+            </div>
+          </aside>
+          <div class="article-main">
+            <div class="article-content">
+              <blockquote>这一组代码覆盖 chunk-size、分号扩展、CRLF、0 终止块、trailer 边界和 Body 容量检查。</blockquote>
+<h2 id="section-0d70135c">适合谁收藏</h2>
+<ul><li>准备复用本组源码并审查对象边界的工程师。</li><li>需要把公开代码装配进目标 CodeSys 工程的人。</li><li>准备重新完成编译、离线测试和真机验证的读者。</li></ul>
+<hr>
+<blockquote>本篇完整公开 2 个 ST 文件。代码直接读取已验证工程，保留声明、实现、注释和缩进；没有伪代码，没有跨文件拼接，也没有省略号。</blockquote>
+<h2 id="section-c769c1e4">先给结论</h2>
+<p>这一组代码覆盖 chunk-size、分号扩展、CRLF、0 终止块、trailer 边界和 Body 容量检查。 本篇的通过标准不是“代码已经贴出”，而是每个文件的职责、调用位置、状态边界和验证入口都能对应起来，并且完整代码可逐字回查源文件。</p>
+<figure><img src="../../assets/articles/codesys-http-source-update-04/第22篇_核心架构图.png" alt="源码加更 04｜chunked 解码器和十六进制块长度解析"><figcaption>源码加更 04｜chunked 解码器和十六进制块长度解析</figcaption></figure>
+<h3 id="section-a3177d68">读图重点</h3>
+<p>先找到 <code>FB_HttpChunkedDecoder</code> 在本组中的位置，再沿图确认其余对象分别承担数据、状态、执行或诊断职责。图只给阅读顺序，最终判断必须回到下面的完整 ST 代码。</p>
+<h2 id="section-cfd6ac99">先看文件职责</h2>
+<div class="article-table-wrap"><table>
+<thead><tr><th>序号</th><th>文件</th><th>职责</th><th>行数</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>FB_HttpChunkedDecoder.st</code></td><td>chunked Body 解码器</td><td>194</td></tr>
+<tr><td>2</td><td><code>F_HttpParseHexSize.st</code></td><td>chunk-size 十六进制解析</td><td>62</td></tr>
+</tbody></table></div>
+<p>阅读顺序不是按文件名机械展开。先看数据和状态，再看公开方法，最后顺着错误出口和调用对象检查边界。源码篇的目标是让读者能对照工程复现，不是用大段代码制造篇幅。</p>
+<h2 id="section-4af56480">从协议约束到代码职责</h2>
+<h3 id="section-6ca2a2b2">协议约束</h3>
+<p>这一组代码覆盖 chunk-size、分号扩展、CRLF、0 终止块、trailer 边界和 Body 容量检查。 协议层只定义消息与状态成立的条件，工程层还必须把条件分配给确定对象，避免 Parser、Builder、Server、Client 和测试入口互相越权。</p>
+<h3 id="section-ba1ed796">对象分工</h3>
+<ul><li><strong>第 1 个对象 <code>FB_HttpChunkedDecoder.st</code></strong>：承担“chunked Body 解码器”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li><li><strong>第 2 个对象 <code>F_HttpParseHexSize.st</code></strong>：承担“chunk-size 十六进制解析”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li></ul>
+<h3 id="section-ef4a70ae">装配与验证</h3>
+<p>这组文件必须作为一个职责单元阅读和编译。先用确定输入验证“先验证再复制”，再制造非法或容量边界验证“十六进制长度必须防溢出”，最后在真实通信或上层调用中确认“首版忽略 trailer 语义但验证其结束边界”。如果单文件测试通过但装配后失败，应优先检查结构体、常量、状态枚举和周期调用关系，而不是立即重写核心算法。源码完整公开只证明读者拿到了同一事实源，目标运行时是否通过仍需重新编译和真机取证。</p>
+<p>本篇从 <code>FB_HttpChunkedDecoder.st</code> 开始审查：先确认“先验证再复制”对应的类型、常量或公开输入，再沿 CASE 或方法调用追踪成功路径，随后逐个检查容量、超时和协议错误出口，最后在 <code>F_HttpParseHexSize.st</code> 对应的结果或装配位置确认错误能被观测、清理并再次执行。这个顺序专门用来区分“算法正确但没有周期调用”“状态能完成但错误被覆盖”和“首版忽略 trailer 语义但验证其结束边界尚未形成验证证据”三类问题。只有本篇源码、装配和验证使用同一组对象与同一组边界，完整开源才具有可复现意义。</p>
+<h2 id="section-6d6577bb">本篇完整开源代码</h2>
+<p>下面按职责顺序给出本篇全部 ST 文件。每个代码块保留完整声明与实现；阅读时把状态、长度、错误出口和调用对象与上面的职责表逐项对照。</p>
+<h3 id="1-fb-httpchunkeddecoder-st">完整源码 1：FB_HttpChunkedDecoder.st</h3>
+<p>职责：chunked Body 解码器</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : HTTP chunked transfer coding 解码器。
+/// 库依赖 : 暂无
+{attribute &#x27;hide_all_locals&#x27;}
+FUNCTION_BLOCK FB_HttpChunkedDecoder
+VAR_OUTPUT
+    bDone            : BOOL;           // 解码完成标志。
+    bError           : BOOL;           // 错误锁存标志。
+    diErrorID        : DINT;           // 诊断错误码，0表示无错误。
+    eError           : E_HttpError;    // 最近一次解码错误码。
+    sDiagMsg         : STRING(255);    // 最近一次解码诊断文本。
+    udiDecodedLength : UDINT;          // 已解码 body 字节数。
+END_VAR
+
+// === IMPLEMENTATION ===
+/// =======================================================================
+/// 名称      : FB_HttpChunkedDecoder
+/// 功能      : 将完整 HTTP chunked body 解码为普通 body 文本。
+/// 库依赖    : 暂无
+/// =======================================================================
+/// 使用说明  : 1. 本 FB 只处理已经收到完整 TCP 报文后的协议层解码。
+///           : 2. 首版支持 chunk-size 与分号扩展，trailer 字段仅验证结束空行并忽略字段语义。
+/// =======================================================================
+
+// === METHOD M_Decode ===
+/// =======================================================================
+/// 名称      : M_Decode
+/// 功能      : 解码 chunked body，输出拼接后的普通 body。
+/// 说明      : 该实现严格检查 CRLF 和 body 上限，防止 PLC 字符串越界。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PUBLIC M_Decode : BOOL
+VAR_INPUT
+    sChunked : STRING(GVL_Http.cnMaxMessageSize) := &#x27;&#x27;;    // 诊断或协议文本字段。
+END_VAR
+VAR_OUTPUT
+    sBody : STRING(GVL_Http.cnMaxBodySize);    // 诊断或协议文本字段。
+END_VAR
+VAR
+    uiInputLen   : UINT;                                  // 计数、长度或状态数值。
+    uiIndex      : UINT;                                  // 计数、长度或状态数值。
+    uiScan       : UINT;                                  // 计数、长度或状态数值。
+    uiLineLen    : UINT;                                  // 计数、长度或状态数值。
+    uiLineIndex  : UINT;                                  // 计数、长度或状态数值。
+    uiCopyIndex  : UINT;                                  // 计数、长度或状态数值。
+    uiChunkSize  : UINT;                                  // 计数、长度或状态数值。
+    udiChunkSize : UDINT;                                 // 计数、长度或状态数值。
+    sLine        : STRING(GVL_Http.cnMaxChunkLineLen);    // 诊断或协议文本字段。
+    pInput       : POINTER TO BYTE;                       // 当前扫描周期使用的字节指针。
+    pLine        : POINTER TO BYTE;                       // 当前扫描周期使用的字节指针。
+    pWrite       : POINTER TO BYTE;                       // 当前扫描周期使用的字节指针。
+END_VAR
+// === IMPLEMENTATION ===
+// 解码器每次调用都从干净状态开始，避免上一次半包或错误状态污染本轮解析。
+// 约束：chunk-size 行允许扩展参数，但扩展内容不参与长度计算，避免 PLC 侧额外分配解析状态。
+// 风险：非法十六进制长度必须立即失败，否则后续 body 边界会被错读并污染真实 HTTP 响应。
+// 诊断：失败路径保留 eError 和 sDiagMsg，真机矩阵可直接判断坏 chunk 是否被协议层拒绝。
+bDone := FALSE;
+bError := FALSE;
+eError := E_HttpError.iNoError;
+sDiagMsg := &#x27;&#x27;;
+udiDecodedLength := 0;
+sBody := &#x27;&#x27;;
+M_Decode := FALSE;
+
+uiInputLen := TO_UINT(LEN(sChunked));
+IF uiInputLen = 0 THEN
+    bError := TRUE;
+    eError := E_HttpError.iNeedMoreData;
+    sDiagMsg := &#x27;chunked body is empty&#x27;;
+    RETURN;
+END_IF
+
+pInput := ADR(sChunked);
+pWrite := ADR(sBody);
+uiIndex := 0;
+
+WHILE uiIndex &lt; uiInputLen DO
+    uiScan := uiIndex;
+    WHILE ((uiScan + 1) &lt; uiInputLen)
+        AND NOT ((pInput[uiScan] = 16#0D) AND (pInput[uiScan + 1] = 16#0A)) DO
+        uiScan := uiScan + 1;
+    END_WHILE
+
+    IF (uiScan + 1) &gt;= uiInputLen THEN
+        bError := TRUE;
+        eError := E_HttpError.iNeedMoreData;
+        sDiagMsg := &#x27;chunk size line is incomplete&#x27;;
+        RETURN;
+    END_IF
+
+    uiLineLen := uiScan - uiIndex;
+    IF (uiLineLen = 0) OR (uiLineLen &gt; GVL_Http.cnMaxChunkLineLen) THEN
+        bError := TRUE;
+        eError := E_HttpError.iChunkedDecodeFailed;
+        sDiagMsg := &#x27;chunk size line is invalid&#x27;;
+        RETURN;
+    END_IF
+
+    // size-line 先复制到短字符串，再交给十六进制解析函数，避免在主循环中重复处理扩展语法。
+    sLine := &#x27;&#x27;;
+    pLine := ADR(sLine);
+    IF uiLineLen &gt; 0 THEN
+        FOR uiLineIndex := 0 TO uiLineLen - 1 DO
+            pLine^ := pInput[uiIndex + uiLineIndex];
+            pLine := pLine + 1;
+        END_FOR
+    END_IF
+    pLine^ := 0;
+
+    IF NOT F_HttpParseHexSize(
+        sValue   := sLine,
+        udiValue =&gt; udiChunkSize
+        ) THEN
+        bError := TRUE;
+        eError := E_HttpError.iChunkedDecodeFailed;
+        sDiagMsg := &#x27;chunk size parse failed&#x27;;
+        RETURN;
+    END_IF
+
+    uiIndex := uiScan + 2;
+    IF udiChunkSize = 0 THEN
+        // 零长度块后若直接出现 CRLF，则判定为空 trailer 并立即完成。
+        IF ((uiIndex + 1) &lt; uiInputLen)
+            AND (pInput[uiIndex] = 16#0D)
+            AND (pInput[uiIndex + 1] = 16#0A) THEN
+            bDone := TRUE;
+            M_Decode := TRUE;
+            RETURN;
+        END_IF
+
+        // 真实 HTTP/1.1 对端可能发送 trailer 字段；首版不消费字段语义，只验证终止空行并忽略其内容。
+        uiScan := uiIndex;
+        WHILE ((uiScan + 3) &lt; uiInputLen)
+            AND NOT ((pInput[uiScan] = 16#0D)
+                AND (pInput[uiScan + 1] = 16#0A)
+                AND (pInput[uiScan + 2] = 16#0D)
+                AND (pInput[uiScan + 3] = 16#0A)) DO
+            uiScan := uiScan + 1;
+        END_WHILE
+
+        IF ((uiScan + 3) &lt; uiInputLen)
+            AND (pInput[uiScan] = 16#0D)
+            AND (pInput[uiScan + 1] = 16#0A)
+            AND (pInput[uiScan + 2] = 16#0D)
+            AND (pInput[uiScan + 3] = 16#0A) THEN
+            bDone := TRUE;
+            M_Decode := TRUE;
+            RETURN;
+        END_IF
+        bError := TRUE;
+        eError := E_HttpError.iNeedMoreData;
+        sDiagMsg := &#x27;chunk trailer is incomplete&#x27;;
+        RETURN;
+    END_IF
+
+    IF (udiDecodedLength + udiChunkSize) &gt; TO_UDINT(GVL_Http.cnMaxBodySize) THEN
+        bError := TRUE;
+        eError := E_HttpError.iBodyTooLarge;
+        sDiagMsg := &#x27;decoded body exceeds limit&#x27;;
+        RETURN;
+    END_IF
+
+    uiChunkSize := TO_UINT(udiChunkSize);
+    IF ((TO_UDINT(uiIndex) + udiChunkSize + 1) &gt; TO_UDINT(uiInputLen)) THEN
+        bError := TRUE;
+        eError := E_HttpError.iNeedMoreData;
+        sDiagMsg := &#x27;chunk data is incomplete&#x27;;
+        RETURN;
+    END_IF
+
+    IF NOT ((pInput[uiIndex + uiChunkSize] = 16#0D)
+        AND (pInput[uiIndex + uiChunkSize + 1] = 16#0A)) THEN
+        bError := TRUE;
+        eError := E_HttpError.iChunkedDecodeFailed;
+        sDiagMsg := &#x27;chunk data CRLF is invalid&#x27;;
+        RETURN;
+    END_IF
+
+    // 只有通过长度和 CRLF 校验后才复制数据，保证输出不会保留半截非法 body。
+    IF uiChunkSize &gt; 0 THEN
+        FOR uiCopyIndex := 0 TO uiChunkSize - 1 DO
+            pWrite^ := pInput[uiIndex + uiCopyIndex];
+            pWrite := pWrite + 1;
+            udiDecodedLength := udiDecodedLength + 1;
+        END_FOR
+        pWrite^ := 0;
+    END_IF
+
+    uiIndex := uiIndex + uiChunkSize + 2;
+END_WHILE
+
+bError := TRUE;
+eError := E_HttpError.iNeedMoreData;
+sDiagMsg := &#x27;terminal chunk is missing&#x27;;</code></pre></div>
+<h3 id="2-f-httpparsehexsize-st">完整源码 2：F_HttpParseHexSize.st</h3>
+<p>职责：chunk-size 十六进制解析</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : 解析 HTTP chunk-size 十六进制长度。
+/// 库依赖 : 暂无
+{attribute &#x27;hide_all_locals&#x27;}
+FUNCTION F_HttpParseHexSize : BOOL
+VAR_INPUT
+    sValue : STRING(64) := &#x27;&#x27;;    // 诊断或协议文本字段。
+END_VAR
+VAR_OUTPUT
+    udiValue : UDINT;    // 计数、长度或状态数值。
+END_VAR
+VAR
+    uiIndex : UINT;               // 计数、长度或状态数值。
+    uiLen   : UINT;               // 计数、长度或状态数值。
+    byChar  : BYTE;               // 计数、长度或状态数值。
+    byDigit : BYTE;               // 计数、长度或状态数值。
+    pText   : POINTER TO BYTE;    // 当前扫描周期使用的字节指针。
+END_VAR
+
+// === IMPLEMENTATION ===
+/// =======================================================================
+/// 名称      : F_HttpParseHexSize
+/// 功能      : 解析 chunked transfer coding 的十六进制块长度。
+/// 库依赖    : 暂无
+/// =======================================================================
+/// 使用说明  : 1. 支持 0-9、A-F、a-f，遇到分号扩展时停止解析。
+///           : 2. 超出 body 上限返回 FALSE，防止 PLC 缓冲区越界。
+/// =======================================================================
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+F_HttpParseHexSize := FALSE;
+udiValue := 0;
+uiLen := TO_UINT(LEN(sValue));
+IF uiLen = 0 THEN
+    RETURN;
+END_IF
+
+pText := ADR(sValue);
+FOR uiIndex := 0 TO uiLen - 1 DO
+    byChar := pText[uiIndex];
+    IF byChar = 16#3B THEN
+        EXIT;
+    ELSIF (byChar &gt;= 16#30) AND (byChar &lt;= 16#39) THEN
+        byDigit := byChar - 16#30;
+    ELSIF (byChar &gt;= 16#41) AND (byChar &lt;= 16#46) THEN
+        byDigit := byChar - 16#37;
+    ELSIF (byChar &gt;= 16#61) AND (byChar &lt;= 16#66) THEN
+        byDigit := byChar - 16#57;
+    ELSE
+        RETURN;
+    END_IF
+
+    IF udiValue &gt; 268435455 THEN
+        RETURN;
+    END_IF
+    udiValue := (udiValue * 16) + BYTE_TO_UDINT(byDigit);
+END_FOR
+
+IF udiValue &gt; TO_UDINT(GVL_Http.cnMaxBodySize) THEN
+    RETURN;
+END_IF
+
+F_HttpParseHexSize := TRUE;</code></pre></div>
+<h2 id="section-c25cdcf3">本篇阅读抓手</h2>
+<ul><li>先验证再复制。</li><li>十六进制长度必须防溢出。</li><li>首版忽略 trailer 语义但验证其结束边界。</li></ul>
+<h2 id="section-6bb3199c">如何验证这组源码</h2>
+<ol><li>先针对 <code>FB_HttpChunkedDecoder.st</code> 的公开输入和错误出口建立确定性用例。</li><li>再把“先验证再复制”转成至少一个正常场景和一个失败场景。</li><li>本篇 2 个文件必须一起编译，避免只验证单个函数而漏掉数据结构或调用边界。</li><li>真机复核时重点观察“首版忽略 trailer 语义但验证其结束边界”，并保留对应状态、计数和原始报文。</li></ol>
+<h2 id="section-6f65a855">这一篇你最该记住</h2>
+<ul><li>先验证再复制。</li><li>十六进制长度必须防溢出。</li><li>首版忽略 trailer 语义但验证其结束边界。</li></ul>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列：CodeSys HTTP 系列教程，第 22/28 篇。</li><li>当前源码加更：第 4/8 篇。</li><li>本篇完整源码文件数：2。</li><li>上一篇：第21篇</li><li>下一篇：第23篇</li></ul>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../codesys-http-source-update-03/index.html">
+                <small>上一篇 / 第21篇</small>
+                <strong>第21篇_源码加更 03｜Builder、方法转换和状态码文本</strong>
+                <span>构造器把结构体变成对端可识别的 HTTP/1.1 报文。方法文本、原因短语、长度和连接策略在这里统一收口。</span>
+              </a>
+              <a class="series-nav-card" href="../codesys-http-source-update-05/index.html">
+                <small>下一篇 / 第23篇</small>
+                <strong>第23篇_源码加更 05｜HTTP Server、连接实例和诊断数据</strong>
+                <span>Server 外层负责监听和多槽位调度，单连接 FB 负责 Read、解析、路由、构造、Write 与清理。两个层级必须一起公开才能看清生命周期。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script src="../../content/site-data.js"></script>
+  <script>
+    (() => {
+      const articleNav = document.querySelector(".article-nav");
+      const articleSearchShell = document.getElementById("articleSearchShell");
+      const articleSearchButton = document.getElementById("articleSearchButton");
+      const articleSearchInput = document.getElementById("articleSiteSearch");
+      const articleSearchPanel = document.getElementById("articleSearchPanel");
+      const articleLangToggle = document.getElementById("articleLangToggle");
+      const articleMenuToggle = document.getElementById("articleMobileMenuToggle");
+      const articleMenuPanel = document.getElementById("articleMobileMenuPanel");
+      const articleTocToggle = document.querySelector(".article-toc-toggle");
+      const articleTocBody = document.getElementById("articleTocBody");
+      const homeHref = document.querySelector(".brand").getAttribute("href");
+      const siteData = window.CONTROLROOKIE_SITE_DATA || { articles: [], resources: [], products: [], contacts: [] };
+      let articleUiLang = "zh";
+      let articleSearchFilter = "all";
+
+      const uiText = {
+        zh: {
+          nav: ["关于我", "文章", "产品", "资源", "联系"],
+          back: "返回文章",
+          search: "搜索文章、资源、产品",
+          filters: { all: "全部", article: "文章", resource: "资源", product: "产品", contact: "联系" },
+          empty: "没有匹配结果。",
+          toc: "文章目录",
+          skip: "跳到文章正文",
+          searchButton: "搜索",
+          searchResults: "文章页搜索结果",
+          searchFilters: "搜索筛选",
+          menu: "文章移动主导航",
+          menuOpen: "打开主菜单",
+          menuClose: "关闭主菜单",
+          navLabel: "文章导航",
+          home: "ControlRookie 首页",
+          sections: "页面栏目",
+          breadcrumb: "文章路径",
+          tocLabel: "文章目录",
+          seriesNav: "系列导航",
+          scrollActions: "文章滚动快捷操作",
+          top: "回到文章顶端",
+          bottom: "跳到文章底端",
+        },
+        en: {
+          nav: ["About Me", "Articles", "Products", "Resources", "Contact"],
+          back: "Back to Articles",
+          search: "Search articles, resources, products",
+          filters: { all: "All", article: "Articles", resource: "Resources", product: "Products", contact: "Contact" },
+          empty: "No matching results.",
+          toc: "Article Contents",
+          skip: "Skip to article content",
+          searchButton: "Search",
+          searchResults: "Article search results",
+          searchFilters: "Search filters",
+          menu: "Article mobile navigation",
+          menuOpen: "Open primary menu",
+          menuClose: "Close primary menu",
+          navLabel: "Article navigation",
+          home: "ControlRookie home",
+          sections: "Sections",
+          breadcrumb: "Article path",
+          tocLabel: "Article contents",
+          seriesNav: "Series navigation",
+          scrollActions: "Article scroll shortcuts",
+          top: "Back to article top",
+          bottom: "Jump to article end",
+        },
+      };
+
+      const escapeSearchHtml = (value) => String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+      const localized = (value) => typeof value === "string" ? value : (value?.[articleUiLang] || value?.zh || "");
+      const resolveSearchHref = (href) => {
+        if (!href) return homeHref;
+        if (/^https?:\/\//.test(href) || href.startsWith("mailto:")) return href;
+        const homeUrl = new URL(homeHref, window.location.href);
+        if (href.startsWith("#")) return `${homeUrl.href.split("#")[0]}${href}`;
+        return new URL(href, homeUrl).href;
+      };
+      const articleSearchItems = [
+        ...siteData.articles.map((item) => ({ ...item, group: "article" })),
+        ...siteData.resources.map((item) => ({ ...item, group: "resource" })),
+        ...siteData.products.map((item) => ({ ...item, group: "product" })),
+        ...siteData.contacts.map((item) => ({ ...item, group: "contact" })),
+      ];
+
+      const closeArticleSearch = (restoreFocus = false) => {
+        articleSearchShell.classList.remove("open");
+        articleSearchPanel.classList.remove("visible");
+        articleSearchPanel.hidden = true;
+        articleSearchPanel.inert = true;
+        articleNav.classList.remove("search-active");
+        articleSearchButton.setAttribute("aria-expanded", "false");
+        if (restoreFocus) articleSearchButton.focus();
+      };
+      const closeArticleMenu = (restoreFocus = false) => {
+        articleMenuPanel.hidden = true;
+        articleMenuToggle.setAttribute("aria-expanded", "false");
+        articleMenuToggle.setAttribute("aria-label", uiText[articleUiLang].menuOpen);
+        if (restoreFocus) articleMenuToggle.focus();
+      };
+      const closeArticleToc = (restoreFocus = false) => {
+        articleTocToggle.setAttribute("aria-expanded", "false");
+        if (restoreFocus) articleTocToggle.focus();
+      };
+
+      const renderArticleSearch = () => {
+        const query = articleSearchInput.value.trim().toLowerCase();
+        const filters = uiText[articleUiLang].filters;
+        const matches = articleSearchItems.filter((item) => {
+          if (articleSearchFilter !== "all" && item.group !== articleSearchFilter) return false;
+          if (!query) return true;
+          return JSON.stringify(item).toLowerCase().includes(query);
+        }).slice(0, 18);
+        const filterBar = `<div class="search-filter-bar" role="tablist" aria-label="${escapeSearchHtml(uiText[articleUiLang].searchFilters)}">${Object.entries(filters).map(([key, label]) => `<button type="button" role="tab" aria-selected="${articleSearchFilter === key}" class="${articleSearchFilter === key ? "active" : ""}" data-article-search-filter="${key}">${escapeSearchHtml(label)}</button>`).join("")}</div>`;
+        const results = matches.length
+          ? matches.map((item) => `<a class="search-result" href="${escapeSearchHtml(resolveSearchHref(item.searchHref || item.href))}"><span class="search-result-type">${escapeSearchHtml(filters[item.group] || item.group)}</span><strong>${escapeSearchHtml(localized(item.title))}</strong></a>`).join("")
+          : `<div class="search-empty">${escapeSearchHtml(uiText[articleUiLang].empty)}</div>`;
+        articleSearchPanel.innerHTML = `${filterBar}<div class="search-results">${results}</div>`;
+        articleSearchPanel.hidden = false;
+        articleSearchPanel.inert = false;
+        articleSearchShell.classList.add("open");
+        articleSearchPanel.classList.add("visible");
+        articleNav.classList.add("search-active");
+        articleSearchButton.setAttribute("aria-expanded", "true");
+      };
+
+      const applyArticleUiLanguage = (lang) => {
+        articleUiLang = lang;
+        document.querySelectorAll(".article-nav .nav-links a").forEach((node, index) => {
+          node.textContent = uiText[lang].nav[index];
+        });
+        document.querySelectorAll("[data-article-nav]").forEach((node, index) => {
+          node.textContent = uiText[lang].nav[index];
+        });
+        document.querySelectorAll(".article-back, .article-menu-back").forEach((node) => {
+          node.textContent = uiText[lang].back;
+        });
+        articleSearchInput.placeholder = uiText[lang].search;
+        articleSearchInput.setAttribute("aria-label", uiText[lang].search);
+        document.querySelector(".skip-link").textContent = uiText[lang].skip;
+        articleNav.setAttribute("aria-label", uiText[lang].navLabel);
+        document.querySelector(".brand").setAttribute("aria-label", uiText[lang].home);
+        document.querySelector(".article-nav .nav-links").setAttribute("aria-label", uiText[lang].sections);
+        articleSearchButton.setAttribute("aria-label", uiText[lang].searchButton);
+        articleSearchPanel.setAttribute("aria-label", uiText[lang].searchResults);
+        articleMenuPanel.setAttribute("aria-label", uiText[lang].menu);
+        articleMenuToggle.setAttribute("aria-label", articleMenuToggle.getAttribute("aria-expanded") === "true" ? uiText[lang].menuClose : uiText[lang].menuOpen);
+        document.querySelector(".article-breadcrumb").setAttribute("aria-label", uiText[lang].breadcrumb);
+        document.querySelector(".article-toc").setAttribute("aria-label", uiText[lang].tocLabel);
+        document.querySelector(".article-series-nav").setAttribute("aria-label", uiText[lang].seriesNav);
+        document.querySelector(".article-scroll-actions").setAttribute("aria-label", uiText[lang].scrollActions);
+        document.querySelector('.article-scroll-actions a[href="#article-top"]').setAttribute("aria-label", uiText[lang].top);
+        document.querySelector('.article-scroll-actions a[href="#article-end"]').setAttribute("aria-label", uiText[lang].bottom);
+        articleTocToggle.querySelector("span").textContent = uiText[lang].toc;
+        articleLangToggle.textContent = lang === "zh" ? "EN" : "中";
+        articleLangToggle.setAttribute("aria-label", lang === "zh" ? "Switch navigation to English" : "切换导航为中文");
+        if (articleSearchPanel.classList.contains("visible")) renderArticleSearch();
+      };
+
+      articleSearchButton.addEventListener("click", () => {
+        closeArticleMenu();
+        articleSearchInput.focus();
+        renderArticleSearch();
+      });
+      articleSearchInput.addEventListener("input", renderArticleSearch);
+      articleSearchPanel.addEventListener("click", (event) => {
+        const filter = event.target.closest("[data-article-search-filter]");
+        if (!filter) return;
+        event.preventDefault();
+        articleSearchFilter = filter.dataset.articleSearchFilter || "all";
+        renderArticleSearch();
+      });
+      articleLangToggle.addEventListener("click", () => applyArticleUiLanguage(articleUiLang === "zh" ? "en" : "zh"));
+      articleMenuToggle.addEventListener("click", () => {
+        if (articleMenuToggle.getAttribute("aria-expanded") === "true") {
+          closeArticleMenu(true);
+          return;
+        }
+        closeArticleSearch();
+        articleMenuPanel.hidden = false;
+        articleMenuToggle.setAttribute("aria-expanded", "true");
+        articleMenuToggle.setAttribute("aria-label", uiText[articleUiLang].menuClose);
+      });
+      articleMenuPanel.addEventListener("click", (event) => {
+        if (event.target.closest("a")) closeArticleMenu();
+      });
+      articleTocToggle.addEventListener("click", () => {
+        const expanded = articleTocToggle.getAttribute("aria-expanded") === "true";
+        articleTocToggle.setAttribute("aria-expanded", expanded ? "false" : "true");
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        if (articleSearchPanel.classList.contains("visible")) {
+          closeArticleSearch(true);
+          return;
+        }
+        if (articleMenuToggle.getAttribute("aria-expanded") === "true") {
+          closeArticleMenu(true);
+          return;
+        }
+        if (articleTocToggle.getAttribute("aria-expanded") === "true" && window.innerWidth <= 1040) {
+          closeArticleToc(true);
+        }
+      });
+      document.addEventListener("click", (event) => {
+        if (!articleSearchShell.contains(event.target) && !articleSearchPanel.contains(event.target)) closeArticleSearch();
+        if (!articleMenuToggle.contains(event.target) && !articleMenuPanel.contains(event.target)) closeArticleMenu();
+      });
+      window.addEventListener("resize", () => {
+        if (window.innerWidth >= 1041) {
+          closeArticleMenu();
+          closeArticleToc();
+        }
+      });
+      applyArticleUiLanguage("zh");
+
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", (event) => {
+          const id = decodeURIComponent(link.hash.slice(1));
+          const target = document.getElementById(id);
+          if (!target) return;
+          event.preventDefault();
+          window.history.pushState(null, "", link.hash);
+          const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+          const targetTop = target.getBoundingClientRect().top + window.scrollY - navHeight - 28;
+          window.scrollTo({ top: Math.max(0, targetTop), behavior: "instant" });
+          if (window.innerWidth <= 1040) closeArticleToc();
+          if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+          target.focus({ preventScroll: true });
+          updateActiveToc();
+        });
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

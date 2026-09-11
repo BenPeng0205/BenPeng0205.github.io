@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第21篇_源码加更 03｜Builder、方法转换和状态码文本 | ControlRookie</title>
+  <meta name="description" content="构造器把结构体变成对端可识别的 HTTP/1.1 报文。方法文本、原因短语、长度和连接策略在这里统一收口。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#1d1d1f">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/codesys-http-source-update-03/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="第21篇_源码加更 03｜Builder、方法转换和状态码文本">
+  <meta property="og:description" content="构造器把结构体变成对端可识别的 HTTP/1.1 报文。方法文本、原因短语、长度和连接策略在这里统一收口。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/codesys-http-source-update-03/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="第21篇_源码加更 03｜Builder、方法转换和状态码文本">
+  <meta name="twitter:description" content="构造器把结构体变成对端可识别的 HTTP/1.1 报文。方法文本、原因短语、长度和连接策略在这里统一收口。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions article-nav-actions">
+        <div class="search-shell article-search-shell article-mobile-control" id="articleSearchShell">
+          <button class="search-icon" id="articleSearchButton" type="button" aria-label="搜索" aria-expanded="false" aria-controls="articleSearchPanel">
+            <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M10.8 18.1a7.3 7.3 0 1 1 0-14.6 7.3 7.3 0 0 1 0 14.6Zm5.2-2.1 4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <input class="search-input" id="articleSiteSearch" type="search" placeholder="搜索文章、资源、产品" autocomplete="off" aria-label="搜索文章、资源、产品">
+        </div>
+        <button class="lang-toggle article-lang-toggle article-mobile-control" id="articleLangToggle" type="button" aria-label="Switch navigation to English">EN</button>
+        <button class="mobile-menu-toggle article-mobile-menu-toggle article-mobile-control" id="articleMobileMenuToggle" type="button" aria-label="打开主菜单" aria-expanded="false" aria-controls="articleMobileMenuPanel">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+      <div class="search-panel article-search-panel" id="articleSearchPanel" aria-label="文章页搜索结果" role="region" hidden inert></div>
+      <nav class="mobile-menu-panel article-mobile-menu-panel" id="articleMobileMenuPanel" aria-label="文章移动主导航" hidden>
+        <a class="article-menu-back" href="../../index.html#articles">返回文章</a>
+        <a href="../../index.html#about" data-article-nav>关于我</a>
+        <a href="../../index.html#articles" data-article-nav>文章</a>
+        <a href="../../index.html#products" data-article-nav>产品</a>
+        <a href="../../index.html#works" data-article-nav>资源</a>
+        <a href="../../index.html#contact" data-article-nav>联系</a>
+      </nav>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <nav class="article-breadcrumb" id="article-top" aria-label="文章路径">
+            <a href="../../index.html#articles">文章中心</a>
+            <span>/</span>
+            <a href="../../index.html#articles">工业通信</a>
+            <span>/</span>
+            <a href="../../index.html#articles-http">HTTP</a>
+            <span>/</span>
+            <a href="../../index.html#articles-http">源码加更</a>
+          </nav>
+          <header class="article-hero">
+            <h1>第21篇_源码加更 03｜Builder、方法转换和状态码文本</h1>
+            <div class="article-meta">
+              <span>2026-09-02</span>
+              <span>约 19 分钟阅读</span>
+              <span>第21篇/共28篇</span>
+            </div>
+            <p class="article-summary">构造器把结构体变成对端可识别的 HTTP/1.1 报文。方法文本、原因短语、长度和连接策略在这里统一收口。</p>
+          </header>
+          <aside class="article-toc" aria-label="文章目录">
+            <button class="article-toc-toggle" type="button" aria-expanded="false" aria-controls="articleTocBody">
+              <span>文章目录</span>
+              <em aria-hidden="true">+</em>
+            </button>
+            <div class="article-toc-body" id="articleTocBody">
+              <strong>目录</strong>
+              <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-c769c1e4">先给结论</a></li><li><a href="#section-cfd6ac99">先看文件职责</a></li><li><a href="#section-4af56480">从协议约束到代码职责</a></li><li><a href="#section-6d6577bb">本篇完整开源代码</a></li><li><a href="#section-c25cdcf3">本篇阅读抓手</a></li><li><a href="#section-6bb3199c">如何验证这组源码</a></li><li><a href="#section-6f65a855">这一篇你最该记住</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
+            </div>
+          </aside>
+          <div class="article-main">
+            <div class="article-content">
+              <blockquote>构造器把结构体变成对端可识别的 HTTP/1.1 报文。方法文本、原因短语、长度和连接策略在这里统一收口。</blockquote>
+<h2 id="section-0d70135c">适合谁收藏</h2>
+<ul><li>准备复用本组源码并审查对象边界的工程师。</li><li>需要把公开代码装配进目标 CodeSys 工程的人。</li><li>准备重新完成编译、离线测试和真机验证的读者。</li></ul>
+<hr>
+<blockquote>本篇完整公开 3 个 ST 文件。代码直接读取已验证工程，保留声明、实现、注释和缩进；没有伪代码，没有跨文件拼接，也没有省略号。</blockquote>
+<h2 id="section-c769c1e4">先给结论</h2>
+<p>构造器把结构体变成对端可识别的 HTTP/1.1 报文。方法文本、原因短语、长度和连接策略在这里统一收口。 本篇的通过标准不是“代码已经贴出”，而是每个文件的职责、调用位置、状态边界和验证入口都能对应起来，并且完整代码可逐字回查源文件。</p>
+<figure><img src="../../assets/articles/codesys-http-source-update-03/第21篇_核心架构图.png" alt="源码加更 03｜Builder、方法转换和状态码文本"><figcaption>源码加更 03｜Builder、方法转换和状态码文本</figcaption></figure>
+<h3 id="section-a3177d68">读图重点</h3>
+<p>先找到 <code>FB_HttpMessageBuilder</code> 在本组中的位置，再沿图确认其余对象分别承担数据、状态、执行或诊断职责。图只给阅读顺序，最终判断必须回到下面的完整 ST 代码。</p>
+<h2 id="section-cfd6ac99">先看文件职责</h2>
+<div class="article-table-wrap"><table>
+<thead><tr><th>序号</th><th>文件</th><th>职责</th><th>行数</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>FB_HttpMessageBuilder.st</code></td><td>请求与响应构造器</td><td>244</td></tr>
+<tr><td>2</td><td><code>F_HttpMethodToString.st</code></td><td>方法枚举转文本</td><td>35</td></tr>
+<tr><td>3</td><td><code>F_HttpStatusReason.st</code></td><td>状态码原因短语</td><td>43</td></tr>
+</tbody></table></div>
+<p>阅读顺序不是按文件名机械展开。先看数据和状态，再看公开方法，最后顺着错误出口和调用对象检查边界。源码篇的目标是让读者能对照工程复现，不是用大段代码制造篇幅。</p>
+<h2 id="section-4af56480">从协议约束到代码职责</h2>
+<h3 id="section-6ca2a2b2">协议约束</h3>
+<p>构造器把结构体变成对端可识别的 HTTP/1.1 报文。方法文本、原因短语、长度和连接策略在这里统一收口。 协议层只定义消息与状态成立的条件，工程层还必须把条件分配给确定对象，避免 Parser、Builder、Server、Client 和测试入口互相越权。</p>
+<h3 id="section-ba1ed796">对象分工</h3>
+<ul><li><strong>第 1 个对象 <code>FB_HttpMessageBuilder.st</code></strong>：承担“请求与响应构造器”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li><li><strong>第 2 个对象 <code>F_HttpMethodToString.st</code></strong>：承担“方法枚举转文本”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li><li><strong>第 3 个对象 <code>F_HttpStatusReason.st</code></strong>：承担“状态码原因短语”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li></ul>
+<h3 id="section-ef4a70ae">装配与验证</h3>
+<p>这组文件必须作为一个职责单元阅读和编译。先用确定输入验证“Host 是请求构造硬门槛”，再制造非法或容量边界验证“出站统一显式 Content-Length”，最后在真实通信或上层调用中确认“消息超限时拒绝发送”。如果单文件测试通过但装配后失败，应优先检查结构体、常量、状态枚举和周期调用关系，而不是立即重写核心算法。源码完整公开只证明读者拿到了同一事实源，目标运行时是否通过仍需重新编译和真机取证。</p>
+<p>本篇从 <code>FB_HttpMessageBuilder.st</code> 开始审查：先确认“Host 是请求构造硬门槛”对应的类型、常量或公开输入，再沿 CASE 或方法调用追踪成功路径，随后逐个检查容量、超时和协议错误出口，最后在 <code>F_HttpStatusReason.st</code> 对应的结果或装配位置确认错误能被观测、清理并再次执行。这个顺序专门用来区分“算法正确但没有周期调用”“状态能完成但错误被覆盖”和“消息超限时拒绝发送尚未形成验证证据”三类问题。只有本篇源码、装配和验证使用同一组对象与同一组边界，完整开源才具有可复现意义。</p>
+<h2 id="section-6d6577bb">本篇完整开源代码</h2>
+<p>下面按职责顺序给出本篇全部 ST 文件。每个代码块保留完整声明与实现；阅读时把状态、长度、错误出口和调用对象与上面的职责表逐项对照。</p>
+<h3 id="1-fb-httpmessagebuilder-st">完整源码 1：FB_HttpMessageBuilder.st</h3>
+<p>职责：请求与响应构造器</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : HTTP/1.1 请求与响应构造器。
+/// 库依赖 : 暂无
+{attribute &#x27;hide_all_locals&#x27;}
+FUNCTION_BLOCK FB_HttpMessageBuilder
+VAR_OUTPUT
+    bDone            : BOOL;           // 报文构造完成标志。
+    bError           : BOOL;           // 错误锁存标志。
+    diErrorID        : DINT;           // 诊断错误码，0表示无错误。
+    eError           : E_HttpError;    // 最近一次构造错误码。
+    sDiagMsg         : STRING(255);    // 最近一次构造诊断文本。
+    udiMessageLength : UDINT;          // 构造后的报文字节长度。
+END_VAR
+
+// === IMPLEMENTATION ===
+/// =======================================================================
+/// 名称      : FB_HttpMessageBuilder
+/// 功能      : 构造首版 HTTP/1.1 Client 请求与 Server 响应文本。
+/// 库依赖    : 暂无
+/// =======================================================================
+/// 使用说明  : 1. 由调用者通过 bConnectionClose 选择 `keep-alive` 或 `close`。
+///           : 2. 不生成 chunked 出站报文，统一使用 Content-Length 便于 PLC 侧诊断。
+/// =======================================================================
+
+// === METHOD M_BuildRequest ===
+/// =======================================================================
+/// 名称      : M_BuildRequest
+/// 功能      : 将 ST_HttpRequest 构造为 HTTP 请求文本。
+/// 说明      : Host 必填，body 非空时自动填充 Content-Length。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PUBLIC M_BuildRequest : BOOL
+VAR_IN_OUT
+    stRequest : ST_HttpRequest;    // 结构化协议或测试数据。
+END_VAR
+VAR_OUTPUT
+    sMessage : STRING(GVL_Http.cnMaxMessageSize);    // 诊断或协议文本字段。
+END_VAR
+VAR
+    sMethod     : STRING(16);                         // 诊断或协议文本字段。
+    sTarget     : STRING(GVL_Http.cnMaxTargetLen);    // 诊断或协议文本字段。
+    sContentLen : STRING(16);                         // 诊断或协议文本字段。
+    uiBodyLen   : UINT;                               // 计数、长度或状态数值。
+    uiCandidate : UINT;                               // 计数、长度或状态数值。
+END_VAR
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+// 原因：请求构造统一写入 Host、Connection 和 Content-Length，避免 PLC 端生成歧义 HTTP/1.1 报文。
+// 约束：首版不生成 chunked 出站请求，长连接只允许顺序复用，不允许 pipeline 并发请求。
+M_Reset();
+M_BuildRequest := FALSE;
+sMessage := &#x27;&#x27;;
+
+IF LEN(stRequest.sHost) = 0 THEN
+    M_SetError(
+        eNewError := E_HttpError.iMissingHost,
+        sMessage  := &#x27;request host is empty&#x27;
+        );
+    RETURN;
+END_IF
+
+sMethod := F_HttpMethodToString(
+    eMethod := stRequest.eMethod
+    );
+IF LEN(stRequest.sTarget) = 0 THEN
+    sTarget := GVL_Http.cnDefaultPath;
+ELSE
+    sTarget := stRequest.sTarget;
+END_IF
+
+uiBodyLen := TO_UINT(LEN(stRequest.sBody));
+sContentLen := UINT_TO_STRING(uiBodyLen);
+sMessage := CONCAT(sMethod, &#x27; &#x27;);
+sMessage := CONCAT(sMessage, sTarget);
+sMessage := CONCAT(sMessage, &#x27; HTTP/1.1$R$NHost: &#x27;);
+sMessage := CONCAT(sMessage, stRequest.sHost);
+sMessage := CONCAT(sMessage, &#x27;$R$NConnection: &#x27;);
+IF stRequest.bConnectionClose THEN
+    sMessage := CONCAT(sMessage, &#x27;close$R$N&#x27;);
+ELSE
+    sMessage := CONCAT(sMessage, &#x27;keep-alive$R$N&#x27;);
+END_IF
+
+IF LEN(stRequest.sAdditionalHeader) &gt; 0 THEN
+    sMessage := CONCAT(sMessage, stRequest.sAdditionalHeader);
+    sMessage := CONCAT(sMessage, &#x27;$R$N&#x27;);
+END_IF
+
+IF LEN(stRequest.sContentType) &gt; 0 THEN
+    sMessage := CONCAT(sMessage, &#x27;Content-Type: &#x27;);
+    sMessage := CONCAT(sMessage, stRequest.sContentType);
+    sMessage := CONCAT(sMessage, &#x27;$R$N&#x27;);
+END_IF
+
+IF uiBodyLen &gt; 0 THEN
+    sMessage := CONCAT(sMessage, &#x27;Content-Length: &#x27;);
+    sMessage := CONCAT(sMessage, sContentLen);
+    sMessage := CONCAT(sMessage, &#x27;$R$N&#x27;);
+END_IF
+
+sMessage := CONCAT(sMessage, &#x27;$R$N&#x27;);
+IF uiBodyLen &gt; 0 THEN
+    sMessage := CONCAT(sMessage, stRequest.sBody);
+END_IF
+
+uiCandidate := TO_UINT(LEN(sMessage));
+IF uiCandidate &gt;= GVL_Http.cnMaxMessageSize THEN
+    M_SetError(
+        eNewError := E_HttpError.iBufferTooSmall,
+        sMessage  := &#x27;request message exceeds buffer&#x27;
+        );
+    RETURN;
+END_IF
+
+udiMessageLength := TO_UDINT(uiCandidate);
+bDone := TRUE;
+M_BuildRequest := TRUE;
+
+// === METHOD M_BuildResponse ===
+/// =======================================================================
+/// 名称      : M_BuildResponse
+/// 功能      : 将 ST_HttpResponse 构造为 HTTP 响应文本。
+/// 说明      : sReason 为空时自动采用常用原因短语。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PUBLIC M_BuildResponse : BOOL
+VAR_IN_OUT
+    stResponse : ST_HttpResponse;    // 结构化协议或测试数据。
+END_VAR
+VAR_OUTPUT
+    sMessage : STRING(GVL_Http.cnMaxMessageSize);    // 诊断或协议文本字段。
+END_VAR
+VAR
+    sReason      : STRING(64);    // 诊断或协议文本字段。
+    sStatus      : STRING(16);    // 诊断或协议文本字段。
+    sContentLen  : STRING(16);    // 诊断或协议文本字段。
+    sContentType : STRING(96);    // 诊断或协议文本字段。
+    uiBodyLen    : UINT;          // 计数、长度或状态数值。
+    uiCandidate  : UINT;          // 计数、长度或状态数值。
+END_VAR
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+// 原因：响应构造始终显式 Content-Length，使外部 client 可以用真实字节数验证 Server 行为。
+// 风险：状态码为 0 或 body 超过上限时必须拒绝构造，否则 Server 会发送不可诊断的坏报文。
+M_Reset();
+M_BuildResponse := FALSE;
+sMessage := &#x27;&#x27;;
+
+IF stResponse.uiStatusCode = 0 THEN
+    M_SetError(
+        eNewError := E_HttpError.iInvalidArgument,
+        sMessage  := &#x27;response status code is zero&#x27;
+        );
+    RETURN;
+END_IF
+
+IF LEN(stResponse.sReason) &gt; 0 THEN
+    sReason := stResponse.sReason;
+ELSE
+    sReason := F_HttpStatusReason(
+        uiStatusCode := stResponse.uiStatusCode
+        );
+END_IF
+
+IF LEN(stResponse.sContentType) &gt; 0 THEN
+    sContentType := stResponse.sContentType;
+ELSE
+    sContentType := GVL_Http.cnDefaultContentType;
+END_IF
+
+uiBodyLen := TO_UINT(LEN(stResponse.sBody));
+sStatus := UINT_TO_STRING(stResponse.uiStatusCode);
+sContentLen := UINT_TO_STRING(uiBodyLen);
+
+sMessage := CONCAT(&#x27;HTTP/1.1 &#x27;, sStatus);
+sMessage := CONCAT(sMessage, &#x27; &#x27;);
+sMessage := CONCAT(sMessage, sReason);
+sMessage := CONCAT(sMessage, &#x27;$R$NConnection: &#x27;);
+IF stResponse.bConnectionClose THEN
+    sMessage := CONCAT(sMessage, &#x27;close$R$NContent-Type: &#x27;);
+ELSE
+    sMessage := CONCAT(sMessage, &#x27;keep-alive$R$NContent-Type: &#x27;);
+END_IF
+sMessage := CONCAT(sMessage, sContentType);
+sMessage := CONCAT(sMessage, &#x27;$R$NContent-Length: &#x27;);
+sMessage := CONCAT(sMessage, sContentLen);
+sMessage := CONCAT(sMessage, &#x27;$R$N&#x27;);
+IF LEN(stResponse.sAdditionalHeader) &gt; 0 THEN
+    sMessage := CONCAT(sMessage, stResponse.sAdditionalHeader);
+    sMessage := CONCAT(sMessage, &#x27;$R$N&#x27;);
+END_IF
+sMessage := CONCAT(sMessage, &#x27;$R$N&#x27;);
+IF uiBodyLen &gt; 0 THEN
+    sMessage := CONCAT(sMessage, stResponse.sBody);
+END_IF
+
+uiCandidate := TO_UINT(LEN(sMessage));
+IF uiCandidate &gt;= GVL_Http.cnMaxMessageSize THEN
+    M_SetError(
+        eNewError := E_HttpError.iBufferTooSmall,
+        sMessage  := &#x27;response message exceeds buffer&#x27;
+        );
+    RETURN;
+END_IF
+
+udiMessageLength := TO_UDINT(uiCandidate);
+bDone := TRUE;
+M_BuildResponse := TRUE;
+
+// === METHOD M_Reset ===
+/// =======================================================================
+/// 名称      : M_Reset
+/// 功能      : 清空构造器诊断状态。
+/// 说明      : 每个公开构造方法开头调用，保证输出语义一致。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_Reset
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+bDone := FALSE;
+bError := FALSE;
+eError := E_HttpError.iNoError;
+sDiagMsg := &#x27;&#x27;;
+udiMessageLength := 0;
+
+// === METHOD M_SetError ===
+/// =======================================================================
+/// 名称      : M_SetError
+/// 功能      : 锁存构造错误诊断。
+/// 说明      : 内部错误出口统一调用，避免 bError/eError/sDiagMsg 不一致。
+/// =======================================================================
+{attribute &#x27;hide_all_locals&#x27;}
+METHOD PRIVATE M_SetError
+VAR_INPUT
+    eNewError : E_HttpError := E_HttpError.iNoError;    // 枚举状态或错误码。
+    sMessage  : STRING(255) := &#x27;&#x27;;                      // 诊断或协议文本字段。
+END_VAR
+// === IMPLEMENTATION ===
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+bDone := FALSE;
+bError := TRUE;
+eError := eNewError;
+sDiagMsg := sMessage;</code></pre></div>
+<h3 id="2-f-httpmethodtostring-st">完整源码 2：F_HttpMethodToString.st</h3>
+<p>职责：方法枚举转文本</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : HTTP 方法枚举转字符串。
+/// 库依赖 : 暂无
+{attribute &#x27;hide_all_locals&#x27;}
+FUNCTION F_HttpMethodToString : STRING(16)
+VAR_INPUT
+    eMethod : E_HttpMethod := E_HttpMethod.iUnknown;    // 枚举状态或错误码。
+END_VAR
+
+// === IMPLEMENTATION ===
+/// =======================================================================
+/// 名称      : F_HttpMethodToString
+/// 功能      : 将 E_HttpMethod 转为 HTTP start-line 方法文本。
+/// 库依赖    : 暂无
+/// =======================================================================
+/// 使用说明  : 1. 未知方法返回 GET，保证出站请求可控。
+///           : 2. 入站原始方法仍由 ST_HttpRequest.sMethod 保留。
+/// =======================================================================
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+CASE eMethod OF
+    E_HttpMethod.iHead:
+        F_HttpMethodToString := &#x27;HEAD&#x27;;
+    E_HttpMethod.iPost:
+        F_HttpMethodToString := &#x27;POST&#x27;;
+    E_HttpMethod.iPut:
+        F_HttpMethodToString := &#x27;PUT&#x27;;
+    E_HttpMethod.iDelete:
+        F_HttpMethodToString := &#x27;DELETE&#x27;;
+    E_HttpMethod.iPatch:
+        F_HttpMethodToString := &#x27;PATCH&#x27;;
+    E_HttpMethod.iOptions:
+        F_HttpMethodToString := &#x27;OPTIONS&#x27;;
+ELSE
+        F_HttpMethodToString := &#x27;GET&#x27;;
+END_CASE</code></pre></div>
+<h3 id="3-f-httpstatusreason-st">完整源码 3：F_HttpStatusReason.st</h3>
+<p>职责：状态码原因短语</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : HTTP 状态码默认原因短语。
+/// 库依赖 : 暂无
+{attribute &#x27;hide_all_locals&#x27;}
+FUNCTION F_HttpStatusReason : STRING(64)
+VAR_INPUT
+    uiStatusCode : UINT := 200;    // 计数、长度或状态数值。
+END_VAR
+
+// === IMPLEMENTATION ===
+/// =======================================================================
+/// 名称      : F_HttpStatusReason
+/// 功能      : 提供首版常用 HTTP 状态码原因短语。
+/// 库依赖    : 暂无
+/// =======================================================================
+/// 使用说明  : 1. Builder 在 sReason 为空时使用本函数填充。
+///           : 2. 未覆盖状态码返回 OK 以外不会用于错误判定，仅影响可读文本。
+/// =======================================================================
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 边界说明：执行前后保持输出和错误码可被在线诊断追踪。
+CASE uiStatusCode OF
+    200:
+        F_HttpStatusReason := &#x27;OK&#x27;;
+    201:
+        F_HttpStatusReason := &#x27;Created&#x27;;
+    204:
+        F_HttpStatusReason := &#x27;No Content&#x27;;
+    400:
+        F_HttpStatusReason := &#x27;Bad Request&#x27;;
+    404:
+        F_HttpStatusReason := &#x27;Not Found&#x27;;
+    405:
+        F_HttpStatusReason := &#x27;Method Not Allowed&#x27;;
+    411:
+        F_HttpStatusReason := &#x27;Length Required&#x27;;
+    413:
+        F_HttpStatusReason := &#x27;Payload Too Large&#x27;;
+    500:
+        F_HttpStatusReason := &#x27;Internal Server Error&#x27;;
+    501:
+        F_HttpStatusReason := &#x27;Not Implemented&#x27;;
+ELSE
+        F_HttpStatusReason := &#x27;OK&#x27;;
+END_CASE</code></pre></div>
+<h2 id="section-c25cdcf3">本篇阅读抓手</h2>
+<ul><li>Host 是请求构造硬门槛。</li><li>出站统一显式 Content-Length。</li><li>消息超限时拒绝发送。</li></ul>
+<h2 id="section-6bb3199c">如何验证这组源码</h2>
+<ol><li>先针对 <code>FB_HttpMessageBuilder.st</code> 的公开输入和错误出口建立确定性用例。</li><li>再把“Host 是请求构造硬门槛”转成至少一个正常场景和一个失败场景。</li><li>本篇 3 个文件必须一起编译，避免只验证单个函数而漏掉数据结构或调用边界。</li><li>真机复核时重点观察“消息超限时拒绝发送”，并保留对应状态、计数和原始报文。</li></ol>
+<h2 id="section-6f65a855">这一篇你最该记住</h2>
+<ul><li>Host 是请求构造硬门槛。</li><li>出站统一显式 Content-Length。</li><li>消息超限时拒绝发送。</li></ul>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列：CodeSys HTTP 系列教程，第 21/28 篇。</li><li>当前源码加更：第 3/8 篇。</li><li>本篇完整源码文件数：3。</li><li>上一篇：第20篇</li><li>下一篇：第22篇</li></ul>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../codesys-http-source-update-02/index.html">
+                <small>上一篇 / 第20篇</small>
+                <strong>第20篇_源码加更 02｜Parser、Header 与长度解析</strong>
+                <span>这一组代码负责把原始 HTTP 文本变成结构化请求或响应，并拒绝 Host、Header、Content-Length 与 Transfer-Encoding 的歧义。</span>
+              </a>
+              <a class="series-nav-card" href="../codesys-http-source-update-04/index.html">
+                <small>下一篇 / 第22篇</small>
+                <strong>第22篇_源码加更 04｜chunked 解码器和十六进制块长度解析</strong>
+                <span>这一组代码覆盖 chunk-size、分号扩展、CRLF、0 终止块、trailer 边界和 Body 容量检查。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script src="../../content/site-data.js"></script>
+  <script>
+    (() => {
+      const articleNav = document.querySelector(".article-nav");
+      const articleSearchShell = document.getElementById("articleSearchShell");
+      const articleSearchButton = document.getElementById("articleSearchButton");
+      const articleSearchInput = document.getElementById("articleSiteSearch");
+      const articleSearchPanel = document.getElementById("articleSearchPanel");
+      const articleLangToggle = document.getElementById("articleLangToggle");
+      const articleMenuToggle = document.getElementById("articleMobileMenuToggle");
+      const articleMenuPanel = document.getElementById("articleMobileMenuPanel");
+      const articleTocToggle = document.querySelector(".article-toc-toggle");
+      const articleTocBody = document.getElementById("articleTocBody");
+      const homeHref = document.querySelector(".brand").getAttribute("href");
+      const siteData = window.CONTROLROOKIE_SITE_DATA || { articles: [], resources: [], products: [], contacts: [] };
+      let articleUiLang = "zh";
+      let articleSearchFilter = "all";
+
+      const uiText = {
+        zh: {
+          nav: ["关于我", "文章", "产品", "资源", "联系"],
+          back: "返回文章",
+          search: "搜索文章、资源、产品",
+          filters: { all: "全部", article: "文章", resource: "资源", product: "产品", contact: "联系" },
+          empty: "没有匹配结果。",
+          toc: "文章目录",
+          skip: "跳到文章正文",
+          searchButton: "搜索",
+          searchResults: "文章页搜索结果",
+          searchFilters: "搜索筛选",
+          menu: "文章移动主导航",
+          menuOpen: "打开主菜单",
+          menuClose: "关闭主菜单",
+          navLabel: "文章导航",
+          home: "ControlRookie 首页",
+          sections: "页面栏目",
+          breadcrumb: "文章路径",
+          tocLabel: "文章目录",
+          seriesNav: "系列导航",
+          scrollActions: "文章滚动快捷操作",
+          top: "回到文章顶端",
+          bottom: "跳到文章底端",
+        },
+        en: {
+          nav: ["About Me", "Articles", "Products", "Resources", "Contact"],
+          back: "Back to Articles",
+          search: "Search articles, resources, products",
+          filters: { all: "All", article: "Articles", resource: "Resources", product: "Products", contact: "Contact" },
+          empty: "No matching results.",
+          toc: "Article Contents",
+          skip: "Skip to article content",
+          searchButton: "Search",
+          searchResults: "Article search results",
+          searchFilters: "Search filters",
+          menu: "Article mobile navigation",
+          menuOpen: "Open primary menu",
+          menuClose: "Close primary menu",
+          navLabel: "Article navigation",
+          home: "ControlRookie home",
+          sections: "Sections",
+          breadcrumb: "Article path",
+          tocLabel: "Article contents",
+          seriesNav: "Series navigation",
+          scrollActions: "Article scroll shortcuts",
+          top: "Back to article top",
+          bottom: "Jump to article end",
+        },
+      };
+
+      const escapeSearchHtml = (value) => String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+      const localized = (value) => typeof value === "string" ? value : (value?.[articleUiLang] || value?.zh || "");
+      const resolveSearchHref = (href) => {
+        if (!href) return homeHref;
+        if (/^https?:\/\//.test(href) || href.startsWith("mailto:")) return href;
+        const homeUrl = new URL(homeHref, window.location.href);
+        if (href.startsWith("#")) return `${homeUrl.href.split("#")[0]}${href}`;
+        return new URL(href, homeUrl).href;
+      };
+      const articleSearchItems = [
+        ...siteData.articles.map((item) => ({ ...item, group: "article" })),
+        ...siteData.resources.map((item) => ({ ...item, group: "resource" })),
+        ...siteData.products.map((item) => ({ ...item, group: "product" })),
+        ...siteData.contacts.map((item) => ({ ...item, group: "contact" })),
+      ];
+
+      const closeArticleSearch = (restoreFocus = false) => {
+        articleSearchShell.classList.remove("open");
+        articleSearchPanel.classList.remove("visible");
+        articleSearchPanel.hidden = true;
+        articleSearchPanel.inert = true;
+        articleNav.classList.remove("search-active");
+        articleSearchButton.setAttribute("aria-expanded", "false");
+        if (restoreFocus) articleSearchButton.focus();
+      };
+      const closeArticleMenu = (restoreFocus = false) => {
+        articleMenuPanel.hidden = true;
+        articleMenuToggle.setAttribute("aria-expanded", "false");
+        articleMenuToggle.setAttribute("aria-label", uiText[articleUiLang].menuOpen);
+        if (restoreFocus) articleMenuToggle.focus();
+      };
+      const closeArticleToc = (restoreFocus = false) => {
+        articleTocToggle.setAttribute("aria-expanded", "false");
+        if (restoreFocus) articleTocToggle.focus();
+      };
+
+      const renderArticleSearch = () => {
+        const query = articleSearchInput.value.trim().toLowerCase();
+        const filters = uiText[articleUiLang].filters;
+        const matches = articleSearchItems.filter((item) => {
+          if (articleSearchFilter !== "all" && item.group !== articleSearchFilter) return false;
+          if (!query) return true;
+          return JSON.stringify(item).toLowerCase().includes(query);
+        }).slice(0, 18);
+        const filterBar = `<div class="search-filter-bar" role="tablist" aria-label="${escapeSearchHtml(uiText[articleUiLang].searchFilters)}">${Object.entries(filters).map(([key, label]) => `<button type="button" role="tab" aria-selected="${articleSearchFilter === key}" class="${articleSearchFilter === key ? "active" : ""}" data-article-search-filter="${key}">${escapeSearchHtml(label)}</button>`).join("")}</div>`;
+        const results = matches.length
+          ? matches.map((item) => `<a class="search-result" href="${escapeSearchHtml(resolveSearchHref(item.searchHref || item.href))}"><span class="search-result-type">${escapeSearchHtml(filters[item.group] || item.group)}</span><strong>${escapeSearchHtml(localized(item.title))}</strong></a>`).join("")
+          : `<div class="search-empty">${escapeSearchHtml(uiText[articleUiLang].empty)}</div>`;
+        articleSearchPanel.innerHTML = `${filterBar}<div class="search-results">${results}</div>`;
+        articleSearchPanel.hidden = false;
+        articleSearchPanel.inert = false;
+        articleSearchShell.classList.add("open");
+        articleSearchPanel.classList.add("visible");
+        articleNav.classList.add("search-active");
+        articleSearchButton.setAttribute("aria-expanded", "true");
+      };
+
+      const applyArticleUiLanguage = (lang) => {
+        articleUiLang = lang;
+        document.querySelectorAll(".article-nav .nav-links a").forEach((node, index) => {
+          node.textContent = uiText[lang].nav[index];
+        });
+        document.querySelectorAll("[data-article-nav]").forEach((node, index) => {
+          node.textContent = uiText[lang].nav[index];
+        });
+        document.querySelectorAll(".article-back, .article-menu-back").forEach((node) => {
+          node.textContent = uiText[lang].back;
+        });
+        articleSearchInput.placeholder = uiText[lang].search;
+        articleSearchInput.setAttribute("aria-label", uiText[lang].search);
+        document.querySelector(".skip-link").textContent = uiText[lang].skip;
+        articleNav.setAttribute("aria-label", uiText[lang].navLabel);
+        document.querySelector(".brand").setAttribute("aria-label", uiText[lang].home);
+        document.querySelector(".article-nav .nav-links").setAttribute("aria-label", uiText[lang].sections);
+        articleSearchButton.setAttribute("aria-label", uiText[lang].searchButton);
+        articleSearchPanel.setAttribute("aria-label", uiText[lang].searchResults);
+        articleMenuPanel.setAttribute("aria-label", uiText[lang].menu);
+        articleMenuToggle.setAttribute("aria-label", articleMenuToggle.getAttribute("aria-expanded") === "true" ? uiText[lang].menuClose : uiText[lang].menuOpen);
+        document.querySelector(".article-breadcrumb").setAttribute("aria-label", uiText[lang].breadcrumb);
+        document.querySelector(".article-toc").setAttribute("aria-label", uiText[lang].tocLabel);
+        document.querySelector(".article-series-nav").setAttribute("aria-label", uiText[lang].seriesNav);
+        document.querySelector(".article-scroll-actions").setAttribute("aria-label", uiText[lang].scrollActions);
+        document.querySelector('.article-scroll-actions a[href="#article-top"]').setAttribute("aria-label", uiText[lang].top);
+        document.querySelector('.article-scroll-actions a[href="#article-end"]').setAttribute("aria-label", uiText[lang].bottom);
+        articleTocToggle.querySelector("span").textContent = uiText[lang].toc;
+        articleLangToggle.textContent = lang === "zh" ? "EN" : "中";
+        articleLangToggle.setAttribute("aria-label", lang === "zh" ? "Switch navigation to English" : "切换导航为中文");
+        if (articleSearchPanel.classList.contains("visible")) renderArticleSearch();
+      };
+
+      articleSearchButton.addEventListener("click", () => {
+        closeArticleMenu();
+        articleSearchInput.focus();
+        renderArticleSearch();
+      });
+      articleSearchInput.addEventListener("input", renderArticleSearch);
+      articleSearchPanel.addEventListener("click", (event) => {
+        const filter = event.target.closest("[data-article-search-filter]");
+        if (!filter) return;
+        event.preventDefault();
+        articleSearchFilter = filter.dataset.articleSearchFilter || "all";
+        renderArticleSearch();
+      });
+      articleLangToggle.addEventListener("click", () => applyArticleUiLanguage(articleUiLang === "zh" ? "en" : "zh"));
+      articleMenuToggle.addEventListener("click", () => {
+        if (articleMenuToggle.getAttribute("aria-expanded") === "true") {
+          closeArticleMenu(true);
+          return;
+        }
+        closeArticleSearch();
+        articleMenuPanel.hidden = false;
+        articleMenuToggle.setAttribute("aria-expanded", "true");
+        articleMenuToggle.setAttribute("aria-label", uiText[articleUiLang].menuClose);
+      });
+      articleMenuPanel.addEventListener("click", (event) => {
+        if (event.target.closest("a")) closeArticleMenu();
+      });
+      articleTocToggle.addEventListener("click", () => {
+        const expanded = articleTocToggle.getAttribute("aria-expanded") === "true";
+        articleTocToggle.setAttribute("aria-expanded", expanded ? "false" : "true");
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        if (articleSearchPanel.classList.contains("visible")) {
+          closeArticleSearch(true);
+          return;
+        }
+        if (articleMenuToggle.getAttribute("aria-expanded") === "true") {
+          closeArticleMenu(true);
+          return;
+        }
+        if (articleTocToggle.getAttribute("aria-expanded") === "true" && window.innerWidth <= 1040) {
+          closeArticleToc(true);
+        }
+      });
+      document.addEventListener("click", (event) => {
+        if (!articleSearchShell.contains(event.target) && !articleSearchPanel.contains(event.target)) closeArticleSearch();
+        if (!articleMenuToggle.contains(event.target) && !articleMenuPanel.contains(event.target)) closeArticleMenu();
+      });
+      window.addEventListener("resize", () => {
+        if (window.innerWidth >= 1041) {
+          closeArticleMenu();
+          closeArticleToc();
+        }
+      });
+      applyArticleUiLanguage("zh");
+
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", (event) => {
+          const id = decodeURIComponent(link.hash.slice(1));
+          const target = document.getElementById(id);
+          if (!target) return;
+          event.preventDefault();
+          window.history.pushState(null, "", link.hash);
+          const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+          const targetTop = target.getBoundingClientRect().top + window.scrollY - navHeight - 28;
+          window.scrollTo({ top: Math.max(0, targetTop), behavior: "instant" });
+          if (window.innerWidth <= 1040) closeArticleToc();
+          if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+          target.focus({ preventScroll: true });
+          updateActiveToc();
+        });
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

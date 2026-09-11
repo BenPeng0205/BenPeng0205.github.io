@@ -3783,7 +3783,7 @@ window.CONTROLROOKIE_ARTICLES = [
       "zh": "20 · 源码加更",
       "en": "20 · Open Source"
     },
-    "date": "2026-08-26",
+    "date": "2026-08-31",
     "readingTime": {
       "zh": "约 57 分钟阅读",
       "en": "57 min read"
@@ -3797,7 +3797,362 @@ window.CONTROLROOKIE_ARTICLES = [
     "keywords": "HTTP CODESYS 源码加更 源码加更 第20篇_源码加更 02｜Parser、Header 与长度解析 HTTP CodeSys PLC通信 ControlRookie",
     "order": 20,
     "contentId": "codesys-http-20",
-    "publishAt": "2026-08-26T19:00:00+08:00",
+    "publishAt": "2026-08-31T19:00:00+08:00",
     "source": "第20篇_源码加更 02｜Parser、Header 与长度解析.md"
+  },
+  {
+    "id": "codesys-http-source-update-03",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第21篇_源码加更 03｜Builder、方法转换和状态码文本",
+      "en": "第21篇_源码加更 03｜Builder、方法转换和状态码文本"
+    },
+    "copy": {
+      "zh": "构造器把结构体变成对端可识别的 HTTP/1.1 报文。方法文本、原因短语、长度和连接策略在这里统一收口。",
+      "en": "构造器把结构体变成对端可识别的 HTTP/1.1 报文。方法文本、原因短语、长度和连接策略在这里统一收口。"
+    },
+    "href": "articles/codesys-http-source-update-03/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "kind": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "progress": {
+      "zh": "第21篇/共28篇",
+      "en": "Part 21 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第21篇",
+      "en": "This Site / Part 21"
+    },
+    "cardMeta": {
+      "zh": "21 · 源码加更",
+      "en": "21 · Open Source"
+    },
+    "date": "2026-09-02",
+    "readingTime": {
+      "zh": "约 19 分钟阅读",
+      "en": "19 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 源码加更 源码加更 第21篇_源码加更 03｜Builder、方法转换和状态码文本 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 21,
+    "contentId": "codesys-http-21",
+    "publishAt": "2026-09-02T19:00:00+08:00",
+    "source": "第21篇_源码加更 03｜Builder、方法转换和状态码文本.md"
+  },
+  {
+    "id": "codesys-http-source-update-04",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第22篇_源码加更 04｜chunked 解码器和十六进制块长度解析",
+      "en": "第22篇_源码加更 04｜chunked 解码器和十六进制块长度解析"
+    },
+    "copy": {
+      "zh": "这一组代码覆盖 chunk-size、分号扩展、CRLF、0 终止块、trailer 边界和 Body 容量检查。",
+      "en": "这一组代码覆盖 chunk-size、分号扩展、CRLF、0 终止块、trailer 边界和 Body 容量检查。"
+    },
+    "href": "articles/codesys-http-source-update-04/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "kind": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "progress": {
+      "zh": "第22篇/共28篇",
+      "en": "Part 22 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第22篇",
+      "en": "This Site / Part 22"
+    },
+    "cardMeta": {
+      "zh": "22 · 源码加更",
+      "en": "22 · Open Source"
+    },
+    "date": "2026-09-04",
+    "readingTime": {
+      "zh": "约 14 分钟阅读",
+      "en": "14 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 源码加更 源码加更 第22篇_源码加更 04｜chunked 解码器和十六进制块长度解析 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 22,
+    "contentId": "codesys-http-22",
+    "publishAt": "2026-09-04T19:00:00+08:00",
+    "source": "第22篇_源码加更 04｜chunked 解码器和十六进制块长度解析.md"
+  },
+  {
+    "id": "codesys-http-source-update-05",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第23篇_源码加更 05｜HTTP Server、连接实例和诊断数据",
+      "en": "第23篇_源码加更 05｜HTTP Server、连接实例和诊断数据"
+    },
+    "copy": {
+      "zh": "Server 外层负责监听和多槽位调度，单连接 FB 负责 Read、解析、路由、构造、Write 与清理。两个层级必须一起公开才能看清生命周期。",
+      "en": "Server 外层负责监听和多槽位调度，单连接 FB 负责 Read、解析、路由、构造、Write 与清理。两个层级必须一起公开才能看清生命周期。"
+    },
+    "href": "articles/codesys-http-source-update-05/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "kind": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "progress": {
+      "zh": "第23篇/共28篇",
+      "en": "Part 23 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第23篇",
+      "en": "This Site / Part 23"
+    },
+    "cardMeta": {
+      "zh": "23 · 源码加更",
+      "en": "23 · Open Source"
+    },
+    "date": "2026-09-12",
+    "readingTime": {
+      "zh": "约 65 分钟阅读",
+      "en": "65 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 源码加更 源码加更 第23篇_源码加更 05｜HTTP Server、连接实例和诊断数据 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 23,
+    "contentId": "codesys-http-23",
+    "publishAt": "2026-09-12T19:00:00+08:00",
+    "source": "第23篇_源码加更 05｜HTTP Server、连接实例和诊断数据.md"
+  },
+  {
+    "id": "codesys-http-source-update-06",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第24篇_源码加更 06｜HTTP Client 状态机和运行指标",
+      "en": "第24篇_源码加更 06｜HTTP Client 状态机和运行指标"
+    },
+    "copy": {
+      "zh": "Client 源码展示一次主动请求怎样跨越连接、构造、发送、接收、解析和恢复阶段。",
+      "en": "Client 源码展示一次主动请求怎样跨越连接、构造、发送、接收、解析和恢复阶段。"
+    },
+    "href": "articles/codesys-http-source-update-06/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "kind": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "progress": {
+      "zh": "第24篇/共28篇",
+      "en": "Part 24 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第24篇",
+      "en": "This Site / Part 24"
+    },
+    "cardMeta": {
+      "zh": "24 · 源码加更",
+      "en": "24 · Open Source"
+    },
+    "date": "2026-09-14",
+    "readingTime": {
+      "zh": "约 42 分钟阅读",
+      "en": "42 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 源码加更 源码加更 第24篇_源码加更 06｜HTTP Client 状态机和运行指标 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 24,
+    "contentId": "codesys-http-24",
+    "publishAt": "2026-09-14T19:00:00+08:00",
+    "source": "第24篇_源码加更 06｜HTTP Client 状态机和运行指标.md"
+  },
+  {
+    "id": "codesys-http-source-update-07",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第25篇_源码加更 07｜127 项离线测试框架完整源码",
+      "en": "第25篇_源码加更 07｜127 项离线测试框架完整源码"
+    },
+    "copy": {
+      "zh": "离线测试不依赖真实网络，集中验证 Parser、Builder、chunked、边界值和错误路径，为真机测试提供稳定底座。",
+      "en": "离线测试不依赖真实网络，集中验证 Parser、Builder、chunked、边界值和错误路径，为真机测试提供稳定底座。"
+    },
+    "href": "articles/codesys-http-source-update-07/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "kind": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "progress": {
+      "zh": "第25篇/共28篇",
+      "en": "Part 25 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第25篇",
+      "en": "This Site / Part 25"
+    },
+    "cardMeta": {
+      "zh": "25 · 源码加更",
+      "en": "25 · Open Source"
+    },
+    "date": "2026-09-16",
+    "readingTime": {
+      "zh": "约 48 分钟阅读",
+      "en": "48 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 源码加更 源码加更 第25篇_源码加更 07｜127 项离线测试框架完整源码 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 25,
+    "contentId": "codesys-http-25",
+    "publishAt": "2026-09-16T19:00:00+08:00",
+    "source": "第25篇_源码加更 07｜127 项离线测试框架完整源码.md"
   }
 ];
