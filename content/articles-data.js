@@ -4225,5 +4225,76 @@ window.CONTROLROOKIE_ARTICLES = [
     "contentId": "codesys-http-26",
     "publishAt": "2026-09-28T19:00:00+08:00",
     "source": "第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序.md"
+  },
+  {
+    "id": "codesys-http-troubleshooting",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第27篇_综合排障｜从现象反查状态、错误码、指标和连接快照",
+      "en": "第27篇_综合排障｜从现象反查状态、错误码、指标和连接快照"
+    },
+    "copy": {
+      "zh": "把 HTTP 故障按监听、连接、消息边界、构造发送和业务响应五层拆开，建立一张可以直接用于现场的反查表。",
+      "en": "把 HTTP 故障按监听、连接、消息边界、构造发送和业务响应五层拆开，建立一张可以直接用于现场的反查表。"
+    },
+    "href": "articles/codesys-http-troubleshooting/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "综合收束",
+      "en": "Operations"
+    },
+    "kind": {
+      "zh": "综合收束",
+      "en": "Operations"
+    },
+    "progress": {
+      "zh": "第27篇/共28篇",
+      "en": "Part 27 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第27篇",
+      "en": "This Site / Part 27"
+    },
+    "cardMeta": {
+      "zh": "27 · 综合收束",
+      "en": "27 · Operations"
+    },
+    "date": "2026-09-30",
+    "readingTime": {
+      "zh": "约 9 分钟阅读",
+      "en": "9 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 综合收束 综合收束 第27篇_综合排障｜从现象反查状态、错误码、指标和连接快照 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 27,
+    "contentId": "codesys-http-27",
+    "publishAt": "2026-09-30T19:00:00+08:00",
+    "source": "第27篇_综合排障｜从现象反查状态、错误码、指标和连接快照.md"
   }
 ];

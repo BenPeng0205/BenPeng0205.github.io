@@ -1958,6 +1958,94 @@
         "production_publish": false
       },
       "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-e8ab0b8167e9",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-27",
+      "slug": "codesys-http-troubleshooting",
+      "title": "第27篇_综合排障｜从现象反查状态、错误码、指标和连接快照",
+      "summary": "把 HTTP 故障按监听、连接、消息边界、构造发送和业务响应五层拆开，建立一张可以直接用于现场的反查表。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第27篇_综合排障｜从现象反查状态、错误码、指标和连接快照.md",
+      "content_hash": "b67381adbba880980320359897be0e1ee0d2b9a62de18968ab00aef0964cddc5",
+      "publish_at": "2026-09-30T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "综合收束",
+        "folder_en": "Operations",
+        "order": 27,
+        "total": 28
+      },
+      "article": {
+        "kind_zh": "综合收束",
+        "kind_en": "Operations",
+        "date": "2026-09-30",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ],
+        "platform_metadata": {
+          "csdn": {
+            "title": "第27篇_综合排障｜从现象反查状态、错误码、指标和连接快照",
+            "tags": [
+              "CodeSys",
+              "PLC通信",
+              "http"
+            ],
+            "category": "工业通信",
+            "column": "CodeSys HTTP",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "original_statement": true,
+            "creation_statement": "个人观点，仅供参考",
+            "gitcode_backup": true,
+            "visibility": "全部可见"
+          },
+          "wechat": {
+            "title": "第27篇_综合排障｜从现象反查状态、错误码、指标和连接快照",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "author": "ControlRookie",
+            "original_statement": true,
+            "original_type": "文字原创",
+            "original_author": "ControlRookie",
+            "allow_quick_reprint": true,
+            "reward_enabled": true,
+            "reward_account": "BenPeng",
+            "collection": "CodeSys HTTP",
+            "creation_source": "个人观点，仅供参考",
+            "platform_recommend_enabled": true,
+            "open_comment": true,
+            "only_fans_can_comment": false,
+            "original_article_link": ""
+          }
+        }
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-27\\第27篇_核心架构图.png",
+          "filename": "第27篇_核心架构图.png",
+          "sha256": "428e7bc743d833e2aa85cf1521df204dde85db51051a05a00f337822fc9d6cde"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
     }
   ]
 }

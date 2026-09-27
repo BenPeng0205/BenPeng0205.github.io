@@ -1383,6 +1383,28 @@
       "path": "articles/codesys-http-source-update-08/index.html",
       "contentId": "codesys-http-26",
       "source": "第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序.md"
+    },
+    {
+      "id": "codesys-http-troubleshooting",
+      "title": "第27篇_综合排障｜从现象反查状态、错误码、指标和连接快照",
+      "series": "CodeSys HTTP 系列教程",
+      "category": "工业通信",
+      "categoryKey": "industrial-communication",
+      "topicKey": "http",
+      "topic": "HTTP",
+      "folder": "综合收束",
+      "kind": "综合收束",
+      "summary": "把 HTTP 故障按监听、连接、消息边界、构造发送和业务响应五层拆开，建立一张可以直接用于现场的反查表。",
+      "date": "2026-09-30",
+      "tags": [
+        "HTTP",
+        "CodeSys",
+        "PLC通信",
+        "ControlRookie"
+      ],
+      "path": "articles/codesys-http-troubleshooting/index.html",
+      "contentId": "codesys-http-27",
+      "source": "第27篇_综合排障｜从现象反查状态、错误码、指标和连接快照.md"
     }
   ]
 }
