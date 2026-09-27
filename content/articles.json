@@ -1405,6 +1405,28 @@
       "path": "articles/codesys-http-troubleshooting/index.html",
       "contentId": "codesys-http-27",
       "source": "第27篇_综合排障｜从现象反查状态、错误码、指标和连接快照.md"
+    },
+    {
+      "id": "codesys-http-series-finale",
+      "title": "第28篇_系列完结｜32 个源码文件怎样组成可复现的 HTTP 工程",
+      "series": "CodeSys HTTP 系列教程",
+      "category": "工业通信",
+      "categoryKey": "industrial-communication",
+      "topicKey": "http",
+      "topic": "HTTP",
+      "folder": "综合收束",
+      "kind": "综合收束",
+      "summary": "用一张完整索引收束 28 篇文章、32 个 ST 文件、离线测试和真机测试，明确当前版本能做什么、不能做什么以及怎样复现。",
+      "date": "2026-10-02",
+      "tags": [
+        "HTTP",
+        "CodeSys",
+        "PLC通信",
+        "ControlRookie"
+      ],
+      "path": "articles/codesys-http-series-finale/index.html",
+      "contentId": "codesys-http-28",
+      "source": "第28篇_系列完结｜32 个源码文件怎样组成可复现的 HTTP 工程.md"
     }
   ]
 }

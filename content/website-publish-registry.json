@@ -2046,6 +2046,94 @@
         "production_publish": false
       },
       "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-46c99bc10ab5",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-28",
+      "slug": "codesys-http-series-finale",
+      "title": "第28篇_系列完结｜32 个源码文件怎样组成可复现的 HTTP 工程",
+      "summary": "用一张完整索引收束 28 篇文章、32 个 ST 文件、离线测试和真机测试，明确当前版本能做什么、不能做什么以及怎样复现。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第28篇_系列完结｜32 个源码文件怎样组成可复现的 HTTP 工程.md",
+      "content_hash": "2a789029a3915010c5206a1e9c5ff20d6dd840844b7d6d48408fb459f9d63a9d",
+      "publish_at": "2026-10-02T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "综合收束",
+        "folder_en": "Operations",
+        "order": 28,
+        "total": 28
+      },
+      "article": {
+        "kind_zh": "综合收束",
+        "kind_en": "Operations",
+        "date": "2026-10-02",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ],
+        "platform_metadata": {
+          "csdn": {
+            "title": "第28篇_系列完结｜32 个源码文件怎样组成可复现的 HTTP 工程",
+            "tags": [
+              "CodeSys",
+              "PLC通信",
+              "http"
+            ],
+            "category": "工业通信",
+            "column": "CodeSys HTTP",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "original_statement": true,
+            "creation_statement": "个人观点，仅供参考",
+            "gitcode_backup": true,
+            "visibility": "全部可见"
+          },
+          "wechat": {
+            "title": "第28篇_系列完结｜32 个源码文件怎样组成可复现的 HTTP 工程",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "author": "ControlRookie",
+            "original_statement": true,
+            "original_type": "文字原创",
+            "original_author": "ControlRookie",
+            "allow_quick_reprint": true,
+            "reward_enabled": true,
+            "reward_account": "BenPeng",
+            "collection": "CodeSys HTTP",
+            "creation_source": "个人观点，仅供参考",
+            "platform_recommend_enabled": true,
+            "open_comment": true,
+            "only_fans_can_comment": false,
+            "original_article_link": ""
+          }
+        }
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-28\\第28篇_核心架构图.png",
+          "filename": "第28篇_核心架构图.png",
+          "sha256": "e7d659ff83aa365633c78ca66f952d4b7f0df482a995576ec292a46472a56de9"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
     }
   ]
 }

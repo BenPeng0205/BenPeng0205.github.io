@@ -4296,5 +4296,76 @@ window.CONTROLROOKIE_ARTICLES = [
     "contentId": "codesys-http-27",
     "publishAt": "2026-09-30T19:00:00+08:00",
     "source": "第27篇_综合排障｜从现象反查状态、错误码、指标和连接快照.md"
+  },
+  {
+    "id": "codesys-http-series-finale",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第28篇_系列完结｜32 个源码文件怎样组成可复现的 HTTP 工程",
+      "en": "第28篇_系列完结｜32 个源码文件怎样组成可复现的 HTTP 工程"
+    },
+    "copy": {
+      "zh": "用一张完整索引收束 28 篇文章、32 个 ST 文件、离线测试和真机测试，明确当前版本能做什么、不能做什么以及怎样复现。",
+      "en": "用一张完整索引收束 28 篇文章、32 个 ST 文件、离线测试和真机测试，明确当前版本能做什么、不能做什么以及怎样复现。"
+    },
+    "href": "articles/codesys-http-series-finale/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "综合收束",
+      "en": "Operations"
+    },
+    "kind": {
+      "zh": "综合收束",
+      "en": "Operations"
+    },
+    "progress": {
+      "zh": "第28篇/共28篇",
+      "en": "Part 28 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第28篇",
+      "en": "This Site / Part 28"
+    },
+    "cardMeta": {
+      "zh": "28 · 综合收束",
+      "en": "28 · Operations"
+    },
+    "date": "2026-10-02",
+    "readingTime": {
+      "zh": "约 8 分钟阅读",
+      "en": "8 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 综合收束 综合收束 第28篇_系列完结｜32 个源码文件怎样组成可复现的 HTTP 工程 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 28,
+    "contentId": "codesys-http-28",
+    "publishAt": "2026-10-02T19:00:00+08:00",
+    "source": "第28篇_系列完结｜32 个源码文件怎样组成可复现的 HTTP 工程.md"
   }
 ];
