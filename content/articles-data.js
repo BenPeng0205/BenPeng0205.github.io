@@ -4154,5 +4154,76 @@ window.CONTROLROOKIE_ARTICLES = [
     "contentId": "codesys-http-25",
     "publishAt": "2026-09-16T19:00:00+08:00",
     "source": "第25篇_源码加更 07｜127 项离线测试框架完整源码.md"
+  },
+  {
+    "id": "codesys-http-source-update-08",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序",
+      "en": "第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序"
+    },
+    "copy": {
+      "zh": "最后一组源码把公共内核、Server、Client、离线测试和真机测试装配到周期任务中，形成可复现工程入口。",
+      "en": "最后一组源码把公共内核、Server、Client、离线测试和真机测试装配到周期任务中，形成可复现工程入口。"
+    },
+    "href": "articles/codesys-http-source-update-08/index.html",
+    "category": {
+      "zh": "工业通信",
+      "en": "Industrial Communication"
+    },
+    "categoryKey": "industrial-communication",
+    "topicKey": "http",
+    "topicTitle": {
+      "zh": "CodeSys HTTP 系列",
+      "en": "CodeSys HTTP Series"
+    },
+    "series": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "seriesKey": "codesys-http",
+    "seriesTitle": {
+      "zh": "CodeSys HTTP 系列教程",
+      "en": "CodeSys HTTP Series"
+    },
+    "folder": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "kind": {
+      "zh": "源码加更",
+      "en": "Open Source"
+    },
+    "progress": {
+      "zh": "第26篇/共28篇",
+      "en": "Part 26 / 28"
+    },
+    "status": {
+      "zh": "官网全文 / 第26篇",
+      "en": "This Site / Part 26"
+    },
+    "cardMeta": {
+      "zh": "26 · 源码加更",
+      "en": "26 · Open Source"
+    },
+    "date": "2026-09-28",
+    "readingTime": {
+      "zh": "约 26 分钟阅读",
+      "en": "26 min read"
+    },
+    "tags": [
+      "HTTP",
+      "CodeSys",
+      "PLC通信",
+      "ControlRookie"
+    ],
+    "keywords": "HTTP CODESYS 源码加更 源码加更 第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序 HTTP CodeSys PLC通信 ControlRookie",
+    "order": 26,
+    "contentId": "codesys-http-26",
+    "publishAt": "2026-09-28T19:00:00+08:00",
+    "source": "第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序.md"
   }
 ];

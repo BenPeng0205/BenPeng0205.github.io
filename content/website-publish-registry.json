@@ -1869,6 +1869,95 @@
         "production_publish": false
       },
       "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-1045e47e9976",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "codesys-http-26",
+      "slug": "codesys-http-source-update-08",
+      "title": "第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序",
+      "summary": "最后一组源码把公共内核、Server、Client、离线测试和真机测试装配到周期任务中，形成可复现工程入口。",
+      "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序.md",
+      "content_hash": "7effa004c462716abb8d38bdc689d7ac9d2a44b208061a6fb483c368457d5069",
+      "publish_at": "2026-09-28T19:00:00+08:00",
+      "category": {
+        "key": "industrial-communication",
+        "zh": "工业通信",
+        "en": "Industrial Communication"
+      },
+      "series": {
+        "key": "codesys-http",
+        "title_zh": "CodeSys HTTP 系列教程",
+        "title_en": "CodeSys HTTP Series",
+        "topic_key": "http",
+        "topic_zh": "HTTP",
+        "topic_en": "HTTP",
+        "folder_zh": "源码加更",
+        "folder_en": "Open Source",
+        "order": 26,
+        "total": 28
+      },
+      "article": {
+        "kind_zh": "源码加更",
+        "kind_en": "Open Source",
+        "date": "2026-09-28",
+        "tags": [
+          "HTTP",
+          "CodeSys",
+          "PLC通信",
+          "ControlRookie"
+        ],
+        "platform_metadata": {
+          "csdn": {
+            "title": "第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序",
+            "tags": [
+              "CodeSys",
+              "PLC通信",
+              "http",
+              "开源源码"
+            ],
+            "category": "工业通信",
+            "column": "CodeSys HTTP",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "original_statement": true,
+            "creation_statement": "个人观点，仅供参考",
+            "gitcode_backup": true,
+            "visibility": "粉丝可见"
+          },
+          "wechat": {
+            "title": "第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序",
+            "cover_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\covers\\codesys-http-series\\cover_csdn.png",
+            "author": "ControlRookie",
+            "original_statement": true,
+            "original_type": "文字原创",
+            "original_author": "ControlRookie",
+            "allow_quick_reprint": true,
+            "reward_enabled": true,
+            "reward_account": "BenPeng",
+            "collection": "CodeSys HTTP",
+            "creation_source": "个人观点，仅供参考",
+            "platform_recommend_enabled": true,
+            "open_comment": true,
+            "only_fans_can_comment": false,
+            "original_article_link": ""
+          }
+        }
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\Obsidian\\Work\\03_资源\\通信\\HTTP\\CodeSys_Http系列教程\\assets\\articles\\article-26\\第26篇_核心架构图.png",
+          "filename": "第26篇_核心架构图.png",
+          "sha256": "64416adbf40cc015eb9380bab7c629ea4ff16b00ca272b24627f0aacdfe46af1"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-07-15.3"
     }
   ]
 }

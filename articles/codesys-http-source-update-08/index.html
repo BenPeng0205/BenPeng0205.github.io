@@ -1,0 +1,906 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序 | ControlRookie</title>
+  <meta name="description" content="最后一组源码把公共内核、Server、Client、离线测试和真机测试装配到周期任务中，形成可复现工程入口。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#1d1d1f">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/codesys-http-source-update-08/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序">
+  <meta property="og:description" content="最后一组源码把公共内核、Server、Client、离线测试和真机测试装配到周期任务中，形成可复现工程入口。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/codesys-http-source-update-08/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序">
+  <meta name="twitter:description" content="最后一组源码把公共内核、Server、Client、离线测试和真机测试装配到周期任务中，形成可复现工程入口。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions article-nav-actions">
+        <div class="search-shell article-search-shell article-mobile-control" id="articleSearchShell">
+          <button class="search-icon" id="articleSearchButton" type="button" aria-label="搜索" aria-expanded="false" aria-controls="articleSearchPanel">
+            <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M10.8 18.1a7.3 7.3 0 1 1 0-14.6 7.3 7.3 0 0 1 0 14.6Zm5.2-2.1 4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <input class="search-input" id="articleSiteSearch" type="search" placeholder="搜索文章、资源、产品" autocomplete="off" aria-label="搜索文章、资源、产品">
+        </div>
+        <button class="lang-toggle article-lang-toggle article-mobile-control" id="articleLangToggle" type="button" aria-label="Switch navigation to English">EN</button>
+        <button class="mobile-menu-toggle article-mobile-menu-toggle article-mobile-control" id="articleMobileMenuToggle" type="button" aria-label="打开主菜单" aria-expanded="false" aria-controls="articleMobileMenuPanel">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+      <div class="search-panel article-search-panel" id="articleSearchPanel" aria-label="文章页搜索结果" role="region" hidden inert></div>
+      <nav class="mobile-menu-panel article-mobile-menu-panel" id="articleMobileMenuPanel" aria-label="文章移动主导航" hidden>
+        <a class="article-menu-back" href="../../index.html#articles">返回文章</a>
+        <a href="../../index.html#about" data-article-nav>关于我</a>
+        <a href="../../index.html#articles" data-article-nav>文章</a>
+        <a href="../../index.html#products" data-article-nav>产品</a>
+        <a href="../../index.html#works" data-article-nav>资源</a>
+        <a href="../../index.html#contact" data-article-nav>联系</a>
+      </nav>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <nav class="article-breadcrumb" id="article-top" aria-label="文章路径">
+            <a href="../../index.html#articles">文章中心</a>
+            <span>/</span>
+            <a href="../../index.html#articles">工业通信</a>
+            <span>/</span>
+            <a href="../../index.html#articles-http">HTTP</a>
+            <span>/</span>
+            <a href="../../index.html#articles-http">源码加更</a>
+          </nav>
+          <header class="article-hero">
+            <h1>第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序</h1>
+            <div class="article-meta">
+              <span>2026-09-28</span>
+              <span>约 26 分钟阅读</span>
+              <span>第26篇/共28篇</span>
+            </div>
+            <p class="article-summary">最后一组源码把公共内核、Server、Client、离线测试和真机测试装配到周期任务中，形成可复现工程入口。</p>
+          </header>
+          <aside class="article-toc" aria-label="文章目录">
+            <button class="article-toc-toggle" type="button" aria-expanded="false" aria-controls="articleTocBody">
+              <span>文章目录</span>
+              <em aria-hidden="true">+</em>
+            </button>
+            <div class="article-toc-body" id="articleTocBody">
+              <strong>目录</strong>
+              <ol><li><a href="#section-0d70135c">适合谁收藏</a></li><li><a href="#section-c769c1e4">先给结论</a></li><li><a href="#section-cfd6ac99">先看文件职责</a></li><li><a href="#section-4af56480">从协议约束到代码职责</a></li><li><a href="#section-6d6577bb">本篇完整开源代码</a></li><li><a href="#section-c25cdcf3">本篇阅读抓手</a></li><li><a href="#section-6bb3199c">如何验证这组源码</a></li><li><a href="#section-6f65a855">这一篇你最该记住</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
+            </div>
+          </aside>
+          <div class="article-main">
+            <div class="article-content">
+              <blockquote>最后一组源码把公共内核、Server、Client、离线测试和真机测试装配到周期任务中，形成可复现工程入口。</blockquote>
+<h2 id="section-0d70135c">适合谁收藏</h2>
+<ul><li>准备复用本组源码并审查对象边界的工程师。</li><li>需要把公开代码装配进目标 CodeSys 工程的人。</li><li>准备重新完成编译、离线测试和真机验证的读者。</li></ul>
+<hr>
+<blockquote>本篇完整公开 4 个 ST 文件。代码直接读取已验证工程，保留声明、实现、注释和缩进；没有伪代码，没有跨文件拼接，也没有省略号。</blockquote>
+<h2 id="section-c769c1e4">先给结论</h2>
+<p>最后一组源码把公共内核、Server、Client、离线测试和真机测试装配到周期任务中，形成可复现工程入口。 本篇的通过标准不是“代码已经贴出”，而是每个文件的职责、调用位置、状态边界和验证入口都能对应起来，并且完整代码可逐字回查源文件。</p>
+<figure><img src="../../assets/articles/codesys-http-source-update-08/第26篇_核心架构图.png" alt="源码加更 08｜真机测试、编译入口和 PLC 主程序"><figcaption>源码加更 08｜真机测试、编译入口和 PLC 主程序</figcaption></figure>
+<h3 id="section-a3177d68">读图重点</h3>
+<p>先找到 <code>GVL_HttpRealTest</code> 在本组中的位置，再沿图确认其余对象分别承担数据、状态、执行或诊断职责。图只给阅读顺序，最终判断必须回到下面的完整 ST 代码。</p>
+<h2 id="section-cfd6ac99">先看文件职责</h2>
+<div class="article-table-wrap"><table>
+<thead><tr><th>序号</th><th>文件</th><th>职责</th><th>行数</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>GVL_HttpRealTest.st</code></td><td>真机测试参数与观察量</td><td>87</td></tr>
+<tr><td>2</td><td><code>PRG_HttpRealTest.st</code></td><td>真机测试执行程序</td><td>16</td></tr>
+<tr><td>3</td><td><code>PRG_HttpCompileTouch.st</code></td><td>编译触达入口</td><td>16</td></tr>
+<tr><td>4</td><td><code>PLC_PRG.st</code></td><td>PLC 周期装配入口</td><td>154</td></tr>
+</tbody></table></div>
+<p>阅读顺序不是按文件名机械展开。先看数据和状态，再看公开方法，最后顺着错误出口和调用对象检查边界。源码篇的目标是让读者能对照工程复现，不是用大段代码制造篇幅。</p>
+<h2 id="section-4af56480">从协议约束到代码职责</h2>
+<h3 id="section-6ca2a2b2">协议约束</h3>
+<p>最后一组源码把公共内核、Server、Client、离线测试和真机测试装配到周期任务中，形成可复现工程入口。 协议层只定义消息与状态成立的条件，工程层还必须把条件分配给确定对象，避免 Parser、Builder、Server、Client 和测试入口互相越权。</p>
+<h3 id="section-ba1ed796">对象分工</h3>
+<ul><li><strong>第 1 个对象 <code>GVL_HttpRealTest.st</code></strong>：承担“真机测试参数与观察量”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li><li><strong>第 2 个对象 <code>PRG_HttpRealTest.st</code></strong>：承担“真机测试执行程序”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li><li><strong>第 3 个对象 <code>PRG_HttpCompileTouch.st</code></strong>：承担“编译触达入口”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li><li><strong>第 4 个对象 <code>PLC_PRG.st</code></strong>：承担“PLC 周期装配入口”。阅读时先确认输入与公开输出，再追状态、长度和错误出口，最后核对它被谁周期调用或被哪个对象消费。</li></ul>
+<h3 id="section-ef4a70ae">装配与验证</h3>
+<p>这组文件必须作为一个职责单元阅读和编译。先用确定输入验证“真机参数集中管理”，再制造非法或容量边界验证“编译触达防止对象未被工程引用”，最后在真实通信或上层调用中确认“PLC_PRG 是运行装配点而不是业务大杂烩”。如果单文件测试通过但装配后失败，应优先检查结构体、常量、状态枚举和周期调用关系，而不是立即重写核心算法。源码完整公开只证明读者拿到了同一事实源，目标运行时是否通过仍需重新编译和真机取证。</p>
+<p>本篇从 <code>GVL_HttpRealTest.st</code> 开始审查：先确认“真机参数集中管理”对应的类型、常量或公开输入，再沿 CASE 或方法调用追踪成功路径，随后逐个检查容量、超时和协议错误出口，最后在 <code>PLC_PRG.st</code> 对应的结果或装配位置确认错误能被观测、清理并再次执行。这个顺序专门用来区分“算法正确但没有周期调用”“状态能完成但错误被覆盖”和“PLC_PRG 是运行装配点而不是业务大杂烩尚未形成验证证据”三类问题。只有本篇源码、装配和验证使用同一组对象与同一组边界，完整开源才具有可复现意义。</p>
+<h2 id="section-6d6577bb">本篇完整开源代码</h2>
+<p>下面按职责顺序给出本篇全部 ST 文件。每个代码块保留完整声明与实现；阅读时把状态、长度、错误出口和调用对象与上面的职责表逐项对照。</p>
+<h3 id="1-gvl-httprealtest-st">完整源码 1：GVL_HttpRealTest.st</h3>
+<p>职责：真机测试参数与观察量</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : HTTP 真机联调控制和结果变量。
+/// 库依赖  : CAA Net Base Services
+{attribute &#x27;qualified_only&#x27;}
+VAR_GLOBAL
+    bResetResults               : BOOL := FALSE;                                            // 一次性复位真机联调结果和命令位。
+    udiNowMs                    : UDINT := 0;                                               // 示例任务毫秒时钟，按扫描周期累加。
+    bServerEnable               : BOOL := TRUE;                                             // Server 使能，下载后默认监听，便于通信猫直接访问 PLC。
+    bServerCloseConnection      : BOOL := TRUE;                                             // Server 响应后主动关闭连接，匹配通信猫短连接调试习惯。
+    sServerBindIP               : STRING := &#x27;0.0.0.0&#x27;;                                      // Server 绑定 IP，0.0.0.0 表示任意网卡。
+    uiServerPort                : UINT := GVL_Http.cnDefaultServerPort;                     // Server 监听端口，默认 18088，匹配通信猫访问 PLC 的 URL。
+    uiServerResponseStatusCode  : UINT := 200;                                              // Server 自定义响应状态码，内置路由默认 200。
+    sServerResponseBody         : STRING(GVL_Http.cnMaxBodySize) := &#x27;hello from PLC Server&#x27;;// Server 自定义响应 body，非空时未知路径也返回 200。
+    sServerResponseContentType  : STRING(96) := GVL_Http.cnDefaultContentType;              // Server 自定义响应 Content-Type。
+    sServerAdditionalHeader     : STRING(GVL_Http.cnMaxHeaderSize) := &#x27;&#x27;;                   // Server 自定义响应 Header 行。
+    bServerListening            : BOOL := FALSE;                                            // Server 已获得监听句柄。
+    bServerRunning              : BOOL := FALSE;                                            // Server 正在运行。
+    bServerBusy                 : BOOL := FALSE;                                            // Server 正在初始化或等待监听。
+    bServerError                : BOOL := FALSE;                                            // Server 错误锁存。
+    diServerErrorID             : DINT := 0;                                                // Server 错误诊断码。
+    sServerDiagMsg              : STRING(255) := &#x27;&#x27;;                                        // Server 诊断文本。
+    eServerState                : E_HttpServerState := E_HttpServerState.iDisabled;         // Server 状态机。
+    eServerLastError            : E_HttpError := E_HttpError.iNoError;                      // Server 最近 HTTP 错误。
+    eServerLastNbsError         : NBS.ERROR;                                                // Server 最近 NBS 错误。
+    uiServerActiveConnections   : UINT := 0;                                                // Server 当前活跃连接数。
+    uiServerLastRequestSlot     : UINT := 0;                                                // Server 最近请求槽位。
+    uiServerLastErrorSlot       : UINT := 0;                                                // Server 最近错误槽位。
+    sServerLastTarget           : STRING(GVL_Http.cnMaxTargetLen) := &#x27;&#x27;;                    // Server 最近请求路径。
+    sServerLastBody             : STRING(GVL_Http.cnMaxBodySize) := &#x27;&#x27;;                     // Server 最近请求 body。
+    sServerRxMessage            : STRING(GVL_Http.cnMaxMessageSize) := &#x27;&#x27;;                  // Server 最近一次接收报文。
+    sServerTxMessage            : STRING(GVL_Http.cnMaxMessageSize) := &#x27;&#x27;;                  // Server 最近一次发送报文。
+    udiServerAcceptedCount      : UDINT := 0;                                               // Server 累计接入连接数。
+    udiServerRequestCount       : UDINT := 0;                                               // Server 累计请求数。
+    udiServerResponseCount      : UDINT := 0;                                               // Server 累计响应数。
+    udiServerProtocolErrorCount : UDINT := 0;                                               // Server 累计协议错误数。
+    hServerListenHandle         : NBS.CAA.HANDLE;                                           // Server 监听句柄快照。
+    bServerPassLatched          : BOOL := FALSE;                                            // Server 外部 client 联调通过锁存。
+    bClientEnable               : BOOL := TRUE;                                             // Client 使能，下载后可直接向通信猫发起 HTTP 请求。
+    bClientSend                 : BOOL := TRUE;                                             // Client 下载后默认发送一次，PLC_PRG 读取后自复位。
+    bClientAbort                : BOOL := FALSE;                                            // Client 中止当前连接命令。
+    bClientCloseConnection      : BOOL := TRUE;                                             // Client 每次响应后主动关闭连接，优先保证通信猫短连接调试稳定。
+    udiClientTimeoutUs          : UDINT := 10000000;                                        // Client 请求超时，单位 [us]，通信猫联调默认 10 s。
+    sClientURL                  : STRING(1024) := &#x27;&#x27;;                                       // Client URL 留空时使用下方 IP/Host/Path 分离引脚。
+    sClientServerIP             : STRING := &#x27;192.168.20.2&#x27;;                                 // Client 远端 HTTP Server IP。
+    uiClientPort                : UINT := 6971;                                             // Client 远端 HTTP Server 端口，匹配通信猫 HTTP 服务端口。
+    sClientHost                 : STRING(GVL_Http.cnMaxHostLen) := &#x27;192.168.20.2:6971&#x27;;     // Client Host 字段，匹配通信猫监听端口。
+    sClientPath                 : STRING(GVL_Http.cnMaxTargetLen) := &#x27;/api/tongxinmao&#x27;;     // Client 请求路径，匹配通信猫 URL。
+    eClientMethod               : E_HttpMethod := E_HttpMethod.iPost;                       // Client 请求方法，默认 POST 便于发送正文。
+    sClientBody                 : STRING(GVL_Http.cnMaxBodySize) := &#x27;hello from PLC&#x27;;       // Client 请求 body，通信猫接收区可直接看到。
+    sClientContentType          : STRING(96) := &#x27;text/plain&#x27;;                               // Client Content-Type，匹配通信猫普通文本联调。
+    sClientAdditionalHeader     : STRING(GVL_Http.cnMaxHeaderSize) := &#x27;&#x27;;                   // Client 自定义 Header 行。
+    bClientTcpConnected         : BOOL := FALSE;                                            // Client TCP 连接快照。
+    bClientBusy                 : BOOL := FALSE;                                            // Client 正在执行事务。
+    bClientDone                 : BOOL := FALSE;                                            // Client 本次事务完成。
+    bClientError                : BOOL := FALSE;                                            // Client 错误锁存。
+    diClientErrorID             : DINT := 0;                                                // Client 错误诊断码。
+    sClientDiagMsg              : STRING(255) := &#x27;&#x27;;                                        // Client 诊断文本。
+    eClientState                : E_HttpClientState := E_HttpClientState.iDisabled;         // Client 状态机。
+    eClientLastError            : E_HttpError := E_HttpError.iNoError;                      // Client 最近 HTTP 错误。
+    eClientLastNbsError         : NBS.ERROR;                                                // Client 最近 NBS 错误。
+    uiClientStatusCode          : UINT := 0;                                                // Client 最近 HTTP 响应状态码。
+    sClientReason               : STRING(64) := &#x27;&#x27;;                                         // Client 最近 HTTP 响应原因短语。
+    sClientResponseBody         : STRING(GVL_Http.cnMaxBodySize) := &#x27;&#x27;;                     // Client 最近 HTTP 响应 body。
+    sClientResponseHeader       : STRING(GVL_Http.cnMaxHeaderSize) := &#x27;&#x27;;                   // Client 最近 HTTP 响应 Header。
+    sClientTxMessage            : STRING(GVL_Http.cnMaxMessageSize) := &#x27;&#x27;;                  // Client 最近一次发送报文。
+    sClientRxMessage            : STRING(GVL_Http.cnMaxMessageSize) := &#x27;&#x27;;                  // Client 最近一次接收报文。
+    udiClientRequestCount       : UDINT := 0;                                               // Client 累计请求数。
+    udiClientResponseCount      : UDINT := 0;                                               // Client 累计响应数。
+    udiClientConnectErrorCount  : UDINT := 0;                                               // Client 累计连接错误数。
+    udiClientProtocolErrorCount : UDINT := 0;                                               // Client 累计协议错误数。
+    bClientPassLatched          : BOOL := FALSE;                                            // Client 外部 server 联调通过锁存。
+    bOverallPassLatched         : BOOL := FALSE;                                            // Server 与 Client 双向联调均通过锁存。
+    bClientMatrixAutoEnable     : BOOL := FALSE;                                            // 真机矩阵自动运行开关，发布默认关闭，避免下载后自动访问外部网络。
+    bClientMatrixRun            : BOOL := FALSE;                                            // 真机矩阵运行命令，由自动开关或在线命令置位。
+    bClientMatrixDone           : BOOL := FALSE;                                            // 真机矩阵完成标志。
+    bClientMatrixPassed         : BOOL := FALSE;                                            // 真机矩阵全部通过标志。
+    bClientMatrixError          : BOOL := FALSE;                                            // 真机矩阵存在失败用例标志。
+    uiClientMatrixTotal         : UINT := 15;                                               // 真机矩阵用例总数。
+    uiClientMatrixPassed        : UINT := 0;                                                // 真机矩阵通过用例数。
+    uiClientMatrixFailed        : UINT := 0;                                                // 真机矩阵失败用例数。
+    uiClientMatrixCase          : UINT := 0;                                                // 真机矩阵当前用例序号。
+    uiClientMatrixStep          : UINT := 0;                                                // 真机矩阵内部步骤快照。
+    uiClientMatrixLastStatus    : UINT := 0;                                                // 最近一次 Client 响应状态码。
+    eClientMatrixLastError      : E_HttpError := E_HttpError.iNoError;                      // 最近一次 Client 协议栈错误码。
+    sClientMatrixCaseID         : STRING(48) := &#x27;&#x27;;                                         // 当前真机矩阵用例 ID。
+    sClientMatrixFailedCase     : STRING(48) := &#x27;&#x27;;                                         // 首个失败用例 ID。
+    sClientMatrixDiagMsg        : STRING(255) := &#x27;&#x27;;                                        // 真机矩阵诊断文本。
+END_VAR</code></pre></div>
+<h3 id="2-prg-httprealtest-st">完整源码 2：PRG_HttpRealTest.st</h3>
+<p>职责：真机测试执行程序</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : HTTP 真机联调旧入口兼容占位。
+/// 库依赖  : CAA Net Base Services
+PROGRAM PRG_HttpRealTest
+VAR
+END_VAR
+
+// === IMPLEMENTATION ===
+/// =======================================================================
+/// 名称      : PRG_HttpRealTest
+/// 功能      : 保留旧工程树对象名称，真实 Server/Client 联调入口已统一到 PLC_PRG。
+/// 库依赖    : CAA Net Base Services
+/// =======================================================================
+/// 使用说明  : 1. 本程序不再实例化 HTTP 功能块，不再处理发送、复位或中止命令。
+///           : 2. 在线联调请直接打开 PLC_PRG，操作 GVL_HttpRealTest 中的全局变量。
+/// =======================================================================
+// 兼容原因：当前 SmartControl CLI 删除 IEC 对象能力受限，保留空 PRG 可避免旧入口继续干扰在线联调。</code></pre></div>
+<h3 id="3-prg-httpcompiletouch-st">完整源码 3：PRG_HttpCompileTouch.st</h3>
+<p>职责：编译触达入口</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : HTTP 编译触达旧入口兼容占位。
+/// 库依赖  : CAA Net Base Services
+PROGRAM PRG_HttpCompileTouch
+VAR
+END_VAR
+
+// === IMPLEMENTATION ===
+/// =======================================================================
+/// 名称      : PRG_HttpCompileTouch
+/// 功能      : 保留旧工程树对象名称，当前 HTTP 对象由 PLC_PRG 中的完整功能块调用覆盖。
+/// 库依赖    : CAA Net Base Services
+/// =======================================================================
+/// 使用说明  : 1. 本程序不再实例化 Client、Server 或连接槽位功能块。
+///           : 2. 编译与联调以 PLC_PRG 为唯一用户入口。
+/// =======================================================================
+// 兼容原因：当前 SmartControl CLI 删除 IEC 对象能力受限，空 PRG 仅用于保持工程树兼容。</code></pre></div>
+<h3 id="4-plc-prg-st">完整源码 4：PLC_PRG.st</h3>
+<p>职责：PLC 周期装配入口</p>
+<div class="code-card"><small>iecst</small><pre><code>/// 功能    : HTTP 示例工程任务入口。
+/// 库依赖 : CAA Net Base Services
+PROGRAM PLC_PRG
+VAR
+    fbHttpClient        : FB_HttpClient;                                                       // HTTP Client 主实例。
+    fbHttpServer        : FB_HttpServer;                                                       // HTTP Server 主实例。
+    stClientMetrics     : ST_HttpClientMetrics;                                                // Client 指标输出。
+    stServerMetrics     : ST_HttpServerMetrics;                                                // Server 指标输出。
+    stClientResponse    : ST_HttpResponse;                                                     // Client 响应输出。
+    aServerSnapshots    : ARRAY[1..GVL_Http.cnMaxClientSlots] OF ST_HttpConnectionSnapshot;    // Server 连接快照。
+END_VAR
+
+// === IMPLEMENTATION ===
+/// =======================================================================
+/// 名称      : PLC_PRG
+/// 功能      : HTTP 示例工程主任务，直接完整调用 Client 和 Server 功能块。
+/// 库依赖    : CAA Net Base Services
+/// =======================================================================
+/// 使用说明  : 1. Client/Server 所有真实网络命令默认关闭，由 GVL_HttpRealTest 在线变量触发。
+///           : 2. 本主程序完整列出功能块引脚，便于 CODESYS/SmartControl 用户按引脚理解用法。
+/// =======================================================================
+// 工程说明：本段集中处理状态、边界或诊断，避免跨周期残留。
+// 约束：PLC_PRG 作为示例主入口直接调用 HTTP 功能块；用户联调不再依赖辅助 PRG。
+GVL_HttpRealTest.udiNowMs := GVL_HttpRealTest.udiNowMs + 10;
+
+IF GVL_HttpRealTest.bResetResults THEN
+    fbHttpServer.M_Reset();
+    fbHttpClient.M_Reset();
+    GVL_HttpRealTest.bClientSend := FALSE;
+    GVL_HttpRealTest.bClientAbort := FALSE;
+    GVL_HttpRealTest.bServerPassLatched := FALSE;
+    GVL_HttpRealTest.bClientPassLatched := FALSE;
+    GVL_HttpRealTest.bOverallPassLatched := FALSE;
+END_IF
+
+fbHttpServer(
+    xEnable              := GVL_HttpRealTest.bServerEnable,
+    xReset               := GVL_HttpRealTest.bResetResults,
+    xCloseConnection     := GVL_HttpRealTest.bServerCloseConnection,
+    bEnable              := GVL_HttpRealTest.bServerEnable,
+    sBindIP              := GVL_HttpRealTest.sServerBindIP,
+    uiPort               := GVL_HttpRealTest.uiServerPort,
+    uiResponseStatusCode := GVL_HttpRealTest.uiServerResponseStatusCode,
+    sResponseBody        := GVL_HttpRealTest.sServerResponseBody,
+    sResponseContentType := GVL_HttpRealTest.sServerResponseContentType,
+    sAdditionalHeader    := GVL_HttpRealTest.sServerAdditionalHeader,
+    udiNowMs             := GVL_HttpRealTest.udiNowMs,
+    xListening           =&gt; GVL_HttpRealTest.bServerListening,
+    xRunning             =&gt; GVL_HttpRealTest.bServerRunning,
+    xBusy                =&gt; GVL_HttpRealTest.bServerBusy,
+    xError               =&gt; GVL_HttpRealTest.bServerError,
+    bListening           =&gt; GVL_HttpRealTest.bServerListening,
+    bRunning             =&gt; GVL_HttpRealTest.bServerRunning,
+    bBusy                =&gt; GVL_HttpRealTest.bServerBusy,
+    bError               =&gt; GVL_HttpRealTest.bServerError,
+    diErrorID            =&gt; GVL_HttpRealTest.diServerErrorID,
+    sDiagMsg             =&gt; GVL_HttpRealTest.sServerDiagMsg,
+    eLastNbsError        =&gt; GVL_HttpRealTest.eServerLastNbsError,
+    eState               =&gt; GVL_HttpRealTest.eServerState,
+    eLastError           =&gt; GVL_HttpRealTest.eServerLastError,
+    stMetrics            =&gt; stServerMetrics,
+    uiActiveConnections  =&gt; GVL_HttpRealTest.uiServerActiveConnections,
+    uiLastErrorSlot      =&gt; GVL_HttpRealTest.uiServerLastErrorSlot,
+    uiLastRequestSlot    =&gt; GVL_HttpRealTest.uiServerLastRequestSlot,
+    sRequestTarget       =&gt; GVL_HttpRealTest.sServerLastTarget,
+    sRequestBody         =&gt; GVL_HttpRealTest.sServerLastBody,
+    sRxMessage           =&gt; GVL_HttpRealTest.sServerRxMessage,
+    sTxMessage           =&gt; GVL_HttpRealTest.sServerTxMessage,
+    sLastTarget          =&gt; GVL_HttpRealTest.sServerLastTarget,
+    sLastBody            =&gt; GVL_HttpRealTest.sServerLastBody,
+    hListenHandle        =&gt; GVL_HttpRealTest.hServerListenHandle,
+    aConnectionSnapshots =&gt; aServerSnapshots
+    );
+
+fbHttpClient(
+    xEnable           := GVL_HttpRealTest.bClientEnable,
+    xExecute          := GVL_HttpRealTest.bClientSend,
+    xReset            := GVL_HttpRealTest.bResetResults,
+    xAbort            := GVL_HttpRealTest.bClientAbort,
+    xCloseConnection  := GVL_HttpRealTest.bClientCloseConnection,
+    bEnable           := GVL_HttpRealTest.bClientEnable,
+    bSend             := GVL_HttpRealTest.bClientSend,
+    udiTimeOut        := GVL_HttpRealTest.udiClientTimeoutUs,
+    sURL              := GVL_HttpRealTest.sClientURL,
+    sServerIP         := GVL_HttpRealTest.sClientServerIP,
+    uiPort            := GVL_HttpRealTest.uiClientPort,
+    sHost             := GVL_HttpRealTest.sClientHost,
+    sPath             := GVL_HttpRealTest.sClientPath,
+    eRequestType      := GVL_HttpRealTest.eClientMethod,
+    eMethod           := GVL_HttpRealTest.eClientMethod,
+    sBody             := GVL_HttpRealTest.sClientBody,
+    sContentType      := GVL_HttpRealTest.sClientContentType,
+    sAdditionalHeader := GVL_HttpRealTest.sClientAdditionalHeader,
+    udiNowMs          := GVL_HttpRealTest.udiNowMs,
+    xActive           =&gt; GVL_HttpRealTest.bClientTcpConnected,
+    xConnected        =&gt; GVL_HttpRealTest.bClientTcpConnected,
+    xBusy             =&gt; GVL_HttpRealTest.bClientBusy,
+    xDone             =&gt; GVL_HttpRealTest.bClientDone,
+    xError            =&gt; GVL_HttpRealTest.bClientError,
+    bTcpConnected     =&gt; GVL_HttpRealTest.bClientTcpConnected,
+    bBusy             =&gt; GVL_HttpRealTest.bClientBusy,
+    bDone             =&gt; GVL_HttpRealTest.bClientDone,
+    bError            =&gt; GVL_HttpRealTest.bClientError,
+    diErrorID         =&gt; GVL_HttpRealTest.diClientErrorID,
+    sDiagMsg          =&gt; GVL_HttpRealTest.sClientDiagMsg,
+    eLastNbsError     =&gt; GVL_HttpRealTest.eClientLastNbsError,
+    eState            =&gt; GVL_HttpRealTest.eClientState,
+    eLastError        =&gt; GVL_HttpRealTest.eClientLastError,
+    uiStatusCode      =&gt; GVL_HttpRealTest.uiClientStatusCode,
+    sTxMessage        =&gt; GVL_HttpRealTest.sClientTxMessage,
+    sRxMessage        =&gt; GVL_HttpRealTest.sClientRxMessage,
+    sResponseBody     =&gt; GVL_HttpRealTest.sClientResponseBody,
+    sResponseHeader   =&gt; GVL_HttpRealTest.sClientResponseHeader,
+    stMetrics         =&gt; stClientMetrics,
+    stResponse        =&gt; stClientResponse
+    );
+
+IF GVL_HttpRealTest.bClientSend THEN
+    GVL_HttpRealTest.bClientSend := FALSE;
+END_IF
+
+IF GVL_HttpRealTest.bClientAbort THEN
+    GVL_HttpRealTest.bClientAbort := FALSE;
+END_IF
+
+IF GVL_HttpRealTest.bResetResults THEN
+    GVL_HttpRealTest.bResetResults := FALSE;
+END_IF
+
+GVL_HttpRealTest.udiServerAcceptedCount := stServerMetrics.udiAcceptedConnections;
+GVL_HttpRealTest.udiServerRequestCount := stServerMetrics.udiRequestCount;
+GVL_HttpRealTest.udiServerResponseCount := stServerMetrics.udiResponseCount;
+GVL_HttpRealTest.udiServerProtocolErrorCount := stServerMetrics.udiProtocolErrorCount;
+GVL_HttpRealTest.udiClientRequestCount := stClientMetrics.udiRequestCount;
+GVL_HttpRealTest.udiClientResponseCount := stClientMetrics.udiResponseCount;
+GVL_HttpRealTest.udiClientConnectErrorCount := stClientMetrics.udiConnectErrorCount;
+GVL_HttpRealTest.udiClientProtocolErrorCount := stClientMetrics.udiProtocolErrorCount;
+GVL_HttpRealTest.sClientReason := stClientResponse.sReason;
+
+IF (GVL_HttpRealTest.udiServerRequestCount &gt; 0)
+    AND (GVL_HttpRealTest.udiServerResponseCount &gt; 0)
+    AND NOT GVL_HttpRealTest.bServerError THEN
+    GVL_HttpRealTest.bServerPassLatched := TRUE;
+END_IF
+
+IF GVL_HttpRealTest.bClientDone
+    AND NOT GVL_HttpRealTest.bClientError
+    AND (GVL_HttpRealTest.uiClientStatusCode &gt;= 200)
+    AND (GVL_HttpRealTest.uiClientStatusCode &lt; 300) THEN
+    GVL_HttpRealTest.bClientPassLatched := TRUE;
+END_IF
+
+GVL_HttpRealTest.bOverallPassLatched := GVL_HttpRealTest.bServerPassLatched
+    AND GVL_HttpRealTest.bClientPassLatched;</code></pre></div>
+<h2 id="section-c25cdcf3">本篇阅读抓手</h2>
+<ul><li>真机参数集中管理。</li><li>编译触达防止对象未被工程引用。</li><li>PLC_PRG 是运行装配点而不是业务大杂烩。</li></ul>
+<h2 id="section-6bb3199c">如何验证这组源码</h2>
+<ol><li>先针对 <code>GVL_HttpRealTest.st</code> 的公开输入和错误出口建立确定性用例。</li><li>再把“真机参数集中管理”转成至少一个正常场景和一个失败场景。</li><li>本篇 4 个文件必须一起编译，避免只验证单个函数而漏掉数据结构或调用边界。</li><li>真机复核时重点观察“PLC_PRG 是运行装配点而不是业务大杂烩”，并保留对应状态、计数和原始报文。</li></ol>
+<h2 id="section-6f65a855">这一篇你最该记住</h2>
+<ul><li>真机参数集中管理。</li><li>编译触达防止对象未被工程引用。</li><li>PLC_PRG 是运行装配点而不是业务大杂烩。</li></ul>
+<h2 id="section-0fd034f8">系列导航</h2>
+<ul><li>系列：CodeSys HTTP 系列教程，第 26/28 篇。</li><li>当前源码加更：第 8/8 篇。</li><li>本篇完整源码文件数：4。</li><li>上一篇：第25篇</li><li>下一篇：第27篇</li></ul>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../codesys-http-source-update-07/index.html">
+                <small>上一篇 / 第25篇</small>
+                <strong>第25篇_源码加更 07｜127 项离线测试框架完整源码</strong>
+                <span>离线测试不依赖真实网络，集中验证 Parser、Builder、chunked、边界值和错误路径，为真机测试提供稳定底座。</span>
+              </a>
+              <a class="series-nav-card" href="../../index.html#articles-http">
+                <small>下一篇 / 系列入口</small>
+                <strong>返回 HTTP 文章中心</strong>
+                <span>回到文章中心，继续定位同系列文章和相关 HTTP 资料。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script src="../../content/site-data.js"></script>
+  <script>
+    (() => {
+      const articleNav = document.querySelector(".article-nav");
+      const articleSearchShell = document.getElementById("articleSearchShell");
+      const articleSearchButton = document.getElementById("articleSearchButton");
+      const articleSearchInput = document.getElementById("articleSiteSearch");
+      const articleSearchPanel = document.getElementById("articleSearchPanel");
+      const articleLangToggle = document.getElementById("articleLangToggle");
+      const articleMenuToggle = document.getElementById("articleMobileMenuToggle");
+      const articleMenuPanel = document.getElementById("articleMobileMenuPanel");
+      const articleTocToggle = document.querySelector(".article-toc-toggle");
+      const articleTocBody = document.getElementById("articleTocBody");
+      const homeHref = document.querySelector(".brand").getAttribute("href");
+      const siteData = window.CONTROLROOKIE_SITE_DATA || { articles: [], resources: [], products: [], contacts: [] };
+      let articleUiLang = "zh";
+      let articleSearchFilter = "all";
+
+      const uiText = {
+        zh: {
+          nav: ["关于我", "文章", "产品", "资源", "联系"],
+          back: "返回文章",
+          search: "搜索文章、资源、产品",
+          filters: { all: "全部", article: "文章", resource: "资源", product: "产品", contact: "联系" },
+          empty: "没有匹配结果。",
+          toc: "文章目录",
+          skip: "跳到文章正文",
+          searchButton: "搜索",
+          searchResults: "文章页搜索结果",
+          searchFilters: "搜索筛选",
+          menu: "文章移动主导航",
+          menuOpen: "打开主菜单",
+          menuClose: "关闭主菜单",
+          navLabel: "文章导航",
+          home: "ControlRookie 首页",
+          sections: "页面栏目",
+          breadcrumb: "文章路径",
+          tocLabel: "文章目录",
+          seriesNav: "系列导航",
+          scrollActions: "文章滚动快捷操作",
+          top: "回到文章顶端",
+          bottom: "跳到文章底端",
+        },
+        en: {
+          nav: ["About Me", "Articles", "Products", "Resources", "Contact"],
+          back: "Back to Articles",
+          search: "Search articles, resources, products",
+          filters: { all: "All", article: "Articles", resource: "Resources", product: "Products", contact: "Contact" },
+          empty: "No matching results.",
+          toc: "Article Contents",
+          skip: "Skip to article content",
+          searchButton: "Search",
+          searchResults: "Article search results",
+          searchFilters: "Search filters",
+          menu: "Article mobile navigation",
+          menuOpen: "Open primary menu",
+          menuClose: "Close primary menu",
+          navLabel: "Article navigation",
+          home: "ControlRookie home",
+          sections: "Sections",
+          breadcrumb: "Article path",
+          tocLabel: "Article contents",
+          seriesNav: "Series navigation",
+          scrollActions: "Article scroll shortcuts",
+          top: "Back to article top",
+          bottom: "Jump to article end",
+        },
+      };
+
+      const escapeSearchHtml = (value) => String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+      const localized = (value) => typeof value === "string" ? value : (value?.[articleUiLang] || value?.zh || "");
+      const resolveSearchHref = (href) => {
+        if (!href) return homeHref;
+        if (/^https?:\/\//.test(href) || href.startsWith("mailto:")) return href;
+        const homeUrl = new URL(homeHref, window.location.href);
+        if (href.startsWith("#")) return `${homeUrl.href.split("#")[0]}${href}`;
+        return new URL(href, homeUrl).href;
+      };
+      const articleSearchItems = [
+        ...siteData.articles.map((item) => ({ ...item, group: "article" })),
+        ...siteData.resources.map((item) => ({ ...item, group: "resource" })),
+        ...siteData.products.map((item) => ({ ...item, group: "product" })),
+        ...siteData.contacts.map((item) => ({ ...item, group: "contact" })),
+      ];
+
+      const closeArticleSearch = (restoreFocus = false) => {
+        articleSearchShell.classList.remove("open");
+        articleSearchPanel.classList.remove("visible");
+        articleSearchPanel.hidden = true;
+        articleSearchPanel.inert = true;
+        articleNav.classList.remove("search-active");
+        articleSearchButton.setAttribute("aria-expanded", "false");
+        if (restoreFocus) articleSearchButton.focus();
+      };
+      const closeArticleMenu = (restoreFocus = false) => {
+        articleMenuPanel.hidden = true;
+        articleMenuToggle.setAttribute("aria-expanded", "false");
+        articleMenuToggle.setAttribute("aria-label", uiText[articleUiLang].menuOpen);
+        if (restoreFocus) articleMenuToggle.focus();
+      };
+      const closeArticleToc = (restoreFocus = false) => {
+        articleTocToggle.setAttribute("aria-expanded", "false");
+        if (restoreFocus) articleTocToggle.focus();
+      };
+
+      const renderArticleSearch = () => {
+        const query = articleSearchInput.value.trim().toLowerCase();
+        const filters = uiText[articleUiLang].filters;
+        const matches = articleSearchItems.filter((item) => {
+          if (articleSearchFilter !== "all" && item.group !== articleSearchFilter) return false;
+          if (!query) return true;
+          return JSON.stringify(item).toLowerCase().includes(query);
+        }).slice(0, 18);
+        const filterBar = `<div class="search-filter-bar" role="tablist" aria-label="${escapeSearchHtml(uiText[articleUiLang].searchFilters)}">${Object.entries(filters).map(([key, label]) => `<button type="button" role="tab" aria-selected="${articleSearchFilter === key}" class="${articleSearchFilter === key ? "active" : ""}" data-article-search-filter="${key}">${escapeSearchHtml(label)}</button>`).join("")}</div>`;
+        const results = matches.length
+          ? matches.map((item) => `<a class="search-result" href="${escapeSearchHtml(resolveSearchHref(item.searchHref || item.href))}"><span class="search-result-type">${escapeSearchHtml(filters[item.group] || item.group)}</span><strong>${escapeSearchHtml(localized(item.title))}</strong></a>`).join("")
+          : `<div class="search-empty">${escapeSearchHtml(uiText[articleUiLang].empty)}</div>`;
+        articleSearchPanel.innerHTML = `${filterBar}<div class="search-results">${results}</div>`;
+        articleSearchPanel.hidden = false;
+        articleSearchPanel.inert = false;
+        articleSearchShell.classList.add("open");
+        articleSearchPanel.classList.add("visible");
+        articleNav.classList.add("search-active");
+        articleSearchButton.setAttribute("aria-expanded", "true");
+      };
+
+      const applyArticleUiLanguage = (lang) => {
+        articleUiLang = lang;
+        document.querySelectorAll(".article-nav .nav-links a").forEach((node, index) => {
+          node.textContent = uiText[lang].nav[index];
+        });
+        document.querySelectorAll("[data-article-nav]").forEach((node, index) => {
+          node.textContent = uiText[lang].nav[index];
+        });
+        document.querySelectorAll(".article-back, .article-menu-back").forEach((node) => {
+          node.textContent = uiText[lang].back;
+        });
+        articleSearchInput.placeholder = uiText[lang].search;
+        articleSearchInput.setAttribute("aria-label", uiText[lang].search);
+        document.querySelector(".skip-link").textContent = uiText[lang].skip;
+        articleNav.setAttribute("aria-label", uiText[lang].navLabel);
+        document.querySelector(".brand").setAttribute("aria-label", uiText[lang].home);
+        document.querySelector(".article-nav .nav-links").setAttribute("aria-label", uiText[lang].sections);
+        articleSearchButton.setAttribute("aria-label", uiText[lang].searchButton);
+        articleSearchPanel.setAttribute("aria-label", uiText[lang].searchResults);
+        articleMenuPanel.setAttribute("aria-label", uiText[lang].menu);
+        articleMenuToggle.setAttribute("aria-label", articleMenuToggle.getAttribute("aria-expanded") === "true" ? uiText[lang].menuClose : uiText[lang].menuOpen);
+        document.querySelector(".article-breadcrumb").setAttribute("aria-label", uiText[lang].breadcrumb);
+        document.querySelector(".article-toc").setAttribute("aria-label", uiText[lang].tocLabel);
+        document.querySelector(".article-series-nav").setAttribute("aria-label", uiText[lang].seriesNav);
+        document.querySelector(".article-scroll-actions").setAttribute("aria-label", uiText[lang].scrollActions);
+        document.querySelector('.article-scroll-actions a[href="#article-top"]').setAttribute("aria-label", uiText[lang].top);
+        document.querySelector('.article-scroll-actions a[href="#article-end"]').setAttribute("aria-label", uiText[lang].bottom);
+        articleTocToggle.querySelector("span").textContent = uiText[lang].toc;
+        articleLangToggle.textContent = lang === "zh" ? "EN" : "中";
+        articleLangToggle.setAttribute("aria-label", lang === "zh" ? "Switch navigation to English" : "切换导航为中文");
+        if (articleSearchPanel.classList.contains("visible")) renderArticleSearch();
+      };
+
+      articleSearchButton.addEventListener("click", () => {
+        closeArticleMenu();
+        articleSearchInput.focus();
+        renderArticleSearch();
+      });
+      articleSearchInput.addEventListener("input", renderArticleSearch);
+      articleSearchPanel.addEventListener("click", (event) => {
+        const filter = event.target.closest("[data-article-search-filter]");
+        if (!filter) return;
+        event.preventDefault();
+        articleSearchFilter = filter.dataset.articleSearchFilter || "all";
+        renderArticleSearch();
+      });
+      articleLangToggle.addEventListener("click", () => applyArticleUiLanguage(articleUiLang === "zh" ? "en" : "zh"));
+      articleMenuToggle.addEventListener("click", () => {
+        if (articleMenuToggle.getAttribute("aria-expanded") === "true") {
+          closeArticleMenu(true);
+          return;
+        }
+        closeArticleSearch();
+        articleMenuPanel.hidden = false;
+        articleMenuToggle.setAttribute("aria-expanded", "true");
+        articleMenuToggle.setAttribute("aria-label", uiText[articleUiLang].menuClose);
+      });
+      articleMenuPanel.addEventListener("click", (event) => {
+        if (event.target.closest("a")) closeArticleMenu();
+      });
+      articleTocToggle.addEventListener("click", () => {
+        const expanded = articleTocToggle.getAttribute("aria-expanded") === "true";
+        articleTocToggle.setAttribute("aria-expanded", expanded ? "false" : "true");
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        if (articleSearchPanel.classList.contains("visible")) {
+          closeArticleSearch(true);
+          return;
+        }
+        if (articleMenuToggle.getAttribute("aria-expanded") === "true") {
+          closeArticleMenu(true);
+          return;
+        }
+        if (articleTocToggle.getAttribute("aria-expanded") === "true" && window.innerWidth <= 1040) {
+          closeArticleToc(true);
+        }
+      });
+      document.addEventListener("click", (event) => {
+        if (!articleSearchShell.contains(event.target) && !articleSearchPanel.contains(event.target)) closeArticleSearch();
+        if (!articleMenuToggle.contains(event.target) && !articleMenuPanel.contains(event.target)) closeArticleMenu();
+      });
+      window.addEventListener("resize", () => {
+        if (window.innerWidth >= 1041) {
+          closeArticleMenu();
+          closeArticleToc();
+        }
+      });
+      applyArticleUiLanguage("zh");
+
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", (event) => {
+          const id = decodeURIComponent(link.hash.slice(1));
+          const target = document.getElementById(id);
+          if (!target) return;
+          event.preventDefault();
+          window.history.pushState(null, "", link.hash);
+          const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+          const targetTop = target.getBoundingClientRect().top + window.scrollY - navHeight - 28;
+          window.scrollTo({ top: Math.max(0, targetTop), behavior: "instant" });
+          if (window.innerWidth <= 1040) closeArticleToc();
+          if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+          target.focus({ preventScroll: true });
+          updateActiveToc();
+        });
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

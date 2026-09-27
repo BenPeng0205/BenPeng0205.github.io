@@ -1361,6 +1361,28 @@
       "path": "articles/codesys-http-source-update-07/index.html",
       "contentId": "codesys-http-25",
       "source": "第25篇_源码加更 07｜127 项离线测试框架完整源码.md"
+    },
+    {
+      "id": "codesys-http-source-update-08",
+      "title": "第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序",
+      "series": "CodeSys HTTP 系列教程",
+      "category": "工业通信",
+      "categoryKey": "industrial-communication",
+      "topicKey": "http",
+      "topic": "HTTP",
+      "folder": "源码加更",
+      "kind": "源码加更",
+      "summary": "最后一组源码把公共内核、Server、Client、离线测试和真机测试装配到周期任务中，形成可复现工程入口。",
+      "date": "2026-09-28",
+      "tags": [
+        "HTTP",
+        "CodeSys",
+        "PLC通信",
+        "ControlRookie"
+      ],
+      "path": "articles/codesys-http-source-update-08/index.html",
+      "contentId": "codesys-http-26",
+      "source": "第26篇_源码加更 08｜真机测试、编译入口和 PLC 主程序.md"
     }
   ]
 }
