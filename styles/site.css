@@ -2242,6 +2242,27 @@
       transform: scale(0.98);
     }
 
+    .syncbridge-purchase-action a.syncbridge-media-link {
+      gap: 9px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--link);
+      font-weight: 400;
+    }
+
+    .syncbridge-purchase-action a.syncbridge-media-link:hover,
+    .syncbridge-purchase-action a.syncbridge-media-link:focus-visible {
+      border-color: var(--line-strong);
+      background: var(--soft);
+      color: var(--link);
+    }
+
+    .syncbridge-media-link i {
+      font-size: 15px;
+      font-style: normal;
+      line-height: 1;
+    }
+
     .syncbridge-faq-section .syncbridge-section-head {
       margin-bottom: 24px;
     }
@@ -3169,7 +3190,7 @@
 
     .contact-shell {
       min-height: min(752px, calc(100vh - var(--nav-height) - (var(--content-frame-gap) * 2)));
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(320px, 0.92fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(280px, 0.92fr);
       /* 保留原有二维码纵向坐标；第二行仅保留不可见的版式留白。 */
       grid-template-rows: 310px 88px 326px;
       align-content: start;
@@ -3182,7 +3203,7 @@
     }
 
     .contact-statement {
-      grid-column: 1 / span 2;
+      grid-column: 1 / span 3;
       min-height: 310px;
       padding: 0 clamp(8px, 1.2vw, 14px) 18px 0;
       display: flex;
@@ -3222,7 +3243,7 @@
     }
 
     .contact-visual-card {
-      grid-column: 3;
+      grid-column: 4;
       grid-row: 1;
       position: relative;
       min-height: 310px;
@@ -3290,7 +3311,7 @@
     }
 
     .contact-link-stack {
-      grid-column: 3;
+      grid-column: 4;
       grid-row: 3;
       height: 326px;
       display: grid;
@@ -3387,8 +3408,13 @@
       grid-row: 3;
     }
 
-    .contact-shell > .qr-card:not(.contact-wechat-card) {
+    .contact-official-card {
       grid-column: 2;
+      grid-row: 3;
+    }
+
+    .contact-bilibili-card {
+      grid-column: 3;
       grid-row: 3;
     }
 
@@ -3401,6 +3427,24 @@
       background: #fff;
       object-fit: contain;
       align-self: flex-start;
+    }
+
+    /* B站提供的是完整二维码海报；网页仅裁切显示原始二维码区域，不重绘二维码。 */
+    .bilibili-qr-slot {
+      position: relative;
+      display: block;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .bilibili-qr-slot img {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 167%;
+      max-width: none;
+      height: auto;
+      transform: translate(-50%, -50%);
     }
 
     .footer {
@@ -4267,7 +4311,7 @@
 
     /* 联系页布局：上方横向主卡，下方二维码和文字联系方式卡。 */
       .contact-shell {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         grid-template-rows: auto;
         min-height: auto;
       }
@@ -4300,7 +4344,8 @@
       }
 
       .contact-wechat-card,
-      .contact-shell > .qr-card:not(.contact-wechat-card) {
+      .contact-official-card,
+      .contact-bilibili-card {
         grid-column: auto;
         grid-row: auto;
       }

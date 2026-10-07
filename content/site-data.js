@@ -477,6 +477,10 @@ window.CONTROLROOKIE_SITE_DATA = {
         zh: { label: "商业授权 · V1.4.1", price: "联系开发者获取报价", policy: "按实际使用场景确认授权方案；V1.x 免费升级，V2.0 付费升级。", cta: "联系开发者", channel: "官网是唯一购买、激活申请和支持渠道" },
         en: { label: "Commercial license · V1.4.1", price: "Contact the developer for pricing", policy: "Licensing is quoted for the actual usage scenario; V1.x updates are included and V2.0 is a paid upgrade.", cta: "Contact the developer", channel: "The official website is the only purchase, activation, and support channel" },
       },
+      media: {
+        zh: { cta: "B站 · 查看产品演示与更新", url: "https://space.bilibili.com/171968915" },
+        en: { cta: "Bilibili · Product demos and updates", url: "https://space.bilibili.com/171968915" },
+      },
       faq: {
         zh: [
           { question: "使用时必须一直联网吗？", answer: "首次激活和周期性授权复核需要联网；正常工程操作不是每次都要求实时联网。" },
@@ -521,6 +525,14 @@ window.CONTROLROOKIE_SITE_DATA = {
       copy: { zh: "微信公众号二维码", en: "Official account QR code" },
       href: "#contact",
       keywords: "WeChat official account ControlRookie 公众号",
+    },
+    {
+      id: "bilibili",
+      type: { zh: "联系", en: "Contact" },
+      title: { zh: "B站 ControlRookie", en: "Bilibili ControlRookie" },
+      copy: { zh: "产品演示、工程实践和视频更新", en: "Product demos, engineering practice, and video updates" },
+      href: "https://space.bilibili.com/171968915",
+      keywords: "B站 Bilibili ControlRookie UID 171968915 视频 自媒体 product demo",
     },
     {
       id: "csdn-blog",
