@@ -2134,6 +2134,106 @@
         "production_publish": false
       },
       "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-cr-st-expert",
+      "operation": "upsert",
+      "content_type": "product",
+      "content_id": "cr-st-expert",
+      "slug": "cr-st-expert",
+      "title": "cr-st-expert：一本给 AI 看的《企业级ST标准化编程规范手册》",
+      "summary": "一本给 AI 看的企业级 ST 标准化编程规范手册。",
+      "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\cr-st-expert\\introduction.md",
+      "content_hash": "b7f93237d58e5ffbcef95f93434fa6751bae5ab872ab0bcd01a2dbaf7eef800e",
+      "publish_at": "2026-10-13T19:08:00+08:00",
+      "authorization": {
+        "production_publish": false
+      },
+      "assets": [
+        {
+          "kind": "cover",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\cr-st-expert\\assets\\covers\\st-expert\\cover-cr-st-expert.png",
+          "filename": "cover-cr-st-expert.png",
+          "sha256": "65fd88beb71bdc7ee0b07ac76aeb5fc72230a44f703c01c0b7f9b2eb5b55adda"
+        }
+      ],
+      "product": {
+        "name_zh": "ST Expert",
+        "name_en": "ST Expert",
+        "description_zh": "一本给 AI 看的企业级 ST 标准化编程规范手册。",
+        "description_en": "Engineering standards for AI-assisted Structured Text programming.",
+        "full_introduction": true,
+        "status": {
+          "zh": "开源",
+          "en": "Open source"
+        },
+        "access": {
+          "zh": "GitHub",
+          "en": "GitHub"
+        },
+        "keywords": "ST Expert CODESYS ST AI cr-st-expert"
+      },
+      "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-cr-st-graph",
+      "operation": "upsert",
+      "content_type": "product",
+      "content_id": "cr-st-graph",
+      "slug": "cr-st-graph",
+      "title": "cr-st-graph：一张给 AI 看的《CODESYS工程代码图谱》",
+      "summary": "一张给 AI 看的 CODESYS 工程代码图谱。",
+      "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\cr-st-graph\\introduction.md",
+      "content_hash": "c18f0c1feac763a7de5cfbb3700ea298432964b08d9eaaa6d6cc1db3933c32d3",
+      "publish_at": "2026-10-13T19:08:00+08:00",
+      "authorization": {
+        "production_publish": false
+      },
+      "assets": [
+        {
+          "kind": "cover",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\cr-st-graph\\assets\\covers\\st-graph\\cover-cr-st-graph.png",
+          "filename": "cover-cr-st-graph.png",
+          "sha256": "2a7c5273518b9fb2c9a3bd69bb6b85485cac4339d077cac1a2b0d306ad8c154b"
+        },
+        {
+          "kind": "image",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\cr-st-graph\\assets\\01-codegraph-network.png",
+          "filename": "01-codegraph-network.png",
+          "sha256": "c67af855270980e3b31354217238795268ac3657c76590a0d3d26c2df61de031"
+        },
+        {
+          "kind": "image",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\cr-st-graph\\assets\\02-st-network.png",
+          "filename": "02-st-network.png",
+          "sha256": "9f674577989c709fbbf3ecd9ab4ba691a79d16ac7b214ffba376894f8a97a233"
+        },
+        {
+          "kind": "image",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\cr-st-graph\\assets\\03-tool-workflow.png",
+          "filename": "03-tool-workflow.png",
+          "sha256": "13ab6c1815b5cccb8ebcc30cd0caa340c4448734ab8154c33c050b50f193a670"
+        }
+      ],
+      "product": {
+        "name_zh": "ST Graph",
+        "name_en": "ST Graph",
+        "description_zh": "一张给 AI 看的 CODESYS 工程代码图谱。",
+        "description_en": "A CODESYS code graph for AI-assisted engineering.",
+        "full_introduction": true,
+        "status": {
+          "zh": "开源",
+          "en": "Open source"
+        },
+        "access": {
+          "zh": "GitHub",
+          "en": "GitHub"
+        },
+        "keywords": "ST Graph CODESYS ST AI cr-st-graph"
+      },
+      "_renderer_version": "2026-07-15.3"
     }
   ]
 }

@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>cr-st-graph：一张给 AI 看的《CODESYS工程代码图谱》 | ControlRookie</title>
+  <meta name="description" content="一张给 AI 看的 CODESYS 工程代码图谱。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#1d1d1f">
+  <link rel="canonical" href="https://benpeng0205.github.io/products/cr-st-graph/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="cr-st-graph：一张给 AI 看的《CODESYS工程代码图谱》">
+  <meta property="og:description" content="一张给 AI 看的 CODESYS 工程代码图谱。">
+  <meta property="og:url" content="https://benpeng0205.github.io/products/cr-st-graph/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="cr-st-graph：一张给 AI 看的《CODESYS工程代码图谱》">
+  <meta name="twitter:description" content="一张给 AI 看的 CODESYS 工程代码图谱。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions article-nav-actions">
+        <div class="search-shell article-search-shell article-mobile-control" id="articleSearchShell">
+          <button class="search-icon" id="articleSearchButton" type="button" aria-label="搜索" aria-expanded="false" aria-controls="articleSearchPanel">
+            <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M10.8 18.1a7.3 7.3 0 1 1 0-14.6 7.3 7.3 0 0 1 0 14.6Zm5.2-2.1 4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <input class="search-input" id="articleSiteSearch" type="search" placeholder="搜索文章、资源、产品" autocomplete="off" aria-label="搜索文章、资源、产品">
+        </div>
+        <button class="lang-toggle article-lang-toggle article-mobile-control" id="articleLangToggle" type="button" aria-label="Switch navigation to English">EN</button>
+        <button class="mobile-menu-toggle article-mobile-menu-toggle article-mobile-control" id="articleMobileMenuToggle" type="button" aria-label="打开主菜单" aria-expanded="false" aria-controls="articleMobileMenuPanel">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+        <a class="article-back" href="../../index.html#products">返回产品</a>
+      </div>
+      <div class="search-panel article-search-panel" id="articleSearchPanel" aria-label="文章页搜索结果" role="region" hidden inert></div>
+      <nav class="mobile-menu-panel article-mobile-menu-panel" id="articleMobileMenuPanel" aria-label="文章移动主导航" hidden>
+        <a class="article-menu-back" href="../../index.html#products">返回产品</a>
+        <a href="../../index.html#about" data-article-nav>关于我</a>
+        <a href="../../index.html#articles" data-article-nav>文章</a>
+        <a href="../../index.html#products" data-article-nav>产品</a>
+        <a href="../../index.html#works" data-article-nav>资源</a>
+        <a href="../../index.html#contact" data-article-nav>联系</a>
+      </nav>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <nav class="article-breadcrumb" id="article-top" aria-label="产品路径"><a href="../../index.html#products">产品中心</a><span>/</span><a href="../../index.html#products">工程工具</a><span>/</span><span>ST Graph</span></nav>
+          <header class="article-hero">
+            <h1>cr-st-graph：一张给 AI 看的《CODESYS工程代码图谱》</h1>
+            <div class="article-meta">
+              <span>2026-10-13</span>
+              <span>约 9 分钟阅读</span>
+              <span>产品介绍</span>
+            </div>
+            <p class="article-summary">一张给 AI 看的 CODESYS 工程代码图谱。</p>
+          </header>
+          <aside class="article-toc" aria-label="文章目录">
+            <button class="article-toc-toggle" type="button" aria-expanded="false" aria-controls="articleTocBody">
+              <span>文章目录</span>
+              <em aria-hidden="true">+</em>
+            </button>
+            <div class="article-toc-body" id="articleTocBody">
+              <strong>目录</strong>
+              <ol><li><a href="#ai-codegraph">AI 会写代码，为什么还需要 CodeGraph？</a></li><li><a href="#codesys">这套方法，不正适合 CODESYS 工程吗？</a></li><li><a href="#st-graph">因此，我做了 ST Graph</a></li><li><a href="#ai-st-graph">用 AI 改程序，ST Graph 能帮什么忙？</a></li><li><a href="#section-149ff1a4">改一个电机功能块，哪些地方要一起检查？</a></li><li><a href="#section-067251f8">用起来以后，工程师能省下什么？</a></li><li><a href="#ai">怎么用？先让 AI 真正建图，再开始修改</a></li><li><a href="#st-expert-syncbridge">和 ST Expert、SyncBridge 怎样搭配？</a></li><li><a href="#section-e27fa269">把工程关系留下来，让下一次修改有路可走</a></li><li><a href="#section-0fd034f8">系列导航</a></li></ol>
+            </div>
+          </aside>
+          <div class="article-main">
+            <div class="article-content">
+              <p>做 cr-st-graph 的启发，来自 <a href="https://github.com/colbymchenry/codegraph" target="_blank" rel="noreferrer">CodeGraph</a> 这类开源代码图谱项目。我必须承认，最早我完全是被<a href="https://github.com/Graphify-Labs/graphify" target="_blank" rel="noreferrer">Graphify</a>、<a href="https://github.com/colbymchenry/codegraph" target="_blank" rel="noreferrer">CodeGraph</a>这类工具超高的星标数先吸引，进而才关注了解，关注让我产生了一个问题：</p>
+<p><strong>AI 写 Python、Java、C++ 已经很厉害了，为什么大家还需要这些帮助 AI 理解代码的工具？</strong></p>
+<figure><img src="../../assets/products/cr-st-graph/cover-cr-st-graph.png" alt="cr-st-graph：一张给 AI 看的《CODESYS工程代码图谱》"><figcaption>cr-st-graph：一张给 AI 看的《CODESYS工程代码图谱》</figcaption></figure>
+<h2 id="ai-codegraph">AI 会写代码，为什么还需要 CodeGraph？</h2>
+<p>让 AI 写一个函数，或者修改一段已经给出的代码，它可以直接开始分析。可面对一个具体项目，它还要先找到相关文件、查清调用、认准变量，再判断修改会影响哪里。</p>
+<p>这些信息本来就在代码里，但分散在不同文件中。AI 需要搜索、打开、追踪，才能把它们串起来。<strong>今天修改一个功能，明天调整另一段逻辑，相同的程序关系还可能再查一次</strong>。</p>
+<p><strong>一个工程师会写程序，接手陌生工程时也要翻项目、查变量、追调用。AI 同样需要先把这个工程摸清楚。</strong></p>
+<p>CodeGraph 的方法，可以用四个动作说明：</p>
+<ol><li><strong>认对象。</strong> 读源码，找出函数、方法、类型等对象，以及它们的位置。</li><li><strong>查联系。</strong> 整理谁调用谁、谁依赖什么，把跨文件的联系连起来。</li><li><strong>留下来。</strong> 将这些关系存成本地可查询的图谱，下一次继续用。</li><li><strong>跟着改。</strong> 源码变化以后更新图谱，让后续查询对应当前代码。</li></ol>
+<p>AI 再遇到任务，可以先问：“谁调用这个方法？”“改这个对象要检查哪些地方？”工具把相关对象和位置找出来，AI 再阅读需要的代码。</p>
+<p><strong>CodeGraph 把散落在文件里的联系提前整理好。下一次修改，AI 先查路，再看程序，少做重复查找。</strong></p>
+<p>把这些关系画出来，对象是一个个点，调用和依赖是连接它们的线。但 AI 实际使用的是查询结果、对象名和源码位置，具体控制逻辑仍然要看代码。</p>
+<p><strong>代码告诉 AI“这一段怎样工作”；图谱先告诉 AI“该看哪几段，它们怎样联系”。</strong></p>
+<h2 id="codesys">这套方法，不正适合 CODESYS 工程吗？</h2>
+<p>研究到这里，我突然想到：这套思维和方法，不正适合 CODESYS 的 ST 工程吗？</p>
+<p>我们在 IDE 里习惯从项目树打开主程序、功能块、方法和全局变量表。可是准备修改一台泵的启动条件时，问题会超出项目树：哪个程序调用泵功能块？实例属于哪种类型？启动允许在哪里写入？自动和手动是不是都在读取它？</p>
+<p>项目树把对象放得整齐，这些横跨不同程序的联系，还要进入代码继续查。</p>
+<p><strong>项目树方便我们找到程序放在哪里；代码图谱进一步串起谁调用它、谁使用它、哪些地方读写同一个变量。</strong></p>
+<figure><img src="../../assets/products/cr-st-graph/01-codegraph-network.png" alt="项目树、工程关系网与本次阅读范围：AI沿关系找到相关程序"><figcaption>项目树、工程关系网与本次阅读范围：AI沿关系找到相关程序</figcaption></figure>
+<p><strong>读图重点：</strong> 从左边的工程对象进入中间的关系网。需要修改启动允许时，沿写入和读取关系找到联锁、自动、手动程序，右边就得到这次应当阅读和复查的对象。工程里其他程序仍在图谱中，可以按任务继续查。</p>
+<p>就像电气图把端子和接线标清楚，代码图谱把程序和变量的联系标清楚。你不会因为会接线，就省掉查电气图；同样，AI 会写 ST，也值得有一张能查工程关系的图。</p>
+<h2 id="st-graph">因此，我做了 ST Graph</h2>
+<p>我基于 CodeGraph 做二次开发，沿用源码解析、对象索引、关系查询、本地保存和同步这些核心机制，再围绕 CODESYS ST 补充专门规则。</p>
+<p>CODESYS 的程序、功能块实例、方法、属性、枚举、继承和全局变量访问都有自己的写法。同名方法到底属于哪个功能块，一个实例实际调用什么对象，变量是读取还是写入，需要结合声明和所属范围来判断。</p>
+<p>这些关系整理好以后，就是 <strong>st-graph——一张给 AI 看的《CODESYS工程代码图谱》</strong>。</p>
+<p>它帮助 AI 在修改之前找到相关程序，在修改之后复查关联；图谱保存在本机，后续任务更新后继续使用。</p>
+<p>上一篇的 cr-st-expert，是一本给 AI 看的《企业级 ST 标准化编程规范手册》。两者的分工很清楚：<strong>ST Expert 告诉 AI 怎样按规范写，ST Graph 帮它找到这次该看、该改、该检查的程序。</strong></p>
+<h2 id="ai-st-graph">用 AI 改程序，ST Graph 能帮什么忙？</h2>
+<h3 id="section-38aa40ee">改一处，先把相关程序找齐</h3>
+<p>你要改泵的启动条件，AI 先查调用方、实例类型和变量读写，再阅读相关源码。需要检查自动步序还是手动操作，可以沿关系继续找。</p>
+<p><strong>先找齐这台设备相关的程序，再动手改，少在工程里来回翻。</strong></p>
+<h3 id="section-d7ee8a32">同名方法很多，先认清是哪一个</h3>
+<p>几个功能块里都可能有 <code>M_Update</code>。仅搜名字，容易把不同设备的程序混在一起。图谱结合实例声明和所属功能块查关系，帮助 AI 定位实际调用；不能确认的关系会留下待核对项。</p>
+<p><strong>先确认是哪台设备、哪个实例、哪个方法，再分析逻辑。</strong></p>
+<h3 id="section-e870b9c4">一个工程反复改，已有关系接着用</h3>
+<p>今天改报警，明天调步序，后天加手动功能，已经整理好的关系可以继续查询。新任务开始前先更新图谱，再查本次涉及的程序。</p>
+<p><strong>把查清工程的成果留下来，下一轮接着用，少做重复准备。</strong></p>
+<h3 id="section-0e185422">改完以后，沿关系再查一遍</h3>
+<p>方法改名，要查调用方；全局变量变更，要查读写位置。修改后更新图谱，核对相关程序有没有一起调整，再完成相应验证。</p>
+<p><strong>改当前程序，也要检查使用它的程序；关系能回到源码核对，审查才有依据。</strong></p>
+<h2 id="section-149ff1a4">改一个电机功能块，哪些地方要一起检查？</h2>
+<p>假设一套输送设备有三台电机：上料、转运、出料。它们各有自己的实例，但共用同一个 <code>FB_MotorControl</code> 功能块。</p>
+<p>现在要让 AI 完成一个修改：<strong>把原来统一的启动超时时间，改成每台电机可以单独设置。</strong></p>
+<p>修改功能块本身并不难。真正需要查清的是：这个功能块用在了哪些地方？每台电机在哪里调用？参数要在哪里设置？改完以后还要检查哪些程序？</p>
+<h3 id="section-a8e94644">先查关系，把相关程序找齐</h3>
+<p>ST Graph 帮助 AI 顺着工程关系找到：</p>
+<ul><li>三台电机分别使用哪个实例。</li><li>自动、手动程序在哪里调用这些实例。</li><li>哪些程序读取它们的运行状态和故障信息。</li></ul>
+<figure><img src="../../assets/products/cr-st-graph/02-st-network.png" alt="一个电机功能块、三个实例，以及调用和读取它们的程序"><figcaption>一个电机功能块、三个实例，以及调用和读取它们的程序</figcaption></figure>
+<p><strong>读图重点：</strong> 从 <code>FB_MotorControl</code> 找到上料、转运、出料三个实例，再沿关系查自动、手动的调用位置，以及报警、状态汇总的读取位置。三台电机的参数要分别落实，使用输出的程序也要一起核对。</p>
+<p><strong>先查清“谁在使用它”，再决定修改和检查范围。</strong></p>
+<h3 id="section-7eaaaf71">再改代码，把参数落实到每台电机</h3>
+<p>AI 阅读这些相关代码，给功能块增加超时设置参数，再核对三台电机的调用位置，让各自的设置传进去。</p>
+<p>报警和状态汇总程序也需要检查，但不一定需要修改。如果功能块的输出没有改变，就核对原来的使用方式是否仍然成立。</p>
+<p><strong>图谱帮助找齐关联，AI 结合代码判断：哪里要改，哪里只需检查。</strong></p>
+<h3 id="section-b27da44b">后续修改，已有关系继续用</h3>
+<p>这次改超时设置，下一次完善故障复位，再下一次调整报警信息，仍然是同一个工程、同一组电机。</p>
+<p>每轮修改前更新图谱，AI 就能沿已有关系查找本次相关程序；修改后，再沿这些关系复查。</p>
+<p><strong>ST Graph 的价值，是让 AI 少花时间摸工程，少读无关代码，少遗漏相关程序。工程持续完善，已经查清的关系也能持续复用。</strong></p>
+<h2 id="section-067251f8">用起来以后，工程师能省下什么？</h2>
+<h3 id="token-ai">少花 token，少让 AI 重读无关程序</h3>
+<p>token 是模型处理文字和代码的计量单位。每次把大段无关程序交给 AI，同样会占用阅读额度。先用图谱找相关对象，再读必要源码，可以减少不相关内容进入对话，也减少反复查找和解释。</p>
+<p>建图和更新在本机执行，不调用大模型。跨文件关系变化时，工具可能重新解析较大范围的 ST；这些本地处理不等于再次把整个工程发给 AI。</p>
+<p><strong>让 AI 少读无关程序，把使用额度留给这次真正要改的逻辑。</strong></p>
+<h3 id="section-803f495a">少等它翻工程，更快开始讨论控制逻辑</h3>
+<p>调用方、变量来源和功能块类型有了查询入口，AI 就有阅读顺序。工程师可以少重复解释“方法在那个功能块里”“变量还有另一处在写”，更早进入启动条件、状态转换和报警处理的讨论。</p>
+<p><strong>少替 AI 指路，少等它重新找程序，尽快处理实际问题。</strong></p>
+<h3 id="section-7a874cba">少漏关联程序，改动和交接都更好核对</h3>
+<p>查调用，能找到使用当前对象的程序；查变量读写，能找到输入来源和写入位置。审核 AI 的改动、接手旧工程时，都可以从这些联系开始，再结合业务资料看具体逻辑。</p>
+<p><strong>改动有检查范围，交接有追查线索，判断能落回源码。</strong></p>
+<h3 id="section-8a33c6cf">同一个工程，下一次还能继续用</h3>
+<p>图谱保存在本机，源码解析和查询无需联网。它可以供后续对话继续使用，前提是代码修改后及时更新，AI 也实际调用了工具。</p>
+<p><strong>长期完善一个工程，就把已有关系接着用，不让每次修改都从翻文件开始。</strong></p>
+<p>较大工程、多轮局部修改，更适合发挥关系复用的作用。小工程、一次性任务，建图准备也需要时间。当前尚无同工程、同任务、同模型的端到端对照，所以不写固定的 token 节省比例或速度倍数。</p>
+<h2 id="ai">怎么用？先让 AI 真正建图，再开始修改</h2>
+<p>cr-st-graph 包括工具程序和技能说明。当前 Windows x64 完整包带运行所需文件，交给支持本地工具调用的 AI 助手，按包内说明安装并运行自检。只有说明文件，工具还没有安装。</p>
+<p><strong>先确认 AI 执行了建图和查询，再让它开始改程序。</strong></p>
+<p>第一次使用，可以这样说：</p>
+<blockquote>请用 cr-st-graph 为我指定的 CODESYS ST 源码建立图谱。查清主要程序、功能块调用和全局变量读写，检查解析问题及未确认的引用。先介绍工程关系，暂时不要修改代码。</blockquote>
+<p>后续修改，可以这样说：</p>
+<blockquote>请先更新 cr-st-graph，查清【泵启动条件】涉及的程序、调用和变量，再读取相关代码。按 ST Expert 规范完成【具体修改】，保留【需要保留的功能】。修改后更新图谱，复查相关程序，并说明验证结果和待确认项。</blockquote>
+<p><strong>把“先查关系、再改代码、改后复查”固定下来，图谱才能持续起作用。</strong></p>
+<h2 id="st-expert-syncbridge">和 ST Expert、SyncBridge 怎样搭配？</h2>
+<p>已有 ST 文件，可以直接使用 ST Graph。需要从 CODESYS IDE 导出程序、修改后再写回工程时，三个工具可以连接成下面这条流程。</p>
+<figure><img src="../../assets/products/cr-st-graph/03-tool-workflow.png" alt="从原工程到修改后的工程：导出、查关系、修改、复查、写回与验证"><figcaption>从原工程到修改后的工程：导出、查关系、修改、复查、写回与验证</figcaption></figure>
+<p><strong>读图重点：</strong> 本轮从 CODESYS IDE 中的原工程出发，经导出、查关系、修改和复查，工程师确认后写回，再完成编译与功能验证，得到修改后的工程。虚线表示下一轮再从这个工程导出，已有图谱更新后继续使用。</p>
+<div class="article-table-wrap"><table>
+<thead><tr><th>工具</th><th>工程师可以怎样理解</th></tr></thead>
+<tbody>
+<tr><td>SyncBridge</td><td>把 IDE 程序导出供 AI 修改，确认后再写回工程</td></tr>
+<tr><td>ST Graph</td><td>查程序之间的关系，帮助找准改动和检查位置</td></tr>
+<tr><td>ST Expert</td><td>按统一规范写 ST，让命名、注释和代码组织保持一致</td></tr>
+</tbody></table></div>
+<p><strong>SyncBridge 负责程序进出工程，ST Graph 帮忙找路，ST Expert 管好写法，工程师确认改动和实际结果。</strong></p>
+<p>三个工具可以独立使用。图谱运行不要求安装 IDE、PLC、仿真器或另外两个工具；需要工程写回和验证时，再使用相应工具与目标环境。</p>
+<h2 id="section-e27fa269">把工程关系留下来，让下一次修改有路可走</h2>
+<p>CodeGraph 给我的启发，是把代码里可以查清的联系整理好，让后续任务反复使用。我把这个方法用到 CODESYS ST，希望它能帮助工程师持续完善同一个工程。</p>
+<p>cr-st-graph 已经开源发布。我希望把它分享给更多自动化工程师，也让实际使用中的问题和改进建议继续完善这张图谱。完整源码、部署说明和使用方法可以在 GitHub 获取：</p>
+<p><strong>GitHub 仓库：<a href="https://github.com/BenPeng0205/cr-st-graph" target="_blank" rel="noreferrer">BenPeng0205/cr-st-graph</a></strong></p>
+<p>可以先选一个熟悉的工程，查一次泵的调用、查一次变量读写，再做一处修改并更新图谱。对照自己熟悉的程序，更容易判断关系是否准确，也能看出 AI 是否少做了重复工作。</p>
+<p><strong>一张给 AI 看的《CODESYS工程代码图谱》，最终要帮助工程师少翻程序、少重复解释，让每轮修改都从更清楚的位置开始。</strong></p>
+<h2 id="section-0fd034f8">系列导航</h2>
+<p>上一篇《cr-st-expert：一本给 AI 看的〈企业级 ST 标准化编程规范手册〉》讲怎样写好 ST；这一篇讲怎样查清工程代码关系。配合 SyncBridge，把导出、修改、复查和写回连接起来。</p>
+            </div>
+            
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script src="../../content/site-data.js"></script>
+  <script src="../../content/products-data.js"></script>
+  <script>
+    (() => {
+      const articleNav = document.querySelector(".article-nav");
+      const articleSearchShell = document.getElementById("articleSearchShell");
+      const articleSearchButton = document.getElementById("articleSearchButton");
+      const articleSearchInput = document.getElementById("articleSiteSearch");
+      const articleSearchPanel = document.getElementById("articleSearchPanel");
+      const articleLangToggle = document.getElementById("articleLangToggle");
+      const articleMenuToggle = document.getElementById("articleMobileMenuToggle");
+      const articleMenuPanel = document.getElementById("articleMobileMenuPanel");
+      const articleTocToggle = document.querySelector(".article-toc-toggle");
+      const articleTocBody = document.getElementById("articleTocBody");
+      const homeHref = document.querySelector(".brand").getAttribute("href");
+      const siteData = window.CONTROLROOKIE_SITE_DATA || { articles: [], resources: [], products: [], contacts: [] };
+      let articleUiLang = "zh";
+      let articleSearchFilter = "all";
+
+      const uiText = {
+        zh: {
+          nav: ["关于我", "文章", "产品", "资源", "联系"],
+          back: "返回产品",
+          search: "搜索文章、资源、产品",
+          filters: { all: "全部", article: "文章", resource: "资源", product: "产品", contact: "联系" },
+          empty: "没有匹配结果。",
+          toc: "文章目录",
+          skip: "跳到文章正文",
+          searchButton: "搜索",
+          searchResults: "文章页搜索结果",
+          searchFilters: "搜索筛选",
+          menu: "文章移动主导航",
+          menuOpen: "打开主菜单",
+          menuClose: "关闭主菜单",
+          navLabel: "文章导航",
+          home: "ControlRookie 首页",
+          sections: "页面栏目",
+          breadcrumb: "文章路径",
+          tocLabel: "文章目录",
+          seriesNav: "系列导航",
+          scrollActions: "文章滚动快捷操作",
+          top: "回到文章顶端",
+          bottom: "跳到文章底端",
+        },
+        en: {
+          nav: ["About Me", "Articles", "Products", "Resources", "Contact"],
+          back: "Back to Products",
+          search: "Search articles, resources, products",
+          filters: { all: "All", article: "Articles", resource: "Resources", product: "Products", contact: "Contact" },
+          empty: "No matching results.",
+          toc: "Article Contents",
+          skip: "Skip to article content",
+          searchButton: "Search",
+          searchResults: "Article search results",
+          searchFilters: "Search filters",
+          menu: "Article mobile navigation",
+          menuOpen: "Open primary menu",
+          menuClose: "Close primary menu",
+          navLabel: "Article navigation",
+          home: "ControlRookie home",
+          sections: "Sections",
+          breadcrumb: "Article path",
+          tocLabel: "Article contents",
+          seriesNav: "Series navigation",
+          scrollActions: "Article scroll shortcuts",
+          top: "Back to article top",
+          bottom: "Jump to article end",
+        },
+      };
+
+      const escapeSearchHtml = (value) => String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+      const localized = (value) => typeof value === "string" ? value : (value?.[articleUiLang] || value?.zh || "");
+      const resolveSearchHref = (href) => {
+        if (!href) return homeHref;
+        if (/^https?:\/\//.test(href) || href.startsWith("mailto:")) return href;
+        const homeUrl = new URL(homeHref, window.location.href);
+        if (href.startsWith("#")) return `${homeUrl.href.split("#")[0]}${href}`;
+        return new URL(href, homeUrl).href;
+      };
+      const articleSearchItems = [
+        ...siteData.articles.map((item) => ({ ...item, group: "article" })),
+        ...siteData.resources.map((item) => ({ ...item, group: "resource" })),
+        ...siteData.products.map((item) => ({ ...item, group: "product" })),
+        ...siteData.contacts.map((item) => ({ ...item, group: "contact" })),
+      ];
+
+      const closeArticleSearch = (restoreFocus = false) => {
+        articleSearchShell.classList.remove("open");
+        articleSearchPanel.classList.remove("visible");
+        articleSearchPanel.hidden = true;
+        articleSearchPanel.inert = true;
+        articleNav.classList.remove("search-active");
+        articleSearchButton.setAttribute("aria-expanded", "false");
+        if (restoreFocus) articleSearchButton.focus();
+      };
+      const closeArticleMenu = (restoreFocus = false) => {
+        articleMenuPanel.hidden = true;
+        articleMenuToggle.setAttribute("aria-expanded", "false");
+        articleMenuToggle.setAttribute("aria-label", uiText[articleUiLang].menuOpen);
+        if (restoreFocus) articleMenuToggle.focus();
+      };
+      const closeArticleToc = (restoreFocus = false) => {
+        articleTocToggle.setAttribute("aria-expanded", "false");
+        if (restoreFocus) articleTocToggle.focus();
+      };
+
+      const renderArticleSearch = () => {
+        const query = articleSearchInput.value.trim().toLowerCase();
+        const filters = uiText[articleUiLang].filters;
+        const matches = articleSearchItems.filter((item) => {
+          if (articleSearchFilter !== "all" && item.group !== articleSearchFilter) return false;
+          if (!query) return true;
+          return JSON.stringify(item).toLowerCase().includes(query);
+        }).slice(0, 18);
+        const filterBar = `<div class="search-filter-bar" role="tablist" aria-label="${escapeSearchHtml(uiText[articleUiLang].searchFilters)}">${Object.entries(filters).map(([key, label]) => `<button type="button" role="tab" aria-selected="${articleSearchFilter === key}" class="${articleSearchFilter === key ? "active" : ""}" data-article-search-filter="${key}">${escapeSearchHtml(label)}</button>`).join("")}</div>`;
+        const results = matches.length
+          ? matches.map((item) => `<a class="search-result" href="${escapeSearchHtml(resolveSearchHref(item.searchHref || item.href))}"><span class="search-result-type">${escapeSearchHtml(filters[item.group] || item.group)}</span><strong>${escapeSearchHtml(localized(item.title))}</strong></a>`).join("")
+          : `<div class="search-empty">${escapeSearchHtml(uiText[articleUiLang].empty)}</div>`;
+        articleSearchPanel.innerHTML = `${filterBar}<div class="search-results">${results}</div>`;
+        articleSearchPanel.hidden = false;
+        articleSearchPanel.inert = false;
+        articleSearchShell.classList.add("open");
+        articleSearchPanel.classList.add("visible");
+        articleNav.classList.add("search-active");
+        articleSearchButton.setAttribute("aria-expanded", "true");
+      };
+
+      const applyArticleUiLanguage = (lang) => {
+        articleUiLang = lang;
+        document.querySelectorAll(".article-nav .nav-links a").forEach((node, index) => {
+          node.textContent = uiText[lang].nav[index];
+        });
+        document.querySelectorAll("[data-article-nav]").forEach((node, index) => {
+          node.textContent = uiText[lang].nav[index];
+        });
+        document.querySelectorAll(".article-back, .article-menu-back").forEach((node) => {
+          node.textContent = uiText[lang].back;
+        });
+        articleSearchInput.placeholder = uiText[lang].search;
+        articleSearchInput.setAttribute("aria-label", uiText[lang].search);
+        document.querySelector(".skip-link").textContent = uiText[lang].skip;
+        articleNav.setAttribute("aria-label", uiText[lang].navLabel);
+        document.querySelector(".brand").setAttribute("aria-label", uiText[lang].home);
+        document.querySelector(".article-nav .nav-links").setAttribute("aria-label", uiText[lang].sections);
+        articleSearchButton.setAttribute("aria-label", uiText[lang].searchButton);
+        articleSearchPanel.setAttribute("aria-label", uiText[lang].searchResults);
+        articleMenuPanel.setAttribute("aria-label", uiText[lang].menu);
+        articleMenuToggle.setAttribute("aria-label", articleMenuToggle.getAttribute("aria-expanded") === "true" ? uiText[lang].menuClose : uiText[lang].menuOpen);
+        document.querySelector(".article-breadcrumb").setAttribute("aria-label", uiText[lang].breadcrumb);
+        document.querySelector(".article-toc").setAttribute("aria-label", uiText[lang].tocLabel);
+        document.querySelector(".article-series-nav")?.setAttribute("aria-label", uiText[lang].seriesNav);
+        document.querySelector(".article-scroll-actions").setAttribute("aria-label", uiText[lang].scrollActions);
+        document.querySelector('.article-scroll-actions a[href="#article-top"]').setAttribute("aria-label", uiText[lang].top);
+        document.querySelector('.article-scroll-actions a[href="#article-end"]').setAttribute("aria-label", uiText[lang].bottom);
+        articleTocToggle.querySelector("span").textContent = uiText[lang].toc;
+        articleLangToggle.textContent = lang === "zh" ? "EN" : "中";
+        articleLangToggle.setAttribute("aria-label", lang === "zh" ? "Switch navigation to English" : "切换导航为中文");
+        if (articleSearchPanel.classList.contains("visible")) renderArticleSearch();
+      };
+
+      articleSearchButton.addEventListener("click", () => {
+        closeArticleMenu();
+        articleSearchInput.focus();
+        renderArticleSearch();
+      });
+      articleSearchInput.addEventListener("input", renderArticleSearch);
+      articleSearchPanel.addEventListener("click", (event) => {
+        const filter = event.target.closest("[data-article-search-filter]");
+        if (!filter) return;
+        event.preventDefault();
+        articleSearchFilter = filter.dataset.articleSearchFilter || "all";
+        renderArticleSearch();
+      });
+      articleLangToggle.addEventListener("click", () => applyArticleUiLanguage(articleUiLang === "zh" ? "en" : "zh"));
+      articleMenuToggle.addEventListener("click", () => {
+        if (articleMenuToggle.getAttribute("aria-expanded") === "true") {
+          closeArticleMenu(true);
+          return;
+        }
+        closeArticleSearch();
+        articleMenuPanel.hidden = false;
+        articleMenuToggle.setAttribute("aria-expanded", "true");
+        articleMenuToggle.setAttribute("aria-label", uiText[articleUiLang].menuClose);
+      });
+      articleMenuPanel.addEventListener("click", (event) => {
+        if (event.target.closest("a")) closeArticleMenu();
+      });
+      articleTocToggle.addEventListener("click", () => {
+        const expanded = articleTocToggle.getAttribute("aria-expanded") === "true";
+        articleTocToggle.setAttribute("aria-expanded", expanded ? "false" : "true");
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        if (articleSearchPanel.classList.contains("visible")) {
+          closeArticleSearch(true);
+          return;
+        }
+        if (articleMenuToggle.getAttribute("aria-expanded") === "true") {
+          closeArticleMenu(true);
+          return;
+        }
+        if (articleTocToggle.getAttribute("aria-expanded") === "true" && window.innerWidth <= 1040) {
+          closeArticleToc(true);
+        }
+      });
+      document.addEventListener("click", (event) => {
+        if (!articleSearchShell.contains(event.target) && !articleSearchPanel.contains(event.target)) closeArticleSearch();
+        if (!articleMenuToggle.contains(event.target) && !articleMenuPanel.contains(event.target)) closeArticleMenu();
+      });
+      window.addEventListener("resize", () => {
+        if (window.innerWidth >= 1041) {
+          closeArticleMenu();
+          closeArticleToc();
+        }
+      });
+      applyArticleUiLanguage("zh");
+
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", (event) => {
+          const id = decodeURIComponent(link.hash.slice(1));
+          const target = document.getElementById(id);
+          if (!target) return;
+          event.preventDefault();
+          window.history.pushState(null, "", link.hash);
+          const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+          const targetTop = target.getBoundingClientRect().top + window.scrollY - navHeight - 28;
+          window.scrollTo({ top: Math.max(0, targetTop), behavior: "instant" });
+          if (window.innerWidth <= 1040) closeArticleToc();
+          if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+          target.focus({ preventScroll: true });
+          updateActiveToc();
+        });
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>
