@@ -2164,6 +2164,7 @@
         "description_zh": "一本给 AI 看的企业级 ST 标准化编程规范手册。",
         "description_en": "Engineering standards for AI-assisted Structured Text programming.",
         "full_introduction": true,
+        "card_cover_focus": "right-detail",
         "status": {
           "zh": "开源",
           "en": "Open source"
@@ -2223,6 +2224,7 @@
         "description_zh": "一张给 AI 看的 CODESYS 工程代码图谱。",
         "description_en": "A CODESYS code graph for AI-assisted engineering.",
         "full_introduction": true,
+        "card_cover_focus": "right",
         "status": {
           "zh": "开源",
           "en": "Open source"
