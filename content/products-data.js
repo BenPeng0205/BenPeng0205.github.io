@@ -54,7 +54,6 @@ window.CONTROLROOKIE_MANAGED_PRODUCTS = [
       "en": "Delivery scope follows the product specification."
     },
     "cover": "assets/products/cr-st-expert/cover-cr-st-expert.png",
-    "cardCoverFocus": "right-detail",
     "aliases": "",
     "keywords": "ST Expert CODESYS ST AI cr-st-expert",
     "publishAt": "2026-10-13T19:08:00+08:00"
@@ -113,7 +112,6 @@ window.CONTROLROOKIE_MANAGED_PRODUCTS = [
       "en": "Delivery scope follows the product specification."
     },
     "cover": "assets/products/cr-st-graph/cover-cr-st-graph.png",
-    "cardCoverFocus": "right",
     "aliases": "",
     "keywords": "ST Graph CODESYS ST AI cr-st-graph",
     "publishAt": "2026-10-13T19:08:00+08:00"
