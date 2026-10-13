@@ -1135,6 +1135,18 @@
       filter: grayscale(100%) contrast(1.04) saturate(0.08);
     }
 
+    .product-cover-orb--right img {
+      object-position: right center;
+      transform: scale(1.58);
+      transform-origin: right center;
+    }
+
+    .product-cover-orb--right-detail img {
+      object-position: right 62%;
+      transform: scale(2.12);
+      transform-origin: right 62%;
+    }
+
     .article-index-panel {
       --toc-shell-left: max(var(--page-gutter), calc((100vw - (var(--content-max) + 116px)) / 2));
       --toc-preserved-right: calc(var(--toc-shell-left) + 390px - min(98px, max(0px, calc((100vw - (var(--content-max) + 116px)) / 2))));
