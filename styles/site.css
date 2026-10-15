@@ -3568,8 +3568,11 @@
       background: var(--canvas);
     }
 
-    .article-breadcrumb {
+    .article-layout > .article-breadcrumb {
       grid-area: breadcrumb;
+    }
+
+    .article-breadcrumb {
       display: flex;
       flex-wrap: nowrap;
       gap: 8px;
