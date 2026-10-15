@@ -117,12 +117,76 @@ window.CONTROLROOKIE_MANAGED_PRODUCTS = [
     "aliases": "",
     "keywords": "ST Graph CODESYS ST AI cr-st-graph",
     "publishAt": "2026-10-13T19:08:00+08:00"
+  },
+  {
+    "id": "syncbridge",
+    "contentId": "syncbridge",
+    "type": {
+      "zh": "产品",
+      "en": "Product"
+    },
+    "title": {
+      "zh": "SyncBridge",
+      "en": "SyncBridge"
+    },
+    "copy": {
+      "zh": "工程可读，差异可见，写回可控。",
+      "en": "Readable projects, visible differences, controlled write-back."
+    },
+    "href": "products/syncbridge/index.html",
+    "version": "V1.4.1",
+    "cardPills": {
+      "zh": [
+        "V1.4.1",
+        "工程同步",
+        "差异审查"
+      ],
+      "en": [
+        "V1.4.1",
+        "Project sync",
+        "Diff review"
+      ]
+    },
+    "status": {
+      "zh": "正式发布",
+      "en": "Released"
+    },
+    "access": {
+      "zh": "联系开发者",
+      "en": "Contact developer"
+    },
+    "pain": {
+      "zh": "工程可读，差异可见，写回可控。",
+      "en": "Readable projects, visible differences, controlled write-back."
+    },
+    "capabilities": {
+      "zh": [],
+      "en": []
+    },
+    "workflow": {
+      "zh": [],
+      "en": []
+    },
+    "delivery": {
+      "zh": "具体交付范围以产品说明为准。",
+      "en": "Delivery scope follows the product specification."
+    },
+    "cover": "",
+    "cardCoverFocus": "center",
+    "aliases": "",
+    "keywords": "SyncBridge CODESYS ST AI syncbridge",
+    "publishAt": "2026-10-04T00:00:00+08:00"
   }
 ];
 if (window.CONTROLROOKIE_SITE_DATA) {
   const managedIds = new Set(window.CONTROLROOKIE_MANAGED_PRODUCTS.map((item) => item.id));
+  const existingProducts = window.CONTROLROOKIE_SITE_DATA.products;
+  const existingIds = new Set(existingProducts.map((item) => item.id));
   window.CONTROLROOKIE_SITE_DATA.products = [
-    ...window.CONTROLROOKIE_SITE_DATA.products.filter((item) => !managedIds.has(item.id)),
-    ...window.CONTROLROOKIE_MANAGED_PRODUCTS,
+    ...existingProducts.map((item) => {
+      const managed = window.CONTROLROOKIE_MANAGED_PRODUCTS.find((entry) => entry.id === item.id);
+      return managed ? {...item, introductionHref: managed.href} : item;
+    }),
+    ...window.CONTROLROOKIE_MANAGED_PRODUCTS.filter((item) => !existingIds.has(item.id)),
   ];
 }

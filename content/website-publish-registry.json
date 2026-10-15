@@ -2236,6 +2236,114 @@
         "keywords": "ST Graph CODESYS ST AI cr-st-graph"
       },
       "_renderer_version": "2026-07-15.3"
+    },
+    {
+      "schema_version": "1.0",
+      "request_id": "website-syncbridge",
+      "operation": "upsert",
+      "content_type": "product",
+      "content_id": "syncbridge",
+      "slug": "syncbridge",
+      "title": "SyncBridge：一个 CODESYS 工程与 AI 之间工程师级的同步工具",
+      "summary": "工程可读，差异可见，写回可控。",
+      "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\syncbridge\\introduction.md",
+      "content_hash": "2789f0a9e68da354240cf9c911c663ec92897b0c1a24b4e06314625b03aa5dca",
+      "publish_at": "2026-10-04T00:00:00+08:00",
+      "authorization": {
+        "production_publish": false
+      },
+      "assets": [
+        {
+          "kind": "image",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\syncbridge\\assets\\00-syncbridge-product-overview.png",
+          "filename": "00-syncbridge-product-overview.png",
+          "sha256": "f6cb26e7e43b5561cc0d30281b7b64746ad0fb7a2f0d9403842afcb51fdf05d1"
+        },
+        {
+          "kind": "image",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\syncbridge\\assets\\01-ide-toolbar-entry.png",
+          "filename": "01-ide-toolbar-entry.png",
+          "sha256": "451aa24cd3734236a0ab6e1d7ab2511bc43f78fa587fc59555a19c0c6e0c5dee"
+        },
+        {
+          "kind": "image",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\syncbridge\\assets\\02-copy-vs-syncbridge.png",
+          "filename": "02-copy-vs-syncbridge.png",
+          "sha256": "de2d9c34163435c350b4f5eb1f03ed46923ce39b31107656d6718171fa703688"
+        },
+        {
+          "kind": "image",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\syncbridge\\assets\\02a-codesys-vscode-code-sync.png",
+          "filename": "02a-codesys-vscode-code-sync.png",
+          "sha256": "14d3dc84be417ae1d9691f2acfd25d44b3ca324849d7d19bf7392050f170f042"
+        },
+        {
+          "kind": "image",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\syncbridge\\assets\\03-complete-workflow.png",
+          "filename": "03-complete-workflow.png",
+          "sha256": "7204ab658f2d6ed69700953d8a0e5ffe3a376479ca523ee9de58c906f2e33575"
+        },
+        {
+          "kind": "image",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\syncbridge\\assets\\04-real-compare.png",
+          "filename": "04-real-compare.png",
+          "sha256": "a08b379f1c167a0855e385d1fc783a145f3c77d2f8336559eafd0fee5c6d4887"
+        },
+        {
+          "kind": "image",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\syncbridge\\assets\\05-real-diff.png",
+          "filename": "05-real-diff.png",
+          "sha256": "c8e05ac32f36b06bc2f10e2525ee7f7f142aff886a6f9df34c36dcad9c8069b4"
+        },
+        {
+          "kind": "image",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\syncbridge\\assets\\06-git-asset-management.png",
+          "filename": "06-git-asset-management.png",
+          "sha256": "69315ad113fa55d90a1684e0a466104ea96f914eb6c41b257e50624d393c149d"
+        },
+        {
+          "kind": "image",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\syncbridge\\assets\\07-ai-report.png",
+          "filename": "07-ai-report.png",
+          "sha256": "f4a5091226a3a15ffe90b3e33552e36d6c8a69c9f6a1f35f52930bfe9521dc1e"
+        },
+        {
+          "kind": "image",
+          "source_path": "E:\\ai-workspace\\projects\\cr-offiicial-website\\docs\\content\\products\\syncbridge\\assets\\08-controlrookie-contact.png",
+          "filename": "08-controlrookie-contact.png",
+          "sha256": "dfce9cf0b5e960ce9634ae38e5e87bb2741a80b65b68f7bb19ee48c3fe68b850"
+        }
+      ],
+      "product": {
+        "name_zh": "SyncBridge",
+        "name_en": "SyncBridge",
+        "description_zh": "工程可读，差异可见，写回可控。",
+        "description_en": "Readable projects, visible differences, controlled write-back.",
+        "full_introduction": true,
+        "version": "V1.4.1",
+        "cardPills": {
+          "zh": [
+            "V1.4.1",
+            "工程同步",
+            "差异审查"
+          ],
+          "en": [
+            "V1.4.1",
+            "Project sync",
+            "Diff review"
+          ]
+        },
+        "status": {
+          "zh": "正式发布",
+          "en": "Released"
+        },
+        "access": {
+          "zh": "联系开发者",
+          "en": "Contact developer"
+        },
+        "keywords": "SyncBridge CODESYS ST AI syncbridge"
+      },
+      "_renderer_version": "2026-10-15.1"
     }
   ]
 }
