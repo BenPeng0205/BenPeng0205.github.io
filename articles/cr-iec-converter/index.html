@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>5种IEC语言双向转换｜cr-iec-converter | ControlRookie</title>
+  <meta name="description" content="cr-iec-converter，应该是目前你能见到的CodeSys程序转写能力最强、覆盖最全的工具。ST、LD、FBD、CFC、SFC五种语言双向转换，让工程师少做人工翻译和重写，把时间留给核心工艺和设备。">
+  <meta name="author" content="ControlRookie">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#1d1d1f">
+  <link rel="canonical" href="https://benpeng0205.github.io/articles/cr-iec-converter/">
+  <link rel="icon" href="../../favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="ControlRookie">
+  <meta property="og:title" content="5种IEC语言双向转换｜cr-iec-converter">
+  <meta property="og:description" content="cr-iec-converter，应该是目前你能见到的CodeSys程序转写能力最强、覆盖最全的工具。ST、LD、FBD、CFC、SFC五种语言双向转换，让工程师少做人工翻译和重写，把时间留给核心工艺和设备。">
+  <meta property="og:url" content="https://benpeng0205.github.io/articles/cr-iec-converter/">
+  <meta property="og:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="5种IEC语言双向转换｜cr-iec-converter">
+  <meta name="twitter:description" content="cr-iec-converter，应该是目前你能见到的CodeSys程序转写能力最强、覆盖最全的工具。ST、LD、FBD、CFC、SFC五种语言双向转换，让工程师少做人工翻译和重写，把时间留给核心工艺和设备。">
+  <meta name="twitter:image" content="https://benpeng0205.github.io/assets/images/brand/controlrookie-og.png">
+  <link rel="stylesheet" href="../../styles/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#article">跳到文章正文</a>
+  <div class="site-shell">
+    <header class="nav article-nav" aria-label="Article navigation">
+      <a class="brand" href="../../index.html" aria-label="ControlRookie home">
+        <span class="brand-logo" aria-hidden="true">
+          <img src="../../assets/images/brand/controlrookie-mark-latest.png" alt="">
+        </span>
+        <span>ControlRookie</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../../index.html#about">关于我</a>
+        <a href="../../index.html#articles">文章</a>
+        <a href="../../index.html#products">产品</a>
+        <a href="../../index.html#works">资源</a>
+        <a href="../../index.html#contact">联系</a>
+      </nav>
+      <div class="nav-actions article-nav-actions">
+        <div class="search-shell article-search-shell article-mobile-control" id="articleSearchShell">
+          <button class="search-icon" id="articleSearchButton" type="button" aria-label="搜索" aria-expanded="false" aria-controls="articleSearchPanel">
+            <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M10.8 18.1a7.3 7.3 0 1 1 0-14.6 7.3 7.3 0 0 1 0 14.6Zm5.2-2.1 4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <input class="search-input" id="articleSiteSearch" type="search" placeholder="搜索文章、资源、产品" autocomplete="off" aria-label="搜索文章、资源、产品">
+        </div>
+        <button class="lang-toggle article-lang-toggle article-mobile-control" id="articleLangToggle" type="button" aria-label="Switch navigation to English">EN</button>
+        <button class="mobile-menu-toggle article-mobile-menu-toggle article-mobile-control" id="articleMobileMenuToggle" type="button" aria-label="打开主菜单" aria-expanded="false" aria-controls="articleMobileMenuPanel">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+        <a class="article-back" href="../../index.html#articles">返回文章</a>
+      </div>
+      <div class="search-panel article-search-panel" id="articleSearchPanel" aria-label="文章页搜索结果" role="region" hidden inert></div>
+      <nav class="mobile-menu-panel article-mobile-menu-panel" id="articleMobileMenuPanel" aria-label="文章移动主导航" hidden>
+        <a class="article-menu-back" href="../../index.html#articles">返回文章</a>
+        <a href="../../index.html#about" data-article-nav>关于我</a>
+        <a href="../../index.html#articles" data-article-nav>文章</a>
+        <a href="../../index.html#products" data-article-nav>产品</a>
+        <a href="../../index.html#works" data-article-nav>资源</a>
+        <a href="../../index.html#contact" data-article-nav>联系</a>
+      </nav>
+    </header>
+
+    <main id="article" class="article-page">
+      <article class="article-shell">
+        <div class="article-layout">
+          <nav class="article-breadcrumb" id="article-top" aria-label="文章路径">
+            <a href="../../index.html#articles">文章中心</a>
+            <span>/</span>
+            <a href="../../index.html#articles">PLC编程</a>
+            <span>/</span>
+            <a href="../../index.html#articles-iec-language-conversion">IEC语言转换</a>
+            <span>/</span>
+            <a href="../../index.html#articles-iec-language-conversion">cr-iec-converter</a>
+          </nav>
+          <header class="article-hero">
+            <h1>5种IEC语言双向转换｜cr-iec-converter</h1>
+            <div class="article-meta">
+              <span>2026-11-17</span>
+              <span>约 10 分钟阅读</span>
+              <span>第1篇/共1篇</span>
+            </div>
+            <p class="article-summary">cr-iec-converter，应该是目前你能见到的CodeSys程序转写能力最强、覆盖最全的工具。ST、LD、FBD、CFC、SFC五种语言双向转换，让工程师少做人工翻译和重写，把时间留给核心工艺和设备。</p>
+          </header>
+          <aside class="article-toc" aria-label="文章目录">
+            <button class="article-toc-toggle" type="button" aria-expanded="false" aria-controls="articleTocBody">
+              <span>文章目录</span>
+              <em aria-hidden="true">+</em>
+            </button>
+            <div class="article-toc-body" id="articleTocBody">
+              <strong>目录</strong>
+              <ol><li><a href="#section-8cedcfd4">程序转换与批量处理</a></li><li><a href="#section-19871eb9">程序内容的处理</a></li><li><a href="#ld">LD：触点、支路与控制流程</a></li><li><a href="#fbd">FBD：条件与数据连接网络</a></li><li><a href="#cfc">CFC：连续计算、分支与反馈</a></li><li><a href="#sfc">SFC：步骤、转移与动作</a></li><li><a href="#section-a1fabf88">混合编程与原图恢复</a></li><li><a href="#section-2f99a37e">使用条件</a></li></ol>
+            </div>
+          </aside>
+          <div class="article-main">
+            <div class="article-content">
+              <figure><img src="../../assets/articles/cr-iec-converter/cover_master-190d122e.png" alt="5种IEC语言双向转换｜cr-iec-converter"><figcaption>5种IEC语言双向转换｜cr-iec-converter</figcaption></figure>
+<p>说来惭愧，我自己十多年的自动化经验，从接触自动化第一天就使用ST / SCL，到今天依然不会写梯形图，不管什么情况、什么场景，我的“唯一、不是第一”编程语言只有ST / SCL……虽然十多年来，我始终要求我的团队成员必须尽量使用ST / SCL，AI时代更是应该毫无疑问地坚定这一点，但这仅仅只能是一部分人的选择，不能说明其他图形化语言的市场和竞争力！所以经常看到一堆工程师针对“到底ST好还是图形编程语言好”争得面红耳赤，其实大可不必！</p>
+<p>不同的自动化工程师都有自己习惯的编程语言、不同的行业有各自习惯主流的编程语言、不同业主和客户也往往有明确的编程语言要求。自己习惯用ST，项目却要求梯形图；已有程序用CFC写成，这次又需要换成另一种表达，这些都是自动化工程师在实际项目过程中避不开、深恶痛绝的翻译和重写的工作。重写时，条件要拆，变量要对应，功能块要重新放置和接线，计算与调用的先后也要核对。程序越多，这部分重复劳动越明显。</p>
+<p>纵然万般不合理、不情愿，甲方市场下这就是事实，不接受也得接受！</p>
+<p><strong>cr-iec-converter</strong>因该是目前你能看到的基于CodeSys平台进行各类语言转换能力最强、覆盖面最广的工具，没有之一！它的出发点就是希望工程师能够从重写、翻译、转换程序的工作中解脱出来，让AI更高效地按项目要求转换程序，把工程师的时间留给核心工艺和设备。</p>
+<h2 id="section-8cedcfd4">程序转换与批量处理</h2>
+<p>cr-iec-converter面向CodeSys平台，支持IEC 61131-3中的ST、LD、FBD、CFC和SFC的<strong>双向转换</strong>，支持各类POU。两端条件满足时，可以在受支持的语言之间转换，保留相应的变量声明、参数和调用关系。</p>
+<p>提供源程序或受支持的工程导出文件，指定目标语言，即可得到对应的ST或图形程序交换文件及转换说明。结果可用于后续导入工程和编辑。支持单个文件，也支持按同一方向批量处理目录中的相应程序文件，并按原相对目录组织输出；受支持的工程读取入口还可以选择程序对象。</p>
+<p>它以AI技能方式使用。你可以直接提出“把这些程序转换成梯形图，按纯图形要求处理，保留原变量命名”等任务，由技能调用工具完成转换并说明结果。</p>
+<h2 id="section-19871eb9">程序内容的处理</h2>
+<p>当前支持范围包括以下内容，各语言的具体功能在后面分别列出：</p>
+<ul><li><strong>数据类型与初值</strong>：BOOL、整数、实数、位串、时间、字符串、枚举、结构体、数组，以及相关初值和类型转换。</li><li><strong>工程变量</strong>：局部变量、全局变量访问、映射I/O、RETAIN变量和程序注释。</li><li><strong>函数与功能块参数</strong>：自定义块和库块的条件调用、参数计算、输入输出及IN_OUT；结构体和数组参数按支持的类型与传参方式处理。</li><li><strong>短路判断</strong>：AND_THEN、OR_ELSE保留原来的判断顺序，前面条件已决定结果时，后面的调用不额外执行。</li><li><strong>扫描顺序</strong>：保留同一扫描中的调用和赋值先后，以及先读取旧值、再更新变量的关系。</li></ul>
+<p>下面用五组案例作左右对照。左边为ST程序或核心逻辑示意，右边为对应图形，箭头表示本例转换方向，具体功能覆盖分别列在各节中。</p>
+<h2 id="ld">LD：触点、支路与控制流程</h2>
+<p>支持以下逻辑关系和程序结构：</p>
+<ul><li><strong>触点关系</strong>：串联、并联、常闭取反，以及多层串并联条件。</li><li><strong>线圈和联锁</strong>：普通输出、自保持、启停联锁，以及条件置位、复位的已支持写法。</li><li><strong>IF判断</strong>：IF、IF/ELSE、IF/ELSIF/ELSE和已覆盖的嵌套判断；没有ELSE时保留原值。</li><li><strong>CASE选择</strong>：已支持的多路选择和默认分支，保留各分支的执行条件与赋值关系。</li><li><strong>运算与比较</strong>：变量赋值、算术、比较、中间结果，以及相关组合表达式。</li><li><strong>函数与FB调用</strong>：标准、自定义和库功能块的实例调用，包括条件调用、输入参数计算、输出赋值及IN_OUT。</li><li><strong>数值极值</strong>：已覆盖SINT、USINT、INT、UINT、DINT、UDINT、LINT、ULINT、REAL、LREAL的同型多输入MIN、MAX。</li><li><strong>位移处理</strong>：已覆盖BYTE、WORD、DWORD、LWORD的SHL、SHR、ROL、ROR指定调用形式，保留相应位宽。</li><li><strong>FOR循环</strong>：已支持的DINT固定和动态边界、正负步长，以及有限常量范围的INT循环；包括相应空循环和嵌套用法。</li><li><strong>其他循环控制</strong>：已支持的WHILE、REPEAT、EXIT、CONTINUE及提前RETURN，不擅自改成跨多个扫描周期执行。</li><li><strong>数组遍历</strong>：除了已支持的普通数组访问，还有按LOWER_BOUND、UPPER_BOUND遍历ARRAY[*]开数组的相应写法，循环维度和下标需要对应。</li><li><strong>已有梯形图转ST</strong>：读取支持的梯级和调用，保留变量、赋值和执行关系。</li></ul>
+<figure><img src="../../assets/articles/cr-iec-converter/01-ld-1c07bd79.png" alt="ST与LD：串并联、自保持、故障联锁及定时器调用"><figcaption>ST与LD：串并联、自保持、故障联锁及定时器调用</figcaption></figure>
+<p>转换后可以沿梯级检查条件和输出，减少手工拆条件、搭支路、放置功能块和对应变量的工作。</p>
+<h2 id="fbd">FBD：条件与数据连接网络</h2>
+<p>支持以下网络、运算和调用：</p>
+<ul><li><strong>基本逻辑</strong>：BOOL赋值、AND、OR、XOR、NOT、相等与不等、嵌套条件、自保持和多输出。</li><li><strong>组合条件取反</strong>：按判断层次连接，例如OR之后再取反，条件来源可以顺着连接查看。</li><li><strong>条件分支</strong>：已覆盖二选一、IF/ELSIF、无ELSE、嵌套，以及分支内多次赋值和置位复位。</li><li><strong>选择块</strong>：适合直接选择数值的条件可用SEL表达；多路选择有相应MUX支持。</li><li><strong>CASE</strong>：已覆盖数值项、范围项、状态选择和无ELSE保持等情况。</li><li><strong>运算和数据</strong>：MOVE、算术、比较、MIN、MAX、LIMIT、ABS，以及已覆盖的位运算、移位、TIME、类型转换、结构体与数组访问。</li><li><strong>字符串函数</strong>：已有CONCAT、LEN、LEFT、RIGHT、MID、FIND、DELETE、INSERT、REPLACE等相应调用支持，按各函数的参数类型和长度处理。</li><li><strong>函数与FB调用</strong>：自定义与库调用、条件调用、参数计算和输出赋值；常用标准块包括定时器、边沿检测、计数器和置位复位块。</li><li><strong>控制流程</strong>：已有FOR、WHILE、REPEAT、EXIT、CONTINUE、RETURN的相应支持，按实际需要保留条件执行和流程连接。</li><li><strong>已有FBD转ST</strong>：保留网络内的变量、调用和执行关系。</li></ul>
+<figure><img src="../../assets/articles/cr-iec-converter/02-fbd-2e1ed0d3.png" alt="ST与FBD：组合条件形成连续的逻辑网络"><figcaption>ST与FBD：组合条件形成连续的逻辑网络</figcaption></figure>
+<p>输入、运算、调用和输出按网络连接，工程师可以顺着引脚检查信号来源，减少逐块放置和重新接线的工作。</p>
+<h2 id="cfc">CFC：连续计算、分支与反馈</h2>
+<p>支持以下数据连接和执行关系：</p>
+<ul><li><strong>连续计算</strong>：已支持的本地DINT计算链，前一级结果可以直接连接后一级。</li><li><strong>多路汇总</strong>：多条计算支路接到同一后续块，各路输入和结果来源保持对应。</li><li><strong>中间结果</strong>：结果既可以送给下游，也可以写入命名变量，方便调试和后续使用。</li><li><strong>条件和控制</strong>：支持相应IF/ELSIF/ELSE、CASE、选择运算及固定、递减、动态和嵌套FOR、WHILE、REPEAT、EXIT、CONTINUE、RETURN，保留执行关系。</li><li><strong>函数与FB调用</strong>：处理支持的自定义和库调用，保留参数类型、输入输出和调用条件。</li><li><strong>重复赋值</strong>：同一扫描里多次修改一个变量，保留各次赋值和读取的先后。</li><li><strong>反馈与保持</strong>：已覆盖反馈程序保留必要变量，区分上次保存值和本次计算结果。</li><li><strong>块与连接排列</strong>：结合前后连接、块尺寸和分支位置安排图面，保留执行编号与连线。</li><li><strong>已有CFC转ST</strong>：保留支持图形中的变量、连接和执行先后。</li></ul>
+<figure><img src="../../assets/articles/cr-iec-converter/03-cfc-bd794722.png" alt="ST与CFC：两路计算直接连接汇总块，并保留中间变量"><figcaption>ST与CFC：两路计算直接连接汇总块，并保留中间变量</figcaption></figure>
+<p>连续计算沿连线查看，中间结果留作调试观察，反馈按原来的顺序执行，减少重新整理计算链和中间变量的工作。</p>
+<p>CFC的画幅与图面组织还支持以下操作。CodeSys提供连续画幅和按页组织的编辑形式，两者都属于CFC：</p>
+<ul><li><strong>图面分配</strong>：按页面容量安排内容，简单程序可只占一页，内容增加后再使用后续页面。</li><li><strong>图面数量</strong>：可以明确指定多页，与自动分配分别使用。</li><li><strong>页内接线</strong>：已支持的本地DINT、BOOL连续计算可直接连接，同时保留需要观察的变量。</li><li><strong>跨页变量</strong>：前页写入、后页读取同一变量，保留类型、页归属和先算后用的顺序。</li><li><strong>跨页接线</strong>：已有相应图形连接的处理，已核对图形中包括未命名连接点的衔接方式。</li><li><strong>页面组织</strong>：相关块与输入尽量成组，页名和说明依据实际逻辑与输出确定，页面先后与执行关系对应。</li><li><strong>已有页面整理与转ST</strong>：原图关系和执行方式明确时，可按支持条件增页、删空页、移动已有组、拆页、合页和重新分配图面；支持已有多页程序转ST。</li></ul>
+<figure><img src="../../assets/articles/cr-iec-converter/04-pcfc-dfef167e.png" alt="ST与CFC：按页组织的计算与变量连接"><figcaption>ST与CFC：按页组织的计算与变量连接</figcaption></figure>
+<p>图中两页通过同名变量衔接。转换时处理页面分配、页内接线和执行先后，减少手工搬块、补接关系和整理页序的工作。</p>
+<h2 id="sfc">SFC：步骤、转移与动作</h2>
+<p>状态程序生成SFC与已有SFC转ST，分别支持以下内容：</p>
+<ul><li><strong>状态程序生成步骤图</strong>：符合条件、由当前程序管理状态的CASE程序，可以转换为步骤、转移与动作。</li><li><strong>步骤名称</strong>：数字状态保留原值，枚举状态可以采用等待、运行、完成等对应名称，并保留类型与数值。</li><li><strong>初始化与保持</strong>：已有初始状态、无ELSE保持和空动作等相应处理。</li><li><strong>转移与返回</strong>：下一步明确时生成相应路径；可直接表达的工艺条件放在转移位置，实际返回和已支持默认处理也会保留。</li><li><strong>公共逻辑</strong>：CASE前后每扫描执行的公共程序，保持原先后和执行次数，不改成仅进入步骤时执行一次。</li><li><strong>步骤动作</strong>：可以采用SFC主流程配合ST Action的混合方式；已有图中的受支持图形动作、条件按相应方向处理。</li><li><strong>已有选择分支转ST</strong>：已有选择、汇合，以及多个条件同时成立时相应执行关系的支持。</li><li><strong>已有并行分支转ST</strong>：已有并行、汇合及与选择组合的相应用法，尚未完成的并行步骤继续保持。</li><li><strong>动作与时间</strong>：N、S、P、R、共享动作，以及SD、DS、SL、步骤状态和步骤时间等有相应支持，具体限定符与组合分别使用。</li><li><strong>控制与条件程序</strong>：初始化、复位、暂停、超时及转移条件程序已有相应处理，保留已支持的条件判断与变量变化。</li></ul>
+<figure><img src="../../assets/articles/cr-iec-converter/05-sfc-b4f739de.png" alt="ST核心逻辑与SFC：选择、并行、动作及汇合对应"><figcaption>ST核心逻辑与SFC：选择、并行、动作及汇合对应</figcaption></figure>
+<p>这组对照选用等待、送料、搅拌三个步骤。左侧的ST核心逻辑与右侧逐项对应：等待时选择执行或旁路，执行时同时进入送料和搅拌，两步分别执行A_Feed、A_Mix，两路完成后汇合返回。变量和动作按ST Expert规范命名。为便于阅读，左侧依据实际转换结果整理为流程示意，省略扫描管理和动作收尾代码，不是完整转换输出。</p>
+<h2 id="section-a1fabf88">混合编程与原图恢复</h2>
+<p>可以按项目要求选择纯图形或混合编程。混合编程保留必要的ST动作、方法等内容，并在结果中说明。涉及方法、属性等程序成员时，需要使用能够保留这些内容的工程文件格式。</p>
+<p>原图资料、变量声明和对应关系完整时，可以按条件恢复已有图形；没有原图资料时，则根据程序重新生成图面。</p>
+<h2 id="section-2f99a37e">使用条件</h2>
+<ul><li><strong>平台范围</strong>：当前面向CodeSys受支持的源文件和导出格式，不是任意厂商PLC工程通用互转，也不自动搬运设备、任务与通信配置。</li><li><strong>两端条件</strong>：源程序要能完整读取，目标语言也要支持相应写法。不同转换方向的支持范围分别判断。</li><li><strong>外部调用</strong>：需要明确参数名称、类型、方向以及目标库。缺少声明、类型不匹配或未知方法，不能凭块名推断；转换库调用时，目标工程继续使用相应库。</li><li><strong>循环边界</strong>：DINT动态循环与INT有限常量循环的范围不同。固定零步长、结束后计数溢出、循环体或参数调用改写计数器等写法仍有限制。</li><li><strong>数组与引用</strong>：下标可能越界、未知指针和复杂引用关系不作通用支持；已有本地DINT引用转换需明确选择并保留对应资料，不能推广到任意公开引用和地址用法。</li><li><strong>纯图形与成员</strong>：保留ST动作或方法的结果属于混合编程；任意继承、接口和动态调用，并不都能完整转换为图形。</li><li><strong>CFC执行方式</strong>：新生成的CFC需按说明落实目标对象的显式执行顺序。原图恢复则保留有依据的原执行方式，不能只凭图上位置猜顺序。</li><li><strong>画幅与图面</strong>：纸张和单块尺寸有限；当前不承诺自动生成带名称的跨页来源、去向标记。本文示例采用同名变量跨页传值。</li><li><strong>SFC边界</strong>：普通顺序计算、多个独立CASE或外部随意改写的状态不能直接当作完整步序。已有选择、并行图可读取，不等于任意ST都能生成同样的流程；任意异常恢复、动作组合和所有IDE版本也不作通用承诺。SFC方向目前不提供其他图形方向的外部接口声明和本地DINT引用转换选项。</li><li><strong>工程确认</strong>：转换后仍需在目标工程核对库、编译和运行。恢复原图需保留相应原资料，不能保证任意修改之后还原作者的全部排版。本文配图依据实际转换结果整理，SFC左侧为提炼后的核心逻辑示意；配图不是IDE截图，也不代替运行验证。</li></ul>
+<p><strong>cr-iec-converter会持续迭代，继续补充转换能力和新的功能。</strong> 项目里需要哪两种语言之间的转换，遇到了哪些特殊写法，都欢迎留言交流。</p>
+<p>最好说明源语言、目标语言、是否要求纯图形，并提供脱敏的小案例。我会结合大家的实际需求，争取把真正有价值的功能都实现掉。</p>
+<p>想进一步了解cr-iec-converter的功能和实际转换效果，欢迎关注我的B站和微信公众号。后续我会录制专门的演示视频，结合具体程序，把工具能做什么、怎么使用、转换效果如何，展示给大家。</p>
+            </div>
+            <nav class="article-series-nav" aria-label="系列导航">
+              <a class="series-nav-card" href="../../index.html#articles-iec-language-conversion">
+                <small>上一篇 / 系列入口</small>
+                <strong>返回 IEC语言转换 文章中心</strong>
+                <span>回到文章中心，继续定位同系列文章和相关 IEC语言转换 资料。</span>
+              </a>
+              <a class="series-nav-card" href="../../index.html#articles-iec-language-conversion">
+                <small>下一篇 / 系列入口</small>
+                <strong>返回 IEC语言转换 文章中心</strong>
+                <span>回到文章中心，继续定位同系列文章和相关 IEC语言转换 资料。</span>
+              </a>
+            </nav>
+            <section class="article-comments" id="article-end" aria-labelledby="article-comments-title">
+              <small>评论和回复区</small>
+              <h2 id="article-comments-title">评论区预留</h2>
+              <p>这里先保留评论和回复结构，不接入第三方服务。后续统一决定登录、匿名、审核、反垃圾和静态站兼容策略。</p>
+            </section>
+          </div>
+        </div>
+      </article>
+      <div class="article-scroll-actions" aria-label="文章滚动快捷操作">
+        <a href="#article-top" aria-label="回到文章顶端">↑</a>
+        <a href="#article-end" aria-label="跳到文章底端">↓</a>
+      </div>
+    </main>
+  </div>
+  <script src="../../content/site-data.js"></script>
+  <script>
+    (() => {
+      const articleNav = document.querySelector(".article-nav");
+      const articleSearchShell = document.getElementById("articleSearchShell");
+      const articleSearchButton = document.getElementById("articleSearchButton");
+      const articleSearchInput = document.getElementById("articleSiteSearch");
+      const articleSearchPanel = document.getElementById("articleSearchPanel");
+      const articleLangToggle = document.getElementById("articleLangToggle");
+      const articleMenuToggle = document.getElementById("articleMobileMenuToggle");
+      const articleMenuPanel = document.getElementById("articleMobileMenuPanel");
+      const articleTocToggle = document.querySelector(".article-toc-toggle");
+      const articleTocBody = document.getElementById("articleTocBody");
+      const homeHref = document.querySelector(".brand").getAttribute("href");
+      const siteData = window.CONTROLROOKIE_SITE_DATA || { articles: [], resources: [], products: [], contacts: [] };
+      let articleUiLang = "zh";
+      let articleSearchFilter = "all";
+
+      const uiText = {
+        zh: {
+          nav: ["关于我", "文章", "产品", "资源", "联系"],
+          back: "返回文章",
+          search: "搜索文章、资源、产品",
+          filters: { all: "全部", article: "文章", resource: "资源", product: "产品", contact: "联系" },
+          empty: "没有匹配结果。",
+          toc: "文章目录",
+          skip: "跳到文章正文",
+          searchButton: "搜索",
+          searchResults: "文章页搜索结果",
+          searchFilters: "搜索筛选",
+          menu: "文章移动主导航",
+          menuOpen: "打开主菜单",
+          menuClose: "关闭主菜单",
+          navLabel: "文章导航",
+          home: "ControlRookie 首页",
+          sections: "页面栏目",
+          breadcrumb: "文章路径",
+          tocLabel: "文章目录",
+          seriesNav: "系列导航",
+          scrollActions: "文章滚动快捷操作",
+          top: "回到文章顶端",
+          bottom: "跳到文章底端",
+        },
+        en: {
+          nav: ["About Me", "Articles", "Products", "Resources", "Contact"],
+          back: "Back to Articles",
+          search: "Search articles, resources, products",
+          filters: { all: "All", article: "Articles", resource: "Resources", product: "Products", contact: "Contact" },
+          empty: "No matching results.",
+          toc: "Article Contents",
+          skip: "Skip to article content",
+          searchButton: "Search",
+          searchResults: "Article search results",
+          searchFilters: "Search filters",
+          menu: "Article mobile navigation",
+          menuOpen: "Open primary menu",
+          menuClose: "Close primary menu",
+          navLabel: "Article navigation",
+          home: "ControlRookie home",
+          sections: "Sections",
+          breadcrumb: "Article path",
+          tocLabel: "Article contents",
+          seriesNav: "Series navigation",
+          scrollActions: "Article scroll shortcuts",
+          top: "Back to article top",
+          bottom: "Jump to article end",
+        },
+      };
+
+      const escapeSearchHtml = (value) => String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+      const localized = (value) => typeof value === "string" ? value : (value?.[articleUiLang] || value?.zh || "");
+      const resolveSearchHref = (href) => {
+        if (!href) return homeHref;
+        if (/^https?:\/\//.test(href) || href.startsWith("mailto:")) return href;
+        const homeUrl = new URL(homeHref, window.location.href);
+        if (href.startsWith("#")) return `${homeUrl.href.split("#")[0]}${href}`;
+        return new URL(href, homeUrl).href;
+      };
+      const articleSearchItems = [
+        ...siteData.articles.map((item) => ({ ...item, group: "article" })),
+        ...siteData.resources.map((item) => ({ ...item, group: "resource" })),
+        ...siteData.products.map((item) => ({ ...item, group: "product" })),
+        ...siteData.contacts.map((item) => ({ ...item, group: "contact" })),
+      ];
+
+      const closeArticleSearch = (restoreFocus = false) => {
+        articleSearchShell.classList.remove("open");
+        articleSearchPanel.classList.remove("visible");
+        articleSearchPanel.hidden = true;
+        articleSearchPanel.inert = true;
+        articleNav.classList.remove("search-active");
+        articleSearchButton.setAttribute("aria-expanded", "false");
+        if (restoreFocus) articleSearchButton.focus();
+      };
+      const closeArticleMenu = (restoreFocus = false) => {
+        articleMenuPanel.hidden = true;
+        articleMenuToggle.setAttribute("aria-expanded", "false");
+        articleMenuToggle.setAttribute("aria-label", uiText[articleUiLang].menuOpen);
+        if (restoreFocus) articleMenuToggle.focus();
+      };
+      const closeArticleToc = (restoreFocus = false) => {
+        articleTocToggle.setAttribute("aria-expanded", "false");
+        if (restoreFocus) articleTocToggle.focus();
+      };
+
+      const renderArticleSearch = () => {
+        const query = articleSearchInput.value.trim().toLowerCase();
+        const filters = uiText[articleUiLang].filters;
+        const matches = articleSearchItems.filter((item) => {
+          if (articleSearchFilter !== "all" && item.group !== articleSearchFilter) return false;
+          if (!query) return true;
+          return JSON.stringify(item).toLowerCase().includes(query);
+        }).slice(0, 18);
+        const filterBar = `<div class="search-filter-bar" role="tablist" aria-label="${escapeSearchHtml(uiText[articleUiLang].searchFilters)}">${Object.entries(filters).map(([key, label]) => `<button type="button" role="tab" aria-selected="${articleSearchFilter === key}" class="${articleSearchFilter === key ? "active" : ""}" data-article-search-filter="${key}">${escapeSearchHtml(label)}</button>`).join("")}</div>`;
+        const results = matches.length
+          ? matches.map((item) => `<a class="search-result" href="${escapeSearchHtml(resolveSearchHref(item.searchHref || item.href))}"><span class="search-result-type">${escapeSearchHtml(filters[item.group] || item.group)}</span><strong>${escapeSearchHtml(localized(item.title))}</strong></a>`).join("")
+          : `<div class="search-empty">${escapeSearchHtml(uiText[articleUiLang].empty)}</div>`;
+        articleSearchPanel.innerHTML = `${filterBar}<div class="search-results">${results}</div>`;
+        articleSearchPanel.hidden = false;
+        articleSearchPanel.inert = false;
+        articleSearchShell.classList.add("open");
+        articleSearchPanel.classList.add("visible");
+        articleNav.classList.add("search-active");
+        articleSearchButton.setAttribute("aria-expanded", "true");
+      };
+
+      const applyArticleUiLanguage = (lang) => {
+        articleUiLang = lang;
+        document.querySelectorAll(".article-nav .nav-links a").forEach((node, index) => {
+          node.textContent = uiText[lang].nav[index];
+        });
+        document.querySelectorAll("[data-article-nav]").forEach((node, index) => {
+          node.textContent = uiText[lang].nav[index];
+        });
+        document.querySelectorAll(".article-back, .article-menu-back").forEach((node) => {
+          node.textContent = uiText[lang].back;
+        });
+        articleSearchInput.placeholder = uiText[lang].search;
+        articleSearchInput.setAttribute("aria-label", uiText[lang].search);
+        document.querySelector(".skip-link").textContent = uiText[lang].skip;
+        articleNav.setAttribute("aria-label", uiText[lang].navLabel);
+        document.querySelector(".brand").setAttribute("aria-label", uiText[lang].home);
+        document.querySelector(".article-nav .nav-links").setAttribute("aria-label", uiText[lang].sections);
+        articleSearchButton.setAttribute("aria-label", uiText[lang].searchButton);
+        articleSearchPanel.setAttribute("aria-label", uiText[lang].searchResults);
+        articleMenuPanel.setAttribute("aria-label", uiText[lang].menu);
+        articleMenuToggle.setAttribute("aria-label", articleMenuToggle.getAttribute("aria-expanded") === "true" ? uiText[lang].menuClose : uiText[lang].menuOpen);
+        document.querySelector(".article-breadcrumb").setAttribute("aria-label", uiText[lang].breadcrumb);
+        document.querySelector(".article-toc").setAttribute("aria-label", uiText[lang].tocLabel);
+        document.querySelector(".article-series-nav").setAttribute("aria-label", uiText[lang].seriesNav);
+        document.querySelector(".article-scroll-actions").setAttribute("aria-label", uiText[lang].scrollActions);
+        document.querySelector('.article-scroll-actions a[href="#article-top"]').setAttribute("aria-label", uiText[lang].top);
+        document.querySelector('.article-scroll-actions a[href="#article-end"]').setAttribute("aria-label", uiText[lang].bottom);
+        articleTocToggle.querySelector("span").textContent = uiText[lang].toc;
+        articleLangToggle.textContent = lang === "zh" ? "EN" : "中";
+        articleLangToggle.setAttribute("aria-label", lang === "zh" ? "Switch navigation to English" : "切换导航为中文");
+        if (articleSearchPanel.classList.contains("visible")) renderArticleSearch();
+      };
+
+      articleSearchButton.addEventListener("click", () => {
+        closeArticleMenu();
+        articleSearchInput.focus();
+        renderArticleSearch();
+      });
+      articleSearchInput.addEventListener("input", renderArticleSearch);
+      articleSearchPanel.addEventListener("click", (event) => {
+        const filter = event.target.closest("[data-article-search-filter]");
+        if (!filter) return;
+        event.preventDefault();
+        articleSearchFilter = filter.dataset.articleSearchFilter || "all";
+        renderArticleSearch();
+      });
+      articleLangToggle.addEventListener("click", () => applyArticleUiLanguage(articleUiLang === "zh" ? "en" : "zh"));
+      articleMenuToggle.addEventListener("click", () => {
+        if (articleMenuToggle.getAttribute("aria-expanded") === "true") {
+          closeArticleMenu(true);
+          return;
+        }
+        closeArticleSearch();
+        articleMenuPanel.hidden = false;
+        articleMenuToggle.setAttribute("aria-expanded", "true");
+        articleMenuToggle.setAttribute("aria-label", uiText[articleUiLang].menuClose);
+      });
+      articleMenuPanel.addEventListener("click", (event) => {
+        if (event.target.closest("a")) closeArticleMenu();
+      });
+      articleTocToggle.addEventListener("click", () => {
+        const expanded = articleTocToggle.getAttribute("aria-expanded") === "true";
+        articleTocToggle.setAttribute("aria-expanded", expanded ? "false" : "true");
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        if (articleSearchPanel.classList.contains("visible")) {
+          closeArticleSearch(true);
+          return;
+        }
+        if (articleMenuToggle.getAttribute("aria-expanded") === "true") {
+          closeArticleMenu(true);
+          return;
+        }
+        if (articleTocToggle.getAttribute("aria-expanded") === "true" && window.innerWidth <= 1040) {
+          closeArticleToc(true);
+        }
+      });
+      document.addEventListener("click", (event) => {
+        if (!articleSearchShell.contains(event.target) && !articleSearchPanel.contains(event.target)) closeArticleSearch();
+        if (!articleMenuToggle.contains(event.target) && !articleMenuPanel.contains(event.target)) closeArticleMenu();
+      });
+      window.addEventListener("resize", () => {
+        if (window.innerWidth >= 1041) {
+          closeArticleMenu();
+          closeArticleToc();
+        }
+      });
+      applyArticleUiLanguage("zh");
+
+      const copyToClipboard = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const input = document.createElement("textarea");
+        input.value = text;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        input.remove();
+      };
+
+      document.querySelectorAll(".code-card, .mermaid-card").forEach((card) => {
+        const label = card.querySelector("small");
+        const code = card.querySelector("pre code");
+        if (!label || !code || card.querySelector(".copy-code-button")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code-button";
+        button.type = "button";
+        button.textContent = "复制";
+        button.addEventListener("click", async () => {
+          await copyToClipboard(code.textContent || "");
+          button.textContent = "已复制";
+          window.setTimeout(() => {
+            button.textContent = "复制";
+          }, 1200);
+        });
+        label.appendChild(button);
+      });
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const createSvgNode = (name, attrs = {}) => {
+        const node = document.createElementNS(svgNS, name);
+        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+        return node;
+      };
+      const parseNode = (token, labels) => {
+        const match = token.trim().match(/^([A-Za-z0-9_]+)(?:\[(.+)\])?$/);
+        if (!match) return null;
+        if (match[2]) labels.set(match[1], match[2]);
+        if (!labels.has(match[1])) labels.set(match[1], match[1]);
+        return match[1];
+      };
+      const splitLabel = (label) => {
+        const text = label.replace(/<[^>]*>/g, "").trim();
+        if (text.length <= 14) return [text];
+        const middle = Math.ceil(text.length / 2);
+        const breakAt = text.indexOf(" ", middle) > -1 ? text.indexOf(" ", middle) : middle;
+        return [text.slice(0, breakAt).trim(), text.slice(breakAt).trim()].filter(Boolean);
+      };
+      const fallbackMermaidLabels = (lines) => {
+        const labels = [];
+        lines.slice(1).forEach((line) => {
+          if (/^(classDef|style|linkStyle|%%)/.test(line)) return;
+          const quoted = [...line.matchAll(/["']([^"']{2,36})["']/g)].map((match) => match[1]);
+          const bracketed = [...line.matchAll(/\[([^\]]{2,36})\]/g)].map((match) => match[1]);
+          const candidate = quoted[0] || bracketed[0] || line.replace(/[-=|>.<:;{}()[\]]+/g, " ").trim();
+          if (candidate && !labels.includes(candidate)) labels.push(candidate);
+        });
+        return labels.slice(0, 8);
+      };
+      const renderMermaidFallback = (card, lines, cardIndex) => {
+        const labels = fallbackMermaidLabels(lines);
+        if (!labels.length) return false;
+        const width = 680;
+        const rowHeight = 46;
+        const height = 48 + labels.length * rowHeight;
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram summary" });
+        labels.forEach((label, index) => {
+          const y = 24 + index * rowHeight;
+          const group = createSvgNode("g");
+          const dot = createSvgNode("circle", { cx: 38, cy: y + 18, r: 4 });
+          dot.classList.add("mermaid-node");
+          group.appendChild(dot);
+          if (index < labels.length - 1) {
+            const line = createSvgNode("line", { x1: 38, y1: y + 24, x2: 38, y2: y + rowHeight + 12 });
+            line.classList.add("mermaid-edge");
+            group.appendChild(line);
+          }
+          const rect = createSvgNode("rect", { x: 62, y, width: width - 96, height: 36, rx: 12 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: 82, y: y + 23 });
+          text.classList.add("mermaid-label");
+          text.textContent = label.length > 34 ? `${label.slice(0, 34)}...` : label;
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+        return true;
+      };
+      const renderMermaidCard = (card, cardIndex = 0) => {
+        const code = card.querySelector("pre code");
+        if (!code || card.querySelector("svg")) return;
+        const lines = (code.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+        const direction = lines[0] && lines[0].includes("LR") ? "LR" : "TD";
+        const labels = new Map();
+        const edges = [];
+        lines.slice(1).forEach((line) => {
+          const parts = line.split("-->");
+          if (parts.length !== 2) return;
+          const from = parseNode(parts[0], labels);
+          const to = parseNode(parts[1], labels);
+          if (from && to) edges.push([from, to]);
+        });
+        const ids = [...labels.keys()];
+        if (!ids.length || !edges.length) {
+          renderMermaidFallback(card, lines, cardIndex);
+          return;
+        }
+        const horizontal = direction === "LR";
+        const nodeWidth = horizontal ? 150 : 250;
+        const nodeHeight = 54;
+        const gap = horizontal ? 46 : 34;
+        const width = horizontal ? Math.max(640, ids.length * nodeWidth + (ids.length - 1) * gap + 64) : 680;
+        const height = horizontal ? 150 : Math.max(160, ids.length * nodeHeight + (ids.length - 1) * gap + 64);
+        const positions = new Map();
+        ids.forEach((id, index) => {
+          const x = horizontal ? 32 + index * (nodeWidth + gap) : (width - nodeWidth) / 2;
+          const y = horizontal ? 48 : 32 + index * (nodeHeight + gap);
+          positions.set(id, { x, y });
+        });
+        const svg = createSvgNode("svg", { viewBox: `0 0 ${width} ${height}`, role: "img", "aria-label": "Mermaid diagram" });
+        const markerId = `mermaid-arrow-${cardIndex}`;
+        const defs = createSvgNode("defs");
+        const marker = createSvgNode("marker", { id: markerId, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+        const arrow = createSvgNode("path", { d: "M 0 0 L 10 5 L 0 10 z" });
+        arrow.classList.add("mermaid-arrow");
+        marker.appendChild(arrow);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        edges.forEach(([from, to]) => {
+          const a = positions.get(from);
+          const b = positions.get(to);
+          const line = createSvgNode("line", {
+            x1: horizontal ? a.x + nodeWidth : a.x + nodeWidth / 2,
+            y1: horizontal ? a.y + nodeHeight / 2 : a.y + nodeHeight,
+            x2: horizontal ? b.x : b.x + nodeWidth / 2,
+            y2: horizontal ? b.y + nodeHeight / 2 : b.y,
+          });
+          line.classList.add("mermaid-edge");
+          line.setAttribute("marker-end", `url(#${markerId})`);
+          svg.appendChild(line);
+        });
+        ids.forEach((id) => {
+          const pos = positions.get(id);
+          const group = createSvgNode("g");
+          const rect = createSvgNode("rect", { x: pos.x, y: pos.y, width: nodeWidth, height: nodeHeight, rx: 14 });
+          rect.classList.add("mermaid-node");
+          group.appendChild(rect);
+          const text = createSvgNode("text", { x: pos.x + nodeWidth / 2, y: pos.y + nodeHeight / 2 - 6, "text-anchor": "middle" });
+          splitLabel(labels.get(id)).slice(0, 2).forEach((line, index) => {
+            const tspan = createSvgNode("tspan", { x: pos.x + nodeWidth / 2, dy: index === 0 ? 0 : 17 });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          text.classList.add("mermaid-label");
+          group.appendChild(text);
+          svg.appendChild(group);
+        });
+        const pre = card.querySelector("pre");
+        pre.classList.add("mermaid-source");
+        card.appendChild(svg);
+      };
+
+      document.querySelectorAll(".mermaid-card").forEach(renderMermaidCard);
+
+      const tocLinks = [...document.querySelectorAll(".article-toc a")];
+      const articleHeadings = [...document.querySelectorAll(".article-content h2[id], .article-content h3[id]")];
+      const tocById = new Map(tocLinks.map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+      const setActiveToc = (id) => {
+        tocLinks.forEach((link) => {
+          const active = decodeURIComponent(link.hash.slice(1)) === id;
+          link.classList.toggle("is-active", active);
+          if (active) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      };
+      let tocFrame = 0;
+      const updateActiveToc = () => {
+        if (!articleHeadings.length) return;
+        const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+        const marker = navHeight + 86;
+        let current = articleHeadings[0].id;
+        for (const heading of articleHeadings) {
+          if (heading.getBoundingClientRect().top <= marker) {
+            current = heading.id;
+          } else {
+            break;
+          }
+        }
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8) {
+          current = articleHeadings[articleHeadings.length - 1].id;
+        }
+        if (tocById.has(current)) setActiveToc(current);
+      };
+      const scheduleTocUpdate = () => {
+        if (tocFrame) return;
+        tocFrame = window.requestAnimationFrame(() => {
+          tocFrame = 0;
+          updateActiveToc();
+        });
+      };
+      tocLinks.forEach((link) => {
+        link.addEventListener("click", (event) => {
+          const id = decodeURIComponent(link.hash.slice(1));
+          const target = document.getElementById(id);
+          if (!target) return;
+          event.preventDefault();
+          window.history.pushState(null, "", link.hash);
+          const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height")) || 0;
+          const targetTop = target.getBoundingClientRect().top + window.scrollY - navHeight - 28;
+          window.scrollTo({ top: Math.max(0, targetTop), behavior: "instant" });
+          if (window.innerWidth <= 1040) closeArticleToc();
+          if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+          target.focus({ preventScroll: true });
+          updateActiveToc();
+        });
+      });
+      window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+      window.addEventListener("resize", scheduleTocUpdate);
+      window.addEventListener("hashchange", updateActiveToc);
+      updateActiveToc();
+    })();
+  </script>
+</body>
+</html>

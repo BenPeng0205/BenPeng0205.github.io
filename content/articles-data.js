@@ -4367,5 +4367,77 @@ window.CONTROLROOKIE_ARTICLES = [
     "contentId": "codesys-http-28",
     "publishAt": "2026-10-02T19:00:00+08:00",
     "source": "第28篇_系列完结｜32 个源码文件怎样组成可复现的 HTTP 工程.md"
+  },
+  {
+    "id": "cr-iec-converter",
+    "type": {
+      "zh": "文章",
+      "en": "Article"
+    },
+    "title": {
+      "zh": "5种IEC语言双向转换｜cr-iec-converter",
+      "en": "5种IEC语言双向转换｜cr-iec-converter"
+    },
+    "copy": {
+      "zh": "cr-iec-converter，应该是目前你能见到的CodeSys程序转写能力最强、覆盖最全的工具。ST、LD、FBD、CFC、SFC五种语言双向转换，让工程师少做人工翻译和重写，把时间留给核心工艺和设备。",
+      "en": "cr-iec-converter，应该是目前你能见到的CodeSys程序转写能力最强、覆盖最全的工具。ST、LD、FBD、CFC、SFC五种语言双向转换，让工程师少做人工翻译和重写，把时间留给核心工艺和设备。"
+    },
+    "href": "articles/cr-iec-converter/index.html",
+    "category": {
+      "zh": "PLC编程",
+      "en": "PLC Programming"
+    },
+    "categoryKey": "plc-programming",
+    "topicKey": "iec-language-conversion",
+    "topicTitle": {
+      "zh": "CodeSys IEC语言转换 系列",
+      "en": "CodeSys IEC Language Conversion Series"
+    },
+    "series": {
+      "zh": "cr-iec-converter",
+      "en": "cr-iec-converter"
+    },
+    "seriesKey": "cr-iec-converter",
+    "seriesTitle": {
+      "zh": "cr-iec-converter",
+      "en": "cr-iec-converter"
+    },
+    "folder": {
+      "zh": "cr-iec-converter",
+      "en": "cr-iec-converter"
+    },
+    "kind": {
+      "zh": "工具介绍",
+      "en": "Tool introduction"
+    },
+    "progress": {
+      "zh": "第1篇/共1篇",
+      "en": "Part 1 / 1"
+    },
+    "status": {
+      "zh": "官网全文 / 第1篇",
+      "en": "This Site / Part 1"
+    },
+    "cardMeta": {
+      "zh": "01 · cr-iec-converter",
+      "en": "01 · cr-iec-converter"
+    },
+    "date": "2026-11-17",
+    "readingTime": {
+      "zh": "约 10 分钟阅读",
+      "en": "10 min read"
+    },
+    "tags": [
+      "ST",
+      "LD",
+      "FBD",
+      "CFC",
+      "SFC"
+    ],
+    "keywords": "IEC语言转换 CODESYS cr-iec-converter 工具介绍 5种IEC语言双向转换｜cr-iec-converter ST LD FBD CFC SFC",
+    "order": 1,
+    "contentId": "cr-iec-converter-20261117",
+    "publishAt": "2026-11-17T11:00:00+08:00",
+    "source": "5种IEC语言双向转换｜cr-iec-converter.md"
   }
 ];

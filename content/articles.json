@@ -1427,6 +1427,29 @@
       "path": "articles/codesys-http-series-finale/index.html",
       "contentId": "codesys-http-28",
       "source": "第28篇_系列完结｜32 个源码文件怎样组成可复现的 HTTP 工程.md"
+    },
+    {
+      "id": "cr-iec-converter",
+      "title": "5种IEC语言双向转换｜cr-iec-converter",
+      "series": "cr-iec-converter",
+      "category": "PLC编程",
+      "categoryKey": "plc-programming",
+      "topicKey": "iec-language-conversion",
+      "topic": "IEC语言转换",
+      "folder": "cr-iec-converter",
+      "kind": "工具介绍",
+      "summary": "cr-iec-converter，应该是目前你能见到的CodeSys程序转写能力最强、覆盖最全的工具。ST、LD、FBD、CFC、SFC五种语言双向转换，让工程师少做人工翻译和重写，把时间留给核心工艺和设备。",
+      "date": "2026-11-17",
+      "tags": [
+        "ST",
+        "LD",
+        "FBD",
+        "CFC",
+        "SFC"
+      ],
+      "path": "articles/cr-iec-converter/index.html",
+      "contentId": "cr-iec-converter-20261117",
+      "source": "5种IEC语言双向转换｜cr-iec-converter.md"
     }
   ]
 }

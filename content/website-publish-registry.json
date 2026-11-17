@@ -2137,6 +2137,109 @@
     },
     {
       "schema_version": "1.0",
+      "request_id": "cr-iec-converter-20261117-1100",
+      "operation": "upsert",
+      "content_type": "article",
+      "content_id": "cr-iec-converter-20261117",
+      "slug": "cr-iec-converter",
+      "title": "5种IEC语言双向转换｜cr-iec-converter",
+      "summary": "cr-iec-converter，应该是目前你能见到的CodeSys程序转写能力最强、覆盖最全的工具。ST、LD、FBD、CFC、SFC五种语言双向转换，让工程师少做人工翻译和重写，把时间留给核心工艺和设备。",
+      "source_path": "E:\\ai-workspace\\products\\skills\\cr-iec-converter\\marketing\\publication\\iec-converter\\5种IEC语言双向转换｜cr-iec-converter.md",
+      "content_hash": "85a269c3723ff662d54bf8dbe322418f51abe58b08c991ffe1d18b0a77ee026e",
+      "publish_at": "2026-11-17T11:00:00+08:00",
+      "category": {
+        "key": "plc-programming",
+        "zh": "PLC编程",
+        "en": "PLC Programming"
+      },
+      "series": {
+        "key": "cr-iec-converter",
+        "title_zh": "cr-iec-converter",
+        "title_en": "cr-iec-converter",
+        "topic_key": "iec-language-conversion",
+        "topic_zh": "IEC语言转换",
+        "topic_en": "IEC Language Conversion",
+        "folder_zh": "cr-iec-converter",
+        "folder_en": "cr-iec-converter",
+        "order": 1,
+        "total": 1
+      },
+      "article": {
+        "kind_zh": "工具介绍",
+        "kind_en": "Tool introduction",
+        "date": "2026-11-17",
+        "tags": [
+          "ST",
+          "LD",
+          "FBD",
+          "CFC",
+          "SFC"
+        ]
+      },
+      "product": null,
+      "assets": [
+        {
+          "kind": "inline",
+          "source_path": "E:\\ai-workspace\\products\\skills\\cr-iec-converter\\marketing\\publication\\iec-converter\\images\\01-ld-1c07bd79.png",
+          "filename": "01-ld-1c07bd79.png",
+          "sha256": "1c07bd7950c3d366943177f8c9a1b5761b122d3faf1c77f3cf3c64d622a4fdb3"
+        },
+        {
+          "kind": "inline",
+          "source_path": "E:\\ai-workspace\\products\\skills\\cr-iec-converter\\marketing\\publication\\iec-converter\\images\\02-fbd-2e1ed0d3.png",
+          "filename": "02-fbd-2e1ed0d3.png",
+          "sha256": "2e1ed0d3580184e87971f5ebd6efbbf9fedd2de0005502983f278509fd9e2c6a"
+        },
+        {
+          "kind": "inline",
+          "source_path": "E:\\ai-workspace\\products\\skills\\cr-iec-converter\\marketing\\publication\\iec-converter\\images\\03-cfc-bd794722.png",
+          "filename": "03-cfc-bd794722.png",
+          "sha256": "bd7947222fbb1564b5d6cb36c81618b6538e8b6084043c578354d3cd4b128739"
+        },
+        {
+          "kind": "inline",
+          "source_path": "E:\\ai-workspace\\products\\skills\\cr-iec-converter\\marketing\\publication\\iec-converter\\images\\04-pcfc-dfef167e.png",
+          "filename": "04-pcfc-dfef167e.png",
+          "sha256": "dfef167ea1d820661166261b540fbe9e591ff49ae6bf4cdae3be8fb5eb61aeee"
+        },
+        {
+          "kind": "inline",
+          "source_path": "E:\\ai-workspace\\products\\skills\\cr-iec-converter\\marketing\\publication\\iec-converter\\images\\05-sfc-b4f739de.png",
+          "filename": "05-sfc-b4f739de.png",
+          "sha256": "b4f739defbc48d3da0d9e037060a97960694041ca05301bfcae39f617c838adf"
+        },
+        {
+          "kind": "inline",
+          "source_path": "E:\\ai-workspace\\products\\skills\\cr-iec-converter\\marketing\\publication\\iec-converter\\images\\cover_csdn-5b6c5d3c.png",
+          "filename": "cover_csdn-5b6c5d3c.png",
+          "sha256": "5b6c5d3cdc35d068f1e3263d5c0665ecbb28eadb1b44c58797e1efa9c8f0e604"
+        },
+        {
+          "kind": "cover",
+          "source_path": "E:\\ai-workspace\\products\\skills\\cr-iec-converter\\marketing\\publication\\iec-converter\\images\\cover_master-190d122e.png",
+          "filename": "cover_master-190d122e.png",
+          "sha256": "190d122e49cc0b54be5b30e640277fd24671c673bd8fc16344048e3b0fb4d469"
+        },
+        {
+          "kind": "inline",
+          "source_path": "E:\\ai-workspace\\products\\skills\\cr-iec-converter\\marketing\\publication\\iec-converter\\images\\cover_square_safe-8c2bd19d.png",
+          "filename": "cover_square_safe-8c2bd19d.png",
+          "sha256": "8c2bd19da0fe01ce159395944245ddb172a2022860ff1c775a182f701aa86500"
+        },
+        {
+          "kind": "inline",
+          "source_path": "E:\\ai-workspace\\products\\skills\\cr-iec-converter\\marketing\\publication\\iec-converter\\images\\cover_wechat-45454c0d.png",
+          "filename": "cover_wechat-45454c0d.png",
+          "sha256": "45454c0d8845842bd4ed53682003a82466e4755605d8651205929f094814613f"
+        }
+      ],
+      "authorization": {
+        "production_publish": false
+      },
+      "_renderer_version": "2026-10-15.1"
+    },
+    {
+      "schema_version": "1.0",
       "request_id": "website-cr-st-expert",
       "operation": "upsert",
       "content_type": "product",
